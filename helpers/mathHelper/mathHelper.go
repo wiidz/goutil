@@ -1,7 +1,7 @@
 package mathHelper
 
 import (
-	"goutils/helpers/sliceHelper"
+	"github.com/Wiidz/goutils/helpers/sliceHelper"
 	"fmt"
 	"math"
 	"math/rand"

@@ -1,7 +1,7 @@
 package timeHelper
 
 import (
-	"goutils/helpers/typeHelper"
+	"github.com/Wiidz/goutils/helpers/typeHelper"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package mapHelper
 
 import (
-	"goutils/helpers/sliceHelper"
+	"github.com/Wiidz/goutils/helpers/sliceHelper"
 	"fmt"
 	"strconv"
 )
