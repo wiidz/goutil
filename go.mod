@@ -1,4 +1,4 @@
-module github.com/Wiidz/goutils
+module goutils
 
 go 1.14
 
