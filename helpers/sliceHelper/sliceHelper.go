@@ -1,7 +1,7 @@
 package sliceHelper
 
 import (
-	"github.com/wiidz/goutils/helpers/typeHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"fmt"
 	"reflect"
 	"strconv"

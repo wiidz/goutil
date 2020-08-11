@@ -3,8 +3,8 @@ package networkHelper
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wiidz/goutils/helpers/strHelper"
-	"github.com/wiidz/goutils/helpers/typeHelper"
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"io"
 	"io/ioutil"
 	"net/http"
