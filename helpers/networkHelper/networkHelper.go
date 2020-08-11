@@ -1,8 +1,8 @@
 package networkHelper
 
 import (
-	"anteras/utils/strHelper"
-	"anteras/utils/typeHelper"
+	"goutils/helpers/strHelper"
+	"goutils/helpers/typeHelper"
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"

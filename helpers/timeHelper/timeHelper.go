@@ -1,7 +1,7 @@
 package timeHelper
 
 import (
-	"anteras/utils/typeHelper"
+	"goutils/helpers/typeHelper"
 	"time"
 )
 

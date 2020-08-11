@@ -1,7 +1,7 @@
 package sliceHelper
 
 import (
-	"anteras/utils/typeHelper"
+	"goutils/helpers/typeHelper"
 	"fmt"
 	"reflect"
 	"strconv"

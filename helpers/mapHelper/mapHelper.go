@@ -1,7 +1,7 @@
 package mapHelper
 
 import (
-	"anteras/utils/sliceHelper"
+	"goutils/helpers/sliceHelper"
 	"fmt"
 	"strconv"
 )

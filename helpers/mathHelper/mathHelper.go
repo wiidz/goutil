@@ -1,7 +1,7 @@
 package mathHelper
 
 import (
-	"anteras/utils/sliceHelper"
+	"goutils/helpers/sliceHelper"
 	"fmt"
 	"math"
 	"math/rand"
