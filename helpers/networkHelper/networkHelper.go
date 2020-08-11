@@ -1,8 +1,8 @@
 package networkHelper
 
 import (
-	"goutils/helpers/strHelper"
-	"goutils/helpers/typeHelper"
+	"github.com/wiidz/goutils/helpers/strHelper"
+	"github.com/wiidz/goutils/helpers/typeHelper"
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
