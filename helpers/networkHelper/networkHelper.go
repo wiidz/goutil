@@ -1,11 +1,10 @@
 package networkHelper
 
 import (
-	"github.com/wiidz/goutils/helpers/strHelper"
-	"github.com/wiidz/goutils/helpers/typeHelper"
 	"encoding/json"
 	"fmt"
-	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutils/helpers/strHelper"
+	"github.com/wiidz/goutils/helpers/typeHelper"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -86,122 +85,123 @@ func PostRequest(apiURL string, params map[string]interface{}) (map[string]inter
 	return netReturn, e
 }
 
-/**
- * @func: ReturnResult json格式返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+//
+///**
+// * @func: ReturnResult json格式返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+//
+//	ctx.StatusCode(statusCode)
+//
+//	ctx.JSON(iris.Map{
+//		"msg":  message,
+//		"data": data,
+//	})
+//	return
+//}
+//
+///**
+// * @func: ReturnResult json格式返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func ParamsError(ctx iris.Context) {
+//
+//	ctx.StatusCode(422)
+//
+//	ctx.JSON(iris.Map{
+//		"msg":  "参数错误",
+//		"data": nil,
+//	})
+//	return
+//}
+//
+///**
+// * @func: ReturnResult json格式返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func Forbidden(ctx iris.Context) {
+//
+//	ctx.StatusCode(403)
+//
+//	ctx.JSON(iris.Map{
+//		"msg":  "无权访问",
+//		"data": nil,
+//	})
+//	return
+//}
+//
+///**
+// * @func: GetJsonArrayParams 从body体中提取参数，以 []map[string]interface{} 返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func GetJsonArrayParams(ctx iris.Context) []map[string]interface{} {
+//
+//	post_data := make([]map[string]interface{}, 0)
+//	data := ctx.Request().Body
+//
+//	js, _ := ioutil.ReadAll(data)
+//	json.Unmarshal(js, &post_data)
+//
+//	return post_data
+//}
+//
+///**
+// * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func GetJsonParams(ctx iris.Context) map[string]interface{} {
+//
+//	post_data := make(map[string]interface{}, 0)
+//
+//	data := ctx.Request().Body
+//
+//	js, _ := ioutil.ReadAll(data)
+//
+//	json.Unmarshal(js, &post_data)
+//
+//	return post_data
+//}
+//
+///**
+// * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func GetJsonParamsWithStruct(ctx iris.Context, istruct interface{}) interface{} {
+//
+//	//post_data := make(map[string]interface{}, 0)
+//
+//	data := ctx.Request().Body
+//
+//	js, _ := ioutil.ReadAll(data)
+//
+//	json.Unmarshal(js, &istruct)
+//
+//	return istruct
+//}
 
-	ctx.StatusCode(statusCode)
-
-	ctx.JSON(iris.Map{
-		"msg":  message,
-		"data": data,
-	})
-	return
-}
-
-/**
- * @func: ReturnResult json格式返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func ParamsError(ctx iris.Context) {
-
-	ctx.StatusCode(422)
-
-	ctx.JSON(iris.Map{
-		"msg":  "参数错误",
-		"data": nil,
-	})
-	return
-}
-
-/**
- * @func: ReturnResult json格式返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func Forbidden(ctx iris.Context) {
-
-	ctx.StatusCode(403)
-
-	ctx.JSON(iris.Map{
-		"msg":  "无权访问",
-		"data": nil,
-	})
-	return
-}
-
-/**
- * @func: GetJsonArrayParams 从body体中提取参数，以 []map[string]interface{} 返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func GetJsonArrayParams(ctx iris.Context) []map[string]interface{} {
-
-	post_data := make([]map[string]interface{}, 0)
-	data := ctx.Request().Body
-
-	js, _ := ioutil.ReadAll(data)
-	json.Unmarshal(js, &post_data)
-
-	return post_data
-}
-
-/**
- * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func GetJsonParams(ctx iris.Context) map[string]interface{} {
-
-	post_data := make(map[string]interface{}, 0)
-
-	data := ctx.Request().Body
-
-	js, _ := ioutil.ReadAll(data)
-
-	json.Unmarshal(js, &post_data)
-
-	return post_data
-}
-
-/**
- * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func GetJsonParamsWithStruct(ctx iris.Context, istruct interface{}) interface{} {
-
-	//post_data := make(map[string]interface{}, 0)
-
-	data := ctx.Request().Body
-
-	js, _ := ioutil.ReadAll(data)
-
-	json.Unmarshal(js, &istruct)
-
-	return istruct
-}
-
-/**
- * @func: GetFilteredParams 从query中获取指定字段的值，以 map[string]interface{} 返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func GetFilteredParams(ctx iris.Context, fields []string) map[string]interface{} {
-	temp := ""
-	container := make(map[string]interface{})
-	for _, v := range fields {
-		temp = ctx.URLParam(v)
-		if temp != "" {
-			container[v] = temp
-		}
-	}
-	return container
-}
+///**
+// * @func: GetFilteredParams 从query中获取指定字段的值，以 map[string]interface{} 返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func GetFilteredParams(ctx iris.Context, fields []string) map[string]interface{} {
+//	temp := ""
+//	container := make(map[string]interface{})
+//	for _, v := range fields {
+//		temp = ctx.URLParam(v)
+//		if temp != "" {
+//			container[v] = temp
+//		}
+//	}
+//	return container
+//}
 
 func DownloadFile(url string, fb func(string) error) error {
 	// Get the data
