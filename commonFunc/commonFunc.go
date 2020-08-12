@@ -2,11 +2,9 @@ package goutil
 
 //【1】计算偏移量
 func GetOffset(pageNow, pageSize int) int {
-	var offset int
+	offset := 0
 	if pageNow > 1 {
 		offset = (pageNow - 1) * pageSize
-	} else {
-		offset = 0
 	}
 	return offset
 }

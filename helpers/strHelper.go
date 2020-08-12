@@ -22,7 +22,7 @@ const (
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StrHelper) Base64_encode(src []byte) (str string) {
+func (*StrHelper) Base64Encode(src []byte) (str string) {
 	coder := base64.NewEncoding(base64Str)
 	str = coder.EncodeToString(src)
 	return
@@ -33,7 +33,7 @@ func (*StrHelper) Base64_encode(src []byte) (str string) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StrHelper) Base64_decode(str string) (data []byte) {
+func (*StrHelper) Base64Decode(str string) (data []byte) {
 	coder := base64.NewEncoding(base64Str)
 	var err error
 	data, err = coder.DecodeString(str)
