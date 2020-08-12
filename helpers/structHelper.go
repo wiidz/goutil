@@ -1,4 +1,4 @@
-package structHelper
+package goutil
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"sync"
 )
+
+type StructHelper struct {}
 
 //集合模拟
 type Set struct {

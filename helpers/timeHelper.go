@@ -1,16 +1,17 @@
-package timeHelper
+package goutil
 
 import (
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"time"
 )
+
+type TimeHelper struct{}
 
 /**
  * @func: FromTodayToTomorrowTimeStamp  返回今天凌晨和明天凌晨的时间戳
  * @author Wiidz
  * @date   2019-11-16
  */
-func FromTodayToTomorrowTimeStamp() (today, tomorrow int64) {
+func (*TimeHelper) FromTodayToTomorrowTimeStamp() (today, tomorrow int64) {
 	t := time.Now()
 	tm1 := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 	tm2 := tm1.AddDate(0, 0, 1)
@@ -23,7 +24,7 @@ func FromTodayToTomorrowTimeStamp() (today, tomorrow int64) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func LastDayOfTimeStamp(d time.Time) int64 {
+func (*TimeHelper) LastDayOfTimeStamp(d time.Time) int64 {
 	d = d.AddDate(0, 0, -d.Day()+1)
 	return GetZeroTimeStamp(d).Unix()
 }
@@ -33,7 +34,7 @@ func LastDayOfTimeStamp(d time.Time) int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetZeroTimeStamp(d time.Time) time.Time {
+func (*TimeHelper) GetZeroTimeStamp(d time.Time) time.Time {
 	return time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 }
 
@@ -43,13 +44,13 @@ func GetZeroTimeStamp(d time.Time) time.Time {
  * @date   2019-11-16
  */
 
-func BeautyTimeStamp(timeStamp, currentTime int64) string {
+func (*TimeHelper) BeautyTimeStamp(timeStamp, currentTime int64) string {
 	if currentTime == 0 {
 		currentTime = time.Now().Unix()
 	}
 
 	span := currentTime - timeStamp
-
+	var typeHelper TypeHelper
 	if span < 60 {
 
 		return "刚刚"
@@ -87,7 +88,7 @@ func BeautyTimeStamp(timeStamp, currentTime int64) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetISO8601(date int64) string {
+func (*TimeHelper) GetISO8601(date int64) string {
 	var formattedDate = time.Unix(date, 0).Format("2006-01-02T15:04:05Z")
 	return formattedDate
 }

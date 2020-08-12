@@ -1,7 +1,6 @@
-package sliceHelper
+package goutil
 
 import (
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -9,12 +8,14 @@ import (
 	"unsafe"
 )
 
+type SliceHelper struct{}
+
 /**
  * @func: GetRange  类似php的函数，获取范围内的整数集合
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetRange(min float64, max float64, step float64) []float64 {
+func (*SliceHelper) GetRange(min float64, max float64, step float64) []float64 {
 	arr := make([]float64, 0)
 	for min < max {
 		arr = append(arr, min)
@@ -28,7 +29,7 @@ func GetRange(min float64, max float64, step float64) []float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func Intersect(arr_1 []interface{}, arr_2 []interface{}) []interface{} {
+func (*SliceHelper) Intersect(arr_1 []interface{}, arr_2 []interface{}) []interface{} {
 	m := make(map[interface{}]int)
 	intersectArr := make([]interface{}, 0)
 	//【1】统计arr_1中值出现的次数
@@ -49,7 +50,7 @@ func Intersect(arr_1 []interface{}, arr_2 []interface{}) []interface{} {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IntersectInt(arr_1 []int64, arr_2 []int64) []int64 {
+func (*SliceHelper) IntersectInt(arr_1 []int64, arr_2 []int64) []int64 {
 	m := make(map[interface{}]int64)
 	intersectArr := make([]int64, 0)
 	//【1】统计arr_1中值出现的次数
@@ -70,7 +71,7 @@ func IntersectInt(arr_1 []int64, arr_2 []int64) []int64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IntersectFloat64(arr_1 []float64, arr_2 []float64) []float64 {
+func (*SliceHelper) IntersectFloat64(arr_1 []float64, arr_2 []float64) []float64 {
 	m := make(map[interface{}]float64)
 	intersectArr := make([]float64, 0)
 	//【1】统计arr_1中值出现的次数
@@ -91,7 +92,7 @@ func IntersectFloat64(arr_1 []float64, arr_2 []float64) []float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func Diffrence(arr_1 []int64, arr_2 []int64) []int64 {
+func (*SliceHelper) Diffrence(arr_1 []int64, arr_2 []int64) []int64 {
 	m := make(map[interface{}]int64)
 	diffrence := make([]int64, 0)
 	//【1】统计arr_1中值出现的次数
@@ -112,7 +113,7 @@ func Diffrence(arr_1 []int64, arr_2 []int64) []int64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func DiffrenceFloat64(arr_1 []float64, arr_2 []float64) []float64 {
+func (*SliceHelper) DiffrenceFloat64(arr_1 []float64, arr_2 []float64) []float64 {
 	m := make(map[interface{}]float64)
 	diffrence := make([]float64, 0)
 	//【1】统计arr_1中值出现的次数
@@ -133,7 +134,7 @@ func DiffrenceFloat64(arr_1 []float64, arr_2 []float64) []float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func Merge(arr_1 []map[string]float64, arr_2 []map[string]float64) []map[string]float64 {
+func (*SliceHelper) Merge(arr_1 []map[string]float64, arr_2 []map[string]float64) []map[string]float64 {
 	for _, v := range arr_2 {
 		arr_1 = append(arr_1, v)
 	}
@@ -145,7 +146,7 @@ func Merge(arr_1 []map[string]float64, arr_2 []map[string]float64) []map[string]
  * @author Wiidz
  * @date   2019-11-06
  */
-func SliceDelete(slice []interface{}, index int) []interface{} {
+func (*SliceHelper) SliceDelete(slice []interface{}, index int) []interface{} {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -154,7 +155,7 @@ func SliceDelete(slice []interface{}, index int) []interface{} {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IntSliceDelete(slice []int, index int) []int {
+func (*SliceHelper) IntSliceDelete(slice []int, index int) []int {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -163,7 +164,7 @@ func IntSliceDelete(slice []int, index int) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func Int64SliceDelete(slice []int64, index int) []int64 {
+func (*SliceHelper) Int64SliceDelete(slice []int64, index int) []int64 {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -172,7 +173,7 @@ func Int64SliceDelete(slice []int64, index int) []int64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func Float64SliceDelete(slice []float64, index int) []float64 {
+func (*SliceHelper) Float64SliceDelete(slice []float64, index int) []float64 {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -181,7 +182,7 @@ func Float64SliceDelete(slice []float64, index int) []float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func StrSliceDelete(slice []string, index int) []string {
+func (*SliceHelper) StrSliceDelete(slice []string, index int) []string {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -190,7 +191,7 @@ func StrSliceDelete(slice []string, index int) []string {
  * @author Wiidz
  * @date   2019-11-06
  */
-func MapSliceDelete(slice []map[string]interface{}, index int) []map[string]interface{} {
+func (*SliceHelper) MapSliceDelete(slice []map[string]interface{}, index int) []map[string]interface{} {
 	return append(slice[:index], slice[index+1:]...)
 }
 
@@ -199,7 +200,7 @@ func MapSliceDelete(slice []map[string]interface{}, index int) []map[string]inte
  * @author Wiidz
  * @date   2019-11-06
  */
-func Float64SliceSum(arr []float64) float64 {
+func (*SliceHelper) Float64SliceSum(arr []float64) float64 {
 	sum := float64(0)
 	for _, v := range arr {
 		sum += v
@@ -212,7 +213,7 @@ func Float64SliceSum(arr []float64) float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func InterfaceSliceSum(arr []interface{}) float64 {
+func (*SliceHelper) InterfaceSliceSum(arr []interface{}) float64 {
 	sum := float64(0)
 	for _, v := range arr {
 		sum += v.(float64)
@@ -225,7 +226,7 @@ func InterfaceSliceSum(arr []interface{}) float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interface{} {
+func (*SliceHelper) NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interface{} {
 	length := len(arr)
 	flag_length, flag_amount := length%2, amount%2
 	half_length, half_amount := 0, 0
@@ -255,13 +256,13 @@ func NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interfac
  * @author Wiidz
  * @date   2019-11-06
  */
-func UniqueIntSlice(slc []int) []int {
+func (sliceHelper *SliceHelper) UniqueIntSlice(slc []int) []int {
 	if len(slc) < 1024 {
 		// 切片长度小于1024的时候，循环来过滤
-		return UniqueByLoop(slc)
+		return sliceHelper.UniqueByLoop(slc)
 	} else {
 		// 大于的时候，通过map来过滤
-		return UniqueByMap(slc)
+		return sliceHelper.UniqueByMap(slc)
 	}
 }
 
@@ -270,7 +271,7 @@ func UniqueIntSlice(slc []int) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func UniqueByLoop(slc []int) []int {
+func (*SliceHelper) UniqueByLoop(slc []int) []int {
 	result := []int{} // 存放结果
 	for i := range slc {
 		flag := true
@@ -292,7 +293,7 @@ func UniqueByLoop(slc []int) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func UniqueInterface(slc []interface{}) []interface{} {
+func (*SliceHelper) UniqueInterface(slc []interface{}) []interface{} {
 	result := []interface{}{} // 存放结果
 	for i := range slc {
 		flag := true
@@ -314,7 +315,7 @@ func UniqueInterface(slc []interface{}) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func UniqueStrSlice(strSlice []string) []string {
+func (*SliceHelper) UniqueStrSlice(strSlice []string) []string {
 	result := make([]string, 0, len(strSlice))
 	temp := map[string]struct{}{}
 	for _, item := range strSlice {
@@ -331,7 +332,7 @@ func UniqueStrSlice(strSlice []string) []string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func UniqueByMap(slc []int) []int {
+func (*SliceHelper) UniqueByMap(slc []int) []int {
 	result := []int{}
 	tempMap := map[int]byte{} // 存放不重复主键
 	for _, e := range slc {
@@ -349,7 +350,7 @@ func UniqueByMap(slc []int) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func ArrayFilter(a []interface{}) (ret []interface{}) {
+func (*SliceHelper) ArrayFilter(a []interface{}) (ret []interface{}) {
 	va := reflect.ValueOf(a)
 	fmt.Printf("va : %+v\n", va)
 	for i := 0; i < va.Len(); i++ {
@@ -366,7 +367,7 @@ func ArrayFilter(a []interface{}) (ret []interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func MapSliceReverse(arr []map[string]interface{}) ([]map[string]interface{}, error) {
+func (*SliceHelper) MapSliceReverse(arr []map[string]interface{}) ([]map[string]interface{}, error) {
 	lenArr := len(arr)
 	if lenArr == 0 {
 		return arr, nil
@@ -383,7 +384,7 @@ func MapSliceReverse(arr []map[string]interface{}) ([]map[string]interface{}, er
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetParentIds(children_id, result_str, key string, original_data []map[string]interface{}) string {
+func (sliceHelper *SliceHelper) GetParentIds(children_id, result_str, key string, original_data []map[string]interface{}) string {
 
 	str_inn := result_str
 
@@ -398,6 +399,7 @@ func GetParentIds(children_id, result_str, key string, original_data []map[strin
 
 	}
 
+	var typeHelper TypeHelper
 	if typeHelper.Empty(tmp[key]) {
 
 		str_inn = ""
@@ -410,7 +412,7 @@ func GetParentIds(children_id, result_str, key string, original_data []map[strin
 
 	if typeHelper.Empty(tmp[key]) {
 
-		return GetParentIds(tmp[key].(string), str_inn, key, original_data)
+		return sliceHelper.GetParentIds(tmp[key].(string), str_inn, key, original_data)
 
 	}
 
@@ -423,7 +425,7 @@ func GetParentIds(children_id, result_str, key string, original_data []map[strin
  * @author Wiidz
  * @date   2019-11-16
  */
-func Paginator(page, pageSize int, data []map[string]interface{}) []map[string]interface{} {
+func (*SliceHelper) Paginator(page, pageSize int, data []map[string]interface{}) []map[string]interface{} {
 
 	page = page + 1
 
@@ -481,7 +483,7 @@ func Paginator(page, pageSize int, data []map[string]interface{}) []map[string]i
  * @author Wiidz
  * @date   2019-11-16
  */
-func ArrayGroupByMapKey(key string, list []map[string]interface{}) [][]map[string]interface{} {
+func (*SliceHelper) ArrayGroupByMapKey(key string, list []map[string]interface{}) [][]map[string]interface{} {
 
 	returnData := make([][]map[string]interface{}, 0)
 	i := 0
@@ -505,7 +507,7 @@ func ArrayGroupByMapKey(key string, list []map[string]interface{}) [][]map[strin
  * @author Wiidz
  * @date   2019-11-16
  */
-func Exist(needle interface{}, hystack_array interface{}) bool {
+func (*SliceHelper) Exist(needle interface{}, hystack_array interface{}) bool {
 	switch key := needle.(type) {
 	case string:
 		for _, item := range hystack_array.([]string) {
@@ -537,7 +539,7 @@ func Exist(needle interface{}, hystack_array interface{}) bool {
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetValuesFromInterfaceSlice(d []interface{}, column_key string) []interface{} {
+func (*SliceHelper) GetValuesFromInterfaceSlice(d []interface{}, column_key string) []interface{} {
 	nd := make([]interface{}, 0)
 	for _, v := range d {
 		nd = append(nd, v.(map[string]interface{})[column_key])
@@ -550,7 +552,7 @@ func GetValuesFromInterfaceSlice(d []interface{}, column_key string) []interface
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetValuesFromMapSlice(d []map[string]interface{}, column_key string) []interface{} {
+func (*SliceHelper) GetValuesFromMapSlice(d []map[string]interface{}, column_key string) []interface{} {
 	nd := make([]interface{}, 0)
 	for _, v := range d {
 		nd = append(nd, v[column_key])
@@ -563,7 +565,7 @@ func GetValuesFromMapSlice(d []map[string]interface{}, column_key string) []inte
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetInt64FromMapSlice(d []map[string]interface{}, column_key string) []int64 {
+func (*SliceHelper) GetInt64FromMapSlice(d []map[string]interface{}, column_key string) []int64 {
 	nd := make([]int64, 0)
 	for _, v := range d {
 		nd = append(nd, v[column_key].(int64))
@@ -576,7 +578,7 @@ func GetInt64FromMapSlice(d []map[string]interface{}, column_key string) []int64
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetIntFromMapSliceByInt64(d []map[string]interface{}, column_key string) []int {
+func (*SliceHelper) GetIntFromMapSliceByInt64(d []map[string]interface{}, column_key string) []int {
 	nd := make([]int, 0)
 	for _, v := range d {
 		temp := v[column_key].(int64)
@@ -590,7 +592,7 @@ func GetIntFromMapSliceByInt64(d []map[string]interface{}, column_key string) []
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetIntFromMapSlice(d []map[string]interface{}, column_key string) []int {
+func (*SliceHelper) GetIntFromMapSlice(d []map[string]interface{}, column_key string) []int {
 	nd := make([]int, 0)
 	for _, v := range d {
 		nd = append(nd, v[column_key].(int))
@@ -603,7 +605,7 @@ func GetIntFromMapSlice(d []map[string]interface{}, column_key string) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetFloat64FromMapSlice(d []map[string]interface{}, column_key string) []float64 {
+func (*SliceHelper) GetFloat64FromMapSlice(d []map[string]interface{}, column_key string) []float64 {
 	nd := make([]float64, 0)
 	for _, v := range d {
 		nd = append(nd, v[column_key].(float64))
@@ -616,7 +618,7 @@ func GetFloat64FromMapSlice(d []map[string]interface{}, column_key string) []flo
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetFloat64FromInterfaceSlice(d []interface{}, column_key string) []float64 {
+func (*SliceHelper) GetFloat64FromInterfaceSlice(d []interface{}, column_key string) []float64 {
 	nd := make([]float64, 0)
 	for _, v := range d {
 		nd = append(nd, v.(map[string]interface{})[column_key].(float64))
@@ -629,7 +631,7 @@ func GetFloat64FromInterfaceSlice(d []interface{}, column_key string) []float64 
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetInt64FromInterfaceSlice(d []interface{}, column_key string) []int64 {
+func (*SliceHelper) GetInt64FromInterfaceSlice(d []interface{}, column_key string) []int64 {
 	nd := make([]int64, 0)
 	for _, v := range d {
 		nd = append(nd, v.(map[string]interface{})[column_key].(int64))
@@ -642,7 +644,7 @@ func GetInt64FromInterfaceSlice(d []interface{}, column_key string) []int64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetIntFromInterfaceSlice(d []interface{}, column_key string) []int {
+func (*SliceHelper) GetIntFromInterfaceSlice(d []interface{}, column_key string) []int {
 	nd := make([]int, 0)
 	for _, v := range d {
 		nd = append(nd, int(v.(map[string]interface{})[column_key].(float64)))
@@ -655,7 +657,7 @@ func GetIntFromInterfaceSlice(d []interface{}, column_key string) []int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IndexOfStrSlice(needle string, fields_slice []string) int {
+func (*SliceHelper) IndexOfStrSlice(needle string, fields_slice []string) int {
 	for k, v := range fields_slice {
 		if v == needle {
 			return k
@@ -670,7 +672,7 @@ func IndexOfStrSlice(needle string, fields_slice []string) int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IndexOf(needle interface{}, hystack_array interface{}) int {
+func (*SliceHelper) IndexOf(needle interface{}, hystack_array interface{}) int {
 	switch key := needle.(type) {
 	case string:
 		for index, item := range hystack_array.([]string) {
@@ -698,7 +700,7 @@ func IndexOf(needle interface{}, hystack_array interface{}) int {
 	return -1
 }
 
-func Slice2MapByInt64ColumnAsKey(data []map[string]interface{}, index string) map[string]interface{} {
+func (*SliceHelper) Slice2MapByInt64ColumnAsKey(data []map[string]interface{}, index string) map[string]interface{} {
 	res := map[string]interface{}{}
 	//temp:=map[string]interface{}{}
 	for _, v := range data {
@@ -708,7 +710,7 @@ func Slice2MapByInt64ColumnAsKey(data []map[string]interface{}, index string) ma
 	return res
 }
 
-func MapSlice2SimpleMap(data []map[string]interface{}, index, key string) map[string]interface{} {
+func (*SliceHelper) MapSlice2SimpleMap(data []map[string]interface{}, index, key string) map[string]interface{} {
 	res := map[string]interface{}{}
 	//temp:=map[string]interface{}{}
 	for _, v := range data {
@@ -717,7 +719,7 @@ func MapSlice2SimpleMap(data []map[string]interface{}, index, key string) map[st
 	}
 	return res
 }
-func InterfaceSlice2SimpleMap(data []interface{}, index, key string) map[string]interface{} {
+func (*SliceHelper) InterfaceSlice2SimpleMap(data []interface{}, index, key string) map[string]interface{} {
 	res := map[string]interface{}{}
 	//temp:=map[string]interface{}{}
 	for _, v := range data {
@@ -727,7 +729,7 @@ func InterfaceSlice2SimpleMap(data []interface{}, index, key string) map[string]
 	return res
 }
 
-func Int64Slice2Float64Slice(data []int64) []float64 {
+func (*SliceHelper) Int64Slice2Float64Slice(data []int64) []float64 {
 	res := []float64{}
 	for _, v := range data {
 		res = append(res, float64(v))
@@ -740,7 +742,7 @@ func Int64Slice2Float64Slice(data []int64) []float64 {
  * @author Wiidz
  * @date   2019-11-06
  */
-func GetFloat64FromInt64MapSlice(d []map[string]interface{}, column_key string) []float64 {
+func (*SliceHelper) GetFloat64FromInt64MapSlice(d []map[string]interface{}, column_key string) []float64 {
 	nd := make([]float64, 0)
 	for _, v := range d {
 		nd = append(nd, float64(v[column_key].(int64)))
@@ -748,11 +750,11 @@ func GetFloat64FromInt64MapSlice(d []map[string]interface{}, column_key string) 
 	return nd
 }
 
-func Join(islice []string, letter string) string {
+func (*SliceHelper) Join(islice []string, letter string) string {
 	return strings.Join(islice, letter)
 }
 
-func JoinInterfaceSlice(islice []interface{}, letter string) string {
+func (*SliceHelper) JoinInterfaceSlice(islice []interface{}, letter string) string {
 	str := ""
 	for _, v := range islice {
 		str += v.(string) + letter

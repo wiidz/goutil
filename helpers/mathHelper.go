@@ -1,7 +1,6 @@
-package mathHelper
+package goutil
 
 import (
-	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"fmt"
 	"math"
 	"math/rand"
@@ -9,12 +8,14 @@ import (
 	"time"
 )
 
+type MathHelper struct{}
+
 /**
  * @func: GetRandomInt 获取范围内的int随机数
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetRandomInt(min, max int) (num int) {
+func (*MathHelper) GetRandomInt(min, max int) (num int) {
 	rand.Seed(time.Now().UnixNano())
 	for {
 		tmp := rand.Intn(max)
@@ -31,10 +32,10 @@ func GetRandomInt(min, max int) (num int) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetBezierPoints(dots []map[string]float64, amount int) []map[string]float64 {
+func (mathHelper *MathHelper) GetBezierPoints(dots []map[string]float64, amount int) []map[string]float64 {
 	points := make([]map[string]float64, 0)
 	for i := 0; i < amount; i++ {
-		point := multiPointBezier(dots, float64(i)/float64(amount))
+		point := mathHelper.multiPointBezier(dots, float64(i)/float64(amount))
 		points = append(points, point)
 	}
 	return points
@@ -45,7 +46,7 @@ func GetBezierPoints(dots []map[string]float64, amount int) []map[string]float64
  * @author Wiidz
  * @date   2019-11-16
  */
-func multiPointBezier(dots []map[string]float64, t float64) map[string]float64 {
+func (*MathHelper) multiPointBezier(dots []map[string]float64, t float64) map[string]float64 {
 	len := float64(len(dots))
 	x := float64(0)
 	y := float64(0)
@@ -76,7 +77,7 @@ func multiPointBezier(dots []map[string]float64, t float64) map[string]float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func MatrixTransform(data []float64, matrix [][]float64) []float64 {
+func (*MathHelper) MatrixTransform(data []float64, matrix [][]float64) []float64 {
 	res := make([]float64, 0)
 	for _, row := range matrix {
 		sum := float64(0)
@@ -95,7 +96,7 @@ func MatrixTransform(data []float64, matrix [][]float64) []float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetNearestIntXDots(dots []map[string]float64) map[float64]map[string]float64 {
+func (*MathHelper) GetNearestIntXDots(dots []map[string]float64) map[float64]map[string]float64 {
 	//fmt.Println("【dots】",dots)
 	intDots := make(map[float64]map[string]float64, 0)
 	flag := false
@@ -130,24 +131,26 @@ func GetNearestIntXDots(dots []map[string]float64) map[float64]map[string]float6
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetInsideDots(dots1 map[float64]map[string]float64, dots2 map[float64]map[string]float64) []map[string]float64 {
+func (mathHelper *MathHelper) GetInsideDots(dots1 map[float64]map[string]float64, dots2 map[float64]map[string]float64) []map[string]float64 {
 	insideDots := make([]map[string]float64, 0)
 
-	intArr1 := getKeys(dots1)
-	intArr2 := getKeys(dots2)
+	intArr1 := mathHelper.getKeys(dots1)
+	intArr2 := mathHelper.getKeys(dots2)
 
+	var sliceHelper SliceHelper
 	intArr := sliceHelper.Intersect(intArr1, intArr2)
 
 	yArr := make([]float64, 0)
 	for _, int := range intArr {
-		yArr = GetIntergers(dots1[int.(float64)]["y"], dots2[int.(float64)]["y"], float64(1), float64(10))
+		yArr = mathHelper.GetIntergers(dots1[int.(float64)]["y"], dots2[int.(float64)]["y"], float64(1), float64(10))
 		for _, y := range yArr {
 			insideDots = append(insideDots, map[string]float64{"x": int.(float64), "y": y})
 		}
 	}
 	return insideDots
 }
-func getKeys(imap map[float64]map[string]float64) []interface{} {
+
+func (*MathHelper) getKeys(imap map[float64]map[string]float64) []interface{} {
 	var tmp []interface{}
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -162,7 +165,7 @@ func getKeys(imap map[float64]map[string]float64) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetIntergers(border1 float64, border2 float64, narrow_range float64, amount float64) []float64 {
+func (*MathHelper) GetIntergers(border1 float64, border2 float64, narrow_range float64, amount float64) []float64 {
 	//【1】计算边界
 	max := math.Max(border1, border2)
 	min := math.Min(border1, border2)
@@ -185,10 +188,11 @@ func GetIntergers(border1 float64, border2 float64, narrow_range float64, amount
 		}
 		step++
 	}
+	var sliceHelper SliceHelper
 	return sliceHelper.GetRange(math.Ceil(min), math.Floor(max), step)
 }
 
-func Keep(number float64, amount int) float64 {
-	new_number, _ := strconv.ParseFloat(fmt.Sprintf("%."+strconv.Itoa(amount)+"f", number), 64)
-	return new_number
+func (*MathHelper) Keep(number float64, amount int) float64 {
+	newNumber, _ := strconv.ParseFloat(fmt.Sprintf("%."+strconv.Itoa(amount)+"f", number), 64)
+	return newNumber
 }

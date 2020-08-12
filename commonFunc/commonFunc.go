@@ -1,4 +1,4 @@
-package commonFunc
+package goutil
 
 //【1】计算偏移量
 func GetOffset(pageNow, pageSize int) int {

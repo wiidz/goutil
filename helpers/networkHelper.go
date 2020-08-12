@@ -1,10 +1,8 @@
-package networkHelper
+package goutil
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wiidz/goutil/helpers/strHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,15 +10,17 @@ import (
 	"os"
 )
 
+type NetworkHelper struct{}
+
 /**
  * @func: GetRequest 发送get请求
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetRequest(apiURL string, params []map[string]interface{}) (map[string]interface{}, error) {
+func (networkHelper *NetworkHelper) GetRequest(apiURL string, params []map[string]interface{}) (map[string]interface{}, error) {
 
 	param := url.Values{}
-
+	var typeHelper TypeHelper
 	for key, value := range params {
 
 		k := typeHelper.ToString(key)
@@ -57,10 +57,10 @@ func GetRequest(apiURL string, params []map[string]interface{}) (map[string]inte
  * @author Wiidz
  * @date   2019-11-16
  */
-func PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
+func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
 
 	param := url.Values{}
-
+	var typeHelper TypeHelper
 	for key, value := range params {
 
 		k := typeHelper.ToString(key)
@@ -203,7 +203,7 @@ func PostRequest(apiURL string, params map[string]interface{}) (map[string]inter
 //	return container
 //}
 
-func DownloadFile(url string, fb func(string) error) error {
+func (networkHelper *NetworkHelper) DownloadFile(url string, fb func(string) error) error {
 	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
@@ -212,7 +212,8 @@ func DownloadFile(url string, fb func(string) error) error {
 	defer resp.Body.Close()
 
 	// 创建一个文件用于保存
-
+	var typeHelper TypeHelper
+	var strHelper StrHelper
 	tempSlice := typeHelper.Explode(url, ".")
 	format := tempSlice[len(tempSlice)-1]
 	tempPath := "/tmp/download/" + strHelper.GetRandomString(10) + "." + format.(string)

@@ -1,4 +1,4 @@
-package osHelper
+package goutil
 
 import (
 	"encoding/json"
@@ -11,12 +11,14 @@ import (
 	"strconv"
 )
 
+type OsHelper struct{}
+
 /**
  * @func: ExistFile 判断文件是否已存在
  * @author Wiidz
  * @date   2019-11-16
  */
-func ExistFile(filename string, filesize int64) bool {
+func (*OsHelper) ExistFile(filename string, filesize int64) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		fmt.Println(info)
@@ -38,7 +40,7 @@ func ExistFile(filename string, filesize int64) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
+func (osHelper *OsHelper) DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
 	var (
 		fsize   int64
 		buf     = make([]byte, 32*1024)
@@ -60,7 +62,7 @@ func DownloadFile(url string, localPath string, fb func(length, downLen int64)) 
 	if err != nil {
 		fmt.Println(err)
 	}
-	if ExistFile(localPath, fsize) {
+	if osHelper.ExistFile(localPath, fsize) {
 		return err
 	}
 	fmt.Println("fsize", fsize)
@@ -154,7 +156,7 @@ func DownloadFile(url string, localPath string, fb func(length, downLen int64)) 
  * @author Wiidz
  * @date   2019-11-16
  */
-func ReadJsonFile(filePath string) map[string]interface{} {
+func (*OsHelper) ReadJsonFile(filePath string) map[string]interface{} {
 	file, _ := os.Open(filePath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
@@ -166,7 +168,7 @@ func ReadJsonFile(filePath string) map[string]interface{} {
 	return conf
 }
 
-func GetFileBuf(uri string) []byte {
+func (*OsHelper) GetFileBuf(uri string) []byte {
 	buf, _ := ioutil.ReadFile(uri)
 	return buf
 }

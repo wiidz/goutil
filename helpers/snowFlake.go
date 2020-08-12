@@ -1,4 +1,4 @@
-package snowFlake
+package goutil
 
 import (
 	"errors"

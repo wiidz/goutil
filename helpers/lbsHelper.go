@@ -1,9 +1,11 @@
-package lbsHelper
+package goutil
 
 import "math"
 
+type LbsHelper struct{}
+
 //计算2点的距离 单位为米
-func EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
+func (lbsHelper *LbsHelper) EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
 	radius := float64(6371000) // 6378137
 	rad := math.Pi / 180.0
 	lat1 = lat1 * rad
