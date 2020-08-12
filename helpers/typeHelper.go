@@ -1,4 +1,4 @@
-package goutil
+package helpers
 
 import (
 	"encoding/json"
@@ -16,10 +16,10 @@ type TypeHelper struct{}
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Implode(data interface{}, glue string) string {
+func (typeHelper *TypeHelper) Implode(data interface{}, glue string) string {
 	var tmp []string
 	for _, item := range data.([]interface{}) {
-		tmp = append(tmp, ToString(item))
+		tmp = append(tmp, typeHelper.ToString(item))
 	}
 
 	return strings.Join(tmp, glue)

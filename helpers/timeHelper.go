@@ -1,4 +1,4 @@
-package goutil
+package helpers
 
 import (
 	"time"
@@ -24,9 +24,9 @@ func (*TimeHelper) FromTodayToTomorrowTimeStamp() (today, tomorrow int64) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TimeHelper) LastDayOfTimeStamp(d time.Time) int64 {
+func (timeHelper *TimeHelper) LastDayOfTimeStamp(d time.Time) int64 {
 	d = d.AddDate(0, 0, -d.Day()+1)
-	return GetZeroTimeStamp(d).Unix()
+	return timeHelper.GetZeroTimeStamp(d).Unix()
 }
 
 /**
