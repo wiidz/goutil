@@ -100,6 +100,9 @@ func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string
 		param.Set(k, v)
 	}
 
+	log.Println("networkHelper.PostRequest:",apiURL)
+	log.Println("params:",param)
+
 	resp, err := http.PostForm(apiURL, param)
 	if err != nil {
 		return nil, err
