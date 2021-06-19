@@ -17,7 +17,7 @@ type NetworkHelper struct{}
  * @author Wiidz
  * @date   2019-11-16
  */
-func (networkHelper *NetworkHelper) GetRequest(apiURL string, params []map[string]interface{}) (map[string]interface{}, error) {
+func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
 
 	param := url.Values{}
 	var typeHelper TypeHelper
