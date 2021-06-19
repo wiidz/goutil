@@ -13,21 +13,12 @@ type MathHelper struct{}
 /**
  * @func: GetRandomInt 获取范围内的int随机数
  * @author Wiidz
- * @date   2019-11-16
+ * @date   2021-06-19
  */
-func (*MathHelper) GetRandomFloat64(min, max float64) (num float64) {
+func (*MathHelper) GetRandomFloat64() (num float64) {
 	rand.Seed(time.Now().UnixNano())
-	for {
-		tmp := rand.Float64()
-		if tmp >= min {
-			num = tmp
-			break
-		}
-	}
-	return
+	return rand.Float64()
 }
-
-
 
 /**
  * @func: GetRandomInt 获取范围内的int随机数
