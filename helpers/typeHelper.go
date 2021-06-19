@@ -422,14 +422,14 @@ func (*TypeHelper) IsNil(i interface{}) bool {
 
 
 // 整形转换成字节
-func Int2Bytes(n int) []byte {
+func (*TypeHelper)Int2Bytes(n int) []byte {
 	x := int32(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()
 }
 // 字节转换成整形
-func Bytes2Int(b []byte) int {
+func (*TypeHelper)Bytes2Int(b []byte) int {
 	bytesBuffer := bytes.NewBuffer(b)
 
 	var x int32
