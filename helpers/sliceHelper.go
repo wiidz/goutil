@@ -761,3 +761,17 @@ func (*SliceHelper) JoinInterfaceSlice(islice []interface{}, letter string) stri
 	}
 	return str[0 : len(str)-len(letter)]
 }
+
+/**
+ * @func: Exsit 判断slice中是否存在needle
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (*SliceHelper)ExistInt(needle int, hystackArray []int) bool {
+	for _, item := range hystackArray {
+		if needle == item {
+			return true
+		}
+	}
+	return false
+}
