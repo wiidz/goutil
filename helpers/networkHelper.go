@@ -5,12 +5,41 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 )
 
 type NetworkHelper struct{}
+
+
+/**
+ * @func: GetRequest 发送get请求
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (networkHelper *NetworkHelper) GetParamsUrl(apiURL string, params map[string]interface{}) (string, error) {
+
+	param := url.Values{}
+	var typeHelper TypeHelper
+	for key, value := range params {
+
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+
+	var Url *url.URL
+	Url, err := url.Parse(apiURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return "", err
+	}
+	//如果参数中有中文参数,这个方法会进行URLEncode
+	Url.RawQuery = param.Encode()
+	return Url.String(),err
+}
 
 /**
  * @func: GetRequest 发送get请求
@@ -36,6 +65,9 @@ func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]
 	}
 	//如果参数中有中文参数,这个方法会进行URLEncode
 	Url.RawQuery = param.Encode()
+
+	log.Println("networkHelper.GetRequest:",Url)
+
 	resp, err := http.Get(Url.String())
 	if err != nil {
 		fmt.Println("err:", err)
@@ -230,3 +262,6 @@ func (networkHelper *NetworkHelper) DownloadFile(url string, fb func(string) err
 	}
 	return fb(tempPath)
 }
+
+
+
