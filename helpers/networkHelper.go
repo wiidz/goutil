@@ -3,13 +3,13 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kataras/iris/v12"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"github.com/kataras/iris/v12"
 )
 
 type NetworkHelper struct{}
@@ -299,7 +299,7 @@ func (networkHelper *NetworkHelper) DownloadFileWithFormat(url,format string, fb
  * @author Wiidz
  * @date   2019-11-16
  */
-func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+func (networkHelper *NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
 
 	ctx.StatusCode(statusCode)
 
