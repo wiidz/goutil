@@ -268,7 +268,7 @@ func (networkHelper *NetworkHelper) DownloadFile(url string, fb func(string) err
 }
 
 
-func (networkHelper *NetworkHelper) DownloadFileWithFormat(url,format string, fb func(string) error) error {
+func (*NetworkHelper) DownloadFileWithFormat(url,format string, fb func(string) error) error {
 	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
@@ -299,7 +299,7 @@ func (networkHelper *NetworkHelper) DownloadFileWithFormat(url,format string, fb
  * @author Wiidz
  * @date   2019-11-16
  */
-func (networkHelper *NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+func (*NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
 
 	ctx.StatusCode(statusCode)
 
