@@ -9,303 +9,278 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 type NetworkHelper struct{}
 
+type Method int8
+
+const (
+	Get    Method = 1
+	Post   Method = 2
+	Put    Method = 3
+	Delete Method = 4
+)
+
+func (p Method) String() string {
+	switch p {
+	case Get:
+		return "GET"
+	case Post:
+		return "POST"
+	case Put:
+		return "PUT"
+	case Delete:
+		return "DELETE"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+var typeHelper = TypeHelper{}
+var strHelper = StrHelper{}
 
 /**
- * @func: GetRequest 发送get请求
- * @author Wiidz
- * @date   2019-11-16
+ * @func: GetParamstargetURL 获取get地址
+ * @author: Wiidz
+ * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetParamsUrl(apiURL string, params map[string]interface{}) (string, error) {
+func (networkHelper *NetworkHelper) GetParamstargetURL(apiURL string, params map[string]interface{}) (string, error) {
 
-	param := url.Values{}
-	var typeHelper TypeHelper
-	for key, value := range params {
-
-		k := typeHelper.ToString(key)
-		v := typeHelper.ToString(value)
-		param.Set(k, v)
-	}
-
-	var Url *url.URL
-	Url, err := url.Parse(apiURL)
+	//【1】解析URL
+	var targetURL *url.URL
+	targetURL, err := url.Parse(apiURL)
 	if err != nil {
 		fmt.Printf("解析url错误:\r\n%v", err)
 		return "", err
 	}
-	//如果参数中有中文参数,这个方法会进行URLEncode
-	Url.RawQuery = param.Encode()
-	return Url.String(),err
+
+	//【2】构造参数
+	param := url.Values{}
+	for key, value := range params {
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+	targetURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+
+	//【3】返回
+	return targetURL.String(), err
 }
 
 /**
  * @func: GetRequest 发送get请求
- * @author Wiidz
- * @date   2019-11-16
+ * @author: Wiidz
+ * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
+func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, http.Header, error) {
 
+	//【1】解析URL
+	var targetURL *url.URL
+	targetURL, err := url.Parse(apiURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return nil, nil, err
+	}
+
+	//【2】构造参数
 	param := url.Values{}
-	var typeHelper TypeHelper
 	for key, value := range params {
-
 		k := typeHelper.ToString(key)
 		v := typeHelper.ToString(value)
 		param.Set(k, v)
 	}
+	targetURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+	log.Println("networkHelper.GetRequest:", targetURL)
 
-	var Url *url.URL
-	Url, er := url.Parse(apiURL)
-	if er != nil {
-		fmt.Printf("解析url错误:\r\n%v", er)
-		return nil, er
-	}
-	//如果参数中有中文参数,这个方法会进行URLEncode
-	Url.RawQuery = param.Encode()
-
-	log.Println("networkHelper.GetRequest:",Url)
-
-	resp, err := http.Get(Url.String())
+	//【3】发送请求
+	resp, err := http.Get(targetURL.String())
 	if err != nil {
-		fmt.Println("err:", err)
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
-	data, e := ioutil.ReadAll(resp.Body)
-
+	//【4】读取body体
+	data, err := ioutil.ReadAll(resp.Body)
 	var netReturn map[string]interface{}
-
 	json.Unmarshal(data, &netReturn)
 
-	return netReturn, e
+	//【5】返回
+	return netReturn, resp.Header, err
 }
 
 /**
  * @func: PostRequest 发送post请求
- * @author Wiidz
- * @date   2019-11-16
+ * @author: Wiidz
+ * @date:  2021-6-20
  */
-func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, error) {
+func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, http.Header, error) {
 
+	//【1】解析URL
+	var targetURL *url.URL
+	targetURL, err := url.Parse(apiURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return nil, nil, err
+	}
+
+	//【2】构造参数
 	param := url.Values{}
-	var typeHelper TypeHelper
 	for key, value := range params {
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+	log.Println("networkHelper.PostRequest:", apiURL)
+	log.Println("params:", param)
 
+	//【3】发送请求
+	resp, err := http.PostForm(targetURL.String(), param)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	//【4】读取body
+	data, err := ioutil.ReadAll(resp.Body)
+	var netReturn map[string]interface{}
+	fmt.Println(data)
+	json.Unmarshal(data, &netReturn)
+
+	//【5】返回
+	return netReturn, resp.Header, err
+}
+
+/**
+ * @func: DownloadFile 下载目标文件到本地
+ * @author: Wiidz
+ * @date:  2021-6-20
+ */
+func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (fileName, pathString string, err error) {
+
+	if localPath == "" {
+		localPath = "/tmp/download/"
+	}
+
+	//【1】下载文件
+	resp, err := http.Get(targetURL)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+
+	//【2】创建一个文件用于保存
+	tempSlice := typeHelper.Explode(targetURL, ".")
+	format := tempSlice[len(tempSlice)-1]
+	fileName = strHelper.GetRandomString(10) + "." + format.(string)
+	tempPath := localPath + fileName
+	out, err := os.Create(tempPath)
+	if err != nil {
+		return "", "", err
+	}
+	defer out.Close()
+
+	//【3】然后将响应流和文件流对接起来
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	//【4】返回地址
+	return fileName, tempPath, err
+}
+
+/**
+ * @func: DownloadFileWithFormat 下载目标文件到本地，强制命名格式
+ * @author: Wiidz
+ * @date:  2021-6-20
+ */
+func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string) (fileName, pathString string, err error) {
+
+	if localPath == "" {
+		localPath = "/tmp/download/"
+	}
+
+	//【1】下载文件
+	resp, err := http.Get(targetURL)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+
+	//【2】创建一个文件用于保存
+	fileName = strHelper.GetRandomString(10) + "." + format
+	tempPath := localPath + fileName
+	out, err := os.Create(tempPath)
+	if err != nil {
+		return "", "", err
+	}
+	defer out.Close()
+
+	//【3】然后将响应流和文件流对接起来
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	//【4】返回地址
+	return fileName, tempPath, err
+}
+
+func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, error) {
+
+	//【1】解析URL
+	var parsedURL *url.URL
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return nil, nil, err
+	}
+
+	//【2】创建client
+	client := &http.Client{}
+
+	//【3】构造参数
+	param := url.Values{}
+	for key, value := range params {
 		k := typeHelper.ToString(key)
 		v := typeHelper.ToString(value)
 		param.Set(k, v)
 	}
 
-	log.Println("networkHelper.PostRequest:",apiURL)
-	log.Println("params:",param)
-
-	resp, err := http.PostForm(apiURL, param)
-	if err != nil {
-		return nil, err
+	var body io.Reader
+	if method == Get {
+		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+	} else {
+		body = strings.NewReader(param.Encode())
 	}
+
+	//【4】创建请求
+	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
+	if err != nil {
+		panic(err)
+	}
+
+	//【5】增加header选项
+	if len(headers) > 0 {
+		for k, v := range headers {
+			request.Header.Add(k, v)
+		}
+	}
+
+	log.Println("apiURL", targetURL, body)
+
+	//【6】发送请求
+	resp, _ := client.Do(request)
 	defer resp.Body.Close()
 
-	data, e := ioutil.ReadAll(resp.Body)
-
+	//【7】读取body
+	data, err := ioutil.ReadAll(resp.Body)
 	var netReturn map[string]interface{}
-
-	fmt.Println(data)
-
 	json.Unmarshal(data, &netReturn)
 
-	return netReturn, e
+	//【8】返回
+	return netReturn, resp.Header, err
+
 }
-
-//
-///**
-// * @func: ReturnResult json格式返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
-//
-//	ctx.StatusCode(statusCode)
-//
-//	ctx.JSON(iris.Map{
-//		"msg":  message,
-//		"data": data,
-//	})
-//	return
-//}
-//
-///**
-// * @func: ReturnResult json格式返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func ParamsError(ctx iris.Context) {
-//
-//	ctx.StatusCode(422)
-//
-//	ctx.JSON(iris.Map{
-//		"msg":  "参数错误",
-//		"data": nil,
-//	})
-//	return
-//}
-//
-///**
-// * @func: ReturnResult json格式返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func Forbidden(ctx iris.Context) {
-//
-//	ctx.StatusCode(403)
-//
-//	ctx.JSON(iris.Map{
-//		"msg":  "无权访问",
-//		"data": nil,
-//	})
-//	return
-//}
-//
-///**
-// * @func: GetJsonArrayParams 从body体中提取参数，以 []map[string]interface{} 返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func GetJsonArrayParams(ctx iris.Context) []map[string]interface{} {
-//
-//	post_data := make([]map[string]interface{}, 0)
-//	data := ctx.Request().Body
-//
-//	js, _ := ioutil.ReadAll(data)
-//	json.Unmarshal(js, &post_data)
-//
-//	return post_data
-//}
-//
-///**
-// * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func GetJsonParams(ctx iris.Context) map[string]interface{} {
-//
-//	post_data := make(map[string]interface{}, 0)
-//
-//	data := ctx.Request().Body
-//
-//	js, _ := ioutil.ReadAll(data)
-//
-//	json.Unmarshal(js, &post_data)
-//
-//	return post_data
-//}
-//
-///**
-// * @func: GetJsonArrayParams 从body体中提取参数，以 map[string]interface{} 返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func GetJsonParamsWithStruct(ctx iris.Context, istruct interface{}) interface{} {
-//
-//	//post_data := make(map[string]interface{}, 0)
-//
-//	data := ctx.Request().Body
-//
-//	js, _ := ioutil.ReadAll(data)
-//
-//	json.Unmarshal(js, &istruct)
-//
-//	return istruct
-//}
-
-///**
-// * @func: GetFilteredParams 从query中获取指定字段的值，以 map[string]interface{} 返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func GetFilteredParams(ctx iris.Context, fields []string) map[string]interface{} {
-//	temp := ""
-//	container := make(map[string]interface{})
-//	for _, v := range fields {
-//		temp = ctx.URLParam(v)
-//		if temp != "" {
-//			container[v] = temp
-//		}
-//	}
-//	return container
-//}
-
-func (networkHelper *NetworkHelper) DownloadFile(url string, fb func(string) error) error {
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// 创建一个文件用于保存
-	var typeHelper TypeHelper
-	var strHelper StrHelper
-	tempSlice := typeHelper.Explode(url, ".")
-	format := tempSlice[len(tempSlice)-1]
-	tempPath := "/tmp/download/" + strHelper.GetRandomString(10) + "." + format.(string)
-	out, err := os.Create(tempPath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// 然后将响应流和文件流对接起来
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	return fb(tempPath)
-}
-
-
-func (*NetworkHelper) DownloadFileWithFormat(url,format string, fb func(string) error) error {
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// 创建一个文件用于保存
-	var strHelper StrHelper
-	tempPath := "/tmp/download/" + strHelper.GetRandomString(10) + "." + format
-	out, err := os.Create(tempPath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// 然后将响应流和文件流对接起来
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	return fb(tempPath)
-}
-
-//
-///**
-// * @func: ReturnResult json格式返回
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func (*NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
-//
-//	ctx.StatusCode(statusCode)
-//
-//	ctx.JSON(iris.Map{
-//		"msg":  message,
-//		"data": data,
-//	})
-//	return
-//}
-//
