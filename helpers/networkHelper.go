@@ -3,7 +3,6 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kataras/iris/v12"
 	"io"
 	"io/ioutil"
 	"log"
@@ -293,20 +292,20 @@ func (*NetworkHelper) DownloadFileWithFormat(url,format string, fb func(string) 
 	return fb(tempPath)
 }
 
-
-/**
- * @func: ReturnResult json格式返回
- * @author Wiidz
- * @date   2019-11-16
- */
-func (*NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
-
-	ctx.StatusCode(statusCode)
-
-	ctx.JSON(iris.Map{
-		"msg":  message,
-		"data": data,
-	})
-	return
-}
-
+//
+///**
+// * @func: ReturnResult json格式返回
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func (*NetworkHelper) ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+//
+//	ctx.StatusCode(statusCode)
+//
+//	ctx.JSON(iris.Map{
+//		"msg":  message,
+//		"data": data,
+//	})
+//	return
+//}
+//
