@@ -43,11 +43,11 @@ var typeHelper = TypeHelper{}
 var strHelper = StrHelper{}
 
 /**
- * @func: GetParamstargetURL 获取get地址
+ * @func: GetParsedURL 获取get地址
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetParamstargetURL(apiURL string, params map[string]interface{}) (string, error) {
+func (networkHelper *NetworkHelper) GetParsedURL(apiURL string, params map[string]interface{}) (string, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -309,6 +309,7 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
+	log.Println("【resp.Body】",resp.Body)
 	var netReturn map[string]interface{}
 	json.Unmarshal(data, &netReturn)
 
