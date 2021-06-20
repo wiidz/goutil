@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -226,6 +227,37 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 
 	//【4】返回地址
 	return fileName, tempPath, err
+}
+
+
+/**
+ * @func: PostRequest 发送post请求
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, error) {
+
+	param := url.Values{}
+
+	for key, value := range params {
+
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+
+	jsonByte, _ := json.Marshal(params)
+
+	resp, err := http.Post(apiURL, "application/json", bytes.NewReader(jsonByte))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	data, e := ioutil.ReadAll(resp.Body)
+
+	return data, e
 }
 
 func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, error) {
