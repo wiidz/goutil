@@ -260,14 +260,14 @@ func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface
 	return data, e
 }
 
-func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, error) {
+func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, int,error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
 		fmt.Printf("解析url错误:\r\n%v", err)
-		return nil, nil, err
+		return nil, nil,0, err
 	}
 
 	//【2】创建client
@@ -314,6 +314,6 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	json.Unmarshal(data, &netReturn)
 
 	//【8】返回
-	return netReturn, resp.Header, err
+	return netReturn, resp.Header,resp.StatusCode, err
 
 }
