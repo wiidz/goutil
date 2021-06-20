@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"github.com/kataras/iris/v12"
 )
 
 type NetworkHelper struct{}
@@ -293,4 +294,19 @@ func (networkHelper *NetworkHelper) DownloadFileWithFormat(url,format string, fb
 }
 
 
+/**
+ * @func: ReturnResult json格式返回
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+
+	ctx.StatusCode(statusCode)
+
+	ctx.JSON(iris.Map{
+		"msg":  message,
+		"data": data,
+	})
+	return
+}
 
