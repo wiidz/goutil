@@ -9,18 +9,18 @@ type ValidatorMng struct{}
 
 var validate = validator.New()
 
-func (mng *ValidatorMng) GetError(s interface{}) error {
+func GetError(s interface{}) error {
 	err := validate.Struct(s)
 	if err == nil {
 		return nil
 	}
-	mng.Report(err)
+	Report(err)
 	return err
 }
 
-func (*ValidatorMng)  Report(errs error) {
+func Report(errs error) {
 	for _, err := range errs.(validator.ValidationErrors) {
-		fmt.Println()
+		fmt.Println("---------------------------------------")
 		fmt.Println(err.Namespace())
 		fmt.Println(err.Field())
 		fmt.Println(err.StructNamespace())
@@ -31,6 +31,6 @@ func (*ValidatorMng)  Report(errs error) {
 		fmt.Println(err.Type())
 		fmt.Println(err.Value())
 		fmt.Println(err.Param())
-		fmt.Println()
+		fmt.Println("---------------------------------------")
 	}
 }
