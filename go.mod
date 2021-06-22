@@ -11,6 +11,7 @@ require (
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7
+	github.com/mojocn/base64Captcha v1.3.4
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
