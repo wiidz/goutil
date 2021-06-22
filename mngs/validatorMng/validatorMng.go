@@ -5,18 +5,20 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
+type ValidatorMng struct{}
+
 var validate = validator.New()
 
-func GetError(s interface{}) error {
+func (mng *ValidatorMng) GetError(s interface{}) error {
 	err := validate.Struct(s)
 	if err == nil {
 		return nil
 	}
-	Report(err)
+	mng.Report(err)
 	return err
 }
 
-func Report(errs error) {
+func (*ValidatorMng)  Report(errs error) {
 	for _, err := range errs.(validator.ValidationErrors) {
 		fmt.Println()
 		fmt.Println(err.Namespace())
