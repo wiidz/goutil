@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
-	"log"
+	"github.com/wiidz/goutil/helpers"
 	"strings"
 )
 
@@ -35,39 +35,35 @@ func (mng *JwtMng) GetTokenStr(claims jwt.Claims) (string, error) {
 func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		log.Println("sss", token)
 		return mng.SaltKey, nil
 	})
 
-	if token.Valid {
-		fmt.Println("You look nice today")
-	} else {
+	if err != nil{
 		fmt.Println("Couldn't handle this token:", err)
+		return err
 	}
 
-	return err
+	if token.Valid {
+		fmt.Println("You look nice today")
+		return nil
+	} else {
+		fmt.Println("failed")
+		return errors.New("failed")
+	}
 }
 
 func (mng *JwtMng) Serve(ctx iris.Context) {
 
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
-		ctx.StatusCode(404)
-		ctx.JSON(map[string]interface{}{
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		helpers.ReturnError(ctx,err.Error())
 		return
 	}
 
 	var tokenData TokenData
 
 	if err := mng.Decrypt(&tokenData, tokenStr); err != nil {
-		ctx.StatusCode(404)
-		ctx.JSON(map[string]interface{}{
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		helpers.ReturnError(ctx,err.Error())
 		return
 	}
 	// If everything ok then call next.
