@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/kataras/iris/v12"
 	"io"
 	"io/ioutil"
 	"log"
@@ -316,4 +317,49 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	//【8】返回
 	return netReturn, resp.Header,resp.StatusCode, err
 
+}
+
+
+func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
+
+	ctx.StatusCode(statusCode)
+
+	ctx.JSON(iris.Map{
+		"msg":  message,
+		"data": data,
+	})
+	return
+}
+
+/**
+ * @func: ReturnResult json格式返回
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func ParamsError(ctx iris.Context) {
+
+	ctx.StatusCode(404)
+
+	ctx.JSON(iris.Map{
+		"msg":  "参数错误",
+		"data": nil,
+	})
+	return
+}
+
+
+/**
+ * @func: ReturnResult json格式返回
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func ParamsInvalid(ctx iris.Context, err error) {
+
+	ctx.StatusCode(404)
+
+	ctx.JSON(iris.Map{
+		"msg":  "参数错误",
+		"data": err.Error(),
+	})
+	return
 }
