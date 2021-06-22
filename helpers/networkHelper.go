@@ -230,7 +230,6 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 	return fileName, tempPath, err
 }
 
-
 /**
  * @func: PostRequest 发送post请求
  * @author Wiidz
@@ -261,14 +260,14 @@ func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface
 	return data, e
 }
 
-func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, int,error) {
+func (*NetworkHelper) Request(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
 		fmt.Printf("解析url错误:\r\n%v", err)
-		return nil, nil,0, err
+		return nil, nil, 0, err
 	}
 
 	//【2】创建client
@@ -310,15 +309,14 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
-	log.Println("【resp.Body】",resp.Body)
+	log.Println("【resp.Body】", resp.Body)
 	var netReturn map[string]interface{}
 	json.Unmarshal(data, &netReturn)
 
 	//【8】返回
-	return netReturn, resp.Header,resp.StatusCode, err
+	return netReturn, resp.Header, resp.StatusCode, err
 
 }
-
 
 func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
 
@@ -336,17 +334,16 @@ func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode
  * @author Wiidz
  * @date   2019-11-16
  */
-func ParamsError(ctx iris.Context) {
+func ReturnError(ctx iris.Context, msg string) {
 
 	ctx.StatusCode(404)
 
 	ctx.JSON(iris.Map{
-		"msg":  "参数错误",
+		"msg":  msg,
 		"data": nil,
 	})
 	return
 }
-
 
 /**
  * @func: ReturnResult json格式返回
@@ -358,7 +355,7 @@ func ParamsInvalid(ctx iris.Context, err error) {
 	ctx.StatusCode(404)
 
 	ctx.JSON(iris.Map{
-		"msg":  "参数错误",
+		"msg":  "参数无效",
 		"data": err.Error(),
 	})
 	return
