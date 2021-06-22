@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/wiidz/goutil/mngs/configMng"
-	"log"
 	"time"
 )
 
@@ -75,18 +74,10 @@ func (mng *RedisMng) Get(key string) (string, error) {
 	defer rc.Close()
 
 	//【2】读取值
-	res, err := rc.Do("GET", key)
+	res, err := redis.String(rc.Do("GET", key))
 
-	log.Println("res", res)
-	log.Println("err", err)
-
-	//【3】判断结果
-	if err != nil || res == nil {
-		return "", err
-	}
-
-	//【4】返回
-	return string(res.([]byte)), nil
+	//【3】返回
+	return res, err
 }
 
 /**
@@ -104,9 +95,7 @@ func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
 	defer rc.Close()
 
 	//【2】获取redis连接
-	reply, err := rc.Do("SET", key, value)
-
-	log.Println("reply", reply)
+	_, err := rc.Do("SET", key, value)
 
 	//【3】判断结果
 	if err != nil {
@@ -231,7 +220,7 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 	rc := mng.Pool.Get()
 	defer rc.Close()
 
-	result, err := rc.Do("hlen", key_name)
+	result, err := redis.String(rc.Do("hlen", key_name))
 	return result, err
 
 }
