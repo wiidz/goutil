@@ -77,6 +77,9 @@ func (mng *RedisMng) Get(key string) (string, error) {
 	//【2】读取值
 	res, err := rc.Do("GET", key)
 
+	log.Println("res",res)
+	log.Println("err",err)
+
 	//【3】判断结果
 	if res != nil {
 		return "", err
