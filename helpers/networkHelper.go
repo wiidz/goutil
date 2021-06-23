@@ -304,6 +304,7 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	var body io.Reader
 	if method == Get {
 		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+		log.Println("【parsedURL.RawQuery】",parsedURL.RawQuery)
 	} else {
 		body = strings.NewReader(param.Encode())
 	}
@@ -324,6 +325,7 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	fmt.Println("\n***************************")
 	fmt.Println("Request:")
 	fmt.Println("【method,apiURL】", method.String(), targetURL)
+	fmt.Println("【parsedURL】", parsedURL.String())
 	fmt.Println("【body】", body)
 	fmt.Println("【header】", request.Header)
 	//【6】发送请求
