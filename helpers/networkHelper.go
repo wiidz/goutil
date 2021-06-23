@@ -301,7 +301,10 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 		}
 	}
 
-	log.Println("【apiURL】", targetURL, body)
+	log.Println("\n***************************")
+	log.Println("【method】", method.String())
+	log.Println("【apiURL】", targetURL)
+	log.Println("【body】", body)
 	log.Println("【header】", request.Header)
 	//【6】发送请求
 	resp, _ := client.Do(request)
@@ -310,6 +313,7 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
 	log.Println("【resp.Body】", resp.Body)
+	log.Println("***************************\n")
 	var netReturn map[string]interface{}
 	json.Unmarshal(data, &netReturn)
 
