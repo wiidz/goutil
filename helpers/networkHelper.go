@@ -301,8 +301,8 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 		}
 	}
 
-	log.Println("apiURL", targetURL, body)
-
+	log.Println("【apiURL】", targetURL, body)
+	log.Println("【header】", request.Header)
 	//【6】发送请求
 	resp, _ := client.Do(request)
 	defer resp.Body.Close()
