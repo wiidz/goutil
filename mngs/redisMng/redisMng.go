@@ -75,6 +75,9 @@ func (mng *RedisMng) Get(key string) (string, error) {
 
 	//【2】读取值
 	res, err := redis.String(rc.Do("GET", key))
+	if err != nil && err.Error() == "redigo: nil returned" {
+		return "",nil
+	}
 
 	//【3】返回
 	return res, err
