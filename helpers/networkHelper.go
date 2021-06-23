@@ -198,17 +198,37 @@ func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (f
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string) (fileName, pathString string, err error) {
+func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, pathString string, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
 	}
+	//【1】解析URL
+	var parsedURL *url.URL
+	parsedURL, err = url.Parse(targetURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return
+	}
 
 	//【1】下载文件
-	resp, err := http.Get(targetURL)
+	client := &http.Client{}
+	var body io.Reader
+
+	//【4】创建请求
+	request, err := http.NewRequest("GET", parsedURL.String(), body)
 	if err != nil {
-		return "", "", err
+		panic(err)
 	}
+
+	//【5】增加header选项
+	if len(headers) > 0 {
+		for k, v := range headers {
+			request.Header.Add(k, v)
+		}
+	}
+
+	resp, _ := client.Do(request)
 	defer resp.Body.Close()
 
 	//【2】创建一个文件用于保存
