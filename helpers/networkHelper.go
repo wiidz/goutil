@@ -301,22 +301,25 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 		}
 	}
 
-	log.Println("\n***************************")
-	log.Println("【method】", method.String())
-	log.Println("【apiURL】", targetURL)
-	log.Println("【body】", body)
-	log.Println("【header】", request.Header)
+	fmt.Println("\n***************************")
+	fmt.Println("Request:")
+	fmt.Println("【method,apiURL】", method.String(), targetURL)
+	fmt.Println("【body】", body)
+	fmt.Println("【header】", request.Header)
 	//【6】发送请求
 	resp, _ := client.Do(request)
 	defer resp.Body.Close()
 
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
-	log.Println("【resp.Body】", resp.Body)
-	log.Println("***************************\n")
+	fmt.Println("\n\nResponse:")
+	fmt.Println("【body-data】", data)
+
 	var netReturn map[string]interface{}
 	json.Unmarshal(data, &netReturn)
 
+	fmt.Println("【body-json】", netReturn)
+	fmt.Println("***************************\n")
 	//【8】返回
 	return netReturn, resp.Header, resp.StatusCode, err
 
