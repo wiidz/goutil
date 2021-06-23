@@ -313,7 +313,7 @@ func (*NetworkHelper) Request(method Method, targetURL string, params map[string
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("\n\nResponse:")
-	fmt.Println("【body-data】", data)
+	fmt.Println("【body-data】", string(data))
 
 	var netReturn map[string]interface{}
 	json.Unmarshal(data, &netReturn)
