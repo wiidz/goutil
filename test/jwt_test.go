@@ -7,7 +7,14 @@ import (
 	"time"
 )
 
-var mng = jwtMng.GetJwtMng("hujiayilu123")
+type TokenData struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	jwt.StandardClaims
+}
+
+var tokenData = TokenData{}
+var mng = jwtMng.GetJwtMng("hujiayilu123",tokenData)
 
 func GetToken() {
 

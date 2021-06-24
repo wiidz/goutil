@@ -10,11 +10,11 @@ import (
 )
 
 type JwtMng struct {
-	TokenStruct jwt.StandardClaims `json:"token_struct"`
-	SaltKey     []byte             `json:"salt_key"` //盐值
+	TokenStruct jwt.Claims `json:"token_struct"`
+	SaltKey     []byte     `json:"salt_key"` //盐值
 }
 
-func GetJwtMng(saltKey string, tokenStruct jwt.StandardClaims) *JwtMng {
+func GetJwtMng(saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	return &JwtMng{
 		SaltKey:     []byte(saltKey),
 		TokenStruct: tokenStruct,
@@ -62,7 +62,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		return
 	}
 
-	if err := mng.Decrypt(&mng.TokenStruct, tokenStr); err != nil {
+	if err := mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
