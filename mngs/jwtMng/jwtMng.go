@@ -6,10 +6,14 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
-	"log"
+	"golang.org/x/xerrors"
+	"reflect"
 	"strings"
 	"time"
 )
+
+var structHelper = helpers.StructHelper{}
+var typeHelper = helpers.TypeHelper{}
 
 type JwtMng struct {
 	TokenStruct jwt.Claims `json:"token_struct"`
@@ -42,17 +46,10 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 		return mng.SaltKey, nil
 	})
 
-	log.Println("claims", claims)
-
-	if err != nil {
-		fmt.Println("Couldn't handle this token:", err)
-		return err
+	if token != nil && token.Valid {
+		return nil
 	}
-
-	if !token.Valid {
-		return errors.New("failed")
-	}
-	return nil
+	return err
 }
 
 /**
@@ -60,16 +57,15 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
  **/
 func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) error {
 
-	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return mng.SaltKey, nil
 	}, jwt.WithoutClaimsValidation())
 
-	if err != nil {
-		fmt.Println("Couldn't handle this token:", err)
-		return err
+	if !token.Valid {
+		return errors.New("token验证失败")
 	}
 
-	return nil
+	return err
 }
 
 func (mng *JwtMng) Serve(ctx iris.Context) {
@@ -115,23 +111,35 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 		return
 	}
 
-	if err := mng.DecryptWithoutValidation(mng.TokenStruct, tokenStr); err != nil {
-		helpers.ReturnError(ctx, err.Error())
+	err = mng.Decrypt(mng.TokenStruct, tokenStr)
+
+	// 判断错误过期
+	var expErr *jwt.TokenExpiredError
+	if xerrors.As(err, &expErr) || err == nil {
+
+		//【】取出过期时间
+		immutable := reflect.ValueOf(err)
+		expiredBy := immutable.Elem().FieldByName("ExpiredBy")
+
+		//log.Println("aa", expiredBy.Interface().(time.Duration))
+		//log.Println("bb", (time.Duration(validDuration) * time.Second))
+
+		if expiredBy.Interface().(time.Duration) > (time.Duration(validDuration) * time.Second) {
+			helpers.ReturnError(ctx, "已超出预定时长")
+			return
+		}
+
+		newToken, err := mng.GetTokenStr(mng.TokenStruct)
+		if err != nil {
+			helpers.ReturnError(ctx, err.Error())
+			return
+		}
+
+		helpers.ReturnResult(ctx, "success", newToken, 200)
 		return
 	}
 
-	log.Println(mng.TokenStruct.(jwt.StandardClaims).ExpiresAt)
-	diff := mng.TokenStruct.(jwt.StandardClaims).ExpiresAt.Sub(time.Now())
-	if diff.Seconds() > validDuration {
-		helpers.ReturnError(ctx, "已超出预定时长")
-	}
-
-	newToken, err := mng.GetTokenStr(mng.TokenStruct)
-	if err != nil {
-		helpers.ReturnError(ctx, err.Error())
-		return
-	}
-
-	helpers.ReturnResult(ctx, "success", newToken, 200)
+	helpers.ReturnError(ctx, err.Error())
 	return
+
 }
