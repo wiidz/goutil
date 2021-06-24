@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strconv"
@@ -113,6 +114,26 @@ func (*StructHelper) GetStructAllKV(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
+		//fmt.Println(fmt.Sprintf("field [%d]%s and type is %v", i, typ.Field(i).Name, typ.Field(i).Type))
+		fmt.Println("["+strconv.Itoa(i)+"]", typ.Field(i).Name, typ.Field(i).Type, typ.Field(i))
+	}
+}
+
+
+/**
+ * @func: GetStructAllFields  打印结构体的所有键值对
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (*StructHelper) GetStructPointAllKV(target interface{}) {
+
+	value := reflect.ValueOf(target)
+	typ := value.Type()
+
+	log.Println("value",value)
+	log.Println("typ",typ)
+
+	for i := 0; i < value.Elem().NumField(); i++ {
 		//fmt.Println(fmt.Sprintf("field [%d]%s and type is %v", i, typ.Field(i).Name, typ.Field(i).Type))
 		fmt.Println("["+strconv.Itoa(i)+"]", typ.Field(i).Name, typ.Field(i).Type, typ.Field(i))
 	}
