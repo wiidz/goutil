@@ -128,7 +128,7 @@ func (*StructHelper) GetStructAllKV(target interface{}) {
 func (*StructHelper) GetStructPointAllKV(target interface{}) {
 
 	value := reflect.ValueOf(target)
-	typ := value.Type()
+	typ := value.Elem().Type()
 
 	log.Println("value",value)
 	log.Println("typ",typ)
