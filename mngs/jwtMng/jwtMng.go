@@ -8,6 +8,7 @@ import (
 	"github.com/wiidz/goutil/helpers"
 	"log"
 	"strings"
+	"time"
 )
 
 type JwtMng struct {
@@ -41,7 +42,7 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 		return mng.SaltKey, nil
 	})
 
-	log.Println("claims",claims)
+	log.Println("claims", claims)
 
 	if err != nil {
 		fmt.Println("Couldn't handle this token:", err)
@@ -54,11 +55,10 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	return nil
 }
 
-
 /**
  * Decrypt ： 解码
  **/
-func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string, doValidation bool) error {
+func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) error {
 
 	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return mng.SaltKey, nil
@@ -85,7 +85,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		return
 	}
 
-	ctx.Values().Set("token_data",mng.TokenStruct)
+	ctx.Values().Set("token_data", mng.TokenStruct)
 
 	// If everything ok then call next.
 	ctx.Next()
@@ -105,4 +105,33 @@ func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 	}
 
 	return authHeaderParts[1], nil
+}
+
+func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
+
+	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
+	if err != nil {
+		helpers.ReturnError(ctx, err.Error())
+		return
+	}
+
+	if err := mng.DecryptWithoutValidation(mng.TokenStruct, tokenStr); err != nil {
+		helpers.ReturnError(ctx, err.Error())
+		return
+	}
+
+	log.Println(mng.TokenStruct.(jwt.StandardClaims).ExpiresAt)
+	diff := mng.TokenStruct.(jwt.StandardClaims).ExpiresAt.Sub(time.Now())
+	if diff.Seconds() > validDuration {
+		helpers.ReturnError(ctx, "已超出预定时长")
+	}
+
+	newToken, err := mng.GetTokenStr(mng.TokenStruct)
+	if err != nil {
+		helpers.ReturnError(ctx, err.Error())
+		return
+	}
+
+	helpers.ReturnResult(ctx, "success", newToken, 200)
+	return
 }
