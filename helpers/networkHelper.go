@@ -23,6 +23,7 @@ const (
 	Post   Method = 2
 	Put    Method = 3
 	Delete Method = 4
+	Options Method = 5
 )
 
 func (p Method) String() string {
@@ -35,6 +36,8 @@ func (p Method) String() string {
 		return "PUT"
 	case Delete:
 		return "DELETE"
+	case Options:
+		return "OPTIONS"
 	default:
 		return "UNKNOWN"
 	}
