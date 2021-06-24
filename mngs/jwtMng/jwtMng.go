@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
+	"log"
 	"strings"
 )
 
@@ -40,18 +41,35 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 		return mng.SaltKey, nil
 	})
 
+	log.Println("claims",claims)
+
 	if err != nil {
 		fmt.Println("Couldn't handle this token:", err)
 		return err
 	}
 
-	if token.Valid {
-		fmt.Println("You look nice today")
-		return nil
-	} else {
-		fmt.Println("failed")
+	if !token.Valid {
 		return errors.New("failed")
 	}
+	return nil
+}
+
+
+/**
+ * Decrypt ： 解码
+ **/
+func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string, doValidation bool) error {
+
+	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return mng.SaltKey, nil
+	}, jwt.WithoutClaimsValidation())
+
+	if err != nil {
+		fmt.Println("Couldn't handle this token:", err)
+		return err
+	}
+
+	return nil
 }
 
 func (mng *JwtMng) Serve(ctx iris.Context) {
@@ -66,6 +84,9 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
+
+	ctx.Values().Set("token_data",mng.TokenStruct)
+
 	// If everything ok then call next.
 	ctx.Next()
 }
