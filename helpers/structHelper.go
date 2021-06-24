@@ -83,7 +83,7 @@ func (s *Set) SortList() []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetStructAllMethods(target interface{}) {
+func (*StructHelper) GetStructAllMethods(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumMethod(); i++ {
@@ -96,7 +96,7 @@ func GetStructAllMethods(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetStructAllFields(target interface{}) {
+func (*StructHelper) GetStructAllFields(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
@@ -109,7 +109,7 @@ func GetStructAllFields(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func GetStructAllKV(target interface{}) {
+func (*StructHelper) GetStructAllKV(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
