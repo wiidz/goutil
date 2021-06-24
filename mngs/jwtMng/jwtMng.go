@@ -10,12 +10,14 @@ import (
 )
 
 type JwtMng struct {
-	SaltKey []byte `json:"salt_key"` //盐值
+	TokenStruct jwt.StandardClaims `json:"token_struct"`
+	SaltKey     []byte             `json:"salt_key"` //盐值
 }
 
-func GetJwtMng(saltKey string) *JwtMng {
+func GetJwtMng(saltKey string, tokenStruct jwt.StandardClaims) *JwtMng {
 	return &JwtMng{
-		SaltKey: []byte(saltKey),
+		SaltKey:     []byte(saltKey),
+		TokenStruct: tokenStruct,
 	}
 }
 
@@ -38,7 +40,7 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 		return mng.SaltKey, nil
 	})
 
-	if err != nil{
+	if err != nil {
 		fmt.Println("Couldn't handle this token:", err)
 		return err
 	}
@@ -56,14 +58,12 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
-		helpers.ReturnError(ctx,err.Error())
+		helpers.ReturnError(ctx, err.Error())
 		return
 	}
 
-	var tokenData TokenData
-
-	if err := mng.Decrypt(&tokenData, tokenStr); err != nil {
-		helpers.ReturnError(ctx,err.Error())
+	if err := mng.Decrypt(&mng.TokenStruct, tokenStr); err != nil {
+		helpers.ReturnError(ctx, err.Error())
 		return
 	}
 	// If everything ok then call next.

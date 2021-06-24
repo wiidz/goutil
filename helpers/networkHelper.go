@@ -335,6 +335,7 @@ func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[str
 
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
+
 	//【8】返回
 	return string(data), resp.Header, resp.StatusCode, err
 
