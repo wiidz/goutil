@@ -7,6 +7,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
 	"golang.org/x/xerrors"
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -70,18 +71,25 @@ func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) 
 
 func (mng *JwtMng) Serve(ctx iris.Context) {
 
+	log.Println("serve")
+
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
+	log.Println("tokenStr",tokenStr)
 
 	if err := mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
 
+	log.Println(" mng.TokenStruct", mng.TokenStruct)
+
 	ctx.Values().Set("token_data", mng.TokenStruct)
+
+	log.Println("saved")
 
 	// If everything ok then call next.
 	ctx.Next()
