@@ -207,19 +207,19 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 		localPath = "/tmp/download/"
 	}
 	//【1】解析URL
-	var parsedURL *url.URL
-	parsedURL, err = url.Parse(targetURL)
-	if err != nil {
-		fmt.Printf("解析url错误:\r\n%v", err)
-		return
-	}
+	//var parsedURL *url.URL
+	//parsedURL, err = url.Parse(targetURL)
+	//if err != nil {
+	//	fmt.Printf("解析url错误:\r\n%v", err)
+	//	return
+	//}
 
 	//【1】下载文件
 	client := &http.Client{}
 	var body io.Reader
 
 	//【4】创建请求
-	request, err := http.NewRequest("GET", parsedURL.String(), body)
+	request, err := http.NewRequest("GET", targetURL, body)
 	if err != nil {
 		panic(err)
 	}
