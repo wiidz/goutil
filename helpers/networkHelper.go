@@ -201,7 +201,7 @@ func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (f
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, pathString string, err error) {
+func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, pathString string, header http.Header,err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -231,26 +231,32 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 		}
 	}
 
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
 	defer resp.Body.Close()
+
+	header = resp.Header
+
+	if err!=nil{
+		return
+	}
 
 	//【2】创建一个文件用于保存
 	fileName = strHelper.GetRandomString(10) + "." + format
 	tempPath := localPath + fileName
 	out, err := os.Create(tempPath)
 	if err != nil {
-		return "", "", err
+		return
 	}
 	defer out.Close()
 
 	//【3】然后将响应流和文件流对接起来
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return "", "", err
+		return
 	}
 
 	//【4】返回地址
-	return fileName, tempPath, err
+	return
 }
 
 /**
