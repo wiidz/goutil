@@ -79,7 +79,7 @@ func (networkHelper *NetworkHelper) GetParsedURL(apiURL string, params map[strin
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, http.Header, error) {
+func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -112,7 +112,7 @@ func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]
 	json.Unmarshal(data, &netReturn)
 
 	//【5】返回
-	return netReturn, resp.Header, err
+	return netReturn, &resp.Header, err
 }
 
 /**
@@ -120,7 +120,7 @@ func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, http.Header, error) {
+func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -154,7 +154,7 @@ func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string
 	json.Unmarshal(data, &netReturn)
 
 	//【5】返回
-	return netReturn, resp.Header, err
+	return netReturn, &resp.Header, err
 }
 
 /**
