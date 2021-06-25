@@ -285,7 +285,7 @@ func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface
 }
 
 
-func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, http.Header, int, error) {
+func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -341,11 +341,11 @@ func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[str
 	data, err := ioutil.ReadAll(resp.Body)
 
 	//【8】返回
-	return string(data), resp.Header, resp.StatusCode, err
+	return string(data), &resp.Header, resp.StatusCode, err
 
 }
 
-func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, http.Header, int, error) {
+func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -408,7 +408,7 @@ func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[st
 	fmt.Println("【body-json】", netReturn)
 	fmt.Println("***************************\n")
 	//【8】返回
-	return netReturn, resp.Header, resp.StatusCode, err
+	return netReturn, &resp.Header, resp.StatusCode, err
 
 }
 
