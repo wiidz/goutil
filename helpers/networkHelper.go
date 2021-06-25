@@ -201,7 +201,7 @@ func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (f
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, tempPath string, header http.Header,err error) {
+func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, tempPath string, header *http.Header,err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -234,7 +234,7 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 	resp, err := client.Do(request)
 	defer resp.Body.Close()
 
-	header = resp.Header
+	header = &resp.Header
 
 	if err!=nil{
 		return
