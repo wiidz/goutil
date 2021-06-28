@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/helpers"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
-	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -161,11 +160,11 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 }
 
 // StorageJWT 存储kwt至redis中
-func (mng *JwtMng) SetJWTCache(appID, userID int, token string) {
+func (mng *JwtMng) SetJWTCache(appID, userID int, token string) (int, error) {
 	redis := redisMng.NewRedisMng()
 	res, err := redis.HSet(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID), token)
-	log.Println("res", res)
-	log.Println("err", err)
+
+	return res.(int), err
 }
 
 //GetJwtCache 从缓存中读取jwt
