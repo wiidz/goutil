@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
+	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
 	"log"
 	"reflect"
@@ -17,10 +18,13 @@ var structHelper = helpers.StructHelper{}
 var typeHelper = helpers.TypeHelper{}
 
 type JwtMng struct {
-	TokenStruct jwt.Claims `json:"token_struct"`
-	SaltKey     []byte     `json:"salt_key"` //盐值
+	AppID           int        `json:"app_id"` // app_id 主要用来区别登陆
+	TokenStruct     jwt.Claims `json:"token_struct"`
+	SaltKey         []byte     `json:"salt_key"`          // 盐值
+	IsSingletonMode bool       `json:"is_singleton_mode"` // 是否单例登陆模式
 }
 
+// GetJwtMng 获取jwt管理器
 func GetJwtMng(saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	return &JwtMng{
 		SaltKey:     []byte(saltKey),
@@ -28,9 +32,7 @@ func GetJwtMng(saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	}
 }
 
-/**
- * GetTokenStr ： 获取jwt token
- **/
+// GetTokenStr： 获取jwt token
 func (mng *JwtMng) GetTokenStr(claims jwt.Claims) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -38,9 +40,7 @@ func (mng *JwtMng) GetTokenStr(claims jwt.Claims) (string, error) {
 	return ss, err
 }
 
-/**
- * Decrypt ： 解码
- **/
+// Decrypt 解码
 func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
@@ -53,9 +53,7 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	return err
 }
 
-/**
- * Decrypt ： 解码
- **/
+// DecryptWithoutValidation 解码但不验证时间
 func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) error {
 
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
@@ -69,34 +67,41 @@ func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) 
 	return err
 }
 
+// Serve 注入服务
 func (mng *JwtMng) Serve(ctx iris.Context) {
 
-	log.Println("serve")
-
+	//【1】从头部获取jwt
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
-	log.Println("tokenStr",tokenStr)
 
+	//【2】尝试解密
 	if err := mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
 		helpers.ReturnError(ctx, err.Error())
 		return
 	}
 
-	log.Println(" mng.TokenStruct", mng.TokenStruct)
+	//【3】判断和缓存中的数据
+	if mng.IsSingletonMode {
+		//【】取出ID
+		immutable := reflect.ValueOf(mng.TokenStruct)
+		id := immutable.Elem().FieldByName("ID").Interface().(int)
+		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
+		if err != nil {
+			return
+		}
+	}
 
+	//【4】写入value
 	ctx.Values().Set("token_data", mng.TokenStruct)
 
-	log.Println("saved")
-
-	// If everything ok then call next.
+	//【5】继续下一步处理
 	ctx.Next()
 }
 
-// FromAuthHeader is a "TokenExtractor" that takes a give context and extracts
-// the JWT token from the Authorization header.
+// FromAuthHeader 从header头中获取jwt
 func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 	if authHeader == "" {
 		return "", errors.New("Authorization header is empty") // No error, just no token
@@ -111,6 +116,7 @@ func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 	return authHeaderParts[1], nil
 }
 
+// RefreshToken 刷新token
 func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
@@ -150,4 +156,35 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 	helpers.ReturnError(ctx, err.Error())
 	return
 
+}
+
+// StorageJWT 存储kwt至redis中
+func (mng *JwtMng) SetJWTCache(appID, userID int, token string) {
+	redis := redisMng.NewRedisMng()
+	res, err := redis.HSet(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID), token)
+	log.Println("res", res)
+	log.Println("err", err)
+}
+
+//GetJwtCache 从缓存中读取jwt
+func (mng *JwtMng) GetJwtCache(appID, userID int) (string, error) {
+	redis := redisMng.NewRedisMng()
+	res, err := redis.HGet(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID))
+	return res.(string), err
+}
+
+// CompareJwtCache 判断jwtToken
+func (mng *JwtMng) CompareJwtCache(appID, userID int, token string) error {
+	//【1】从缓存中读取jwt
+	cacheToken, err := mng.GetJwtCache(appID, userID)
+	if err != nil {
+		return err
+	}
+
+	//【2】判断是否相等
+	if token != cacheToken {
+		return errors.New("该账号正在使用中，请重新登入")
+	}
+
+	return nil
 }
