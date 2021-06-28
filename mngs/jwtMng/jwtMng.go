@@ -158,11 +158,11 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 }
 
 // StorageJWT 存储kwt至redis中
-func (mng *JwtMng) SetCache(appID, userID int, token string) (int, error) {
+func (mng *JwtMng) SetCache(appID, userID int, token string) (int64, error) {
 	redis := redisMng.NewRedisMng()
 	res, err := redis.HSet(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID), token)
 
-	return res.(int), err
+	return res.(int64), err
 }
 
 // GetJwtCache 从缓存中读取jwt
