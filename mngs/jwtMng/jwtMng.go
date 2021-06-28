@@ -13,21 +13,22 @@ import (
 	"time"
 )
 
-var structHelper = helpers.StructHelper{}
 var typeHelper = helpers.TypeHelper{}
 
 type JwtMng struct {
-	AppID           int        `json:"app_id"` // app_id 主要用来区别登陆
+	AppID           int        `json:"app_id"`       // app_id 主要用来区别登陆
+	IdentifyKey     string     `json:"identify_key"` // 身份标识键名，这个key必须存在于tokenStruct里
 	TokenStruct     jwt.Claims `json:"token_struct"`
 	SaltKey         []byte     `json:"salt_key"`          // 盐值
 	IsSingletonMode bool       `json:"is_singleton_mode"` // 是否单例登陆模式
 }
 
 // GetJwtMng 获取jwt管理器
-func GetJwtMng(appID int, isSingletonMode bool, saltKey string, tokenStruct jwt.Claims) *JwtMng {
+func GetJwtMng(appID int, isSingletonMode bool, identifyKey, saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	return &JwtMng{
 		AppID:           appID,
 		IsSingletonMode: isSingletonMode,
+		IdentifyKey:     identifyKey, // 例如 user_id、staff_id等
 		SaltKey:         []byte(saltKey),
 		TokenStruct:     tokenStruct,
 	}
@@ -88,7 +89,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	if mng.IsSingletonMode {
 		//【】取出ID
 		immutable := reflect.ValueOf(mng.TokenStruct)
-		id := immutable.Elem().FieldByName("ID").Interface().(int)
+		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(int)
 		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
 		if err != nil {
 			return
@@ -136,9 +137,6 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 		immutable := reflect.ValueOf(err)
 		expiredBy := immutable.Elem().FieldByName("ExpiredBy")
 
-		//log.Println("aa", expiredBy.Interface().(time.Duration))
-		//log.Println("bb", (time.Duration(validDuration) * time.Second))
-
 		if expiredBy.Interface().(time.Duration) > (time.Duration(validDuration) * time.Second) {
 			helpers.ReturnError(ctx, "已超出预定时长")
 			return
@@ -180,7 +178,6 @@ func (mng *JwtMng) DeleteCache(appID, userID int) (string, error) {
 	res, err := redis.HDel(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID))
 	return res.(string), err
 }
-
 
 // CompareJwtCache 判断jwtToken
 func (mng *JwtMng) CompareJwtCache(appID, userID int, token string) error {
