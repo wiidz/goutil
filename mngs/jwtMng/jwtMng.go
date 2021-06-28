@@ -174,10 +174,10 @@ func (mng *JwtMng) GetCache(appID, userID int) (string, error) {
 }
 
 // DeleteCache 从缓存中删除jwt
-func (mng *JwtMng) DeleteCache(appID, userID int) (string, error) {
+func (mng *JwtMng) DeleteCache(appID, userID int) (int64, error) {
 	redis := redisMng.NewRedisMng()
 	res, err := redis.HDel(typeHelper.Int2Str(appID)+"-jwt", typeHelper.Int2Str(userID))
-	return res.(string), err
+	return res.(int64), err
 }
 
 // CompareJwtCache 判断jwtToken
