@@ -92,6 +92,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(int)
 		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
 		if err != nil {
+			helpers.ReturnError(ctx, err.Error())
 			return
 		}
 	}
