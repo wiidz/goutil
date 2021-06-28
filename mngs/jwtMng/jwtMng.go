@@ -25,10 +25,12 @@ type JwtMng struct {
 }
 
 // GetJwtMng 获取jwt管理器
-func GetJwtMng(saltKey string, tokenStruct jwt.Claims) *JwtMng {
+func GetJwtMng(appID int, isSingletonMode bool, saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	return &JwtMng{
-		SaltKey:     []byte(saltKey),
-		TokenStruct: tokenStruct,
+		AppID:           appID,
+		IsSingletonMode: isSingletonMode,
+		SaltKey:         []byte(saltKey),
+		TokenStruct:     tokenStruct,
 	}
 }
 
