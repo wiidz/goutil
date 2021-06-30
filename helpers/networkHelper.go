@@ -553,7 +553,7 @@ func ReturnError(ctx iris.Context, msg string) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*NetworkHelper) ParamsInvalid(ctx iris.Context, err error) {
+func ParamsInvalid(ctx iris.Context, err error) {
 
 	ctx.StatusCode(404)
 
