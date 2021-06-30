@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutil/mngs/validatorMng"
 	"io"
 	"io/ioutil"
 	"log"
@@ -19,10 +20,10 @@ type NetworkHelper struct{}
 type Method int8
 
 const (
-	Get    Method = 1
-	Post   Method = 2
-	Put    Method = 3
-	Delete Method = 4
+	Get     Method = 1
+	Post    Method = 2
+	Put     Method = 3
+	Delete  Method = 4
 	Options Method = 5
 )
 
@@ -201,7 +202,7 @@ func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (f
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string,headers map[string]string) (fileName, tempPath string, header *http.Header,err error) {
+func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string, headers map[string]string) (fileName, tempPath string, header *http.Header, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -236,7 +237,7 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
 
 	header = &resp.Header
 
-	if err!=nil{
+	if err != nil {
 		return
 	}
 
@@ -393,7 +394,6 @@ func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[st
 
 }
 
-
 func (*NetworkHelper) RequestRawTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
@@ -418,7 +418,7 @@ func (*NetworkHelper) RequestRawTest(method Method, targetURL string, params map
 	var body io.Reader
 	if method == Get {
 		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
-		log.Println("【parsedURL.RawQuery】",parsedURL.RawQuery)
+		log.Println("【parsedURL.RawQuery】", parsedURL.RawQuery)
 	} else {
 		body = strings.NewReader(param.Encode())
 	}
@@ -478,7 +478,7 @@ func (*NetworkHelper) RequestJsonTest(method Method, targetURL string, params ma
 	var body io.Reader
 	if method == Get {
 		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
-		log.Println("【parsedURL.RawQuery】",parsedURL.RawQuery)
+		log.Println("【parsedURL.RawQuery】", parsedURL.RawQuery)
 	} else {
 		body = strings.NewReader(param.Encode())
 	}
@@ -553,7 +553,7 @@ func ReturnError(ctx iris.Context, msg string) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func ParamsInvalid(ctx iris.Context, err error) {
+func (*NetworkHelper) ParamsInvalid(ctx iris.Context, err error) {
 
 	ctx.StatusCode(404)
 
@@ -562,4 +562,20 @@ func ParamsInvalid(ctx iris.Context, err error) {
 		"data": err.Error(),
 	})
 	return
+}
+
+// GetValidatedJson 获取通过validatMng验证过的json数据
+func GetValidatedJson(ctx iris.Context, target interface{}) error {
+	err := ctx.ReadJSON(target)
+	if err != nil {
+		return err
+	}
+	err = validatorMng.GetError(target)
+	return err
+}
+
+// GetJson 获取body体中的json数据
+func GetJson(ctx iris.Context, target interface{}) error {
+	err := ctx.ReadJSON(target)
+	return err
 }
