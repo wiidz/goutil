@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -325,6 +326,8 @@ func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[str
 			request.Header.Add(k, v)
 		}
 	}
+	//【5-1】增加content-Length
+	request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
@@ -378,6 +381,9 @@ func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[st
 			request.Header.Add(k, v)
 		}
 	}
+
+	//【5-1】增加content-Length
+	request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
@@ -435,6 +441,8 @@ func (*NetworkHelper) RequestRawTest(method Method, targetURL string, params map
 			request.Header.Add(k, v)
 		}
 	}
+	//【5-1】增加content-Length
+	request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 
 	fmt.Println("\n***************************")
 	fmt.Println("Request:")
@@ -495,6 +503,8 @@ func (*NetworkHelper) RequestJsonTest(method Method, targetURL string, params ma
 			request.Header.Add(k, v)
 		}
 	}
+	//【5-1】增加content-Length
+	request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 
 	fmt.Println("\n***************************")
 	fmt.Println("Request:")
