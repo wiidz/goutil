@@ -67,7 +67,7 @@ func NewRedisMng() *RedisMng {
  * @Param: [key] 键名
  * @return: [str] 键值
  */
-func (mng *RedisMng) Get(key string) (string, error) {
+func (mng *RedisMng) GetString(key string) (string, error) {
 
 	//【1】取出一条连接
 	rc := mng.Pool.Get()
@@ -75,6 +75,29 @@ func (mng *RedisMng) Get(key string) (string, error) {
 
 	//【2】读取值
 	res, err := redis.String(rc.Do("GET", key))
+	if err != nil && err.Error() == "redigo: nil returned" {
+		return "",nil
+	}
+
+	//【3】返回
+	return res, err
+}
+
+/**
+ * @func:   Get 读取指定键的值
+ * @author: Wiidz
+ * @date:   2020-04-15
+ * @Param: [key] 键名
+ * @return: [str] 键值
+ */
+func (mng *RedisMng) Get(key string) (interface{}, error) {
+
+	//【1】取出一条连接
+	rc := mng.Pool.Get()
+	defer rc.Close()
+
+	//【2】读取值
+	res, err := rc.Do("GET", key)
 	if err != nil && err.Error() == "redigo: nil returned" {
 		return "",nil
 	}
