@@ -2,18 +2,16 @@ package mapHelper
 
 import (
 	"fmt"
-	sliceHelper2 "github.com/wiidz/goutil/helpers/sliceHelper"
+	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"strconv"
 )
-
-type MapHelper struct{}
 
 /**
  * @func: MapEqual 判断两个map内容相同
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) Equal(m1, m2 map[string]interface{}) bool {
+func Equal(m1, m2 map[string]interface{}) bool {
 	for k1, v1 := range m1 {
 		if v2, has := m2[k1]; has {
 			if v1 != v2 {
@@ -40,7 +38,7 @@ func (*MapHelper) Equal(m1, m2 map[string]interface{}) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) Exist(data map[string]interface{}, key string) bool {
+func Exist(data map[string]interface{}, key string) bool {
 
 	if _, ok := data[key]; ok {
 		return true
@@ -54,8 +52,7 @@ func (*MapHelper) Exist(data map[string]interface{}, key string) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) Filter(target map[string]interface{}, fields []string) {
-	var sliceHelper sliceHelper2.SliceHelper
+func Filter(target map[string]interface{}, fields []string) {
 	for k, _ := range target {
 		index := sliceHelper.IndexOfStrSlice(k, fields)
 		if index != -1 {
@@ -71,8 +68,8 @@ func (*MapHelper) Filter(target map[string]interface{}, fields []string) {
  * @author Wiidz
  * @date   2019-11-06
  */
-func (*MapHelper) HasIllegalKey(target map[string]interface{}, fields []string) bool {
-	var sliceHelper sliceHelper2.SliceHelper
+func HasIllegalKey(target map[string]interface{}, fields []string) bool {
+
 	for k, _ := range target {
 		index := sliceHelper.IndexOfStrSlice(k, fields)
 		if index != -1 {
@@ -85,12 +82,7 @@ func (*MapHelper) HasIllegalKey(target map[string]interface{}, fields []string) 
 	return false
 }
 
-/**
- * @func: GetKeys 从 map[string]interface{} 中获取键名
- * @author Wiidz
- * @date   2019-11-16
- */
-func (*MapHelper) GetKeys(imap map[string]interface{}) []string {
+func GetKeys(imap map[string]interface{}) []string {
 	var tmp []string
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -105,7 +97,7 @@ func (*MapHelper) GetKeys(imap map[string]interface{}) []string {
  * @author Wiidz
  * @date  2019-11-16
  */
-func (*MapHelper) GetKeysPlus(imap map[string]map[string]interface{}) []string {
+func GetKeysPlus(imap map[string]map[string]interface{}) []string {
 	var keyNames []string
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -120,7 +112,7 @@ func (*MapHelper) GetKeysPlus(imap map[string]map[string]interface{}) []string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) GetIntKeys(imap map[string]interface{}) []int {
+func GetIntKeys(imap map[string]interface{}) []int {
 	var tmp []int
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -136,7 +128,7 @@ func (*MapHelper) GetIntKeys(imap map[string]interface{}) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) GetIntKeysFromIntKeyMap(imap map[int]bool) []int {
+func GetIntKeysFromIntKeyMap(imap map[int]bool) []int {
 	var tmp []int
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -151,7 +143,7 @@ func (*MapHelper) GetIntKeysFromIntKeyMap(imap map[int]bool) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) GetInt64Keys(imap map[string]interface{}) []int64 {
+func GetInt64Keys(imap map[string]interface{}) []int64 {
 	var tmp []int64
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -167,7 +159,7 @@ func (*MapHelper) GetInt64Keys(imap map[string]interface{}) []int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) GetFloat64Keys(imap map[string]interface{}) []float64 {
+func GetFloat64Keys(imap map[string]interface{}) []float64 {
 	var tmp []float64
 	if len(imap) > 0 {
 		for k, _ := range imap {
@@ -183,7 +175,7 @@ func (*MapHelper) GetFloat64Keys(imap map[string]interface{}) []float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*MapHelper) GetValues(imap map[string]interface{}) []interface{} {
+func GetValues(imap map[string]interface{}) []interface{} {
 	var tmp []interface{}
 	if len(imap) > 0 {
 		for _, v := range imap {

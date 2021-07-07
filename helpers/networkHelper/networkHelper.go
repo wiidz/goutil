@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
-	strHelper2 "github.com/wiidz/goutil/helpers/strHelper"
-	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/validatorMng"
 	"io"
 	"io/ioutil"
@@ -24,8 +25,6 @@ type ReadCommonStruct struct {
 	PageSize  int    `json:"page_size" belong:"etc" default:"10"`
 	Order     string `json:"order" belong:"etc" default:"id asc"`
 }
-
-type NetworkHelper struct{}
 
 type Method int8
 
@@ -54,15 +53,12 @@ func (p Method) String() string {
 	}
 }
 
-var typeHelper = typeHelper2.TypeHelper{}
-var strHelper = strHelper2.StrHelper{}
-
 /**
  * @func: GetParsedURL 获取get地址
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetParsedURL(apiURL string, params map[string]interface{}) (string, error) {
+func  GetParsedURL(apiURL string, params map[string]interface{}) (string, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -90,7 +86,7 @@ func (networkHelper *NetworkHelper) GetParsedURL(apiURL string, params map[strin
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
+func  GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -131,7 +127,7 @@ func (networkHelper *NetworkHelper) GetRequest(apiURL string, params map[string]
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
+func  PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -173,7 +169,7 @@ func (networkHelper *NetworkHelper) PostRequest(apiURL string, params map[string
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (fileName, pathString string, err error) {
+func  DownloadFile(targetURL, localPath string) (fileName, pathString string, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -212,7 +208,7 @@ func (networkHelper *NetworkHelper) DownloadFile(targetURL, localPath string) (f
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string, headers map[string]string) (fileName, tempPath string, header *http.Header, err error) {
+func  DownloadFileWithFormat(targetURL, localPath, format string, headers map[string]string) (fileName, tempPath string, header *http.Header, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -270,7 +266,7 @@ func (*NetworkHelper) DownloadFileWithFormat(targetURL, localPath, format string
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, error) {
+func  PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, error) {
 
 	param := url.Values{}
 
@@ -295,7 +291,7 @@ func (*NetworkHelper) PostJsonRequest(apiURL string, params map[string]interface
 	return data, e
 }
 
-func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
+func  RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -352,7 +348,7 @@ func (*NetworkHelper) RequestRaw(method Method, targetURL string, params map[str
 
 }
 
-func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
+func  RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -413,7 +409,7 @@ func (*NetworkHelper) RequestJson(method Method, targetURL string, params map[st
 
 }
 
-func (*NetworkHelper) RequestRawTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
+func  RequestRawTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -477,7 +473,7 @@ func (*NetworkHelper) RequestRawTest(method Method, targetURL string, params map
 
 }
 
-func (*NetworkHelper) RequestJsonTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
+func  RequestJsonTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -788,3 +784,253 @@ func getFormattedValue(t string, value interface{}) interface{} {
 	}
 }
 
+// GetReadInterface 获取read参数
+func GetReadInterface(ctx iris.Context, params mysqlMng.ReadInterface) error {
+
+	//【1】提取字段
+	t := reflect.TypeOf(params)
+	v := reflect.ValueOf(params)
+
+	// 【2】初始化变量
+	condition := map[string]interface{}{}
+	etc := map[string]interface{}{}
+
+	//【3】遍历过滤参数
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【3-1】获取标签值
+		field := t.Elem().Field(i)
+		belong := field.Tag.Get("belong")
+		jsonTag := field.Tag.Get("json")
+		kind := field.Tag.Get("kind")
+		fieldName := field.Tag.Get("field")
+		defaultValue := field.Tag.Get("default")
+
+		if fieldName == "" {
+			fieldName = jsonTag
+		}
+
+		//【3-2】取值
+		temp := ctx.URLParam(jsonTag)
+		if temp == "" {
+			if defaultValue == "" {
+				//即没有默认值也没有值传递过来的，跳过
+				continue
+			}
+			temp = defaultValue
+			log.Println("temp",temp)
+		}
+
+		//【3-3】将值处理成需要的格式
+		formattedValue := getFormattedValue(field.Type.String(), temp)
+
+		//【3-4】将值赋值给param结构体的对应字段
+		val := reflect.ValueOf(formattedValue)
+		v.Elem().Field(i).Set(val)
+
+		//【3-5】填充到condition、etcMap
+		switch belong {
+		case "condition":
+			switch kind {
+			case "like":
+				condition[fieldName] = []interface{}{"like", "%" + temp + "%"}
+			case "between":
+				tempSlice := typeHelper.Explode(temp, ",")
+				condition[fieldName] = []interface{}{"between", tempSlice[0], tempSlice[1]}
+			default:
+				condition[fieldName] = temp
+			}
+		case "etc":
+			etc[jsonTag] = temp
+		}
+	}
+
+	//【4】验证参数是否合法
+	err := validatorMng.GetError(params)
+	if err != nil {
+		return err
+	}
+
+	//【5】返回
+	params.SetCondition(condition)
+	if pageNow, ok := etc["page_now"].(string); ok {
+		params.(mysqlMng.ReadInterface).SetPageNow(typeHelper.Str2Int(pageNow))
+	} else {
+		params.(mysqlMng.ReadInterface).SetPageNow(0)
+	}
+	if pageSize, ok := etc["page_size"].(string); ok {
+		params.(mysqlMng.ReadInterface).SetPageSize(typeHelper.Str2Int(pageSize))
+	} else {
+		params.(mysqlMng.ReadInterface).SetPageSize(10)
+	}
+	if order, ok := etc["order"].(string); ok {
+		params.(mysqlMng.ReadInterface).SetOrder(order)
+	} else {
+		params.(mysqlMng.ReadInterface).SetOrder("id asc")
+	}
+
+	return nil
+}
+
+// GetCreateInterface 获取create参数
+func GetCreateInterface(params mysqlMng.InsertInterface) error {
+
+	//【1】提取字段
+	t := reflect.TypeOf(params)
+	v := reflect.ValueOf(params)
+	rawJsonMap := params.GetRawJsonMap()
+	filteredMap := map[string]interface{}{}
+	//【2】遍历过param结构体，处理数据
+
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【2-1】获取标签值
+		field := t.Elem().Field(i)
+		belong := field.Tag.Get("belong")
+		jsonTag := field.Tag.Get("json")
+		fieldName := field.Tag.Get("field")
+		defaultValue := field.Tag.Get("default")
+
+		if belong == "" {
+			continue
+		}
+
+		//【2-2】将值处理成需要的格式
+		temp, ok := rawJsonMap[jsonTag]
+		if !ok {
+			if defaultValue == "" {
+				//即没有默认值也没有值传递过来的，跳过
+				continue
+			}
+			temp = defaultValue
+		}
+		formattedValue := getFormattedValue(field.Type.String(), temp)
+
+		//【2-3】将值赋值给param结构体的对应字段
+		val := reflect.ValueOf(formattedValue)
+
+		if val != reflect.Zero(field.Type){
+			v.Elem().Field(i).Set(val)
+		}
+
+
+		//【2-4】填充到valueMap中
+		if belong != "value" {
+			continue
+		}
+		if fieldName == "" {
+			fieldName = jsonTag
+		}
+		filteredMap[fieldName] = formattedValue
+	}
+
+	//【3】验证参数是否合法
+	err := validatorMng.GetError(params)
+	if err != nil {
+		return err
+	}
+
+	// 【4】获取row
+	row := params.(mysqlMng.InsertInterface).GetRow()
+	t = reflect.TypeOf(row)
+	v = reflect.ValueOf(row)
+
+	log.Println("ssss", t)
+
+	//【5】遍历row结构体
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【5-1】获取标签值
+		field := t.Elem().Field(i)
+		jsonTag := field.Tag.Get("json")
+		fieldName := field.Tag.Get("field")
+		if fieldName == "" {
+			fieldName = jsonTag
+		}
+
+		//【5-2】取值
+		mapValue, ok := filteredMap[jsonTag]
+		if !ok {
+			continue
+		}
+
+		//【5-3】将值赋值给row结构体的对应字段
+		val := reflect.ValueOf(mapValue)
+		v.Elem().Field(i).Set(val)
+	}
+
+	return nil
+}
+
+// GetJsonInterface 获取json参数
+func GetJsonInterface(params mysqlMng.JsonInterface) error {
+
+	//【1】提取字段
+	t := reflect.TypeOf(params)
+	v := reflect.ValueOf(params)
+	rawJsonMap := params.GetRawJsonMap()
+
+	// 【2】初始化变量
+	condition := map[string]interface{}{}
+	value := map[string]interface{}{}
+
+	//【3】遍历过滤参数
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【3-1】获取标签值
+		field := t.Elem().Field(i)
+		belong := field.Tag.Get("belong")
+		jsonTag := field.Tag.Get("json")
+		kind := field.Tag.Get("kind")
+		fieldName := field.Tag.Get("field")
+		defaultValue := field.Tag.Get("default")
+
+		if fieldName == "" {
+			fieldName = jsonTag
+		}
+
+		//【2-2】将值处理成需要的格式
+		temp, ok := rawJsonMap[jsonTag]
+		if !ok {
+			if defaultValue == "" {
+				//即没有默认值也没有值传递过来的，跳过
+				continue
+			}
+			temp = defaultValue
+		}
+		formattedValue := getFormattedValue(field.Type.String(), temp)
+
+		//【2-3】将值赋值给param结构体的对应字段
+		val := reflect.ValueOf(formattedValue)
+		v.Elem().Field(i).Set(val)
+
+		//【3-3】填充
+		switch belong {
+		case "condition":
+			switch kind {
+			case "like":
+				condition[fieldName] = []interface{}{"like", "%" + formattedValue.(string) + "%"}
+			case "between":
+				tempSlice := typeHelper.Explode(formattedValue.(string), ",")
+				condition[fieldName] = []interface{}{"between", tempSlice[0], tempSlice[1]}
+			case "in":
+				fieldName := field.Tag.Get("field")
+				condition[fieldName] = []interface{}{"in"}
+				condition[fieldName] = append(condition[fieldName].([]interface{}), formattedValue)
+			default:
+				condition[fieldName] = formattedValue
+			}
+		case "value":
+			value[fieldName] = formattedValue
+		}
+	}
+
+	//【4】返回
+	if _, ok := params.(mysqlMng.UpdateInterface); ok {
+		params.(mysqlMng.UpdateInterface).SetCondition(condition)
+		params.(mysqlMng.UpdateInterface).SetValue(value)
+	} else if _, ok := params.(mysqlMng.DeleteInterface); ok {
+		params.(mysqlMng.DeleteInterface).SetCondition(condition)
+	}
+	return nil
+}

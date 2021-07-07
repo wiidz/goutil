@@ -11,17 +11,15 @@ import (
 	"time"
 )
 
-type TypeHelper struct{}
-
 /**
  * @func: Implode 将slice转换成字符串
  * @author Wiidz
  * @date   2019-11-16
  */
-func (typeHelper *TypeHelper) Implode(data interface{}, glue string) string {
+func  Implode(data interface{}, glue string) string {
 	var tmp []string
 	for _, item := range data.([]interface{}) {
-		tmp = append(tmp, typeHelper.ToString(item))
+		tmp = append(tmp, ToString(item))
 	}
 
 	return strings.Join(tmp, glue)
@@ -32,7 +30,7 @@ func (typeHelper *TypeHelper) Implode(data interface{}, glue string) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Explode(data string, sep string) []interface{} {
+func  Explode(data string, sep string) []interface{} {
 
 	old := strings.Split(data, sep)
 
@@ -52,7 +50,7 @@ func (*TypeHelper) Explode(data string, sep string) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  (*TypeHelper)  ExplodeStr(data string, sep string) []string {
+func    ExplodeStr(data string, sep string) []string {
 	old := strings.Split(data, sep)
 	newS := make([]string, len(old))
 	for i, v := range old {
@@ -66,7 +64,7 @@ func  (*TypeHelper)  ExplodeStr(data string, sep string) []string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) ExplodeInt(data string, sep string) []int {
+func  ExplodeInt(data string, sep string) []int {
 	old := strings.Split(data, sep)
 	newS := make([]int, len(old))
 	for i, v := range old {
@@ -80,7 +78,7 @@ func (*TypeHelper) ExplodeInt(data string, sep string) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) ExplodeFloat64(data string, sep string) []float64 {
+func  ExplodeFloat64(data string, sep string) []float64 {
 	old := strings.Split(data, sep)
 	newS := make([]float64, len(old))
 	for i, v := range old {
@@ -94,7 +92,7 @@ func (*TypeHelper) ExplodeFloat64(data string, sep string) []float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) ExplodeInt64(data string, sep string) []int64 {
+func  ExplodeInt64(data string, sep string) []int64 {
 	old := strings.Split(data, sep)
 	newS := make([]int64, len(old))
 	for i, v := range old {
@@ -108,7 +106,7 @@ func (*TypeHelper) ExplodeInt64(data string, sep string) []int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) GetType(params interface{}) string {
+func  GetType(params interface{}) string {
 	//数据初始化
 	v := reflect.ValueOf(params)
 	//获取传递参数类型
@@ -122,59 +120,59 @@ func (*TypeHelper) GetType(params interface{}) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (typeHelper *TypeHelper) Empty(arg interface{}) bool {
+func  Empty(arg interface{}) bool {
 	switch arg.(type) {
 
 	case int:
-		return typeHelper.If(arg.(int) == int(0), true, false).(bool)
+		return If(arg.(int) == int(0), true, false).(bool)
 	case int64:
-		return typeHelper.If(arg.(int64) == int64(0), true, false).(bool)
+		return If(arg.(int64) == int64(0), true, false).(bool)
 
 	case float64:
-		return typeHelper.If(arg.(float64) == float64(0.00), true, false).(bool)
+		return If(arg.(float64) == float64(0.00), true, false).(bool)
 
 	case []byte:
 
-		return typeHelper.If(len(arg.([]byte)) == 0, true, false).(bool)
+		return If(len(arg.([]byte)) == 0, true, false).(bool)
 
 	case string:
-		return typeHelper.If(arg.(string) == " " || arg.(string) == "" || arg.(string) == "0" || arg.(string) == "NULL", true, false).(bool)
+		return If(arg.(string) == " " || arg.(string) == "" || arg.(string) == "0" || arg.(string) == "NULL", true, false).(bool)
 
 	case map[string]interface{}:
 
-		return typeHelper.If(len(arg.(map[string]interface{})) == 0, true, false).(bool)
+		return If(len(arg.(map[string]interface{})) == 0, true, false).(bool)
 
 	case []interface{}:
 
-		return typeHelper.If(len(arg.([]interface{})) == 0, true, false).(bool)
+		return If(len(arg.([]interface{})) == 0, true, false).(bool)
 
 	case []string:
 
-		return typeHelper.If(len(arg.([]string)) == 0, true, false).(bool)
+		return If(len(arg.([]string)) == 0, true, false).(bool)
 
 	case []int64:
 
-		return typeHelper.If(len(arg.([]int64)) == 0, true, false).(bool)
+		return If(len(arg.([]int64)) == 0, true, false).(bool)
 
 	case []float64:
 
-		return typeHelper.If(len(arg.([]float64)) == 0, true, false).(bool)
+		return If(len(arg.([]float64)) == 0, true, false).(bool)
 
 	case []int:
 
-		return typeHelper.If(len(arg.([]int)) == 0, true, false).(bool)
+		return If(len(arg.([]int)) == 0, true, false).(bool)
 
 	case []map[string]interface{}:
 
-		return typeHelper.If(len(arg.([]map[string]interface{})) == 0, true, false).(bool)
+		return If(len(arg.([]map[string]interface{})) == 0, true, false).(bool)
 
 	case types.Nil:
 
-		return typeHelper.If(arg == nil, true, false).(bool)
+		return If(arg == nil, true, false).(bool)
 
 	case bool:
 
-		return typeHelper.If(!arg.(bool), true, false).(bool)
+		return If(!arg.(bool), true, false).(bool)
 
 	default:
 
@@ -187,7 +185,7 @@ func (typeHelper *TypeHelper) Empty(arg interface{}) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) IsType(needle interface{}, type_name string) bool {
+func  IsType(needle interface{}, type_name string) bool {
 	if reflect.TypeOf(needle).String() == type_name {
 		return true
 	}
@@ -199,7 +197,7 @@ func (*TypeHelper) IsType(needle interface{}, type_name string) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) StrSlice2InterfaceSlice(data []string) []interface{} {
+func  StrSlice2InterfaceSlice(data []string) []interface{} {
 	tmp := make([]interface{}, 0)
 	for _, v := range data {
 		tmp = append(tmp, v)
@@ -212,7 +210,7 @@ func (*TypeHelper) StrSlice2InterfaceSlice(data []string) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) ToString(data interface{}) string {
+func  ToString(data interface{}) string {
 	switch data.(type) {
 	case int:
 		return strconv.Itoa(data.(int))
@@ -242,7 +240,7 @@ func (*TypeHelper) ToString(data interface{}) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Map2InterfaceSlice(data map[string]interface{}) []interface{} {
+func  Map2InterfaceSlice(data map[string]interface{}) []interface{} {
 	islice := []interface{}{}
 	for _, v := range data {
 		islice = append(islice, v)
@@ -255,7 +253,7 @@ func (*TypeHelper) Map2InterfaceSlice(data map[string]interface{}) []interface{}
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Str2Int64(str string) int64 {
+func  Str2Int64(str string) int64 {
 	number, _ := strconv.ParseInt(str, 10, 64)
 	return number
 }
@@ -265,7 +263,7 @@ func (*TypeHelper) Str2Int64(str string) int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Str2Int(str string) int {
+func  Str2Int(str string) int {
 	ints, _ := strconv.Atoi(str)
 	return ints
 }
@@ -275,7 +273,7 @@ func (*TypeHelper) Str2Int(str string) int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Str2Int8(str string) int8 {
+func  Str2Int8(str string) int8 {
 	ints, _ := strconv.Atoi(str)
 	return int8(ints)
 }
@@ -285,7 +283,7 @@ func (*TypeHelper) Str2Int8(str string) int8 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Float64ToStr(number float64) string {
+func  Float64ToStr(number float64) string {
 	return strconv.FormatFloat(number, 'f', -1, 64)
 }
 
@@ -294,7 +292,7 @@ func (*TypeHelper) Float64ToStr(number float64) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Int64ToStr(number int64) string {
+func  Int64ToStr(number int64) string {
 	str := strconv.FormatInt(number, 10)
 	return str
 }
@@ -304,7 +302,7 @@ func (*TypeHelper) Int64ToStr(number int64) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Str2Float64(str string) float64 {
+func  Str2Float64(str string) float64 {
 	v, _ := strconv.ParseFloat(str, 64)
 	return v
 }
@@ -314,7 +312,7 @@ func (*TypeHelper) Str2Float64(str string) float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) JsonEncode(data interface{}) (string, error) {
+func  JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
 
 	if err != nil {
@@ -329,7 +327,7 @@ func (*TypeHelper) JsonEncode(data interface{}) (string, error) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) JsonDecode(json_str string) map[string]interface{} {
+func  JsonDecode(json_str string) map[string]interface{} {
 
 	var data map[string]interface{}
 
@@ -343,7 +341,7 @@ func (*TypeHelper) JsonDecode(json_str string) map[string]interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) JsonDecodeInt64Slice(json_str string) []int64 {
+func  JsonDecodeInt64Slice(json_str string) []int64 {
 
 	var data []int64
 
@@ -357,7 +355,7 @@ func (*TypeHelper) JsonDecodeInt64Slice(json_str string) []int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) JsonDecodeWithStruct(json_str string, istruct interface{}) interface{} {
+func  JsonDecodeWithStruct(json_str string, istruct interface{}) interface{} {
 	json.Unmarshal([]byte(json_str), &istruct)
 	return istruct
 }
@@ -367,7 +365,7 @@ func (*TypeHelper) JsonDecodeWithStruct(json_str string, istruct interface{}) in
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
+func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
 
 	tmp := make([]map[string]interface{}, 0)
 
@@ -386,7 +384,7 @@ func (*TypeHelper) InterfaceSlice2MapSlice(inter []interface{}) []map[string]int
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Float64Slice2IntSlice(slice []interface{}) []int {
+func  Float64Slice2IntSlice(slice []interface{}) []int {
 	int_slice := []int{}
 	for _, v := range slice {
 		//fmt.Println("v",v)
@@ -403,7 +401,7 @@ func (*TypeHelper) Float64Slice2IntSlice(slice []interface{}) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Int2Str(number int) string {
+func  Int2Str(number int) string {
 	return strconv.Itoa(number)
 }
 
@@ -412,14 +410,14 @@ func (*TypeHelper) Int2Str(number int) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) If(conditions bool, trueVal, falseVal interface{}) interface{} {
+func  If(conditions bool, trueVal, falseVal interface{}) interface{} {
 	if conditions {
 		return trueVal
 	}
 	return falseVal
 }
 
-func (*TypeHelper) Int64Slice2IntSlice(int64_slice []int64) []int {
+func  Int64Slice2IntSlice(int64_slice []int64) []int {
 	res := []int{}
 	for _, v := range int64_slice {
 		res = append(res, int(v))
@@ -427,7 +425,7 @@ func (*TypeHelper) Int64Slice2IntSlice(int64_slice []int64) []int {
 	return res
 }
 
-func (*TypeHelper) IsNil(i interface{}) bool {
+func  IsNil(i interface{}) bool {
 	vi := reflect.ValueOf(i)
 	if vi.Kind() == reflect.Ptr {
 		return vi.IsNil()
@@ -437,14 +435,14 @@ func (*TypeHelper) IsNil(i interface{}) bool {
 
 
 // 整形转换成字节
-func (*TypeHelper)Int2Bytes(n int) []byte {
+func Int2Bytes(n int) []byte {
 	x := int32(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()
 }
 // 字节转换成整形
-func (*TypeHelper)Bytes2Int(b []byte) int {
+func Bytes2Int(b []byte) int {
 	bytesBuffer := bytes.NewBuffer(b)
 
 	var x int32
@@ -454,7 +452,7 @@ func (*TypeHelper)Bytes2Int(b []byte) int {
 }
 
 // Float64ToInt float64转int
-func (*TypeHelper) Float64ToInt(number float64) int {
+func  Float64ToInt(number float64) int {
 	return int(number)
 }
 
@@ -464,7 +462,7 @@ func (*TypeHelper) Float64ToInt(number float64) int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Float64ToIntSlice(slice []interface{}) []int {
+func  Float64ToIntSlice(slice []interface{}) []int {
 	newSlice := []int{}
 	for _, v := range slice {
 		newSlice = append(newSlice, int(int64(v.(float64))))
@@ -477,6 +475,6 @@ func (*TypeHelper) Float64ToIntSlice(slice []interface{}) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*TypeHelper) Float64ToInt8(numer float64) int8 {
+func  Float64ToInt8(numer float64) int8 {
 	return int8(numer)
 }

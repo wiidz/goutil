@@ -9,8 +9,6 @@ import (
 	"sync"
 )
 
-type StructHelper struct {}
-
 //集合模拟
 type Set struct {
 	m map[int]bool
@@ -84,7 +82,7 @@ func (s *Set) SortList() []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StructHelper) GetStructAllMethods(target interface{}) {
+func  GetStructAllMethods(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumMethod(); i++ {
@@ -97,7 +95,7 @@ func (*StructHelper) GetStructAllMethods(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StructHelper) GetStructAllFields(target interface{}) {
+func  GetStructAllFields(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
@@ -110,7 +108,7 @@ func (*StructHelper) GetStructAllFields(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StructHelper) GetStructAllKV(target interface{}) {
+func  GetStructAllKV(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
@@ -125,7 +123,7 @@ func (*StructHelper) GetStructAllKV(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*StructHelper) GetStructPointAllKV(target interface{}) {
+func  GetStructPointAllKV(target interface{}) {
 
 	value := reflect.ValueOf(target)
 	typ := value.Elem().Type()

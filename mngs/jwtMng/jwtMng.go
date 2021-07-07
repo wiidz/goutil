@@ -6,15 +6,13 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers/networkHelper"
-	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
 	"reflect"
 	"strings"
 	"time"
 )
-
-var typeHelper = typeHelper2.TypeHelper{}
 
 type JwtMng struct {
 	AppID           int        `json:"app_id"`       // app_id 主要用来区别登陆

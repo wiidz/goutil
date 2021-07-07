@@ -6,9 +6,7 @@ import (
 	"io"
 )
 
-type CryptorHelper struct{}
-
-func (*CryptorHelper) MD5Encrypt(raw string) string {
+func MD5Encrypt(raw string) string {
 	w := md5.New()
 	io.WriteString(w, raw)
 	return fmt.Sprintf("%x", w.Sum(nil))

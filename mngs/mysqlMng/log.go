@@ -2,6 +2,7 @@ package mysqlMng
 
 import (
 	"errors"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"gorm.io/gorm"
 	"time"
 )
@@ -153,7 +154,7 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 	// 【4】记录操作
 	go func() {
 		mysql.NewCommonConn()
-		jsonCondition, _ := typeH.JsonEncode(condition)
+		jsonCondition, _ := typeHelper.JsonEncode(condition)
 		mysql.Conn.Create(&LogReadCreate{
 			UserID:       userID,
 			AuthID:       authID,
@@ -205,7 +206,7 @@ func (mysql *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) 
 	//【5】记录操作
 	go func() {
 		mysql.NewCommonConn()
-		jsonValue, _ := typeH.JsonEncode(row)
+		jsonValue, _ := typeHelper.JsonEncode(row)
 		data := LogInsertCreate{
 			UserID:       userID,
 			AuthID:       authID,
@@ -260,8 +261,8 @@ func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) err
 	//【5】记录操作
 	go func() {
 		mysql.NewCommonConn()
-		jsonCondition, _ := typeH.JsonEncode(condition)
-		jsonValue, _ := typeH.JsonEncode(value)
+		jsonCondition, _ := typeHelper.JsonEncode(condition)
+		jsonValue, _ := typeHelper.JsonEncode(value)
 		data := LogUpdateCreate{
 			UserID:       userID,
 			AuthID:       authID,
@@ -316,7 +317,7 @@ func (mysql *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) err
 	//【5】记录操作
 	go func() {
 		mysql.NewCommonConn()
-		jsonCondition, _ := typeH.JsonEncode(condition)
+		jsonCondition, _ := typeHelper.JsonEncode(condition)
 		data := LogDeleteCreate{
 			UserID:       userID,
 			AuthID:       authID,

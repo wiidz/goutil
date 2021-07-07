@@ -6,8 +6,6 @@ import (
 	"log"
 )
 
-var typeH = typeHelper.TypeHelper{}
-
 /**
  * @func  : 通用方法 获取列表
  * @author: Wiidz
@@ -79,7 +77,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 	//【1】初始化参数
 	condition := update.GetCondition()
 	value := update.GetValue()
-	log.Println("【value】", typeH.GetType(value), value)
+	log.Println("【value】", typeHelper.GetType(value), value)
 	tableName := update.GetTableName()
 	thisConn := mysql.Conn
 

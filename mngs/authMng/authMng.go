@@ -4,14 +4,11 @@ import (
 	"errors"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers/networkHelper"
-	sliceHelper2 "github.com/wiidz/goutil/helpers/sliceHelper"
-	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/helpers/sliceHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"reflect"
 )
-
-var typeHelper = typeHelper2.TypeHelper{}
-var sliceHelper = sliceHelper2.SliceHelper{}
 
 type AuthMng struct {
 	AuthTableName string // 身份表的名称例如user,staff

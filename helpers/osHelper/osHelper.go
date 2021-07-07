@@ -15,17 +15,12 @@ import (
 	"time"
 )
 
-var typeH = typeHelper.TypeHelper{}
-var strH = strHelper.StrHelper{}
-
-type OsHelper struct{}
-
 /**
  * @func: ExistFile 判断文件是否已存在
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*OsHelper) ExistFile(filename string, filesize int64) bool {
+func  ExistFile(filename string, filesize int64) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		fmt.Println(info)
@@ -47,7 +42,7 @@ func (*OsHelper) ExistFile(filename string, filesize int64) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func (osHelper *OsHelper) DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
+func  DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
 	var (
 		fsize   int64
 		buf     = make([]byte, 32*1024)
@@ -69,7 +64,7 @@ func (osHelper *OsHelper) DownloadFile(url string, localPath string, fb func(len
 	if err != nil {
 		fmt.Println(err)
 	}
-	if osHelper.ExistFile(localPath, fsize) {
+	if ExistFile(localPath, fsize) {
 		return err
 	}
 	fmt.Println("fsize", fsize)
@@ -163,7 +158,7 @@ func (osHelper *OsHelper) DownloadFile(url string, localPath string, fb func(len
  * @author Wiidz
  * @date   2019-11-16
  */
-func (*OsHelper) ReadJsonFile(filePath string) map[string]interface{} {
+func  ReadJsonFile(filePath string) map[string]interface{} {
 	file, _ := os.Open(filePath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
@@ -175,13 +170,13 @@ func (*OsHelper) ReadJsonFile(filePath string) map[string]interface{} {
 	return conf
 }
 
-func (*OsHelper) GetFileBuf(uri string) []byte {
+func  GetFileBuf(uri string) []byte {
 	buf, _ := ioutil.ReadFile(uri)
 	return buf
 }
 
 // DownloadFileFromContext 从请求体中保存文件
-func (*OsHelper) DownloadFileFromContext(ctx iris.Context,fieldName,targetPath string) (fileName,filePath string,err error){
+func  DownloadFileFromContext(ctx iris.Context,fieldName,targetPath string) (fileName,filePath string,err error){
 
 	// Get the file from the request.
 	file, info, err := ctx.FormFile(fieldName)
@@ -191,7 +186,7 @@ func (*OsHelper) DownloadFileFromContext(ctx iris.Context,fieldName,targetPath s
 	}
 	defer file.Close()
 
-	fileName = typeH.Int64ToStr(time.Now().Unix()) + strH.GetRandomString(4) + "-" + info.Filename
+	fileName = typeHelper.Int64ToStr(time.Now().Unix()) + strHelper.GetRandomString(4) + "-" + info.Filename
 	filePath = targetPath + fileName
 	//创建一个具有相同名称的文件 假设你有一个名为'uploads'的文件夹
 	// mkdir uploads
