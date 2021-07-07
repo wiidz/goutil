@@ -471,3 +471,12 @@ func (*TypeHelper) Float64ToIntSlice(slice []interface{}) []int {
 	}
 	return newSlice
 }
+
+/**
+ * @func: Str2Int8 将字符串转为int8
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (*TypeHelper) Float64ToInt8(numer float64) int8 {
+	return int8(numer)
+}
