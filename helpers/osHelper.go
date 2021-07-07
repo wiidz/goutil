@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/kataras/iris/v12"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -171,4 +172,33 @@ func (*OsHelper) ReadJsonFile(filePath string) map[string]interface{} {
 func (*OsHelper) GetFileBuf(uri string) []byte {
 	buf, _ := ioutil.ReadFile(uri)
 	return buf
+}
+
+// DownloadFileFromContext 从请求体中保存文件
+func (*OsHelper) DownloadFileFromContext(ctx iris.Context,fieldName,targetPath string) (fileName,filePath string,err error){
+
+	// Get the file from the request.
+	file, info, err := ctx.FormFile(fieldName)
+	if err != nil {
+		err = errors.New("上传文件为空")
+		return
+	}
+	defer file.Close()
+
+	fileName = info.Filename
+	filePath = targetPath + fileName
+	//创建一个具有相同名称的文件 假设你有一个名为'uploads'的文件夹
+	// mkdir uploads
+	// chomod -R 777 uploads
+
+	out, err := os.OpenFile( filePath,
+		os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		err = errors.New("下载时出错")
+		return
+	}
+	defer out.Close()
+	io.Copy(out, file)
+
+	return
 }
