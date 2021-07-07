@@ -240,3 +240,14 @@ func (mysqlMng *MysqlMng) IsExist(condition map[string]interface{}, tableName st
 	}
 	return errors.New("记录已存在")
 }
+
+// GetOffset 获取偏移量
+func (mysqlMng *MysqlMng)  GetOffset(pageNow, pageSize int) int {
+	var offset int
+	if pageNow > 1 {
+		offset = (pageNow - 1) * pageSize
+	} else {
+		offset = 0
+	}
+	return offset
+}
