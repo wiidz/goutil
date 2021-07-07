@@ -1,10 +1,12 @@
-package helpers
+package networkHelper
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
+	strHelper2 "github.com/wiidz/goutil/helpers/strHelper"
+	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/validatorMng"
 	"io"
 	"io/ioutil"
@@ -52,8 +54,8 @@ func (p Method) String() string {
 	}
 }
 
-var typeHelper = TypeHelper{}
-var strHelper = StrHelper{}
+var typeHelper = typeHelper2.TypeHelper{}
+var strHelper = strHelper2.StrHelper{}
 
 /**
  * @func: GetParsedURL 获取get地址

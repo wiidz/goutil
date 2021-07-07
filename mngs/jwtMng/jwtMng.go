@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/helpers"
+	"github.com/wiidz/goutil/helpers/networkHelper"
+	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
 	"reflect"
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-var typeHelper = helpers.TypeHelper{}
+var typeHelper = typeHelper2.TypeHelper{}
 
 type JwtMng struct {
 	AppID           int        `json:"app_id"`       // app_id 主要用来区别登陆
@@ -75,13 +76,13 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	//【1】从头部获取jwt
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
-		helpers.ReturnError(ctx, err.Error())
+		networkHelper.ReturnError(ctx, err.Error())
 		return
 	}
 
 	//【2】尝试解密
 	if err := mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
-		helpers.ReturnError(ctx, err.Error())
+		networkHelper.ReturnError(ctx, err.Error())
 		return
 	}
 
@@ -92,7 +93,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(int)
 		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
 		if err != nil {
-			helpers.ReturnError(ctx, err.Error())
+			networkHelper.ReturnError(ctx, err.Error())
 			return
 		}
 	}
@@ -124,7 +125,7 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
-		helpers.ReturnError(ctx, err.Error())
+		networkHelper.ReturnError(ctx, err.Error())
 		return
 	}
 
@@ -139,21 +140,21 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 		expiredBy := immutable.Elem().FieldByName("ExpiredBy")
 
 		if expiredBy.Interface().(time.Duration) > (time.Duration(validDuration) * time.Second) {
-			helpers.ReturnError(ctx, "已超出预定时长")
+			networkHelper.ReturnError(ctx, "已超出预定时长")
 			return
 		}
 
 		newToken, err := mng.GetTokenStr(mng.TokenStruct)
 		if err != nil {
-			helpers.ReturnError(ctx, err.Error())
+			networkHelper.ReturnError(ctx, err.Error())
 			return
 		}
 
-		helpers.ReturnResult(ctx, "success", newToken, 200)
+		networkHelper.ReturnResult(ctx, "success", newToken, 200)
 		return
 	}
 
-	helpers.ReturnError(ctx, err.Error())
+	networkHelper.ReturnError(ctx, err.Error())
 	return
 
 }

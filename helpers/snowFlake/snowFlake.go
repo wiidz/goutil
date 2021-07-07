@@ -1,4 +1,4 @@
-package helpers
+package snowFlake
 
 import (
 	"errors"

@@ -3,13 +3,15 @@ package authMng
 import (
 	"errors"
 	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/helpers"
+	"github.com/wiidz/goutil/helpers/networkHelper"
+	sliceHelper2 "github.com/wiidz/goutil/helpers/sliceHelper"
+	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"reflect"
 )
 
-var typeHelper = helpers.TypeHelper{}
-var sliceHelper = helpers.SliceHelper{}
+var typeHelper = typeHelper2.TypeHelper{}
+var sliceHelper = sliceHelper2.SliceHelper{}
 
 type AuthMng struct {
 	AuthTableName string // 身份表的名称例如user,staff
@@ -40,14 +42,14 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	owner,err := mng.getOwnerFromDB(mysql,id)
 	if err != nil{
 		if mysql.IsNotFound(err){
-			helpers.ReturnError(ctx,"找不到您的账户")
+			networkHelper.ReturnError(ctx,"找不到您的账户")
 			return
 		}
-		helpers.ReturnError(ctx,err.Error())
+		networkHelper.ReturnError(ctx,err.Error())
 		return
 	} else if owner.IsActive == 0{
 		//判断用户是否被禁用
-		helpers.ReturnError(ctx,"账户禁用中")
+		networkHelper.ReturnError(ctx,"账户禁用中")
 		return
 	}
 
@@ -55,7 +57,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	route := ctx.GetCurrentRoute()
 	authID,err := mng.getAuthIDFromDB(mysql,route.Method(), route.Path())
 	if err != nil {
-		helpers.ReturnError(ctx,err.Error())
+		networkHelper.ReturnError(ctx,err.Error())
 		return
 	}
 
@@ -64,7 +66,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 		authIDs := typeHelper.ExplodeInt(owner.AuthIDs, ",")
 		exist := sliceHelper.ExistInt(authID, authIDs)
 		if !exist {
-			helpers.ReturnError(ctx,"您没有权限操作")
+			networkHelper.ReturnError(ctx,"您没有权限操作")
 			return
 		}
 	}

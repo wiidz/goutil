@@ -1,7 +1,8 @@
-package helpers
+package mathHelper
 
 import (
 	"fmt"
+	sliceHelper2 "github.com/wiidz/goutil/helpers/sliceHelper"
 	"math"
 	"math/rand"
 	"strconv"
@@ -147,7 +148,7 @@ func (mathHelper *MathHelper) GetInsideDots(dots1 map[float64]map[string]float64
 	intArr1 := mathHelper.getKeys(dots1)
 	intArr2 := mathHelper.getKeys(dots2)
 
-	var sliceHelper SliceHelper
+	var sliceHelper sliceHelper2.SliceHelper
 	intArr := sliceHelper.Intersect(intArr1, intArr2)
 
 	yArr := make([]float64, 0)
@@ -198,7 +199,7 @@ func (*MathHelper) GetIntergers(border1 float64, border2 float64, narrow_range f
 		}
 		step++
 	}
-	var sliceHelper SliceHelper
+	var sliceHelper sliceHelper2.SliceHelper
 	return sliceHelper.GetRange(math.Ceil(min), math.Floor(max), step)
 }
 

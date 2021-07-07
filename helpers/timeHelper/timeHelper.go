@@ -1,7 +1,8 @@
-package helpers
+package timeHelper
 
 import (
 	"fmt"
+	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
 	"time"
 )
 
@@ -51,7 +52,7 @@ func (*TimeHelper) BeautyTimeStamp(timeStamp, currentTime int64) string {
 	}
 
 	span := currentTime - timeStamp
-	var typeHelper TypeHelper
+	var typeHelper typeHelper2.TypeHelper
 	if span < 60 {
 
 		return "刚刚"

@@ -1,4 +1,4 @@
-package helpers
+package lbsHelper
 
 import "math"
 

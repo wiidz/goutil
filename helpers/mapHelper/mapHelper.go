@@ -1,7 +1,8 @@
-package helpers
+package mapHelper
 
 import (
 	"fmt"
+	sliceHelper2 "github.com/wiidz/goutil/helpers/sliceHelper"
 	"strconv"
 )
 
@@ -54,7 +55,7 @@ func (*MapHelper) Exist(data map[string]interface{}, key string) bool {
  * @date   2019-11-16
  */
 func (*MapHelper) Filter(target map[string]interface{}, fields []string) {
-	var sliceHelper SliceHelper
+	var sliceHelper sliceHelper2.SliceHelper
 	for k, _ := range target {
 		index := sliceHelper.IndexOfStrSlice(k, fields)
 		if index != -1 {
@@ -71,7 +72,7 @@ func (*MapHelper) Filter(target map[string]interface{}, fields []string) {
  * @date   2019-11-06
  */
 func (*MapHelper) HasIllegalKey(target map[string]interface{}, fields []string) bool {
-	var sliceHelper SliceHelper
+	var sliceHelper sliceHelper2.SliceHelper
 	for k, _ := range target {
 		index := sliceHelper.IndexOfStrSlice(k, fields)
 		if index != -1 {

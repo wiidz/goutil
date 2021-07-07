@@ -2,7 +2,7 @@ package configMng
 
 import (
 	"fmt"
-	"github.com/wiidz/goutil/helpers"
+	osHelper2 "github.com/wiidz/goutil/helpers/osHelper"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 )
 
 var appConfig = AppConfig{}
-var osHelper = helpers.OsHelper{}
+var osHelper = osHelper2.OsHelper{}
 
 type ConfigMng struct{}
 

@@ -1,7 +1,8 @@
-package helpers
+package sliceHelper
 
 import (
 	"fmt"
+	typeHelper2 "github.com/wiidz/goutil/helpers/typeHelper"
 	"reflect"
 	"strconv"
 	"strings"
@@ -399,7 +400,7 @@ func (sliceHelper *SliceHelper) GetParentIds(children_id, result_str, key string
 
 	}
 
-	var typeHelper TypeHelper
+	var typeHelper typeHelper2.TypeHelper
 	if typeHelper.Empty(tmp[key]) {
 
 		str_inn = ""

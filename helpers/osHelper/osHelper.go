@@ -1,10 +1,12 @@
-package helpers
+package osHelper
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +14,9 @@ import (
 	"strconv"
 	"time"
 )
+
+var typeH = typeHelper.TypeHelper{}
+var strH = strHelper.StrHelper{}
 
 type OsHelper struct{}
 
@@ -186,7 +191,7 @@ func (*OsHelper) DownloadFileFromContext(ctx iris.Context,fieldName,targetPath s
 	}
 	defer file.Close()
 
-	fileName = typeHelper.Int64ToStr(time.Now().Unix()) + strHelper.GetRandomString(4) + "-" + info.Filename
+	fileName = typeH.Int64ToStr(time.Now().Unix()) + strH.GetRandomString(4) + "-" + info.Filename
 	filePath = targetPath + fileName
 	//创建一个具有相同名称的文件 假设你有一个名为'uploads'的文件夹
 	// mkdir uploads
