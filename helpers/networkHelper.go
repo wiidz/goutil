@@ -20,7 +20,7 @@ import (
 type ReadCommonStruct struct {
 	PageNow   int    `json:"page_now" belong:"etc" default:"1"`
 	PageSize  int    `json:"page_size" belong:"etc" default:"10"`
-	Order     string `json:"order" belong:"etc" default:"ids asc"`
+	Order     string `json:"order" belong:"etc" default:"id asc"`
 }
 
 type NetworkHelper struct{}
