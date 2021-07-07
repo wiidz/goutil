@@ -46,6 +46,21 @@ func (*TypeHelper) Explode(data string, sep string) []interface{} {
 
 }
 
+
+/**
+ * @func: ExplodeStr  字符串转str clise
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  (*TypeHelper)  ExplodeStr(data string, sep string) []string {
+	old := strings.Split(data, sep)
+	newS := make([]string, len(old))
+	for i, v := range old {
+		newS[i] = v
+	}
+	return newS
+}
+
 /**
  * @func: Explode  字符串转int slice
  * @author Wiidz
@@ -436,4 +451,23 @@ func (*TypeHelper)Bytes2Int(b []byte) int {
 	binary.Read(bytesBuffer, binary.BigEndian, &x)
 
 	return int(x)
+}
+
+// Float64ToInt float64转int
+func (*TypeHelper) Float64ToInt(number float64) int {
+	return int(number)
+}
+
+
+/**
+ * @func: Float64ToIntSlice float64 slice转换成 int slice
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func (*TypeHelper) Float64ToIntSlice(slice []interface{}) []int {
+	newSlice := []int{}
+	for _, v := range slice {
+		newSlice = append(newSlice, int(int64(v.(float64))))
+	}
+	return newSlice
 }
