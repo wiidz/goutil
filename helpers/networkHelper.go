@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/validatorMng"
 	"io"
 	"io/ioutil"
@@ -677,6 +676,7 @@ func JsonParamsFilter(params interface{}) (condition,value,etc map[string]interf
 	//【1】提取字段
 	t := reflect.TypeOf(params)
 	v := reflect.ValueOf(params)
+	rawJsonMap := map[string]interface{}{}
 
 	// 【2】初始化变量
 	condition = map[string]interface{}{}
