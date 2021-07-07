@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/validatorMng"
 	"io"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -599,4 +601,183 @@ func GetValidatedJson(ctx iris.Context, target interface{}) error {
 func GetJson(ctx iris.Context, target interface{}) error {
 	err := ctx.ReadJSON(target)
 	return err
+}
+
+
+// QueryParamsFilter get参数过滤器+验证
+func QueryParamsFilter(ctx iris.Context, params interface{}) (condition,etc map[string]interface{},err error) {
+
+	//【1】提取字段
+	t := reflect.TypeOf(params)
+	v := reflect.ValueOf(params)
+
+	condition = map[string]interface{}{}
+	etc = map[string]interface{}{}
+
+	//【3】遍历过滤参数
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【3-1】获取标签值
+		field := t.Elem().Field(i)
+		belong := field.Tag.Get("belong")
+		json := field.Tag.Get("json")
+		kind := field.Tag.Get("kind")
+		fieldName := field.Tag.Get("field")
+		defaultValue := field.Tag.Get("default")
+
+		if fieldName == "" {
+			fieldName = json
+		}
+
+		//【3-2】取值
+		temp := ctx.URLParam(json)
+		if temp == "" {
+			if defaultValue == "" {
+				// 即没有默认值也没有值传递过来的，跳过
+				continue
+			}
+			temp = defaultValue
+		}
+
+		//【3-3】将值处理成需要的格式
+		formattedValue := getFormattedValue(field.Type.String(), temp)
+
+		//【3-4】将值赋值给param结构体的对应字段
+		val := reflect.ValueOf(formattedValue)
+		v.Elem().Field(i).Set(val)
+
+		//【3-5】填充到condition、etcMap
+		switch belong {
+		case "condition":
+			switch kind {
+			case "like":
+				condition[fieldName] = []interface{}{"like", "%" + temp + "%"}
+			case "between":
+				tempSlice := typeHelper.Explode(temp, ",")
+				condition[fieldName] = []interface{}{"between", tempSlice[0], tempSlice[1]}
+			default:
+				condition[fieldName] = temp
+			}
+		case "etc":
+			etc[json] = temp
+		}
+	}
+
+	//【4】验证参数是否合法
+	err = validatorMng.GetError(params)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// JsonParamsFilter 依据json格式从body体中过滤参数+验证
+func JsonParamsFilter(params mysqlMng.JsonInterface) (condition,value,etc map[string]interface{},err error){
+
+	//【1】提取字段
+	t := reflect.TypeOf(params)
+	v := reflect.ValueOf(params)
+	rawJsonMap := params.GetRawJsonMap()
+
+	// 【2】初始化变量
+	condition = map[string]interface{}{}
+	value = map[string]interface{}{}
+	etc = map[string]interface{}{}
+
+	//【3】遍历过滤参数
+	for i := 0; i < t.Elem().NumField(); i++ {
+
+		//【3-1】获取标签值
+		field := t.Elem().Field(i)
+		belong := field.Tag.Get("belong")
+		jsonTag := field.Tag.Get("json")
+		kind := field.Tag.Get("kind")
+		fieldName := field.Tag.Get("field")
+		defaultValue := field.Tag.Get("default")
+
+		if fieldName == "" {
+			fieldName = jsonTag
+		}
+
+		//【2-2】将值处理成需要的格式
+		temp, ok := rawJsonMap[jsonTag]
+		if !ok {
+			if defaultValue == "" {
+				//即没有默认值也没有值传递过来的，跳过
+				continue
+			}
+			temp = defaultValue
+		}
+		formattedValue := getFormattedValue(field.Type.String(), temp)
+
+		//【2-3】将值赋值给param结构体的对应字段
+		val := reflect.ValueOf(formattedValue)
+		v.Elem().Field(i).Set(val)
+
+		//【3-3】填充
+		switch belong {
+		case "condition":
+			switch kind {
+			case "like":
+				condition[fieldName] = []interface{}{"like", "%" + formattedValue.(string) + "%"}
+			case "between":
+				tempSlice := typeHelper.Explode(formattedValue.(string), ",")
+				condition[fieldName] = []interface{}{"between", tempSlice[0], tempSlice[1]}
+			case "in":
+				fieldName := field.Tag.Get("field")
+				condition[fieldName] = []interface{}{"in"}
+				condition[fieldName] = append(condition[fieldName].([]interface{}), formattedValue)
+			default:
+				condition[fieldName] = formattedValue
+			}
+		case "value":
+			value[fieldName] = formattedValue
+		case "etc":
+			etc[fieldName] = formattedValue
+		}
+	}
+
+	return
+}
+
+// getFormattedValue 获取指定格式的数值
+func getFormattedValue(t string, value interface{}) interface{} {
+	switch t {
+	case "int":
+		if typeHelper.GetType(value) == "float64" {
+			return typeHelper.Float64ToInt(value.(float64))
+		} else {
+			return typeHelper.Str2Int(value.(string))
+		}
+	case "int8":
+		if typeHelper.GetType(value) == "string" {
+			return typeHelper.Str2Int8(value.(string))
+		} else {
+			return typeHelper.Float64ToInt8(value.(float64))
+		}
+	case "float64":
+		if str, ok := value.(string); ok {
+			return typeHelper.Str2Float64(str)
+		} else {
+			return value.(float64)
+		}
+	case "[]int":
+		if str, ok := value.(string); ok {
+			slice := typeHelper.ExplodeInt(str, ",")
+			return slice
+		} else {
+			slice := typeHelper.Float64ToIntSlice(value.([]interface{}))
+			return slice
+		}
+	case "[]string":
+		slice := typeHelper.ExplodeStr(value.(string), ",")
+		return slice
+	default:
+		log.Println("t", t)
+		log.Println("value", value)
+		temp, _ := typeHelper.JsonEncode(value)
+		typeHelper.JsonDecodeWithStruct(temp, value)
+		return value
+	}
 }
