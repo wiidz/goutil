@@ -4,7 +4,6 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
-	"log"
 	"reflect"
 )
 
@@ -46,8 +45,6 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 		helpers.ReturnError(ctx,err.Error())
 		return
 	} else if owner.IsActive == 0{
-		log.Println("owner",owner)
-		log.Println("owner",owner.IsActive,owner.IsActive==0)
 		//判断用户是否被禁用
 		helpers.ReturnError(ctx,"账户禁用中")
 		return
@@ -92,7 +89,6 @@ func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string
 // getOwnerFromDB 从数据库根据主键值获取用户资料
 func (mng *AuthMng) getOwnerFromDB(mysql *mysqlMng.MysqlMng,ownerID int)(owner DBAuthOwnerMixed,err error){
 
-	var row DBAuthOwnerMixed
-	err = mysql.Conn.Table(mng.OwnerTableName).Where("id = ?",&ownerID).First(&row).Error
+	err = mysql.Conn.Table(mng.OwnerTableName).Where("id = ?",&ownerID).First(&owner).Error
 	return
 }
