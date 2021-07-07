@@ -16,6 +16,12 @@ import (
 	"strconv"
 	"strings"
 )
+// ReadCommonStruct 读取列表公用的参数
+type ReadCommonStruct struct {
+	PageNow   int    `json:"page_now" belong:"etc" default:"1"`
+	PageSize  int    `json:"page_size" belong:"etc" default:"10"`
+	Order     string `json:"order" belong:"etc" default:"ids asc"`
+}
 
 type NetworkHelper struct{}
 
