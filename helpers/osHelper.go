@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type OsHelper struct{}
@@ -185,7 +186,7 @@ func (*OsHelper) DownloadFileFromContext(ctx iris.Context,fieldName,targetPath s
 	}
 	defer file.Close()
 
-	fileName = info.Filename
+	fileName = typeHelper.Int64ToStr(time.Now().Unix()) + strHelper.GetRandomString(4) + "-" + info.Filename
 	filePath = targetPath + fileName
 	//创建一个具有相同名称的文件 假设你有一个名为'uploads'的文件夹
 	// mkdir uploads
