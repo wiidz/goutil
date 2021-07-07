@@ -1,6 +1,7 @@
 package authMng
 
 import (
+	"errors"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
@@ -53,6 +54,10 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	//【4】查询当前请求地址的authID
 	route := ctx.GetCurrentRoute()
 	authID,err := mng.getAuthIDFromDB(mysql,route.Method(), route.Path())
+	if err != nil {
+		helpers.ReturnError(ctx,err.Error())
+		return
+	}
 
 	//【4】判断客户的权限集是否包括
 	if owner.Grouping != SuperManager{
@@ -82,7 +87,13 @@ func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string
 
 	var row DBAuthRow
 	err = mysql.Conn.Table(mng.AuthTableName).Where("method = ? and route = ?",&methodNum,&route).First(&row).Error
+
+	if mysql.IsNotFound(err){
+		err = errors.New("找不到匹配路由的权限")
+		return
+	}
 	authID = row.ID
+
 	return
 }
 
