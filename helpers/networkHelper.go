@@ -672,12 +672,11 @@ func QueryParamsFilter(ctx iris.Context, params interface{}) (condition,etc map[
 }
 
 // JsonParamsFilter 依据json格式从body体中过滤参数+验证
-func JsonParamsFilter(params mysqlMng.JsonInterface) (condition,value,etc map[string]interface{},err error){
+func JsonParamsFilter(params interface{}) (condition,value,etc map[string]interface{},err error){
 
 	//【1】提取字段
 	t := reflect.TypeOf(params)
 	v := reflect.ValueOf(params)
-	rawJsonMap := params.GetRawJsonMap()
 
 	// 【2】初始化变量
 	condition = map[string]interface{}{}
