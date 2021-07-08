@@ -60,38 +60,38 @@ func NewMysqlMng() *MysqlMng {
 }
 
 // 获取一个新的会话
-func (mysqlMng *MysqlMng) NewCommonConn() {
-	mysqlMng.Conn = db.Session(&gorm.Session{
+func (mysql *MysqlMng) NewCommonConn() {
+	mysql.Conn = db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
 	})
 }
 
 // 开启一个事务会话
-func (mysqlMng *MysqlMng) NewTransConn() {
-	mysqlMng.TransConn = db.Session(&gorm.Session{
+func (mysql *MysqlMng) NewTransConn() {
+	mysql.TransConn = db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
 	}).Begin()
 }
 
 // 回滚事务
-func (mysqlMng *MysqlMng) Rollback() {
-	mysqlMng.TransConn.Rollback()
+func (mysql *MysqlMng) Rollback() {
+	mysql.TransConn.Rollback()
 }
 
 // 提交事务
-func (mysqlMng *MysqlMng) Commit() {
-	mysqlMng.TransConn.Commit()
+func (mysql *MysqlMng) Commit() {
+	mysql.TransConn.Commit()
 }
 
 // 判断读取结果是否为空错误
-func (mysqlMng *MysqlMng) IsNotFound(err error) bool {
+func (mysql *MysqlMng) IsNotFound(err error) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 // 复合condition成为cons、vals的结构
-func (mysqlMng *MysqlMng) WhereBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
+func (mysql *MysqlMng) WhereBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
 		if whereSQL != "" {
@@ -158,7 +158,7 @@ func (mysqlMng *MysqlMng) WhereBuild(condition map[string]interface{}) (whereSQL
 }
 
 // 复合condition成为cons、vals的结构
-func (mysqlMng *MysqlMng) WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
+func (mysql *MysqlMng) WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
 		if whereSQL != "" {
@@ -225,13 +225,13 @@ func (mysqlMng *MysqlMng) WhereOrBuild(condition map[string]interface{}) (whereS
 }
 
 // 复合condition成为cons、vals的结构
-func (mysqlMng *MysqlMng) IsExist(condition map[string]interface{}, tableName string) (err error) {
-	cons, vals, err := mysqlMng.WhereBuild(condition)
+func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName string) (err error) {
+	cons, vals, err := mysql.WhereBuild(condition)
 	if err != nil {
 		return err
 	}
 	var count int64
-	err = mysqlMng.Conn.Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
+	err = mysql.Conn.Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func (mysqlMng *MysqlMng) IsExist(condition map[string]interface{}, tableName st
 }
 
 // GetOffset 获取偏移量
-func (mysqlMng *MysqlMng)  GetOffset(pageNow, pageSize int) int {
+func (mysql *MysqlMng)  GetOffset(pageNow, pageSize int) int {
 	var offset int
 	if pageNow > 1 {
 		offset = (pageNow - 1) * pageSize
