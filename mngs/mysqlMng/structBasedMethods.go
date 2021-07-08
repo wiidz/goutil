@@ -77,6 +77,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 	//【1】初始化参数
 	condition := update.GetCondition()
 	value := update.GetValue()
+	log.Println("【condition】", typeHelper.GetType(condition), condition)
 	log.Println("【value】", typeHelper.GetType(value), value)
 	tableName := update.GetTableName()
 	thisConn := mysql.Conn
