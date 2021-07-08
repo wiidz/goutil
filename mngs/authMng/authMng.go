@@ -24,6 +24,7 @@ func New(ownerTableName,authTableName,identifyKey string)*AuthMng{
 		IdentifyKey:identifyKey,
 	}
 }
+
 // Serve 注入服务
 func (mng *AuthMng) Serve(ctx iris.Context) {
 

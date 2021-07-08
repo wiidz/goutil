@@ -749,6 +749,8 @@ func getFormattedValue(t string, value interface{}) interface{} {
 	case "string":
 		if typeHelper.GetType(value) == "float64" {
 			return typeHelper.Float64ToStr(value.(float64))
+		}else if typeHelper.GetType(value) == "int" {
+			return typeHelper.Int2Str(value.(int))
 		} else {
 			return value.(string)
 		}
