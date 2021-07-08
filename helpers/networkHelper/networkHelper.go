@@ -1031,6 +1031,12 @@ func GetJsonInterface(params mysqlMng.JsonInterface) error {
 		}
 	}
 
+	//【4】验证参数是否合法
+	err := validatorMng.GetError(params)
+	if err != nil {
+		return err
+	}
+
 	//【4】返回
 	if _, ok := params.(mysqlMng.UpdateInterface); ok {
 		params.(mysqlMng.UpdateInterface).SetCondition(condition)
