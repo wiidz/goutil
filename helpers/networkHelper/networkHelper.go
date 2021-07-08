@@ -746,6 +746,12 @@ func JsonParamsFilter(params interface{}) (condition,value,etc map[string]interf
 // getFormattedValue 获取指定格式的数值
 func getFormattedValue(t string, value interface{}) interface{} {
 	switch t {
+	case "string":
+		if typeHelper.GetType(value) == "float64" {
+			return typeHelper.Float64ToStr(value.(float64))
+		} else {
+			return value.(string)
+		}
 	case "int":
 		if typeHelper.GetType(value) == "float64" {
 			return typeHelper.Float64ToInt(value.(float64))
