@@ -224,10 +224,10 @@ func (mysql *MysqlMng)SimpleGetDetailWithLog(params ReadInterface, userID, authI
  *         [data] interface{} 错误
  *         [statusCode]int 状态码
  */
-func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
-	err := mysql.LogUpdate(params, userID, authID)
+	err := mysql.Update(params)
 	if err != nil {
 		return err.Error(), nil, 404
 	}
@@ -243,7 +243,7 @@ func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface, userID, authID int) (
  *          [data] interface{} 错误
  *          [statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
 	err := mysql.Update(params)
