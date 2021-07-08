@@ -246,7 +246,7 @@ func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface, userID, authID int) (
 func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
-	err := mysql.LogUpdate(params, userID, authID)
+	err := mysql.Update(params)
 	if err != nil {
 		return err.Error(), nil, 404
 	}
@@ -261,11 +261,11 @@ func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface, userID, authID in
  *          [data] interface{}错误
  *          [statusCode] int 状态码
  */
-func (mysql *MysqlMng)SimpleCreateOne(params InsertInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng)SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
-	err := mysql.LogCreateOne(params, userID, authID)
-	if err != nil {
+	mysql.CreateOne(params)
+	if err := params.GetError();err != nil {
 		return err.Error(), nil, 404
 	}
 
@@ -280,11 +280,11 @@ func (mysql *MysqlMng)SimpleCreateOne(params InsertInterface, userID, authID int
  *          [data] interface{} 错误
  *          [statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleDelete(params DeleteInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng)SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
-	err := mysql.LogDelete(params, userID, authID)
-	if err != nil {
+	mysql.Delete(params)
+	if err := params.GetError();err != nil {
 		return err.Error(), nil, 404
 	}
 
