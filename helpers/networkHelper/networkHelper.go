@@ -745,30 +745,41 @@ func JsonParamsFilter(params interface{}) (condition,value,etc map[string]interf
 
 // getFormattedValue 获取指定格式的数值
 func getFormattedValue(t string, value interface{}) interface{} {
+
+	valueType := typeHelper.GetType(value)
+
 	switch t {
 	case "string":
-		if typeHelper.GetType(value) == "float64" {
+		if valueType == "float64" {
 			return typeHelper.Float64ToStr(value.(float64))
-		}else if typeHelper.GetType(value) == "int" {
+		}else if valueType == "int" {
 			return typeHelper.Int2Str(value.(int))
+		}else if valueType == "nil" {
+			return ""
 		} else {
 			return value.(string)
 		}
 	case "int":
-		if typeHelper.GetType(value) == "float64" {
+		if valueType == "float64" {
 			return typeHelper.Float64ToInt(value.(float64))
+		} else if valueType == "nil" {
+			return 0
 		} else {
 			return typeHelper.Str2Int(value.(string))
 		}
 	case "int8":
-		if typeHelper.GetType(value) == "string" {
+		if valueType == "string" {
 			return typeHelper.Str2Int8(value.(string))
-		} else {
+		} else if valueType == "nil" {
+			return int8(0)
+		}else {
 			return typeHelper.Float64ToInt8(value.(float64))
 		}
 	case "float64":
 		if str, ok := value.(string); ok {
 			return typeHelper.Str2Float64(str)
+		} else if valueType == "nil" {
+			return float64(0)
 		} else {
 			return value.(float64)
 		}
@@ -776,16 +787,19 @@ func getFormattedValue(t string, value interface{}) interface{} {
 		if str, ok := value.(string); ok {
 			slice := typeHelper.ExplodeInt(str, ",")
 			return slice
-		} else {
+		}  else if valueType == "nil" {
+			return []int{}
+		}else {
 			slice := typeHelper.Float64ToIntSlice(value.([]interface{}))
 			return slice
 		}
 	case "[]string":
+		if valueType == "nil" {
+			return []string{}
+		}
 		slice := typeHelper.ExplodeStr(value.(string), ",")
 		return slice
 	default:
-		log.Println("t", t)
-		log.Println("value", value)
 		temp, _ := typeHelper.JsonEncode(value)
 		typeHelper.JsonDecodeWithStruct(temp, value)
 		return value
