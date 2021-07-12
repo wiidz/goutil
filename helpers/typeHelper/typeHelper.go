@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"go/types"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -108,6 +109,10 @@ func  ExplodeInt64(data string, sep string) []int64 {
  */
 func  GetType(params interface{}) string {
 	vT := reflect.TypeOf(params)
+	log.Println("vT",vT)
+	if params == nil {
+		return "nil"
+	}
 	return vT.String()
 
 	////数据初始化
