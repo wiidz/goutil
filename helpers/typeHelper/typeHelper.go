@@ -107,12 +107,17 @@ func  ExplodeInt64(data string, sep string) []int64 {
  * @date   2019-11-16
  */
 func  GetType(params interface{}) string {
-	//数据初始化
-	v := reflect.ValueOf(params)
-	//获取传递参数类型
-	vT := v.Type()
-	//类型名称对比
+	vT := reflect.TypeOf(params)
 	return vT.String()
+
+	////数据初始化
+	//v := reflect.ValueOf(params)
+	////log.Println("")
+	//
+	////获取传递参数类型
+	//vT := v.Type()
+	////类型名称对比
+	//return vT.String()
 }
 
 /**
