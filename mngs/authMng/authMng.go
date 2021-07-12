@@ -39,7 +39,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	//【3】获取用户资料并判断
 	owner,err := mng.getOwnerFromDB(mysql,id)
 	if err != nil{
-		if mysql.IsNotFound(err){
+		if mysqlMng.IsNotFound(err){
 			networkHelper.ReturnError(ctx,"找不到您的账户")
 			return
 		}
@@ -88,7 +88,7 @@ func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string
 	var row DBAuthRow
 	err = mysql.Conn.Table(mng.AuthTableName).Where("method = ? and route = ?",&methodNum,&route).First(&row).Error
 
-	if mysql.IsNotFound(err){
+	if mysqlMng.IsNotFound(err){
 		err = errors.New("找不到匹配路由的权限")
 		return
 	}
