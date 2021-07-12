@@ -27,6 +27,20 @@ func  Implode(data interface{}, glue string) string {
 }
 
 /**
+ * @func: ImplodeInt 将int slice转换成字符串
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  ImplodeInt(data []int, glue string) string {
+	var tmp []string
+	for _, item := range data {
+		tmp = append(tmp, strconv.Itoa(item))
+	}
+
+	return strings.Join(tmp, glue)
+}
+
+/**
  * @func: Explode  字符串转slice, 接受混合类型
  * @author Wiidz
  * @date   2019-11-16
