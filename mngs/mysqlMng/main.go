@@ -86,7 +86,7 @@ func (mysql *MysqlMng) Commit() {
 }
 
 // 判断读取结果是否为空错误
-func (mysql *MysqlMng) IsNotFound(err error) bool {
+func IsNotFound(err error) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
