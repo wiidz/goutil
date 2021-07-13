@@ -113,7 +113,7 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 
 	//【2】拼接
 	if len(condition) > 0 {
-		cons, vals, _ := mysql.WhereBuild(condition)
+		cons, vals, _ := WhereBuild(condition)
 		thisConn = thisConn.Where(cons, vals...)
 	}
 	if len(preloads) > 0 {
@@ -143,7 +143,7 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 			//mysql.NewCommonConn()
 			thisConn = mysql.Conn
 			if len(condition) > 0 {
-				cons, vals, _ := mysql.WhereBuild(condition)
+				cons, vals, _ := WhereBuild(condition)
 				thisConn = thisConn.Where(cons, vals...)
 			}
 			err = thisConn.Model(rows).Count(&count).Error
@@ -251,7 +251,7 @@ func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) err
 
 	//【4】修改
 	value["updated_at"] = time.Now()
-	cons, vals, _ := mysql.WhereBuild(condition)
+	cons, vals, _ := WhereBuild(condition)
 	thisConn = thisConn.Table(tableName).Where(cons, vals...).Updates(value)
 
 	//【4】提取结果
@@ -304,7 +304,7 @@ func (mysql *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) err
 		return errors.New("条件不允许为空")
 	}
 
-	cons, vals, _ := mysql.WhereBuild(condition)
+	cons, vals, _ := WhereBuild(condition)
 	thisConn = thisConn.Where(cons, vals...).Delete(row)
 
 	//【3】提取结果

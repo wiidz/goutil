@@ -91,7 +91,7 @@ func IsNotFound(err error) bool {
 }
 
 // 复合condition成为cons、vals的结构
-func (mysql *MysqlMng) WhereBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
+func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
 		if whereSQL != "" {
@@ -158,7 +158,7 @@ func (mysql *MysqlMng) WhereBuild(condition map[string]interface{}) (whereSQL st
 }
 
 // 复合condition成为cons、vals的结构
-func (mysql *MysqlMng) WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
+func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
 		if whereSQL != "" {
@@ -226,7 +226,7 @@ func (mysql *MysqlMng) WhereOrBuild(condition map[string]interface{}) (whereSQL 
 
 // 复合condition成为cons、vals的结构
 func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName string) (err error) {
-	cons, vals, err := mysql.WhereBuild(condition)
+	cons, vals, err := WhereBuild(condition)
 	if err != nil {
 		return err
 	}

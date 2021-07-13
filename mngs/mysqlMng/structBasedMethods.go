@@ -28,7 +28,7 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 
 	//【2】拼接
 	if len(condition) > 0 {
-		cons, vals, _ := mysql.WhereBuild(condition)
+		cons, vals, _ := WhereBuild(condition)
 		thisConn = thisConn.Where(cons, vals...)
 	}
 	if len(preloads) > 0 {
@@ -52,7 +52,7 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 			// count
 			thisConn = mysql.Conn
 			if len(condition) > 0 {
-				cons, vals, _ := mysql.WhereBuild(condition)
+				cons, vals, _ := WhereBuild(condition)
 				thisConn = thisConn.Where(cons, vals...)
 			}
 			err = thisConn.Model(rows).Count(&count).Error
@@ -91,7 +91,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 	}
 
 	//【3】修改
-	cons, vals, _ := mysql.WhereBuild(condition)
+	cons, vals, _ := WhereBuild(condition)
 	thisConn = thisConn.Table(tableName).Where(cons, vals...).Updates(value)
 
 	//【4】提取结果
@@ -154,7 +154,7 @@ func (mysql *MysqlMng) Delete(params DeleteInterface) error {
 		return errors.New("条件不允许为空")
 	}
 
-	cons, vals, _ := mysql.WhereBuild(condition)
+	cons, vals, _ := WhereBuild(condition)
 	thisConn = thisConn.Where(cons, vals...).Delete(row)
 
 	//【2】提取结果
