@@ -26,8 +26,7 @@ type MysqlMng struct {
 func init() {
 
 	//【1】获取配置
-	var mng = configMng.ConfigMng{}
-	config = mng.GetMysql()
+	config = configMng.GetMysql()
 
 	//【2】构建DSN
 	dsn := config.Username + ":" + config.Password +

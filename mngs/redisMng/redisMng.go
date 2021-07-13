@@ -26,8 +26,7 @@ type RedisMng struct {
  * @date:   2020-04-15
  */
 func init() {
-	var mng = configMng.ConfigMng{}
-	config = mng.GetRedis()
+	config = configMng.GetRedis()
 }
 
 /**
