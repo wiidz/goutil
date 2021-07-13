@@ -41,32 +41,32 @@ func getFileBuf(fileName string) []byte {
 	return osHelper.GetFileBuf(getTargetDir() + fileName)
 }
 
-func (*ConfigMng) GetHttpPort() string {
+func  GetHttpPort() string {
 	return appConfig.HttpPort
 }
 
-func (*ConfigMng) GetMysql() MysqlConfig {
+func GetMysql() MysqlConfig {
 	buf := getFileBuf(MysqlConfigFileName)
 	mysqlConfig := MysqlConfig{}
 	_ = mysqlConfig.UnmarshalJSON(buf)
 	return mysqlConfig
 }
 
-func (*ConfigMng) GetRedis() RedisConfig {
+func  GetRedis() RedisConfig {
 	buf := getFileBuf(RedisConfigFileName)
 	redisConfig := RedisConfig{}
 	_ = redisConfig.UnmarshalJSON(buf)
 	return redisConfig
 }
 
-func (*ConfigMng) GetWechat() WechatConfig {
+func  GetWechat() WechatConfig {
 	buf := getFileBuf(WechatConfigFileName)
 	wechatConfig := WechatConfig{}
 	_ = wechatConfig.UnmarshalJSON(buf)
 	return wechatConfig
 }
 
-func (*ConfigMng) GetOss() OssConfig {
+func  GetOss() OssConfig {
 	buf := getFileBuf(OssConfigFileName)
 	ossConfig := OssConfig{}
 	_ = ossConfig.UnmarshalJSON(buf)
@@ -74,7 +74,7 @@ func (*ConfigMng) GetOss() OssConfig {
 	return ossConfig
 }
 
-func (*ConfigMng) GetEs() EsConfig {
+func  GetEs() EsConfig {
 	buf := getFileBuf(EsConfigFileName)
 	var esConfig EsConfig
 	_ = esConfig.UnmarshalJSON(buf)
