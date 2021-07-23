@@ -7,10 +7,10 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
 	"time"
 )
 
-var config configMng.MysqlConfig
 var db *gorm.DB
 
 type MysqlMng struct {
@@ -25,8 +25,10 @@ type MysqlMng struct {
  */
 func init() {
 
+	log.Println("mysql init")
+
 	//【1】获取配置
-	config = configMng.GetMysql()
+	config := configMng.GetMysql()
 
 	//【2】构建DSN
 	dsn := config.Username + ":" + config.Password +

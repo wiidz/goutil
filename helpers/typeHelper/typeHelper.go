@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"go/types"
 	"log"
 	"reflect"
@@ -346,19 +347,27 @@ func  JsonEncode(data interface{}) (string, error) {
 	return string(res), err
 }
 
-/**
- * @func: JsonDecode 解码json
- * @author Wiidz
- * @date   2019-11-16
- */
-func  JsonDecode(json_str string) map[string]interface{} {
+///**
+// * @func: JsonDecode 解码json
+// * @author Wiidz
+// * @date   2019-11-16
+// */
+//func  JsonDecode(json_str string) map[string]interface{} {
+//
+//	var data map[string]interface{}
+//
+//	json.Unmarshal([]byte(json_str), &data)
+//
+//	return data
+//}
 
-	var data map[string]interface{}
 
-	json.Unmarshal([]byte(json_str), &data)
-
-	return data
+func JsonDecode(jsonStr string)(parsedData interface{}){
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	json2.Unmarshal([]byte(jsonStr), &parsedData)
+	return
 }
+
 
 /**
  * @func: JsonDecode 解码json
