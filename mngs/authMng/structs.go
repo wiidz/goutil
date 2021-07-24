@@ -16,7 +16,7 @@ const (
 
 // DBAuthOwnerMixed 权限ID集合作为string存放在拥有者表里的情况
 type DBAuthOwnerMixed struct {
-	ID int `gorm:"column:id;type:int(11);not null" json:"id"`
+	ID uint64 `gorm:"column:id;type:int(11);not null" json:"id"`
 	AuthIDs string `gorm:"column:auth_ids;type:text;not null" json:"auth_ids"`
 	IsActive int8 `gorm:"column:is_active;type:tinyint" json:"is_active"` // 用来判断账户是否被禁用
 	Grouping int8 `gorm:"column:grouping;type:tinyint" json:"grouping"` // 客户分组，1=超级管理员，不需要判断权限
@@ -24,7 +24,7 @@ type DBAuthOwnerMixed struct {
 
 // DBAuthRow 权限表的结构
 type DBAuthRow struct {
-	ID        int                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
+	ID        uint64                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
 	Target    string                 `gorm:"column:target;type:varchar(128);not null" json:"target"` // 权限名称
 	Name      string                 `gorm:"column:name;type:varchar(128);not null" json:"name"`     // 权限名称
 	Method    int8                   `gorm:"column:method;type:tinyint(4);not null" json:"method"`   // 请求方法，1=get，2=post，3=put，4=delete
@@ -37,7 +37,7 @@ type DBAuthRow struct {
 
 // DBAuthCreate 增加权限
 type DBAuthCreate struct {
-	ID        int                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
+	ID        uint64                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
 	Target    string                 `gorm:"column:target;type:varchar(128);not null" json:"target"` // 权限名称
 	Name      string                 `gorm:"column:name;type:varchar(128);not null" json:"name"`     // 权限名称
 	Method    int8                   `gorm:"column:method;type:tinyint(4);not null" json:"method"`   // 请求方法，1=get，2=post，3=put，4=delete
@@ -49,7 +49,7 @@ type DBAuthCreate struct {
 
 // DBAuthOption 权限下拉菜单
 type DBAuthOption struct {
-	ID        int                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
+	ID        uint64                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
 	Target    string                 `gorm:"column:target;type:varchar(128);not null" json:"target"` // 权限名称
 	Name      string                 `gorm:"column:name;type:varchar(128);not null" json:"label"`    // 权限名称
 	DeletedAt *timeHelper.MyJsonTime `gorm:"column:deleted_at;type:timestamp" json:"-"`              // 最后修改时间
@@ -57,7 +57,7 @@ type DBAuthOption struct {
 
 // DBAuthPreview 权限预览数据
 type DBAuthPreview struct {
-	ID        int                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
+	ID        uint64                    `gorm:"primary_key;column:id;type:int(11);not null" json:"id"`  // 编号
 	Target    string                 `gorm:"column:target;type:varchar(128);not null" json:"target"` // 权限名称
 	Name      string                 `gorm:"column:name;type:varchar(128);not null" json:"name"`     // 权限名称
 	Method    int8                   `gorm:"column:method;type:tinyint(4);not null" json:"method"`   // 请求方法，1=get，2=post，3=put，4=delete

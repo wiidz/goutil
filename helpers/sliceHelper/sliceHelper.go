@@ -773,3 +773,19 @@ func ExistInt(needle int, hystackArray []int) bool {
 	}
 	return false
 }
+
+
+
+/**
+ * @func: Exsit 判断slice中是否存在needle
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func ExistUint64(needle uint64, hystackArray []uint64) bool {
+	for _, item := range hystackArray {
+		if needle == item {
+			return true
+		}
+	}
+	return false
+}

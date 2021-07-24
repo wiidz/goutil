@@ -90,6 +90,20 @@ func  ExplodeInt(data string, sep string) []int {
 }
 
 /**
+ * @func: ExplodeUint64  字符串转int slice
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  ExplodeUint64(data string, sep string) []uint64 {
+	old := strings.Split(data, sep)
+	newS := make([]uint64, len(old))
+	for i, v := range old {
+		newS[i], _ = strconv.ParseUint(v,10,64)
+	}
+	return newS
+}
+
+/**
  * @func: Explode  字符串转int slice
  * @author Wiidz
  * @date   2019-11-16

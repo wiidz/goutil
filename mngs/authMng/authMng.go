@@ -61,8 +61,8 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 	//【4】判断客户的权限集是否包括
 	if owner.Grouping != SuperManager{
-		authIDs := typeHelper.ExplodeInt(owner.AuthIDs, ",")
-		exist := sliceHelper.ExistInt(authID, authIDs)
+		authIDs := typeHelper.ExplodeUint64(owner.AuthIDs, ",")
+		exist := sliceHelper.ExistUint64(authID, authIDs)
 		if !exist {
 			networkHelper.ReturnError(ctx,"您没有权限操作")
 			return
@@ -75,7 +75,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 
 // getAuthFromDB 根据方法和路由地址获取对应权限的主键
-func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string)(authID int,err error){
+func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string)(authID uint64,err error){
 	//【2】获取操作方法对应的数字
 	numMap := map[string]Method{
 		"GET":    Get,
