@@ -438,6 +438,17 @@ func  Int2Str(number int) string {
 	return strconv.Itoa(number)
 }
 
+
+/**
+ * @func: Float64SliceToInt float64 slice转换成 int slice
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  Uint64ToStr(number uint64) string {
+	return strconv.FormatUint(number,10)
+}
+
+
 /**
  * @func: If 三元运算符
  * @author Wiidz
