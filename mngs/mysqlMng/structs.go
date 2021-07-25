@@ -155,7 +155,7 @@ type InsertInterface interface {
 // 插入操作的基本结构体
 type Insert struct {
 	BaseStruct
-	NewID      int // 没有实际意义，无法实现，只为了区分interface
+	NewID      uint64 // 没有实际意义，无法实现，只为了区分interface
 	Row        interface{}
 	RawJsonMap map[string]interface{}
 }
@@ -166,7 +166,7 @@ func (insert *Insert) GetRawJsonMap() map[string]interface{} {
 func (insert *Insert) GetRow() interface{} {
 	return insert.Row
 }
-func (insert *Insert) GetNewID() int {
+func (insert *Insert) GetNewID() uint64 {
 	return insert.NewID
 }
 func (insert *Insert) GetRowsAffected() int64 {
@@ -184,7 +184,7 @@ func (insert *Insert) SetRow(row interface{}) {
 func (insert *Insert) SetRowsAffected(rowsAffected int64) {
 	insert.RowsAffected = rowsAffected
 }
-func (insert *Insert) SetNewID(newID int) {
+func (insert *Insert) SetNewID(newID uint64) {
 	insert.NewID = newID
 }
 func (insert *Insert) SetError(err error) {
