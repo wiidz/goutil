@@ -11,12 +11,12 @@ const (
 
 // 简单方法种用来获取新插入记录的ID值
 type OnlyID struct {
-	ID int `gorm:"primary_key;column:id;type:int(11);not null" json:"id"` // 编号
+	ID uint64 `gorm:"primary_key;column:id;type:bigint(20) unsigned;not null" json:"id"` // 编号
 }
 
 // 结构化方法种用来获取新插入记录的ID值
 type IDInterface interface {
-	GetID() int
+	GetID() uint64
 }
 
 
@@ -146,10 +146,10 @@ type InsertInterface interface {
 	BaseInterface
 	// Getter
 	GetRow() interface{}
-	GetNewID() int
+	GetNewID() uint64
 	//Setter
 	SetRow(interface{})
-	SetNewID(int)
+	SetNewID(uint64)
 }
 
 // 插入操作的基本结构体
