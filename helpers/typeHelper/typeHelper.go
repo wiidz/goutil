@@ -378,7 +378,13 @@ func  JsonEncode(data interface{}) (string, error) {
 
 func JsonDecode(jsonStr string)(parsedData interface{}){
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
-	json2.Unmarshal([]byte(jsonStr), &parsedData)
+	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
+	return
+}
+
+func JsonDecodeMap(jsonStr string)(parsedData map[string]interface{}){
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
 	return
 }
 
