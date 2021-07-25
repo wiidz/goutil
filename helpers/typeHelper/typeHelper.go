@@ -318,6 +318,16 @@ func  Str2Int8(str string) int8 {
 }
 
 /**
+ * @func: Str2Int8 将字符串转为int8
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  Str2Uint64(str string) uint64 {
+	number, _ := strconv.ParseUint(str,10,64)
+	return number
+}
+
+/**
  * @func: Str2Int 将字符串转为int
  * @author Wiidz
  * @date   2019-11-16
@@ -535,10 +545,20 @@ func  Float64ToIntSlice(slice []interface{}) []int {
 }
 
 /**
- * @func: Str2Int8 将字符串转为int8
+ * @func: Float64ToInt8 将字符串转为int8
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64ToInt8(numer float64) int8 {
-	return int8(numer)
+func  Float64ToInt8(number float64) int8 {
+	return int8(number)
+}
+
+
+/**
+ * @func: Float64ToUint64 将字符串转为int8
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func  Float64ToUint64(number float64) uint64 {
+	return uint64(number)
 }
