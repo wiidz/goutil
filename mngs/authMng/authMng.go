@@ -7,6 +7,7 @@ import (
 	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
+	"gorm.io/gorm"
 	"reflect"
 )
 
@@ -35,9 +36,10 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 	//【2】初始化数据库
 	mysql := mysqlMng.NewMysqlMng()
+	conn := mysql.GetConn()
 
 	//【3】获取用户资料并判断
-	owner,err := mng.getOwnerFromDB(mysql,id)
+	owner,err := mng.getOwnerFromDB(conn,id)
 	if err != nil{
 		if mysqlMng.IsNotFound(err){
 			networkHelper.ReturnError(ctx,"找不到您的账户")
@@ -53,7 +55,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 	//【4】查询当前请求地址的authID
 	route := ctx.GetCurrentRoute()
-	authID,err := mng.getAuthIDFromDB(mysql,route.Method(), route.Path())
+	authID,err := mng.getAuthIDFromDB(conn,route.Method(), route.Path())
 	if err != nil {
 		networkHelper.ReturnError(ctx,err.Error())
 		return
@@ -75,7 +77,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 
 // getAuthFromDB 根据方法和路由地址获取对应权限的主键
-func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string)(authID uint64,err error){
+func (mng *AuthMng) getAuthIDFromDB(conn *gorm.DB,method,route string)(authID uint64,err error){
 	//【2】获取操作方法对应的数字
 	numMap := map[string]Method{
 		"GET":    Get,
@@ -86,7 +88,7 @@ func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string
 	methodNum := numMap[method]
 
 	var row DBAuthRow
-	err = mysql.Conn.Table(mng.AuthTableName).Where("method = ? and route = ?",&methodNum,&route).First(&row).Error
+	err = conn.Table(mng.AuthTableName).Where("method = ? and route = ?",&methodNum,&route).First(&row).Error
 
 	if mysqlMng.IsNotFound(err){
 		err = errors.New("找不到匹配路由的权限")
@@ -98,8 +100,8 @@ func (mng *AuthMng) getAuthIDFromDB(mysql *mysqlMng.MysqlMng,method,route string
 }
 
 // getOwnerFromDB 从数据库根据主键值获取用户资料
-func (mng *AuthMng) getOwnerFromDB(mysql *mysqlMng.MysqlMng,ownerID int)(owner DBAuthOwnerMixed,err error){
+func (mng *AuthMng) getOwnerFromDB(conn *gorm.DB,ownerID int)(owner DBAuthOwnerMixed,err error){
 
-	err = mysql.Conn.Table(mng.OwnerTableName).Where("id = ?",&ownerID).First(&owner).Error
+	err = conn.Table(mng.OwnerTableName).Where("id = ?",&ownerID).First(&owner).Error
 	return
 }

@@ -24,7 +24,7 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 	preloads := list.GetPreloads()
 	rows := list.GetRows()
 
-	thisConn := mysql.Conn
+	thisConn := mysql.GetConn()
 
 	//【2】拼接
 	if len(condition) > 0 {
@@ -80,7 +80,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 	log.Println("【condition】", typeHelper.GetType(condition), condition)
 	log.Println("【value】", typeHelper.GetType(value), value)
 	tableName := update.GetTableName()
-	thisConn := mysql.Conn
+	thisConn := mysql.GetConn()
 
 	//【2】拼接
 	if len(condition) == 0 {
@@ -119,7 +119,7 @@ func (mysql *MysqlMng) CreateOne(insert InsertInterface) {
 
 	//【1】初始化参数
 	row := insert.GetRow()
-	thisConn := mysql.Conn
+	thisConn := mysql.GetConn()
 	thisConn = thisConn.Create(row)
 
 	//【2】提取结果
@@ -147,7 +147,7 @@ func (mysql *MysqlMng) Delete(params DeleteInterface) error {
 	//【1】初始化参数
 	condition := params.GetCondition()
 	row := params.GetRow()
-	thisConn := mysql.Conn
+	thisConn := mysql.GetConn()
 
 	//【2】拼接
 	if len(condition) == 0 {

@@ -56,13 +56,20 @@ func init() {
  */
 func NewMysqlMng() *MysqlMng {
 	mysqlMng := &MysqlMng{}
-	mysqlMng.NewCommonConn()
 	return mysqlMng
 }
 
 // 获取一个新的会话
 func (mysql *MysqlMng) NewCommonConn() {
 	mysql.Conn = db.Session(&gorm.Session{
+		//WithConditions: true,
+		Logger: db.Logger.LogMode(logger.Info),
+	})
+}
+
+// 获取一个新的会话
+func (mysql *MysqlMng) GetConn() *gorm.DB {
+	return db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
 	})
@@ -232,7 +239,7 @@ func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName strin
 		return err
 	}
 	var count int64
-	err = mysql.Conn.Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
+	err = mysql.GetConn().Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
 	if err != nil {
 		return err
 	}
