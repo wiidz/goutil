@@ -250,7 +250,7 @@ func IsExist(conn *gorm.DB, condition map[string]interface{}, tableName string) 
 }
 
 // WhereFindAll 条件查询全部
-func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (data interface{}, err error) {
+func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) ( err error) {
 
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
@@ -260,12 +260,11 @@ func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interfac
 	if err != nil {
 		return
 	}
-	data = rows
 	return
 }
 
 // WhereFirst 条件查询一条
-func WhereFirst(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (data interface{}, err error) {
+func WhereFirst(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (err error) {
 
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
@@ -275,7 +274,6 @@ func WhereFirst(conn *gorm.DB, condition map[string]interface{}, rows interface{
 	if err != nil {
 		return
 	}
-	data = rows
 	return
 }
 
