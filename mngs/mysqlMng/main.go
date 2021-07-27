@@ -249,6 +249,37 @@ func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName strin
 	return errors.New("记录已存在")
 }
 
+
+// WhereFindAll 条件查询全部
+func (mysql *MysqlMng) WhereFindAll(conn *gorm.DB,condition map[string]interface{}, rows interface{}) (data interface{},err error) {
+
+	cons, vals, err := WhereBuild(condition)
+	if err != nil {
+		return
+	}
+	err = conn.Where(cons, vals...).Find(&rows).Error
+	if err != nil {
+		return
+	}
+	data = rows
+	return
+}
+
+// WhereFirst 条件查询一条
+func (mysql *MysqlMng) WhereFirst(conn *gorm.DB,condition map[string]interface{}, rows interface{}) (data interface{},err error) {
+
+	cons, vals, err := WhereBuild(condition)
+	if err != nil {
+		return
+	}
+	err = conn.Where(cons, vals...).First(&rows).Error
+	if err != nil {
+		return
+	}
+	data = rows
+	return
+}
+
 // GetOffset 获取偏移量
 func GetOffset(pageNow, pageSize int) int {
 	var offset int
