@@ -250,7 +250,7 @@ func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName strin
 }
 
 // GetOffset 获取偏移量
-func (mysql *MysqlMng)  GetOffset(pageNow, pageSize int) int {
+func GetOffset(pageNow, pageSize int) int {
 	var offset int
 	if pageNow > 1 {
 		offset = (pageNow - 1) * pageSize
