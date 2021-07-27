@@ -233,7 +233,7 @@ func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []int
 }
 
 // IsExist 查询是否存在记录
-func (mysql *MysqlMng) IsExist(conn *gorm.DB, condition map[string]interface{}, tableName string) (err error) {
+func IsExist(conn *gorm.DB, condition map[string]interface{}, tableName string) (err error) {
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
 		return err
