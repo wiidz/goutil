@@ -93,12 +93,12 @@ func (mysql *MysqlMng) Commit() {
 	mysql.TransConn.Commit()
 }
 
-// 判断读取结果是否为空错误
+// IsNotFound 判断读取结果是否为空错误
 func IsNotFound(err error) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-// 复合condition成为cons、vals的结构
+// WhereBuild 复合condition成为cons、vals的结构
 func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
@@ -165,7 +165,7 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 	return
 }
 
-// 复合condition成为cons、vals的结构
+// WhereOrBuild 复合condition成为cons、vals的结构
 func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []interface{}, err error) {
 
 	for k, v := range condition {
@@ -232,14 +232,14 @@ func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []int
 	return
 }
 
-// 复合condition成为cons、vals的结构
-func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName string) (err error) {
+// IsExist 查询是否存在记录
+func (mysql *MysqlMng) IsExist(conn *gorm.DB, condition map[string]interface{}, tableName string) (err error) {
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
 		return err
 	}
 	var count int64
-	err = mysql.GetConn().Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
+	err = conn.Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -249,9 +249,8 @@ func (mysql *MysqlMng) IsExist(condition map[string]interface{}, tableName strin
 	return errors.New("记录已存在")
 }
 
-
 // WhereFindAll 条件查询全部
-func (mysql *MysqlMng) WhereFindAll(conn *gorm.DB,condition map[string]interface{}, rows interface{}) (data interface{},err error) {
+func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (data interface{}, err error) {
 
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
@@ -266,7 +265,7 @@ func (mysql *MysqlMng) WhereFindAll(conn *gorm.DB,condition map[string]interface
 }
 
 // WhereFirst 条件查询一条
-func (mysql *MysqlMng) WhereFirst(conn *gorm.DB,condition map[string]interface{}, rows interface{}) (data interface{},err error) {
+func WhereFirst(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (data interface{}, err error) {
 
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
