@@ -67,12 +67,21 @@ func (mysql *MysqlMng) NewCommonConn() {
 	})
 }
 
-// 获取一个新的会话
+// GetConn 获取一个新的会话
 func (mysql *MysqlMng) GetConn() *gorm.DB {
 	return db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
 	})
+}
+
+
+// GetDBConn 获取一个新的会话，并且切换数据库名
+func (mysql *MysqlMng) GetDBConn(dbName string) *gorm.DB {
+	return db.Session(&gorm.Session{
+		//WithConditions: true,
+		Logger: db.Logger.LogMode(logger.Info),
+	}).Exec("use "+dbName)
 }
 
 // 开启一个事务会话
