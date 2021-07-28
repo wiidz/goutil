@@ -265,6 +265,17 @@ func  UniqueIntSlice(slc []int) []int {
 	}
 }
 
+// UniqueUint64Slice int slice去重
+func  UniqueUint64Slice(slc []uint64) []uint64 {
+	if len(slc) < 1024 {
+		// 切片长度小于1024的时候，循环来过滤
+		return UniqueByLoopUint64(slc)
+	} else {
+		// 大于的时候，通过map来过滤
+		return UniqueByMapUint64(slc)
+	}
+}
+
 /**
  * @func: UniqueByLoop 通过两重循环过滤重复元素
  * @author Wiidz
@@ -286,6 +297,26 @@ func UniqueByLoop(slc []int) []int {
 	}
 	return result
 }
+
+
+// UniqueByLoopUint64 通过两重循环过滤重复元素
+func UniqueByLoopUint64(slc []uint64) []uint64 {
+	result := []uint64{} // 存放结果
+	for i := range slc {
+		flag := true
+		for j := range result {
+			if slc[i] == result[j] {
+				flag = false // 存在重复元素，标识为false
+				break
+			}
+		}
+		if flag { // 标识为false，不添加进结果
+			result = append(result, slc[i])
+		}
+	}
+	return result
+}
+
 
 /**
  * @func: UniqueInterface interface slice去重
@@ -334,6 +365,26 @@ func UniqueStrSlice(strSlice []string) []string {
 func UniqueByMap(slc []int) []int {
 	result := []int{}
 	tempMap := map[int]byte{} // 存放不重复主键
+	for _, e := range slc {
+		l := len(tempMap)
+		tempMap[e] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, e)
+		}
+	}
+	return result
+}
+
+
+
+/**
+ * @func: UniqueByMap  通过map主键唯一的特性过滤重复元素
+ * @author Wiidz
+ * @date   2019-11-16
+ */
+func UniqueByMapUint64(slc []uint64) []uint64 {
+	result := []uint64{}
+	tempMap := map[uint64]byte{} // 存放不重复主键
 	for _, e := range slc {
 		l := len(tempMap)
 		tempMap[e] = 0
