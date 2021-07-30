@@ -27,6 +27,16 @@ func  Implode(data interface{}, glue string) string {
 	return strings.Join(tmp, glue)
 }
 
+// ImplodeUint64 将slice转换成字符串
+func  ImplodeUint64(data []uint64, glue string) string {
+	var tmp []string
+	for _, item := range data {
+		tmp = append(tmp, strconv.FormatUint(item,10))
+	}
+
+	return strings.Join(tmp, glue)
+}
+
 /**
  * @func: ImplodeInt 将int slice转换成字符串
  * @author Wiidz
