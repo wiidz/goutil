@@ -15,6 +15,7 @@ const (
 	EsConfigFileName     = "es.json"
 	RedisConfigFileName  = "redis.json"
 	OssConfigFileName    = "oss.json"
+	RebbitMQConfigFileName     = "rabbit-mq.json"
 )
 
 var appConfig = AppConfig{}
@@ -80,4 +81,13 @@ func  GetEs() EsConfig {
 	_ = esConfig.UnmarshalJSON(buf)
 	fmt.Println("esConfig", esConfig)
 	return esConfig
+}
+
+// GetRabbitMQ 获取rabbit mq的配置
+func  GetRabbitMQ() RabbitMQConfig {
+	buf := getFileBuf(RebbitMQConfigFileName)
+	var rabbitMQConfig RabbitMQConfig
+	_ = rabbitMQConfig.UnmarshalJSON(buf)
+	fmt.Println("rabbitMQConfig", rabbitMQConfig)
+	return rabbitMQConfig
 }

@@ -60,3 +60,10 @@ type WechatConfig struct {
 	CertPath    string `json:"cert_path"`
 	CertKeyPath string `json:"cert_key_path"`
 }
+
+// RabbitMQConfig rabbit mq配置
+type RabbitMQConfig struct {
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
