@@ -258,6 +258,23 @@ func IsExist(conn *gorm.DB, condition map[string]interface{}, tableName string) 
 	return errors.New("记录已存在")
 }
 
+// RequireExist 要求存在，否则都报错
+func RequireExist(conn *gorm.DB, condition map[string]interface{}, tableName string) (err error) {
+	cons, vals, err := WhereBuild(condition)
+	if err != nil {
+		return err
+	}
+	var count int64
+	err = conn.Table(tableName).Where(cons, vals...).Limit(1).Count(&count).Error
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("记录不存在")
+	}
+	return nil
+}
+
 // WhereFindAll 条件查询全部
 func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) ( err error) {
 
