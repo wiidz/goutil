@@ -3,6 +3,7 @@ package configMng
 import (
 	"fmt"
 	"github.com/wiidz/goutil/helpers/osHelper"
+	"log"
 )
 
 const (
@@ -23,8 +24,10 @@ var appConfig = AppConfig{}
 type ConfigMng struct{}
 
 func init() {
+	log.Println(ConfigPath + AppConfigFileName)
 	buf := osHelper.GetFileBuf(ConfigPath + AppConfigFileName)
 	_ = appConfig.UnmarshalJSON(buf)
+	log.Println("appConfig",appConfig)
 }
 
 // 获取指定目录里的配置文件
