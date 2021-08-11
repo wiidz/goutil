@@ -594,3 +594,8 @@ func  Float64ToInt8(number float64) int8 {
 func  Float64ToUint64(number float64) uint64 {
 	return uint64(number)
 }
+
+// Int8ToStr int8转字符串
+func Int8ToStr(number int8)string {
+	return strconv.Itoa(int(number))
+}
