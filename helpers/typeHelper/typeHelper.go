@@ -27,6 +27,16 @@ func  Implode(data interface{}, glue string) string {
 	return strings.Join(tmp, glue)
 }
 
+// ImplodeInt8 将Int8切片转换成string
+func  ImplodeInt8(data []int8, glue string) string {
+	var tmp []string
+	for _, item := range data {
+		tmp = append(tmp, ToString(item))
+	}
+
+	return strings.Join(tmp, glue)
+}
+
 // ImplodeUint64 将slice转换成字符串
 func  ImplodeUint64(data []uint64, glue string) string {
 	var tmp []string
@@ -140,6 +150,18 @@ func  ExplodeInt64(data string, sep string) []int64 {
 	}
 	return newS
 }
+
+// ExplodeInt8 字符串转int8 slice
+func  ExplodeInt8(data string, sep string) []int8 {
+	old := strings.Split(data, sep)
+	newS := make([]int8, len(old))
+	for i, v := range old {
+		temp, _ := strconv.Atoi(v)
+		newS[i] = int8(temp)
+	}
+	return newS
+}
+
 
 /**
  * @func: GetType 获取目标的数据类型
