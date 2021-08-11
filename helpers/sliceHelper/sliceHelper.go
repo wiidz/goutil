@@ -255,7 +255,7 @@ func NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interfac
  * @author Wiidz
  * @date   2019-11-06
  */
-func  UniqueIntSlice(slc []int) []int {
+func UniqueIntSlice(slc []int) []int {
 	if len(slc) < 1024 {
 		// 切片长度小于1024的时候，循环来过滤
 		return UniqueByLoop(slc)
@@ -266,7 +266,7 @@ func  UniqueIntSlice(slc []int) []int {
 }
 
 // UniqueUint64Slice int slice去重
-func  UniqueUint64Slice(slc []uint64) []uint64 {
+func UniqueUint64Slice(slc []uint64) []uint64 {
 	if len(slc) < 1024 {
 		// 切片长度小于1024的时候，循环来过滤
 		return UniqueByLoopUint64(slc)
@@ -298,7 +298,6 @@ func UniqueByLoop(slc []int) []int {
 	return result
 }
 
-
 // UniqueByLoopUint64 通过两重循环过滤重复元素
 func UniqueByLoopUint64(slc []uint64) []uint64 {
 	result := []uint64{} // 存放结果
@@ -316,7 +315,6 @@ func UniqueByLoopUint64(slc []uint64) []uint64 {
 	}
 	return result
 }
-
 
 /**
  * @func: UniqueInterface interface slice去重
@@ -375,8 +373,6 @@ func UniqueByMap(slc []int) []int {
 	return result
 }
 
-
-
 /**
  * @func: UniqueByMap  通过map主键唯一的特性过滤重复元素
  * @author Wiidz
@@ -434,7 +430,7 @@ func MapSliceReverse(arr []map[string]interface{}) ([]map[string]interface{}, er
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetParentIds(children_id, result_str, key string, original_data []map[string]interface{}) string {
+func GetParentIds(children_id, result_str, key string, original_data []map[string]interface{}) string {
 
 	str_inn := result_str
 
@@ -551,27 +547,35 @@ func ArrayGroupByMapKey(key string, list []map[string]interface{}) [][]map[strin
 	return returnData
 }
 
-/**
- * @func: Exsit 判断slice中是否存在needle
- * @author Wiidz
- * @date   2019-11-16
- */
-func Exist(needle interface{}, hystack_array interface{}) bool {
+// Exist 判断slice中是否存在needle
+func Exist(needle interface{}, scopeSlice interface{}) bool {
 	switch key := needle.(type) {
 	case string:
-		for _, item := range hystack_array.([]string) {
+		for _, item := range scopeSlice.([]string) {
 			if key == item {
 				return true
 			}
 		}
 	case int:
-		for _, item := range hystack_array.([]int) {
+		for _, item := range scopeSlice.([]int) {
+			if key == item {
+				return true
+			}
+		}
+	case int8:
+		for _, item := range scopeSlice.([]int8) {
 			if key == item {
 				return true
 			}
 		}
 	case int64:
-		for _, item := range hystack_array.([]int64) {
+		for _, item := range scopeSlice.([]int64) {
+			if key == item {
+				return true
+			}
+		}
+	case float64:
+		for _, item := range scopeSlice.([]float64) {
 			if key == item {
 				return true
 			}
@@ -721,22 +725,22 @@ func IndexOfStrSlice(needle string, fields_slice []string) int {
  * @author Wiidz
  * @date   2019-11-06
  */
-func IndexOf(needle interface{}, hystack_array interface{}) int {
+func IndexOf(needle interface{}, scopeSlice interface{}) int {
 	switch key := needle.(type) {
 	case string:
-		for index, item := range hystack_array.([]string) {
+		for index, item := range scopeSlice.([]string) {
 			if key == item {
 				return index
 			}
 		}
 	case int:
-		for index, item := range hystack_array.([]int) {
+		for index, item := range scopeSlice.([]int) {
 			if key == item {
 				return index
 			}
 		}
 	case int64:
-		for index, item := range hystack_array.([]int64) {
+		for index, item := range scopeSlice.([]int64) {
 			if key == item {
 				return index
 			}
@@ -816,8 +820,8 @@ func JoinInterfaceSlice(islice []interface{}, letter string) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func ExistInt(needle int, hystackArray []int) bool {
-	for _, item := range hystackArray {
+func ExistInt(needle int, scopeSlice []int) bool {
+	for _, item := range scopeSlice {
 		if needle == item {
 			return true
 		}
@@ -825,15 +829,13 @@ func ExistInt(needle int, hystackArray []int) bool {
 	return false
 }
 
-
-
 /**
  * @func: Exsit 判断slice中是否存在needle
  * @author Wiidz
  * @date   2019-11-16
  */
-func ExistUint64(needle uint64, hystackArray []uint64) bool {
-	for _, item := range hystackArray {
+func ExistUint64(needle uint64, scopeSlice []uint64) bool {
+	for _, item := range scopeSlice {
 		if needle == item {
 			return true
 		}
