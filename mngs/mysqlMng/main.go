@@ -324,7 +324,7 @@ func GetOffset(pageNow, pageSize int) int {
 
 
 // SimpleUpdate 简单更新操作
-func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model interface{})(rowsAffected int64,err error) {
+func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model interface{},tableName string)(rowsAffected int64,err error) {
 
 	//【1】判断条件是否为空
 	if len(condition) == 0 {
@@ -342,11 +342,11 @@ func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model inte
 	cons,vals, _ := WhereBuild(condition)
 
 	//【4】执行操作
-	tempConn := conn.Model(model).Where(cons,vals...).Updates(data)
+	conn = conn.Table(tableName).Model(model).Where(cons,vals...).Updates(data)
 
 	//【5】返回
-	err = tempConn.Error
-	rowsAffected = tempConn.RowsAffected
+	err = conn.Error
+	rowsAffected = conn.RowsAffected
 
 	return
 }
