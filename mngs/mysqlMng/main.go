@@ -342,11 +342,11 @@ func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model inte
 	cons,vals, _ := WhereBuild(condition)
 
 	//【4】执行操作
-	conn = conn.Model(model).Where(cons,vals...).Updates(data)
+	tempConn := conn.Model(model).Where(cons,vals...).Updates(data)
 
 	//【5】返回
-	err = conn.Error
-	rowsAffected = conn.RowsAffected
+	err = tempConn.Error
+	rowsAffected = tempConn.RowsAffected
 
 	return
 }
