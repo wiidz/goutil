@@ -84,6 +84,13 @@ func (mysql *MysqlMng) GetDBConn(dbName string) *gorm.DB {
 	}).Exec("use "+dbName)
 }
 
+
+// GetDBTransConn 获取一个新的会话，并且切换数据库名
+func (mysql *MysqlMng) GetDBTransConn(dbName string) *gorm.DB {
+	return db.Begin().Exec("use "+dbName)
+}
+
+
 // 开启一个事务会话
 func (mysql *MysqlMng) NewTransConn() {
 	mysql.TransConn = db.Session(&gorm.Session{
