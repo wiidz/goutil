@@ -202,6 +202,12 @@ func (tm MyJsonTime) GetZeroTime() MyJsonTime {
 }
 
 
+// GetLastTime 获取某一天的最后时间
+func (tm MyJsonTime) GetLastTime() MyJsonTime {
+	return MyJsonTime(time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()))
+}
+
+
 func (tm MyJsonTime) Format2Time() time.Time {
 	return time.Time(tm)
 }
