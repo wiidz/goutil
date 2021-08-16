@@ -139,3 +139,19 @@ func (ossMng *OssMng) GetBuckInfo(objectName string){
 	//log.Println("bucket",bucket.Get)
 
 }
+
+func SimpleGetOssSign(ossMng *OssMng,object string) (msg string, data interface{}, statusCode int) {
+
+	//【1】拼接路径 目录+时间+用户名+随机数
+	now := time.Now().Unix()
+	dateStamp := time.Unix(now, 0).Format("20060102")
+	remotePath := object + "/" + dateStamp + "/"
+
+	res, err := ossMng.GetSign(remotePath)
+
+	if err != nil {
+		return "获取签名失败", "", 400
+	}
+
+	return "ok", res, 200
+}
