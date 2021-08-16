@@ -38,6 +38,13 @@ func  GetZeroTimeStamp(d time.Time) time.Time {
 	return time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 }
 
+
+// GetLastTimeStamp 获取某一天的最后时间
+func GetLastTimeStamp(d time.Time) time.Time {
+	return time.Date(d.Year(), d.Month(), d.Day(), 23, 59, 59, 0, d.Location())
+}
+
+
 /**
  * @func: BeautyTimeStamp 美化时间
  * @author Wiidz
