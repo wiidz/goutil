@@ -4,6 +4,8 @@ go 1.16
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/gomodule/redigo v1.7.1-0.20190724094224-574c33c3df38
@@ -15,6 +17,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/moul/http2curl v1.0.0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
@@ -23,6 +26,7 @@ require (
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
