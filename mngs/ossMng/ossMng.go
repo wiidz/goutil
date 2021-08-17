@@ -110,7 +110,7 @@ func (ossMng *OssMng) Upload(filePath, objectName string) (string, error) {
 	//response, err := ossMng.getPolicyToken(object)
 
 	// 获取存储空间。
-	bucket, err := ossMng.Client.Bucket("anteras")
+	bucket, err := ossMng.Client.Bucket(ossMng.Config.BucketName)
 	if err != nil {
 		return "", err
 	}
@@ -131,23 +131,21 @@ func (ossMng *OssMng) Upload(filePath, objectName string) (string, error) {
 	return ossPath, nil
 }
 
-// GetBuckInfo 获取Bucket信息
-func (ossMng *OssMng) GetBuckInfo(objectName string){
+// GetBucketInfo 获取Bucket信息
+func (ossMng *OssMng) GetBucketInfo(){
 	//response, err := ossMng.getPolicyToken(object)
 
 	// 获取存储空间。
-	bucket, _ := ossMng.Client.Bucket("anteras")
+	bucket, _ := ossMng.Client.Bucket(ossMng.Config.BucketName)
 	log.Println("bucket",bucket)
 	//log.Println("bucket",bucket.Get)
 
 }
 
+// SimpleGetOssSign 简单获取签名
 func SimpleGetOssSign(ossMng *OssMng,object string) (msg string, data interface{}, statusCode int) {
 
-	//【1】拼接路径 目录+时间+用户名+随机数
-	now := time.Now().Unix()
-	dateStamp := time.Unix(now, 0).Format("20060102")
-	remotePath := object + "/" + dateStamp + "/"
+	remotePath := GetRemotePath(object)
 
 	res, err := ossMng.GetSign(remotePath)
 
@@ -156,4 +154,12 @@ func SimpleGetOssSign(ossMng *OssMng,object string) (msg string, data interface{
 	}
 
 	return "ok", res, 200
+}
+
+// GetRemotePath 组合远程文件夹路径（目录+时间+用户名+随机数）
+func GetRemotePath(object string) (remotePath string) {
+	now := time.Now().Unix()
+	dateStamp := time.Unix(now, 0).Format("20060102")
+	remotePath = object + "/" + dateStamp + "/"
+	return
 }
