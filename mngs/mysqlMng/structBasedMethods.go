@@ -3,6 +3,7 @@ package mysqlMng
 import (
 	"errors"
 	"github.com/wiidz/goutil/helpers/typeHelper"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -50,7 +51,7 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 		err = thisConn.Offset(offset).Limit(limit).Find(rows).Error
 		if err == nil {
 			// count
-			thisConn = mysql.Conn
+			thisConn = thisConn.Session(&gorm.Session{NewDB: true})
 			if len(condition) > 0 {
 				cons, vals, _ := WhereBuild(condition)
 				thisConn = thisConn.Where(cons, vals...)
