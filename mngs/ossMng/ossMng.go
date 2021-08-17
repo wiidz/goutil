@@ -36,7 +36,9 @@ func NewOssMngSingle() (*OssMng, error) {
 
 // NewOssMng 创建ossMng
 func NewOssMng(config *configMng.OssConfig) (*OssMng, error) {
-	ossMng := OssMng{}
+	ossMng := OssMng{
+		Config: config,
+	}
 	client, err := oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret)
 
 	if err != nil {
