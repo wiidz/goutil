@@ -291,7 +291,7 @@ func (mysql *MysqlMng)SimpleDelete(params DeleteInterface) (msg string, data int
 	}
 
 	//【3】返回
-	return "ok", params.GetRowsAffected(), 200
+	return "ok", params.GetRowsAffected(), 204
 }
 
 /**
