@@ -775,6 +775,14 @@ func getFormattedValue(t string, value interface{}) interface{} {
 		}else {
 			return typeHelper.Float64ToInt8(value.(float64))
 		}
+	case "int64":
+		if valueType == "string" {
+			return typeHelper.Str2Int64(value.(string))
+		} else if valueType == "nil" {
+			return int64(0)
+		}else {
+			return typeHelper.Float64ToInt64(value.(float64))
+		}
 	case "uint64":
 		if valueType == "string" {
 			return typeHelper.Str2Uint64(value.(string))
