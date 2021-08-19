@@ -27,7 +27,7 @@ func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 	//    mchId：商户ID
 	//    apiKey：API秘钥值
 	//    isProd：是否是正式环境
-	wechatPayMng.Client = wechat.NewClient(config.AppID, config.MechID, config.PayKey, config.IsProd)
+	wechatPayMng.Client = wechat.NewClient(config.AppID, config.MchID, config.PayKey, config.IsProd)
 
 	// 打开Debug开关，输出请求日志，默认关闭
 	wechatPayMng.Client.DebugSwitch = gopay.DebugOn
