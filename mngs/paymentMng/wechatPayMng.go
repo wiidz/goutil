@@ -95,7 +95,10 @@ func (mng *WechatPayMng) UnifiedOrder(param *UnifiedOrderParam) (mWebUrl string,
 	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
 	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
 
-	if len(wxRsp.ErrCodeDes) != 0 {
+	if wxRsp.ReturnCode == "FAIL" {
+		err = errors.New(wxRsp.ErrCodeDes)
+		return
+	} else  if len(wxRsp.ErrCodeDes) != 0 {
 		err = errors.New(wxRsp.ErrCodeDes)
 		return
 	}
