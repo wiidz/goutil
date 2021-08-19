@@ -11,12 +11,16 @@ import (
 
 type AliPayMng struct {
 	Client *alipay.Client
+	Config *configMng.AliPayConfig
 }
 
-// getInstance 获取实例
-func getInstance(config *configMng.AliPayConfig) *AliPayMng {
-	var alipayMng AliPayMng
-	alipayMng.Client = alipay.NewClient(config.AppID, config.PrivateKey, config.IsProd)
+// getAliPayInstance 获取实例
+func getAliPayInstance(config *configMng.AliPayConfig) *AliPayMng {
+
+	var alipayMng = AliPayMng{
+		Config: config,
+		Client:alipay.NewClient(config.AppID, config.PrivateKey, config.IsProd),
+	}
 
 	//配置公共参数
 	alipayMng.Client.SetCharset("utf-8").
@@ -54,12 +58,12 @@ func getInstance(config *configMng.AliPayConfig) *AliPayMng {
 // NewAliPayMngSingle 根据configs里的配置文件生成单例
 func NewAliPayMngSingle() *AliPayMng {
 	config := configMng.GetAliPay()
-	return getInstance(config)
+	return getAliPayInstance(config)
 }
 
 // NewAliPayMng 根据传入的config生成管理器
 func NewAliPayMng(config *configMng.AliPayConfig) *AliPayMng {
-	return getInstance(config)
+	return getAliPayInstance(config)
 }
 
 // WapPay H5支付

@@ -20,14 +20,10 @@ type WechatPayMng struct {
 // getWechatPayInstance 获取微信支付实例
 func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 
-	var wechatPayMng WechatPayMng
-
-	// 初始化微信客户端
-	//    appId：应用ID
-	//    mchId：商户ID
-	//    apiKey：API秘钥值
-	//    isProd：是否是正式环境
-	wechatPayMng.Client = wechat.NewClient(config.AppID, config.MchID, config.PayKey, config.IsProd)
+	var wechatPayMng = WechatPayMng{
+		Config: config,
+		Client: wechat.NewClient(config.AppID, config.MchID, config.PayKey, config.IsProd),
+	}
 
 	// 打开Debug开关，输出请求日志，默认关闭
 	wechatPayMng.Client.DebugSwitch = gopay.DebugOn
