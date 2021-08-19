@@ -81,7 +81,8 @@ func (mng *WechatPayMng) UnifiedOrder(param *UnifiedOrderParam) (mWebUrl string,
 		})
 
 	//请求支付下单，成功后得到结果
-	wxRsp, err := mng.Client.UnifiedOrder(bm)
+	var wxRsp *wechat.UnifiedOrderResponse
+	wxRsp, err = mng.Client.UnifiedOrder(bm)
 	if err != nil {
 		xlog.Error(err)
 		return
