@@ -39,7 +39,8 @@ func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 	//keyPath:= ""
 
 	//_ = wechatPayMng.Client.AddCertPemFilePath(Config.CertPath,Config.CertKeyPath)
-	_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
+	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.CertFileContent))
+	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
 
 	// 添加微信pem证书
 	return &wechatPayMng

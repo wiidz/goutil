@@ -50,6 +50,8 @@ func easyjson6a975c40DecodeGithubComWiidzGoutilMngsConfigMng(in *jlexer.Lexer, o
 			out.CertPath = string(in.String())
 		case "cert_key_path":
 			out.CertKeyPath = string(in.String())
+		case "cert_file_content":
+			out.CertFileContent = string(in.String())
 		case "is_prod":
 			out.IsProd = bool(in.Bool())
 		default:
@@ -100,6 +102,11 @@ func easyjson6a975c40EncodeGithubComWiidzGoutilMngsConfigMng(out *jwriter.Writer
 		const prefix string = ",\"cert_key_path\":"
 		out.RawString(prefix)
 		out.String(string(in.CertKeyPath))
+	}
+	{
+		const prefix string = ",\"cert_file_content\":"
+		out.RawString(prefix)
+		out.String(string(in.CertFileContent))
 	}
 	{
 		const prefix string = ",\"is_prod\":"

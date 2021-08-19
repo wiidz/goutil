@@ -64,6 +64,7 @@ type WechatPayConfig struct {
 	RefundNotifyURL string `json:"refund_notify_url"` //【微信支付】退款回调地址
 	CertPath        string `json:"cert_path"`         //【微信支付】证书路径(cert)
 	CertKeyPath     string `json:"cert_key_path"`     //【微信支付】证书路径(key)
+	CertFileContent string `json:"cert_file_content"` //【微信支付】证书文件(cert)内容
 	IsProd          bool   `json:"is_prod"`           // 是否是正式环境
 }
 
