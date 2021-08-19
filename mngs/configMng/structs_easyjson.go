@@ -40,8 +40,8 @@ func easyjson6a975c40DecodeGithubComWiidzGoutilMngsConfigMng(in *jlexer.Lexer, o
 			out.AppID = string(in.String())
 		case "pay_key":
 			out.PayKey = string(in.String())
-		case "mech_id":
-			out.MechID = string(in.String())
+		case "mch_id":
+			out.MchID = string(in.String())
 		case "notify_url":
 			out.NotifyURL = string(in.String())
 		case "refund_notify_url":
@@ -77,9 +77,9 @@ func easyjson6a975c40EncodeGithubComWiidzGoutilMngsConfigMng(out *jwriter.Writer
 		out.String(string(in.PayKey))
 	}
 	{
-		const prefix string = ",\"mech_id\":"
+		const prefix string = ",\"mch_id\":"
 		out.RawString(prefix)
-		out.String(string(in.MechID))
+		out.String(string(in.MchID))
 	}
 	{
 		const prefix string = ",\"notify_url\":"
@@ -157,8 +157,6 @@ func easyjson6a975c40DecodeGithubComWiidzGoutilMngsConfigMng1(in *jlexer.Lexer, 
 			out.AppSecret = string(in.String())
 		case "grant_type":
 			out.GrantType = string(in.String())
-		case "is_prod":
-			out.IsProd = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -187,11 +185,6 @@ func easyjson6a975c40EncodeGithubComWiidzGoutilMngsConfigMng1(out *jwriter.Write
 		const prefix string = ",\"grant_type\":"
 		out.RawString(prefix)
 		out.String(string(in.GrantType))
-	}
-	{
-		const prefix string = ",\"is_prod\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.IsProd))
 	}
 	out.RawByte('}')
 }
@@ -813,14 +806,6 @@ func easyjson6a975c40DecodeGithubComWiidzGoutilMngsConfigMng8(in *jlexer.Lexer, 
 			out.AppID = string(in.String())
 		case "private_key":
 			out.PrivateKey = string(in.String())
-		case "wechat_pay_secret":
-			out.Secret = string(in.String())
-		case "wechat_pay_mch_id":
-			out.MchID = string(in.String())
-		case "wechat_pay_cert_uri":
-			out.CertURI = string(in.String())
-		case "wechat_pay_key_uri":
-			out.KeyURI = string(in.String())
 		case "notify_url":
 			out.NotifyURL = string(in.String())
 		case "is_prod":
@@ -848,26 +833,6 @@ func easyjson6a975c40EncodeGithubComWiidzGoutilMngsConfigMng8(out *jwriter.Write
 		const prefix string = ",\"private_key\":"
 		out.RawString(prefix)
 		out.String(string(in.PrivateKey))
-	}
-	{
-		const prefix string = ",\"wechat_pay_secret\":"
-		out.RawString(prefix)
-		out.String(string(in.Secret))
-	}
-	{
-		const prefix string = ",\"wechat_pay_mch_id\":"
-		out.RawString(prefix)
-		out.String(string(in.MchID))
-	}
-	{
-		const prefix string = ",\"wechat_pay_cert_uri\":"
-		out.RawString(prefix)
-		out.String(string(in.CertURI))
-	}
-	{
-		const prefix string = ",\"wechat_pay_key_uri\":"
-		out.RawString(prefix)
-		out.String(string(in.KeyURI))
 	}
 	{
 		const prefix string = ",\"notify_url\":"

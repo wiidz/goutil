@@ -53,31 +53,26 @@ type WechatConfig struct {
 	AppID     string `json:"app_id"`
 	AppSecret string `json:"app_secret"`
 	GrantType string `json:"grant_type"`
-	IsProd    bool   `json:"is_prod"` // 是否是正式环境
 }
 
 // WechatPayConfig 微信支付配置
 type WechatPayConfig struct {
-	AppID           string `json:"app_id"`
-	PayKey          string `json:"pay_key"`
-	MechID          string `json:"mech_id"`
-	NotifyURL       string `json:"notify_url"`
-	RefundNotifyURL string `json:"refund_notify_url"`
-	CertPath        string `json:"cert_path"`
-	CertKeyPath     string `json:"cert_key_path"`
-	IsProd          bool   `json:"is_prod"` // 是否是正式环境
+	AppID           string `json:"app_id"`            //【微信支付】appID
+	PayKey          string `json:"pay_key"`           //【微信支付】支付密钥
+	MchID           string `json:"mch_id"`            //【微信支付】商户号
+	NotifyURL       string `json:"notify_url"`        //【微信支付】付款回调地址
+	RefundNotifyURL string `json:"refund_notify_url"` //【微信支付】退款回调地址
+	CertPath        string `json:"cert_path"`         //【微信支付】证书路径(cert)
+	CertKeyPath     string `json:"cert_key_path"`     //【微信支付】证书路径(key)
+	IsProd          bool   `json:"is_prod"`           // 是否是正式环境
 }
 
 // AliPayConfig 支付宝参数
 type AliPayConfig struct {
-	AppID      string `json:"wechat_pay_app_id"`   //【微信支付】appID
-	PrivateKey string `json:"private_key"`         //【微信支付】应用私钥，支持PKCS1和PKCS8
-	Secret     string `json:"wechat_pay_secret"`   //【微信支付】密钥
-	MchID      string `json:"wechat_pay_mch_id"`   //【微信支付】商户号
-	CertURI    string `json:"wechat_pay_cert_uri"` //【微信支付】公钥文件
-	KeyURI     string `json:"wechat_pay_key_uri"`  //【微信支付】私钥文件
-	NotifyURL  string `json:"notify_url"`
-	IsProd     bool   `json:"is_prod"` // 是否是正式环境
+	AppID      string `json:"wechat_pay_app_id"` //【支付宝】appID
+	PrivateKey string `json:"private_key"`       //【支付宝】应用私钥，支持PKCS1和PKCS8
+	NotifyURL  string `json:"notify_url"`        //【支付宝】回调地址
+	IsProd     bool   `json:"is_prod"`           //【支付宝】是否是正式环境
 }
 
 // RabbitMQConfig rabbit mq配置
