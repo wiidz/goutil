@@ -7,6 +7,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/go-pay/gopay v1.5.55
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/gomodule/redigo v1.7.1-0.20190724094224-574c33c3df38
 	github.com/google/go-querystring v1.1.0 // indirect

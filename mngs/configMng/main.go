@@ -7,16 +7,18 @@ import (
 )
 
 const (
-	ConfigPath           = "./configs/" // 路径写死
-	DevPath = "dev/"
-	PdcPath = "pdc/"
-	AppConfigFileName    = "app.json"
-	WechatConfigFileName = "wechat.json"
-	MysqlConfigFileName  = "mysql.json"
-	EsConfigFileName     = "es.json"
-	RedisConfigFileName  = "redis.json"
-	OssConfigFileName    = "oss.json"
-	RebbitMQConfigFileName     = "rabbit-mq.json"
+	ConfigPath              = "./configs/" // 路径写死
+	DevPath                 = "dev/"
+	PdcPath                 = "pdc/"
+	AppConfigFileName       = "app.json"
+	WechatConfigFileName    = "wechat.json"
+	WechatPayConfigFileName = "wechatPay.json"
+	AliPayConfigFileName    = "alipay.json"
+	MysqlConfigFileName     = "mysql.json"
+	EsConfigFileName        = "es.json"
+	RedisConfigFileName     = "redis.json"
+	OssConfigFileName       = "oss.json"
+	RebbitMQConfigFileName  = "rabbit-mq.json"
 )
 
 var appConfig = AppConfig{}
@@ -27,7 +29,7 @@ func init() {
 	log.Println(ConfigPath + AppConfigFileName)
 	buf := osHelper.GetFileBuf(ConfigPath + AppConfigFileName)
 	_ = appConfig.UnmarshalJSON(buf)
-	log.Println("appConfig",appConfig)
+	log.Println("appConfig", appConfig)
 }
 
 // 获取指定目录里的配置文件
@@ -41,14 +43,17 @@ func getTargetDir() string {
 	return ConfigPath + dir
 }
 
+// getFileBuf 根据文件名获取buf
 func getFileBuf(fileName string) []byte {
 	return osHelper.GetFileBuf(getTargetDir() + fileName)
 }
 
-func  GetHttpPort() string {
+// GetHttpPort 获取本项目占用端口配置
+func GetHttpPort() string {
 	return appConfig.HttpPort
 }
 
+// GetMysql 获取mysql数据库配置
 func GetMysql() MysqlConfig {
 	buf := getFileBuf(MysqlConfigFileName)
 	mysqlConfig := MysqlConfig{}
@@ -56,21 +61,40 @@ func GetMysql() MysqlConfig {
 	return mysqlConfig
 }
 
-func  GetRedis() RedisConfig {
+// GetRedis 获取redis服务器配置
+func GetRedis() RedisConfig {
 	buf := getFileBuf(RedisConfigFileName)
 	redisConfig := RedisConfig{}
 	_ = redisConfig.UnmarshalJSON(buf)
 	return redisConfig
 }
 
-func  GetWechat() WechatConfig {
-	buf := getFileBuf(WechatConfigFileName)
+// GetWechat 获取微信配置
+func GetWechat() WechatConfig {
+	buf := getFileBuf(AliPayConfigFileName)
 	wechatConfig := WechatConfig{}
 	_ = wechatConfig.UnmarshalJSON(buf)
 	return wechatConfig
 }
 
-func  GetOss() OssConfig {
+// GetWechatPay 获取微信支付配置
+func GetWechatPay() *WechatPayConfig {
+	buf := getFileBuf(WechatPayConfigFileName)
+	wechatConfig := WechatPayConfig{}
+	_ = wechatConfig.UnmarshalJSON(buf)
+	return &wechatConfig
+}
+
+// GetAliPay 获取支付宝配置
+func GetAliPay() *AliPayConfig {
+	buf := getFileBuf(WechatConfigFileName)
+	wechatConfig := AliPayConfig{}
+	_ = wechatConfig.UnmarshalJSON(buf)
+	return &wechatConfig
+}
+
+// GetOss 获取阿里云对象存储配置
+func GetOss() OssConfig {
 	buf := getFileBuf(OssConfigFileName)
 	ossConfig := OssConfig{}
 	_ = ossConfig.UnmarshalJSON(buf)
@@ -78,7 +102,8 @@ func  GetOss() OssConfig {
 	return ossConfig
 }
 
-func  GetEs() EsConfig {
+// GetEs 获取elastic search配置
+func GetEs() EsConfig {
 	buf := getFileBuf(EsConfigFileName)
 	var esConfig EsConfig
 	_ = esConfig.UnmarshalJSON(buf)
@@ -87,7 +112,7 @@ func  GetEs() EsConfig {
 }
 
 // GetRabbitMQ 获取rabbit mq的配置
-func  GetRabbitMQ() RabbitMQConfig {
+func GetRabbitMQ() RabbitMQConfig {
 	buf := getFileBuf(RebbitMQConfigFileName)
 	var rabbitMQConfig RabbitMQConfig
 	_ = rabbitMQConfig.UnmarshalJSON(buf)

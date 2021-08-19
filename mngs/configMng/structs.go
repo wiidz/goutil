@@ -1,12 +1,12 @@
 package configMng
 
-//easyjson:json
+// AppConfig app设置
 type AppConfig struct {
 	Debug    bool   `json:"debug"`
 	HttpPort string `json:"http_port"`
 }
 
-//easyjson:json
+// MysqlConfig mysql数据库设置
 type MysqlConfig struct {
 	Host      string `json:"host"`
 	Port      string `json:"port"`
@@ -17,7 +17,7 @@ type MysqlConfig struct {
 	Charset   string `json:"charset"`
 }
 
-//easyjson:json
+// EsConfig elastic search 设置
 type EsConfig struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`
@@ -25,7 +25,7 @@ type EsConfig struct {
 	Password string `json:"password"`
 }
 
-//easyjson:json
+// OssConfig oss阿里云对象存储设置
 type OssConfig struct {
 	AccessKeyID     string `json:"access_key_id"`
 	AccessKeySecret string `json:"access_key_secret"`
@@ -37,7 +37,7 @@ type OssConfig struct {
 	ExpireTime      int64  `json:"expire_time"`   // 上传策略Policy的失效时间，单位为秒。
 }
 
-//easyjson:json
+// RedisConfig redis服务器设置
 type RedisConfig struct {
 	IP          string `json:"ip"`
 	Port        string `json:"port"`
@@ -48,17 +48,36 @@ type RedisConfig struct {
 	MaxIdle     int    `json:"max_idle"`
 }
 
-//easyjson:json
+// WechatConfig 微信设置
 type WechatConfig struct {
-	AppID       string `json:"app_id"`
-	AppSecret   string `json:"app_secret"`
-	GrantType   string `json:"grant_type"`
-	PayKey      string `json:"pay_key"`
-	MechID      string `json:"mech_id"`
-	NotifyUrl   string `json:"notify_url"`
-	RefundUrl   string `json:"refund_url"`
-	CertPath    string `json:"cert_path"`
-	CertKeyPath string `json:"cert_key_path"`
+	AppID     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
+	GrantType string `json:"grant_type"`
+	IsProd    bool   `json:"is_prod"` // 是否是正式环境
+}
+
+// WechatPayConfig 微信支付配置
+type WechatPayConfig struct {
+	AppID           string `json:"app_id"`
+	PayKey          string `json:"pay_key"`
+	MechID          string `json:"mech_id"`
+	NotifyURL       string `json:"notify_url"`
+	RefundNotifyURL string `json:"refund_notify_url"`
+	CertPath        string `json:"cert_path"`
+	CertKeyPath     string `json:"cert_key_path"`
+	IsProd          bool   `json:"is_prod"` // 是否是正式环境
+}
+
+// AliPayConfig 支付宝参数
+type AliPayConfig struct {
+	AppID      string `json:"wechat_pay_app_id"`   //【微信支付】appID
+	PrivateKey string `json:"private_key"`         //【微信支付】应用私钥，支持PKCS1和PKCS8
+	Secret     string `json:"wechat_pay_secret"`   //【微信支付】密钥
+	MchID      string `json:"wechat_pay_mch_id"`   //【微信支付】商户号
+	CertURI    string `json:"wechat_pay_cert_uri"` //【微信支付】公钥文件
+	KeyURI     string `json:"wechat_pay_key_uri"`  //【微信支付】私钥文件
+	NotifyURL  string `json:"notify_url"`
+	IsProd     bool   `json:"is_prod"` // 是否是正式环境
 }
 
 // RabbitMQConfig rabbit mq配置
