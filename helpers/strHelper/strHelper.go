@@ -150,3 +150,12 @@ func  ValidatePhone(phoneNum string) bool {
 	reg := regexp.MustCompile(regular)
 	return reg.MatchString(phoneNum)
 }
+
+// Exist 判断目标字符串中是否存在需要的字符
+func Exist(targetStr,needleStr string) bool {
+	if strings.Index(targetStr, needleStr) == -1 {
+		return false
+	} else {
+		return true
+	}
+}
