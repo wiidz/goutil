@@ -159,6 +159,14 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 						vals = append(vals, (*intSlice)[k])
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
+				}else if uint64Slice, ok := v.([]interface{})[1].([]uint64); ok {
+					for k := 0; k < len((uint64Slice)); k++ {
+						whereSQL += "?,"
+						vals = append(vals, (uint64Slice)[k])
+					}
+					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
+				} else {
+					err = errors.New("无法匹配的类型")
 				}
 			} else {
 				vals = append(vals, v.([]interface{})[1])
