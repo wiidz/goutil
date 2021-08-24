@@ -218,3 +218,8 @@ func (tm MyJsonTime) GetLastTime() MyJsonTime {
 func (tm MyJsonTime) Format2Time() time.Time {
 	return time.Time(tm)
 }
+
+// GetCST8Now 获取东八区现在的时间
+func GetCST8Now() time.Time{
+	return time.Now().UTC().Add(8 * time.Hour)
+}

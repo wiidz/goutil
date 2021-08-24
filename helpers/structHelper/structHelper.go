@@ -136,3 +136,16 @@ func  GetStructPointAllKV(target interface{}) {
 		fmt.Println("["+strconv.Itoa(i)+"]", typ.Field(i).Name, typ.Field(i).Type, typ.Field(i))
 	}
 }
+
+// GetValueByKeyName 根据键名获取结构体中的数据
+func GetValueByKeyName(targetStruct interface{},keyName string)interface{}{
+
+	v:=reflect.ValueOf(targetStruct)
+
+	//获取指针
+	ptr:=v.Elem()
+
+	//获取具体字段的封装
+	return ptr.FieldByName(keyName)
+
+}
