@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	jsoniter "github.com/json-iterator/go"
-	"go/types"
 	"log"
 	"reflect"
 	"strconv"
@@ -192,63 +191,69 @@ func  GetType(params interface{}) string {
  * @date   2019-11-16
  */
 func  Empty(arg interface{}) bool {
-	switch arg.(type) {
 
-	case int:
-		return If(arg.(int) == int(0), true, false).(bool)
-	case int64:
-		return If(arg.(int64) == int64(0), true, false).(bool)
+	var dataType = reflect.TypeOf(arg)
 
-	case float64:
-		return If(arg.(float64) == float64(0.00), true, false).(bool)
+	return reflect.Zero(dataType) == arg
 
-	case []byte:
 
-		return If(len(arg.([]byte)) == 0, true, false).(bool)
-
-	case string:
-		return If(arg.(string) == " " || arg.(string) == "" || arg.(string) == "0" || arg.(string) == "NULL", true, false).(bool)
-
-	case map[string]interface{}:
-
-		return If(len(arg.(map[string]interface{})) == 0, true, false).(bool)
-
-	case []interface{}:
-
-		return If(len(arg.([]interface{})) == 0, true, false).(bool)
-
-	case []string:
-
-		return If(len(arg.([]string)) == 0, true, false).(bool)
-
-	case []int64:
-
-		return If(len(arg.([]int64)) == 0, true, false).(bool)
-
-	case []float64:
-
-		return If(len(arg.([]float64)) == 0, true, false).(bool)
-
-	case []int:
-
-		return If(len(arg.([]int)) == 0, true, false).(bool)
-
-	case []map[string]interface{}:
-
-		return If(len(arg.([]map[string]interface{})) == 0, true, false).(bool)
-
-	case types.Nil:
-
-		return If(arg == nil, true, false).(bool)
-
-	case bool:
-
-		return If(!arg.(bool), true, false).(bool)
-
-	default:
-
-		return true
-	}
+	//switch arg.(type) {
+	//
+	//case int:
+	//	return If(arg.(int) == int(0), true, false).(bool)
+	//case int64:
+	//	return If(arg.(int64) == int64(0), true, false).(bool)
+	//
+	//case float64:
+	//	return If(arg.(float64) == float64(0.00), true, false).(bool)
+	//
+	//case []byte:
+	//
+	//	return If(len(arg.([]byte)) == 0, true, false).(bool)
+	//
+	//case string:
+	//	return If(arg.(string) == " " || arg.(string) == "" || arg.(string) == "0" || arg.(string) == "NULL", true, false).(bool)
+	//
+	//case map[string]interface{}:
+	//
+	//	return If(len(arg.(map[string]interface{})) == 0, true, false).(bool)
+	//
+	//case []interface{}:
+	//
+	//	return If(len(arg.([]interface{})) == 0, true, false).(bool)
+	//
+	//case []string:
+	//
+	//	return If(len(arg.([]string)) == 0, true, false).(bool)
+	//
+	//case []int64:
+	//
+	//	return If(len(arg.([]int64)) == 0, true, false).(bool)
+	//
+	//case []float64:
+	//
+	//	return If(len(arg.([]float64)) == 0, true, false).(bool)
+	//
+	//case []int:
+	//
+	//	return If(len(arg.([]int)) == 0, true, false).(bool)
+	//
+	//case []map[string]interface{}:
+	//
+	//	return If(len(arg.([]map[string]interface{})) == 0, true, false).(bool)
+	//
+	//case types.Nil:
+	//
+	//	return If(arg == nil, true, false).(bool)
+	//
+	//case bool:
+	//
+	//	return !arg.(bool)
+	//
+	//default:
+	//
+	//	return true
+	//}
 }
 
 /**
