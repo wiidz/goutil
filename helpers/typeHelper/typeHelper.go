@@ -417,11 +417,11 @@ func  JsonEncode(data interface{}) (string, error) {
 // * @author Wiidz
 // * @date   2019-11-16
 // */
-//func  JsonDecode(json_str string) map[string]interface{} {
+//func  JsonDecode(jsonStr string) map[string]interface{} {
 //
 //	var data map[string]interface{}
 //
-//	json.Unmarshal([]byte(json_str), &data)
+//	json.Unmarshal([]byte(jsonStr), &data)
 //
 //	return data
 //}
@@ -440,35 +440,33 @@ func JsonDecodeMap(jsonStr string)(parsedData map[string]interface{}){
 }
 
 
-/**
- * @func: JsonDecode 解码json
- * @author Wiidz
- * @date   2019-11-16
- */
-func  JsonDecodeInt64Slice(json_str string) []int64 {
+// JsonDecodeInt64Slice json解码至int64切片
+func  JsonDecodeInt64Slice(jsonStr string) []int64 {
 
 	var data []int64
 
-	json.Unmarshal([]byte(json_str), &data)
+	_ = json.Unmarshal([]byte(jsonStr), &data)
 
 	return data
 }
 
-/**
- * @func: JsonDecode 解码json
- * @author Wiidz
- * @date   2019-11-16
- */
-func  JsonDecodeWithStruct(json_str string, istruct interface{}) interface{} {
-	json.Unmarshal([]byte(json_str), &istruct)
+// JsonDecodeIntSlice json解码至int切片
+func  JsonDecodeIntSlice(jsonStr string) []int {
+
+	var data []int
+
+	_ = json.Unmarshal([]byte(jsonStr), &data)
+
+	return data
+}
+
+// JsonDecode 解码json
+func  JsonDecodeWithStruct(jsonStr string, istruct interface{}) interface{} {
+	_ = json.Unmarshal([]byte(jsonStr), &istruct)
 	return istruct
 }
 
-/**
- * @func: InterfaceSlice2MapSlice interface slice 转换 map slice
- * @author Wiidz
- * @date   2019-11-16
- */
+// InterfaceSlice2MapSlice
 func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
 
 	tmp := make([]map[string]interface{}, 0)
