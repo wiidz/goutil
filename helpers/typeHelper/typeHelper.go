@@ -192,6 +192,10 @@ func  GetType(params interface{}) string {
  */
 func  Empty(arg interface{}) bool {
 
+	if arg == nil {
+		return true
+	}
+
 	var dataType = reflect.TypeOf(arg)
 
 	return reflect.Zero(dataType) == arg
