@@ -159,6 +159,63 @@ func (mng *WechatPayMng) UnifiedOrderJs(param *UnifiedOrderParam,openID string) 
 	}, nil
 }
 
+
+// UnifiedOrderWechatMini 小程序下单
+func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (paySign string, err error) {
+	//初始化参数Map
+	totalFee := param.TotalAmount * 100 // 分为单位
+
+	bm := make(gopay.BodyMap)
+	bm.Set("nonce_str", util.GetRandomString(32)).
+		Set("body", param.Title).
+		Set("out_trade_no", param.OutTradeNo).
+		Set("total_fee", totalFee).
+		Set("spbill_create_ip", param.IP).
+		Set("notify_url", mng.Config.NotifyURL).
+		Set("trade_type", wechat.TradeType_H5).
+		Set("device_info", "WEB").
+		Set("sign_type", wechat.SignType_MD5).
+		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
+				bm.Set("type", "Wap")
+				bm.Set("wap_url", param.ReturnURL)
+				bm.Set("wap_name", param.AppName)
+			})
+		})
+
+	//请求支付下单，成功后得到结果
+	var wxRsp *wechat.UnifiedOrderResponse
+	wxRsp, err = mng.Client.UnifiedOrder(bm)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+	xlog.Debug("Response：", wxRsp)
+	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
+	xlog.Debug("wxRsp.ResultCode:", wxRsp.ResultCode)
+	xlog.Debug("wxRsp.ReturnCode:", wxRsp.ReturnCode)
+	xlog.Debug("wxRsp.ReturnMsg:", wxRsp.ReturnMsg)
+	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
+	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
+
+	if wxRsp.ReturnCode == "FAIL" {
+		err = errors.New(wxRsp.ReturnMsg)
+		return
+	} else  if len(wxRsp.ErrCodeDes) != 0 {
+		err = errors.New(wxRsp.ErrCodeDes)
+		return
+	}
+
+	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
+	log.Println("timeStamp", timeStamp)
+
+	pac := "prepay_id=" + wxRsp.PrepayId
+	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.PayKey)
+	xlog.Debug("paySign:", paySign)
+
+	return
+}
+
 // Refund 退款
 func (mng *WechatPayMng) Refund(param *RefundParam) (err error) {
 
