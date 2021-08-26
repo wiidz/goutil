@@ -450,6 +450,18 @@ func  JsonDecodeInt64Slice(jsonStr string) []int64 {
 	return data
 }
 
+
+// JsonDecodeStrSlice json解码至str切片
+func  JsonDecodeStrSlice(jsonStr string) []string {
+
+	var data []string
+
+	_ = json.Unmarshal([]byte(jsonStr), &data)
+
+	return data
+}
+
+
 // JsonDecodeIntSlice json解码至int切片
 func  JsonDecodeIntSlice(jsonStr string) []int {
 
