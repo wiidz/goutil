@@ -251,10 +251,10 @@ func GetLastDateOfWeek(target time.Time) (weekStartDate time.Time) {
 
 
 // GetMonthDayStr 获得当前月的初始和结束日期
-func GetMonthDayStr() (string, string) {
-	now := time.Now()
-	currentYear, currentMonth, _ := now.Date()
-	currentLocation := now.Location()
+func GetMonthDayStr(target time.Time) (string, string) {
+
+	currentYear, currentMonth, _ := target.Date()
+	currentLocation := target.Location()
 
 	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
@@ -265,22 +265,22 @@ func GetMonthDayStr() (string, string) {
 
 
 // GetWeekDayStr 获得当前周的初始和结束日期
-func GetWeekDayStr() (string, string) {
-	now := time.Now()
-	offset := int(time.Monday - now.Weekday())
+func GetWeekDayStr(target time.Time) (string, string) {
+
+	offset := int(time.Monday - target.Weekday())
 	//周日做特殊判断 因为time.Monday = 0
 	if offset > 0 {
 		offset = -6
 	}
 
-	lastOffset := int(time.Saturday - now.Weekday())
+	lastOffset := int(time.Saturday - target.Weekday())
 	//周日做特殊判断 因为time.Monday = 0
 	if lastOffset == 6 {
 		lastOffset = -1
 	}
 
-	firstOfWeek := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
-	lastOfWeeK := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, lastOffset+1)
+	firstOfWeek := time.Date(target.Year(), target.Month(), target.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+	lastOfWeeK := time.Date(target.Year(), target.Month(), target.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, lastOffset+1)
 	f := firstOfWeek.Unix()
 	l := lastOfWeeK.Unix()
 	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
@@ -288,9 +288,9 @@ func GetWeekDayStr() (string, string) {
 
 
 // GetQuarterDayStr 获得当前季度的初始和结束日期
-func GetQuarterDayStr() (string, string) {
-	year := time.Now().Format("2006")
-	month := int(time.Now().Month())
+func GetQuarterDayStr(target time.Time) (string, string) {
+	year := target.Format("2006")
+	month := int(target.Month())
 	var firstOfQuarter string
 	var lastOfQuarter string
 	if month >= 1 && month <= 3 {
