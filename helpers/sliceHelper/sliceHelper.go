@@ -265,6 +265,17 @@ func UniqueIntSlice(slc []int) []int {
 	}
 }
 
+// UniqueInt8Slice int8 slice去重
+func UniqueInt8Slice(slc []int8) []int8 {
+	if len(slc) < 1024 {
+		// 切片长度小于1024的时候，循环来过滤
+		return UniqueByLoopInt8(slc)
+	} else {
+		// 大于的时候，通过map来过滤
+		return UniqueByLoopInt8(slc)
+	}
+}
+
 // UniqueUint64Slice int slice去重
 func UniqueUint64Slice(slc []uint64) []uint64 {
 	if len(slc) < 1024 {
@@ -276,13 +287,26 @@ func UniqueUint64Slice(slc []uint64) []uint64 {
 	}
 }
 
-/**
- * @func: UniqueByLoop 通过两重循环过滤重复元素
- * @author Wiidz
- * @date   2019-11-06
- */
+// UniqueByLoop 通过两重循环过滤重复元素
 func UniqueByLoop(slc []int) []int {
 	result := []int{} // 存放结果
+	for i := range slc {
+		flag := true
+		for j := range result {
+			if slc[i] == result[j] {
+				flag = false // 存在重复元素，标识为false
+				break
+			}
+		}
+		if flag { // 标识为false，不添加进结果
+			result = append(result, slc[i])
+		}
+	}
+	return result
+}
+
+func UniqueByLoopInt8(slc []int8) []int8 {
+	result := []int8{} // 存放结果
 	for i := range slc {
 		flag := true
 		for j := range result {
