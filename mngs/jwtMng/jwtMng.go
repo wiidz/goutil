@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const TokenKeyName = "token_data"
+
 type JwtMng struct {
 	AppID           uint64     `json:"app_id"`       // app_id 主要用来区别登陆
 	IdentifyKey     string     `json:"identify_key"` // 身份标识键名，这个key必须存在于tokenStruct里
@@ -105,7 +107,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	}
 
 	//【4】写入value
-	ctx.Values().Set("token_data", mng.TokenStruct)
+	ctx.Values().Set(TokenKeyName, mng.TokenStruct)
 
 	//【5】继续下一步处理
 	ctx.Next()
@@ -213,4 +215,16 @@ func (mng *JwtMng) IsPkSet()  bool {
 	} else {
 		return true
 	}
+}
+
+
+// GetTokenData 获取token
+func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data interface{},err error) {
+	data =  ctx.Values().Get(TokenKeyName)
+	if data == nil {
+		err = errors.New("token数据为空")
+	} else if mng.IsPkSet() == false {
+		err = errors.New("登陆主体为空")
+	}
+	return
 }
