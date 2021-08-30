@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"gorm.io/gorm"
-	"log"
 	"reflect"
 )
 
@@ -32,7 +31,10 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 	//【1】获取主键
 	tokenData := ctx.Values().Get("token_data")
-	log.Println("tokenData",tokenData)
+	if tokenData == nil {
+		networkHelper.ReturnError(ctx,"token_data为空")
+		return
+	}
 	immutable := reflect.ValueOf(tokenData)
 	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
 
