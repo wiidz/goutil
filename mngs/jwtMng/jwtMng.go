@@ -9,6 +9,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -214,12 +215,14 @@ func (mng *JwtMng) IsPkSet(tokenData jwt.Claims)  bool {
 	}
 
 	temp := immutable.Elem().FieldByName(mng.IdentifyKey)
+	log.Println("temp",temp)
 
 	if temp.IsValid() == false{
 		return false
 	}
 
 	id := temp.Interface().(uint64)
+	log.Println("id",id)
 	if id == 0 {
 		return false
 	} else {
@@ -242,6 +245,8 @@ func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data jwt.Claims,err error) {
 		err = errors.New("token解析失败")
 		return
 	}
+
+	log.Println("mng.IsPkSet",mng.IsPkSet(data))
 
 	if mng.IsPkSet(data) == false {
 		err = errors.New("登陆主体为空")
