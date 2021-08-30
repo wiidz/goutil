@@ -233,10 +233,19 @@ func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data jwt.Claims,err error) {
 	tempData :=  ctx.Values().Get(TokenKeyName)
 	if tempData == nil {
 		err = errors.New("token数据为空")
+		return
 	}
 
-	if mng.IsPkSet(tempData.(jwt.Claims)) == false {
+	var ok bool
+	data,ok = tempData.(jwt.Claims)
+	if !ok {
+		err = errors.New("token解析失败")
+		return
+	}
+
+	if mng.IsPkSet(data) == false {
 		err = errors.New("登陆主体为空")
 	}
+
 	return
 }
