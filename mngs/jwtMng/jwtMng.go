@@ -219,11 +219,14 @@ func (mng *JwtMng) IsPkSet()  bool {
 
 
 // GetTokenData 获取token
-func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data interface{},err error) {
-	data =  ctx.Values().Get(TokenKeyName)
-	if data == nil {
+func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data jwt.Claims,err error) {
+	tempData :=  ctx.Values().Get(TokenKeyName)
+	if tempData == nil {
 		err = errors.New("token数据为空")
-	} else if mng.IsPkSet() == false {
+	}
+
+	mng.TokenStruct = data
+	if mng.IsPkSet() == false {
 		err = errors.New("登陆主体为空")
 	}
 	return
