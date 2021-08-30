@@ -203,9 +203,9 @@ func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
 	return nil
 }
 
-// IsFrontend 判断是否是前端请求
+// IsPkSet 主要用来判断是否是前端请求
 // Tips：此方法试用于前后端非同表的项目，判断是否是前端（tokenData里是否有jwtMng约定的主键）
-func (mng *JwtMng) IsFrontend()  bool {
+func (mng *JwtMng) IsPkSet()  bool {
 	immutable := reflect.ValueOf(mng.TokenStruct)
 	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
 	if id == 0 {
