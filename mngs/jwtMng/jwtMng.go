@@ -50,6 +50,8 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	})
 
 	log.Println("token",token)
+	log.Println("token",token.Claims)
+	log.Println("token",token.Raw)
 	log.Println("err",err)
 	log.Println("token == nil",token == nil)
 	log.Println("token.Valid",token.Valid)
