@@ -32,7 +32,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	//【1】获取主键
 	tokenData := ctx.Values().Get("token_data")
 	immutable := reflect.ValueOf(tokenData)
-	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(int)
+	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
 
 	//【2】初始化数据库
 	mysql := mysqlMng.NewMysqlMng()
@@ -100,7 +100,7 @@ func (mng *AuthMng) getAuthIDFromDB(conn *gorm.DB,method,route string)(authID ui
 }
 
 // getOwnerFromDB 从数据库根据主键值获取用户资料
-func (mng *AuthMng) getOwnerFromDB(conn *gorm.DB,ownerID int)(owner DBAuthOwnerMixed,err error){
+func (mng *AuthMng) getOwnerFromDB(conn *gorm.DB,ownerID uint64)(owner DBAuthOwnerMixed,err error){
 
 	err = conn.Table(mng.OwnerTableName).Where("id = ?",&ownerID).First(&owner).Error
 	return
