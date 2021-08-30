@@ -60,6 +60,17 @@ func  ImplodeInt(data []int, glue string) string {
 	return strings.Join(tmp, glue)
 }
 
+
+// ImplodeStr 将 str slice转换成字符串
+func  ImplodeStr(data []string, glue string) string {
+	var tmp []string
+	for _, item := range data {
+		tmp = append(tmp, item)
+	}
+
+	return strings.Join(tmp, glue)
+}
+
 /**
  * @func: Explode  字符串转slice, 接受混合类型
  * @author Wiidz
