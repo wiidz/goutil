@@ -159,6 +159,12 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 						vals = append(vals, (*intSlice)[k])
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
+				} else if int8Slice, ok := v.([]interface{})[1].([]int8); ok {
+					for k := 0; k < len((int8Slice)); k++ {
+						whereSQL += "?,"
+						vals = append(vals, (int8Slice)[k])
+					}
+					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
 				}else if uint64Slice, ok := v.([]interface{})[1].([]uint64); ok {
 					for k := 0; k < len((uint64Slice)); k++ {
 						whereSQL += "?,"
