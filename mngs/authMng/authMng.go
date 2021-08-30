@@ -39,6 +39,8 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	log.Println(immutable.Elem())
 	log.Println(immutable.Elem().IsZero())
 	log.Println(immutable.Elem() == reflect.Zero(immutable.Type()))
+	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey))
+	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey).IsZero())
 
 
 	if immutable.IsZero() {
