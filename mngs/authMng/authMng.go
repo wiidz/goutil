@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"gorm.io/gorm"
-	"log"
 	"reflect"
 )
 
@@ -34,19 +33,8 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	tokenData := ctx.Values().Get("token_data")
 
 	immutable := reflect.ValueOf(tokenData)
-	log.Println(tokenData == nil)
-	log.Println(immutable.IsZero())
-	log.Println(immutable.Elem())
-	log.Println(immutable.Elem().IsZero())
-	log.Println(immutable.Elem() == reflect.Zero(immutable.Type()))
-	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey))
-	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey).IsValid())
-	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey).IsNil())
-	log.Println("？？？",immutable.Elem().FieldByName(mng.IdentifyKey).IsZero())
-
-
-	if immutable.IsZero() {
-		networkHelper.ReturnError(ctx,"token_data为空")
+	if immutable.Elem().FieldByName(mng.IdentifyKey).IsValid() {
+		networkHelper.ReturnError(ctx,"无效的token")
 		return
 	}
 

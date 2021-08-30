@@ -9,7 +9,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
-	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -48,13 +47,6 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return mng.SaltKey, nil
 	})
-
-	log.Println("token",token)
-	log.Println("token",token.Claims)
-	log.Println("token",token.Raw)
-	log.Println("err",err)
-	log.Println("token == nil",token == nil)
-	log.Println("token.Valid",token.Valid)
 
 	if token != nil && token.Valid {
 		return nil
