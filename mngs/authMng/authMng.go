@@ -39,6 +39,10 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	}
 
 	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+	if id == 0 {
+		networkHelper.ReturnError(ctx,"登陆主体为空")
+		return
+	}
 
 	//【2】初始化数据库
 	mysql := mysqlMng.NewMysqlMng()
