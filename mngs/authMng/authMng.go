@@ -36,7 +36,10 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	immutable := reflect.ValueOf(tokenData)
 	log.Println(tokenData == nil)
 	log.Println(immutable.IsZero())
+	log.Println(immutable.Elem())
+	log.Println(immutable.Elem().IsZero())
 	log.Println(immutable.Elem() == reflect.Zero(immutable.Type()))
+
 
 	if immutable.IsZero() {
 		networkHelper.ReturnError(ctx,"token_data为空")
