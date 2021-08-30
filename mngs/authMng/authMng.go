@@ -31,11 +31,13 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 
 	//【1】获取主键
 	tokenData := ctx.Values().Get("token_data")
-	if tokenData == nil {
+
+	immutable := reflect.ValueOf(tokenData)
+	if immutable.Elem() == reflect.Zero(immutable.Type()) {
 		networkHelper.ReturnError(ctx,"token_data为空")
 		return
 	}
-	immutable := reflect.ValueOf(tokenData)
+
 	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
 
 	//【2】初始化数据库
