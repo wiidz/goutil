@@ -57,7 +57,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 		}
 		networkHelper.ReturnError(ctx,err.Error())
 		return
-	} else if owner.IsActive == 0{
+	} else if owner.Status == 0{
 		//判断用户是否被禁用
 		networkHelper.ReturnError(ctx,"账户禁用中")
 		return

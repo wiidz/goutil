@@ -18,7 +18,7 @@ const (
 type DBAuthOwnerMixed struct {
 	ID uint64 `gorm:"column:id;type:int(11);not null" json:"id"`
 	AuthIDs string `gorm:"column:auth_ids;type:text;not null" json:"auth_ids"`
-	IsActive int8 `gorm:"column:is_active;type:tinyint" json:"is_active"` // 用来判断账户是否被禁用
+	Status int8 `gorm:"column:status;type:tinyint" json:"status"` // 用来判断账户是否被禁用
 	Grouping int8 `gorm:"column:grouping;type:tinyint" json:"grouping"` // 客户分组，1=超级管理员，不需要判断权限
 }
 
