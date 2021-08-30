@@ -209,7 +209,14 @@ func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
 // Tips：此方法试用于前后端非同表的项目，判断是否是前端（tokenData里是否有jwtMng约定的主键）
 func (mng *JwtMng) IsPkSet()  bool {
 	immutable := reflect.ValueOf(mng.TokenStruct)
-	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+
+	temp := immutable.Elem().FieldByName(mng.IdentifyKey)
+
+	if temp.IsValid() == false{
+		return false
+	}
+
+	id := temp.Interface().(uint64)
 	if id == 0 {
 		return false
 	} else {
