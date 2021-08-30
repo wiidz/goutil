@@ -9,7 +9,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
-	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -210,11 +209,6 @@ func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
 // Tips：此方法试用于前后端非同表的项目，判断是否是前端（tokenData里是否有jwtMng约定的主键）
 func (mng *JwtMng) IsPkSet()  bool {
 	immutable := reflect.ValueOf(mng.TokenStruct)
-
-	log.Println("aa",immutable.IsValid())
-	log.Println("aa",immutable.IsZero())
-
-
 	if immutable.IsValid() == false{
 		return false
 	}
