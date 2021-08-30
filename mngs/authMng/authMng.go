@@ -33,7 +33,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	tokenData := ctx.Values().Get("token_data")
 
 	immutable := reflect.ValueOf(tokenData)
-	if immutable.Elem().FieldByName(mng.IdentifyKey).IsValid() {
+	if immutable.Elem().FieldByName(mng.IdentifyKey).IsValid() == false{
 		networkHelper.ReturnError(ctx,"无效的token")
 		return
 	}
