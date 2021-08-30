@@ -15,7 +15,7 @@ import (
 )
 
 type JwtMng struct {
-	AppID           uint64        `json:"app_id"`       // app_id 主要用来区别登陆
+	AppID           uint64     `json:"app_id"`       // app_id 主要用来区别登陆
 	IdentifyKey     string     `json:"identify_key"` // 身份标识键名，这个key必须存在于tokenStruct里
 	TokenStruct     jwt.Claims `json:"token_struct"`
 	SaltKey         []byte     `json:"salt_key"`          // 盐值
@@ -33,7 +33,7 @@ func GetJwtMng(appID uint64, isSingletonMode bool, identifyKey, saltKey string, 
 	}
 }
 
-// GetTokenStr： 获取jwt token
+// GetTokenStr  获取jwt token
 func (mng *JwtMng) GetTokenStr(claims jwt.Claims) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -48,6 +48,10 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 		return mng.SaltKey, nil
 	})
 
+	if err != nil {
+		return err
+	}
+
 	if token != nil && token.Valid {
 		return nil
 	}
@@ -60,6 +64,10 @@ func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) 
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return mng.SaltKey, nil
 	}, jwt.WithoutClaimsValidation())
+
+	//if err != nil {
+	//	return err
+	//}
 
 	if !token.Valid {
 		return errors.New("token验证失败")
@@ -157,7 +165,7 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 
 }
 
-// StorageJWT 存储kwt至redis中
+// SetCache StorageJWT 存储kwt至redis中
 func (mng *JwtMng) SetCache(appID, userID uint64, token string) (int64, error) {
 	redis := redisMng.NewRedisMng()
 	res, err := redis.HSet(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID), token)
@@ -165,7 +173,7 @@ func (mng *JwtMng) SetCache(appID, userID uint64, token string) (int64, error) {
 	return res.(int64), err
 }
 
-// GetJwtCache 从缓存中读取jwt
+// GetCache GetJwtCache 从缓存中读取jwt
 func (mng *JwtMng) GetCache(appID, userID uint64) (string, error) {
 	redis := redisMng.NewRedisMng()
 	res, err := redis.HGet(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID))
@@ -193,4 +201,16 @@ func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
 	}
 
 	return nil
+}
+
+// IsFrontend 判断是否是前端请求
+// Tips：此方法试用于前后端非同表的项目，判断是否是前端（tokenData里是否有jwtMng约定的主键）
+func (mng *JwtMng) IsFrontend()  bool {
+	immutable := reflect.ValueOf(mng.TokenStruct)
+	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+	if id == 0 {
+		return false
+	} else {
+		return true
+	}
 }
