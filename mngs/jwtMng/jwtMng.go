@@ -222,8 +222,7 @@ func (mng *JwtMng) IsPkSet(tokenData jwt.Claims)  bool {
 	}
 
 	id := temp.Interface().(uint64)
-	log.Println("id",id)
-	if id == 0 {
+	if id == uint64(0) {
 		return false
 	} else {
 		return true
