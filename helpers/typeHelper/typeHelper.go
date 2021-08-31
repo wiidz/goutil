@@ -305,6 +305,8 @@ func  ToString(data interface{}) string {
 	switch data.(type) {
 	case int:
 		return strconv.Itoa(data.(int))
+	case int8:
+		return strconv.Itoa(int(data.(int8)))
 	case int64:
 		return strconv.FormatInt(data.(int64), 10)
 	case int32:
