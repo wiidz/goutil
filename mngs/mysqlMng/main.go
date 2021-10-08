@@ -39,7 +39,10 @@ func init() {
 		"&parseTime=true"
 
 	//【3】构建DB对象
-	db, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	log.Println("【DSN】",dsn)
+	var err error
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	log.Println("【err】",err)
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxIdleConns(5)                   //最大空闲连接数
 	sqlDB.SetMaxOpenConns(10)                  //最大连接数
