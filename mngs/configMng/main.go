@@ -41,6 +41,8 @@ func init() {
 func getAPPRootPath() string {
 
 	file, err := exec.LookPath(os.Args[0])
+	log.Println("file",file)
+	log.Println("err",err)
 	if err != nil {
 		return ""
 	}
