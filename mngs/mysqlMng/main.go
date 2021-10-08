@@ -29,6 +29,10 @@ func init() {
 
 	//【1】获取配置
 	config := configMng.GetMysql()
+	if config.Host == "" {
+		log.Println("【err】mysql host is empty")
+		return
+	}
 
 	//【2】构建DSN
 	dsn := config.Username + ":" + config.Password +
