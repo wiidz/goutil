@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	//ConfigPath              = "./configs/" // 路径写死
+	// ConfigPath              = "./configs/" // 路径写死
 	DevPath                 = "dev/"
 	PdcPath                 = "pdc/"
 	AppConfigFileName       = "app.json"
@@ -31,7 +31,6 @@ type ConfigMng struct{}
 
 func init() {
 	configPath := getAPPRootPath() + "/configs/"
-	log.Println(configPath + AppConfigFileName)
 	buf := osHelper.GetFileBuf(configPath + AppConfigFileName)
 	_ = appConfig.UnmarshalJSON(buf)
 	log.Println("appConfig", appConfig)
