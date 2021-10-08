@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 const (
-	ConfigPath              = "./configs/" // 路径写死
+	//ConfigPath              = "./configs/" // 路径写死
 	DevPath                 = "dev/"
 	PdcPath                 = "pdc/"
 	AppConfigFileName       = "app.json"
@@ -25,12 +28,30 @@ var appConfig = AppConfig{}
 
 type ConfigMng struct{}
 
+
 func init() {
-	log.Println(ConfigPath + AppConfigFileName)
-	buf := osHelper.GetFileBuf(ConfigPath + AppConfigFileName)
+	configPath := getAPPRootPath() + "/configs/"
+	log.Println(configPath + AppConfigFileName)
+	buf := osHelper.GetFileBuf(configPath + AppConfigFileName)
 	_ = appConfig.UnmarshalJSON(buf)
 	log.Println("appConfig", appConfig)
 }
+
+// getAPPRootPath 获取项目运行的根目录
+func getAPPRootPath() string {
+
+	file, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return ""
+	}
+
+	p, err := filepath.Abs(file)
+	if err != nil {
+		return ""
+	}
+	return filepath.Dir(p)
+}
+
 
 // 获取指定目录里的配置文件
 func getTargetDir() string {
@@ -40,7 +61,7 @@ func getTargetDir() string {
 	} else {
 		dir = DevPath
 	}
-	return ConfigPath + dir
+	return getAPPRootPath() + "/configs/" + dir
 }
 
 // getFileBuf 根据文件名获取buf
