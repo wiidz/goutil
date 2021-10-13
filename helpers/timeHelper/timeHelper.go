@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+var weekdayCn = [][]string{
+	{"星期日","星期一","星期二","星期三","星期四","星期五","星期六"},
+	{"周日","周一","周二","周三","周四","周五","周六"},
+}
+
 /**
  * @func: FromTodayToTomorrowTimeStamp  返回今天凌晨和明天凌晨的时间戳
  * @author Wiidz
@@ -170,6 +175,24 @@ func (tm MyJsonTime) Day() int {
 	temp := time.Time(tm)
 	return temp.Day()
 }
+
+// WeekdayStrCn 返回中文星期
+func (tm MyJsonTime) WeekdayStrCn(style int) string {
+	temp := time.Time(tm)
+	return weekdayCn[style][int(temp.Weekday())]
+}
+
+// WeekdayStrEn 返回英文星期
+func (tm MyJsonTime) WeekdayStrEn() string {
+	temp := time.Time(tm)
+	return temp.Weekday().String()
+}
+
+func (tm MyJsonTime) WeekdayInt() int {
+	temp := time.Time(tm)
+	return int(temp.Weekday())
+}
+
 
 func (tm MyJsonTime) After(target time.Time) bool {
 	temp := time.Time(tm)
