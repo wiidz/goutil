@@ -18,9 +18,10 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/moul/http2curl v1.0.0 // indirect
-	github.com/rakyll/statik v0.1.7
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
+	github.com/shamsher31/goimgext v1.0.0 // indirect
+	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/valyala/fasthttp v1.27.0 // indirect
