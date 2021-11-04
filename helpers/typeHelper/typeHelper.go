@@ -78,6 +78,10 @@ func  ImplodeStr(data []string, glue string) string {
  */
 func  Explode(data string, sep string) []interface{} {
 
+	if len(data) == 0 {
+		return []interface{}{}
+	}
+
 	old := strings.Split(data, sep)
 
 	newS := make([]interface{}, len(old))
@@ -97,6 +101,9 @@ func  Explode(data string, sep string) []interface{} {
  * @date   2019-11-16
  */
 func    ExplodeStr(data string, sep string) []string {
+	if len(data) == 0 {
+		return []string{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]string, len(old))
 	for i, v := range old {
@@ -111,6 +118,9 @@ func    ExplodeStr(data string, sep string) []string {
  * @date   2019-11-16
  */
 func  ExplodeInt(data string, sep string) []int {
+	if len(data) == 0 {
+		return []int{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]int, len(old))
 	for i, v := range old {
@@ -125,6 +135,9 @@ func  ExplodeInt(data string, sep string) []int {
  * @date   2019-11-16
  */
 func  ExplodeUint64(data string, sep string) []uint64 {
+	if len(data) == 0 {
+		return []uint64{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]uint64, len(old))
 	for i, v := range old {
@@ -139,6 +152,9 @@ func  ExplodeUint64(data string, sep string) []uint64 {
  * @date   2019-11-16
  */
 func  ExplodeFloat64(data string, sep string) []float64 {
+	if len(data) == 0 {
+		return []float64{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]float64, len(old))
 	for i, v := range old {
@@ -153,6 +169,9 @@ func  ExplodeFloat64(data string, sep string) []float64 {
  * @date   2019-11-16
  */
 func  ExplodeInt64(data string, sep string) []int64 {
+	if len(data) == 0 {
+		return []int64{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]int64, len(old))
 	for i, v := range old {
@@ -163,6 +182,9 @@ func  ExplodeInt64(data string, sep string) []int64 {
 
 // ExplodeInt8 字符串转int8 slice
 func  ExplodeInt8(data string, sep string) []int8 {
+	if len(data) == 0 {
+		return []int8{}
+	}
 	old := strings.Split(data, sep)
 	newS := make([]int8, len(old))
 	for i, v := range old {
