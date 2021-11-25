@@ -850,13 +850,13 @@ func GetReadInterface(ctx iris.Context, params mysqlMng.ReadInterface) error {
 
 		//【3-2】取值
 		temp := ctx.URLParam(jsonTag)
+		log.Println("temp:",jsonTag,temp)
 		if temp == "" {
 			if defaultValue == "" {
 				//即没有默认值也没有值传递过来的，跳过
 				continue
 			}
 			temp = defaultValue
-			log.Println("temp",temp)
 		}
 
 		//【3-3】将值处理成需要的格式
