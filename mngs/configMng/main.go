@@ -23,7 +23,7 @@ const (
 	RabbitMQConfigFileName  = "rabbit-mq.json"
 )
 
-var appConfig = AppConfig{}
+var appConfig *AppConfig
 
 type ConfigMng struct{}
 
@@ -68,32 +68,32 @@ func getFileBuf(fileName string) []byte {
 }
 
 // GetAppConfig 获取本项目配置
-func GetAppConfig() AppConfig {
+func GetAppConfig() *AppConfig {
 	return appConfig
 }
 
 // GetMysql 获取mysql数据库配置
-func GetMysql() MysqlConfig {
+func GetMysql() *MysqlConfig {
 	buf := getFileBuf(MysqlConfigFileName)
-	mysqlConfig := MysqlConfig{}
+	var mysqlConfig *MysqlConfig
 	_ = mysqlConfig.UnmarshalJSON(buf)
 	log.Println("【mysql-config】", mysqlConfig)
 	return mysqlConfig
 }
 
 // GetRedis 获取redis服务器配置
-func GetRedis() RedisConfig {
+func GetRedis() *RedisConfig {
 	buf := getFileBuf(RedisConfigFileName)
-	redisConfig := RedisConfig{}
+	var redisConfig *RedisConfig
 	_ = redisConfig.UnmarshalJSON(buf)
 	log.Println("【redis-config】", redisConfig)
 	return redisConfig
 }
 
 // GetWechat 获取微信配置
-func GetWechat() WechatConfig {
+func GetWechat() *WechatConfig {
 	buf := getFileBuf(AliPayConfigFileName)
-	wechatConfig := WechatConfig{}
+	var wechatConfig *WechatConfig
 	_ = wechatConfig.UnmarshalJSON(buf)
 	log.Println("【wechat-config】", wechatConfig)
 	return wechatConfig
@@ -102,7 +102,7 @@ func GetWechat() WechatConfig {
 // GetWechatPay 获取微信支付配置
 func GetWechatPay() *WechatPayConfig {
 	buf := getFileBuf(WechatPayConfigFileName)
-	wechatPayConfig := WechatPayConfig{}
+	var wechatPayConfig WechatPayConfig
 	_ = wechatPayConfig.UnmarshalJSON(buf)
 	log.Println("【wechatPay-config】", wechatPayConfig)
 	return &wechatPayConfig
@@ -111,34 +111,34 @@ func GetWechatPay() *WechatPayConfig {
 // GetAliPay 获取支付宝配置
 func GetAliPay() *AliPayConfig {
 	buf := getFileBuf(WechatConfigFileName)
-	wechatConfig := AliPayConfig{}
-	_ = wechatConfig.UnmarshalJSON(buf)
-	log.Println("【wechat-config】", wechatConfig)
-	return &wechatConfig
+	var aliConfig *AliPayConfig
+	_ = aliConfig.UnmarshalJSON(buf)
+	log.Println("【ali-config】", aliConfig)
+	return aliConfig
 }
 
 // GetOss 获取阿里云对象存储配置
-func GetOss() OssConfig {
+func GetOss() *OssConfig {
 	buf := getFileBuf(OssConfigFileName)
-	ossConfig := OssConfig{}
+	var ossConfig *OssConfig
 	_ = ossConfig.UnmarshalJSON(buf)
 	log.Println("【oss-config】", ossConfig)
 	return ossConfig
 }
 
 // GetEs 获取elastic search配置
-func GetEs() EsConfig {
+func GetEs() *EsConfig {
 	buf := getFileBuf(EsConfigFileName)
-	var esConfig EsConfig
+	var esConfig *EsConfig
 	_ = esConfig.UnmarshalJSON(buf)
 	log.Println("【es-config】", esConfig)
 	return esConfig
 }
 
 // GetRabbitMQ 获取rabbit mq的配置
-func GetRabbitMQ() RabbitMQConfig {
+func GetRabbitMQ() *RabbitMQConfig {
 	buf := getFileBuf(RabbitMQConfigFileName)
-	var rabbitMQConfig RabbitMQConfig
+	var rabbitMQConfig *RabbitMQConfig
 	_ = rabbitMQConfig.UnmarshalJSON(buf)
 	log.Println("【rabbitMQ-config】", rabbitMQConfig)
 	return rabbitMQConfig
