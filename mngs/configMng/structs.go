@@ -3,6 +3,9 @@ package configMng
 // AppConfig app设置
 type AppConfig struct {
 	Debug    bool   `json:"debug"`
+	Name     string `json:"name"`
+	Version  string `json:"version"`
+	Host     string `json:"host"`
 	HttpPort string `json:"http_port"`
 }
 

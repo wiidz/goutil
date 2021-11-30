@@ -738,6 +738,12 @@ func easyjson6a975c40DecodeGithubComWiidzGoutilMngsConfigMng7(in *jlexer.Lexer, 
 		switch key {
 		case "debug":
 			out.Debug = bool(in.Bool())
+		case "name":
+			out.Name = string(in.String())
+		case "version":
+			out.Version = string(in.String())
+		case "host":
+			out.Host = string(in.String())
 		case "http_port":
 			out.HttpPort = string(in.String())
 		default:
@@ -758,6 +764,21 @@ func easyjson6a975c40EncodeGithubComWiidzGoutilMngsConfigMng7(out *jwriter.Write
 		const prefix string = ",\"debug\":"
 		out.RawString(prefix[1:])
 		out.Bool(bool(in.Debug))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	{
+		const prefix string = ",\"version\":"
+		out.RawString(prefix)
+		out.String(string(in.Version))
+	}
+	{
+		const prefix string = ",\"host\":"
+		out.RawString(prefix)
+		out.String(string(in.Host))
 	}
 	{
 		const prefix string = ",\"http_port\":"
