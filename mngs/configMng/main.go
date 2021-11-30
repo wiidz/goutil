@@ -75,28 +75,28 @@ func GetAppConfig() *AppConfig {
 // GetMysql 获取mysql数据库配置
 func GetMysql() *MysqlConfig {
 	buf := getFileBuf(MysqlConfigFileName)
-	var mysqlConfig *MysqlConfig
+	var mysqlConfig MysqlConfig
 	_ = mysqlConfig.UnmarshalJSON(buf)
 	log.Println("【mysql-config】", mysqlConfig)
-	return mysqlConfig
+	return &mysqlConfig
 }
 
 // GetRedis 获取redis服务器配置
 func GetRedis() *RedisConfig {
 	buf := getFileBuf(RedisConfigFileName)
-	var redisConfig *RedisConfig
+	var redisConfig RedisConfig
 	_ = redisConfig.UnmarshalJSON(buf)
 	log.Println("【redis-config】", redisConfig)
-	return redisConfig
+	return &redisConfig
 }
 
 // GetWechat 获取微信配置
 func GetWechat() *WechatConfig {
 	buf := getFileBuf(AliPayConfigFileName)
-	var wechatConfig *WechatConfig
+	var wechatConfig WechatConfig
 	_ = wechatConfig.UnmarshalJSON(buf)
 	log.Println("【wechat-config】", wechatConfig)
-	return wechatConfig
+	return &wechatConfig
 }
 
 // GetWechatPay 获取微信支付配置
@@ -111,35 +111,35 @@ func GetWechatPay() *WechatPayConfig {
 // GetAliPay 获取支付宝配置
 func GetAliPay() *AliPayConfig {
 	buf := getFileBuf(WechatConfigFileName)
-	var aliConfig *AliPayConfig
+	var aliConfig AliPayConfig
 	_ = aliConfig.UnmarshalJSON(buf)
 	log.Println("【ali-config】", aliConfig)
-	return aliConfig
+	return &aliConfig
 }
 
 // GetOss 获取阿里云对象存储配置
 func GetOss() *OssConfig {
 	buf := getFileBuf(OssConfigFileName)
-	var ossConfig *OssConfig
+	var ossConfig OssConfig
 	_ = ossConfig.UnmarshalJSON(buf)
 	log.Println("【oss-config】", ossConfig)
-	return ossConfig
+	return &ossConfig
 }
 
 // GetEs 获取elastic search配置
 func GetEs() *EsConfig {
 	buf := getFileBuf(EsConfigFileName)
-	var esConfig *EsConfig
+	var esConfig EsConfig
 	_ = esConfig.UnmarshalJSON(buf)
 	log.Println("【es-config】", esConfig)
-	return esConfig
+	return &esConfig
 }
 
 // GetRabbitMQ 获取rabbit mq的配置
 func GetRabbitMQ() *RabbitMQConfig {
 	buf := getFileBuf(RabbitMQConfigFileName)
-	var rabbitMQConfig *RabbitMQConfig
+	var rabbitMQConfig RabbitMQConfig
 	_ = rabbitMQConfig.UnmarshalJSON(buf)
 	log.Println("【rabbitMQ-config】", rabbitMQConfig)
-	return rabbitMQConfig
+	return &rabbitMQConfig
 }
