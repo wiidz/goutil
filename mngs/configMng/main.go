@@ -32,7 +32,7 @@ func init() {
 	configPath := getAPPRootPath() + ConfigPath
 	buf := osHelper.GetFileBuf(configPath + AppConfigFileName)
 	_ = appConfig.UnmarshalJSON(buf)
-	log.Println("appConfig", appConfig)
+	log.Println("【app-config】", appConfig)
 }
 
 // getAPPRootPath 获取项目运行的根目录
@@ -77,7 +77,7 @@ func GetMysql() MysqlConfig {
 	buf := getFileBuf(MysqlConfigFileName)
 	mysqlConfig := MysqlConfig{}
 	_ = mysqlConfig.UnmarshalJSON(buf)
-	log.Println("【mysqlConfig】", mysqlConfig)
+	log.Println("【mysql-config】", mysqlConfig)
 	return mysqlConfig
 }
 
@@ -86,7 +86,7 @@ func GetRedis() RedisConfig {
 	buf := getFileBuf(RedisConfigFileName)
 	redisConfig := RedisConfig{}
 	_ = redisConfig.UnmarshalJSON(buf)
-	log.Println("【redisConfig】", redisConfig)
+	log.Println("【redis-config】", redisConfig)
 	return redisConfig
 }
 
@@ -95,7 +95,7 @@ func GetWechat() WechatConfig {
 	buf := getFileBuf(AliPayConfigFileName)
 	wechatConfig := WechatConfig{}
 	_ = wechatConfig.UnmarshalJSON(buf)
-	log.Println("【wechatConfig】", wechatConfig)
+	log.Println("【wechat-config】", wechatConfig)
 	return wechatConfig
 }
 
@@ -104,7 +104,7 @@ func GetWechatPay() *WechatPayConfig {
 	buf := getFileBuf(WechatPayConfigFileName)
 	wechatPayConfig := WechatPayConfig{}
 	_ = wechatPayConfig.UnmarshalJSON(buf)
-	log.Println("【wechatPayConfig】", wechatPayConfig)
+	log.Println("【wechatPay-config】", wechatPayConfig)
 	return &wechatPayConfig
 }
 
@@ -113,7 +113,7 @@ func GetAliPay() *AliPayConfig {
 	buf := getFileBuf(WechatConfigFileName)
 	wechatConfig := AliPayConfig{}
 	_ = wechatConfig.UnmarshalJSON(buf)
-	log.Println("【wechatConfig】", wechatConfig)
+	log.Println("【wechat-config】", wechatConfig)
 	return &wechatConfig
 }
 
@@ -122,7 +122,7 @@ func GetOss() OssConfig {
 	buf := getFileBuf(OssConfigFileName)
 	ossConfig := OssConfig{}
 	_ = ossConfig.UnmarshalJSON(buf)
-	log.Println("【ossConfig】", ossConfig)
+	log.Println("【oss-config】", ossConfig)
 	return ossConfig
 }
 
@@ -131,7 +131,7 @@ func GetEs() EsConfig {
 	buf := getFileBuf(EsConfigFileName)
 	var esConfig EsConfig
 	_ = esConfig.UnmarshalJSON(buf)
-	log.Println("【esConfig】", esConfig)
+	log.Println("【es-config】", esConfig)
 	return esConfig
 }
 
@@ -140,6 +140,6 @@ func GetRabbitMQ() RabbitMQConfig {
 	buf := getFileBuf(RabbitMQConfigFileName)
 	var rabbitMQConfig RabbitMQConfig
 	_ = rabbitMQConfig.UnmarshalJSON(buf)
-	log.Println("【rabbitMQConfig】", rabbitMQConfig)
+	log.Println("【rabbitMQ-config】", rabbitMQConfig)
 	return rabbitMQConfig
 }

@@ -25,8 +25,6 @@ type MysqlMng struct {
  */
 func init() {
 
-	log.Println("mysql init")
-
 	//【1】获取配置
 	config := configMng.GetMysql()
 	if config.Host == "" {
@@ -43,11 +41,12 @@ func init() {
 		"&parseTime=true"
 
 	//【3】构建DB对象
-	log.Println("【DSN】",dsn)
+	log.Println("【mysql-DSN】",dsn)
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	log.Println("【err】",err)
+
 	if err != nil {
+		log.Println("【mysql-init-err】",err)
 		return
 	}
 	sqlDB, _ := db.DB()
