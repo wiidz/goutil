@@ -67,9 +67,9 @@ func getFileBuf(fileName string) []byte {
 	return osHelper.GetFileBuf(getTargetDir() + fileName)
 }
 
-// GetHttpPort 获取本项目占用端口配置
-func GetHttpPort() string {
-	return appConfig.HttpPort
+// GetAppConfig 获取本项目配置
+func GetAppConfig() AppConfig {
+	return appConfig
 }
 
 // GetMysql 获取mysql数据库配置
