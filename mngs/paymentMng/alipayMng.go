@@ -17,7 +17,7 @@ type AliPayMng struct {
 // getAliPayInstance 获取实例
 func getAliPayInstance(config *configMng.AliPayConfig) *AliPayMng {
 
-	var alipayMng = AliPayMng{
+	var alipayMng = &AliPayMng{
 		Config: config,
 		Client:alipay.NewClient(config.AppID, config.PrivateKey, config.IsProd),
 	}
@@ -52,7 +52,7 @@ func getAliPayInstance(config *configMng.AliPayConfig) *AliPayMng {
 	//err := alipay.Client.SetCertSnByPath("appCertPublicKey.crt", "alipayRootCert.crt", "alipayCertPublicKey_RSA2.crt")
 	// 证书内容
 	//err := client.SetCertSnByContent("appCertPublicKey bytes", "alipayRootCert bytes", "alipayCertPublicKey_RSA2 bytes")
-	return &alipayMng
+	return alipayMng
 }
 
 // NewAliPayMngSingle 根据configs里的配置文件生成单例

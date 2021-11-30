@@ -20,7 +20,7 @@ type WechatPayMng struct {
 // getWechatPayInstance 获取微信支付实例
 func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 
-	var wechatPayMng = WechatPayMng{
+	var wechatPayMng = &WechatPayMng{
 		Config: config,
 		Client: wechat.NewClient(config.AppID, config.MchID, config.PayKey, config.IsProd),
 	}
@@ -43,7 +43,7 @@ func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
 
 	// 添加微信pem证书
-	return &wechatPayMng
+	return wechatPayMng
 }
 
 // NewWechatPayMngSingle 从本地configs里的配置，生成单例

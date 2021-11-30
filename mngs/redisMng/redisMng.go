@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var config configMng.RedisConfig
+var config *configMng.RedisConfig
 
 /**
  * @func：实例化一个redis连接池
