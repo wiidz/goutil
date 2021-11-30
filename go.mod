@@ -9,7 +9,7 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/go-pay/gopay v1.5.55
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/gomodule/redigo v1.7.1-0.20190724094224-574c33c3df38
+	github.com/gomodule/redigo v1.8.5
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.9
@@ -23,6 +23,7 @@ require (
 	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/silenceper/wechat/v2 v2.0.9
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/valyala/fasthttp v1.27.0 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect

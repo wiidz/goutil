@@ -9,19 +9,18 @@ import (
 	"github.com/silenceper/wechat/v2/miniprogram/encryptor"
 	"github.com/silenceper/wechat/v2/miniprogram/qrcode"
 	"github.com/wiidz/goutil/mngs/configMng"
-	"log"
 )
 
-// WechatMiniMng 微信小程序管理器
-type WechatMiniMng struct {
+// MiniMng 微信小程序管理器
+type MiniMng struct {
 	AppID     string
 	AppSecret string
 	//AccessToken string
 	Client *miniprogram.MiniProgram
 }
 
-// NewWechatMiniMng 获取小程序管理器
-func NewWechatMiniMng(appID string, appSecret string) *WechatMiniMng {
+// NewMiniMng 获取小程序管理器
+func NewMiniMng(appID string, appSecret string) *MiniMng {
 
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中
@@ -42,7 +41,7 @@ func NewWechatMiniMng(appID string, appSecret string) *WechatMiniMng {
 	mini := wc.GetMiniProgram(cfg)
 
 	//【3】返回
-	var wechatMng = WechatMiniMng{
+	var wechatMng = MiniMng{
 		AppID:     appID,
 		AppSecret: appSecret,
 		Client:    mini,
@@ -51,31 +50,29 @@ func NewWechatMiniMng(appID string, appSecret string) *WechatMiniMng {
 }
 
 // Login 微信小程序登陆
-func (mng *WechatMiniMng) Login(code string) (*auth.ResCode2Session, error) {
+func (mng *MiniMng) Login(code string) (*auth.ResCode2Session, error) {
 	authClient := mng.Client.GetAuth()
 	res, err := authClient.Code2Session(code)
 	return &res, err
 }
 
 // GetUserInfo 获取微信资料
-func (mng *WechatMiniMng) GetUserInfo(sessionKey, encryptedData, iv string) (*encryptor.PlainData, error) {
+func (mng *MiniMng) GetUserInfo(sessionKey, encryptedData, iv string) (*encryptor.PlainData, error) {
 	encryptorClient := mng.Client.GetEncryptor()
 	res, err := encryptorClient.Decrypt(sessionKey, encryptedData, iv)
 	return res, err
 }
 
 // GetPhone 获取微信手机号
-func (mng *WechatMiniMng) GetPhone(sessionKey, encryptedData, iv string) (*encryptor.PlainData, error) {
+func (mng *MiniMng) GetPhone(sessionKey, encryptedData, iv string) (*encryptor.PlainData, error) {
 	encryptorClient := mng.Client.GetEncryptor()
 	res, err := encryptorClient.Decrypt(sessionKey, encryptedData, iv)
 	return res, err
 }
 
 // GetQRCode 获取二维码
-func (mng *WechatMiniMng) GetQRCode(qrCoder qrcode.QRCoder) ([]byte, error) {
+func (mng *MiniMng) GetQRCode(qrCoder qrcode.QRCoder) ([]byte, error) {
 	qrCodeApi := mng.Client.GetQRCode()
 	res, err := qrCodeApi.GetWXACodeUnlimit(qrCoder)
-	log.Println("res", res)
-	log.Println("err", err)
 	return res, err
 }
