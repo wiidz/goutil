@@ -23,7 +23,7 @@ const (
 	RabbitMQConfigFileName  = "rabbit-mq.json"
 )
 
-var appConfig *AppConfig
+var appConfig AppConfig
 
 type ConfigMng struct{}
 
@@ -69,7 +69,7 @@ func getFileBuf(fileName string) []byte {
 
 // GetAppConfig 获取本项目配置
 func GetAppConfig() *AppConfig {
-	return appConfig
+	return &appConfig
 }
 
 // GetMysql 获取mysql数据库配置
