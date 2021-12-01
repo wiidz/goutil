@@ -87,7 +87,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *BaseC
 	config.WechatOaConfig = getWechatOaConfig(rows)
 	config.WechatOpenConfig = getWechatOpenConfig(rows)
 	config.AliPayConfig = getAliPayConfig(rows)
-	config.OSSConfig = getOssConfig(rows)
+	config.OssConfig = getOssConfig(rows)
 	return
 }
 
@@ -137,8 +137,8 @@ func getAliPayConfig(rows []*DbSettingRow) *AliPayConfig {
 	}
 }
 
-func getOssConfig(rows []*DbSettingRow) *OSSConfig {
-	return &OSSConfig{
+func getOssConfig(rows []*DbSettingRow) *OssConfig {
+	return &OssConfig{
 		AccessKeyID:     getRow(rows, "ali", "oss", "access_key_id").Value,
 		AccessKeySecret: getRow(rows, "ali", "oss", "access_key_secret").Value,
 		Host:            getRow(rows, "ali", "oss", "host").Value,
