@@ -6,27 +6,31 @@ import (
 
 // BaseConfig 参数
 type BaseConfig struct {
-	Location          *time.Location `gorm:"-" json:"-"`
-	*MysqlConfig                     // 数据库设定
-	*WechatMiniConfig                // 小程序设定
-	*WechatOaConfig                  // 公众号设定
-	*WechatOpenConfig                // 开放平台设定
-	*WechatPayConfig                 // 微信支付设定
-	*OSSConfig                       // oss对象存储设定
-	*AliPayConfig                    // 支付宝设定
-	//PromoConfig         *PromoConfig         `gorm:"-" json:"-"` // 促销推广设定
+	Location *time.Location `gorm:"-" json:"-"` // 时区
+
+	*MysqlConfig    // 数据库设定
+	*RedisConfig    // redis设定
+	*OssConfig      // oss对象存储设定
+	*EsConfig       // es设定
+	*RabbitMQConfig // es设定
+
+	*WechatMiniConfig // 小程序设定
+	*WechatOaConfig   // 公众号设定
+	*WechatOpenConfig // 开放平台设定
+	*WechatPayConfig  // 微信支付设定
+	*AliPayConfig     // 支付宝设定
 }
 
 // MysqlConfig mysql数据库参数
 type MysqlConfig struct {
-	Host     string `gorm:"column:db_host" json:"host"`
-	Port     string `gorm:"column:db_host" json:"port"`
-	Username string `gorm:"column:db_account" json:"username"`
-	Password string `gorm:"column:db_password" json:"password"`
-	DbName   string `gorm:"column:db_name" json:"db_name"`
-	Charset string
-	Collation string
-	SettingTableName   string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
+	Host             string `gorm:"column:db_host" json:"host"`
+	Port             string `gorm:"column:db_host" json:"port"`
+	Username         string `gorm:"column:db_account" json:"username"`
+	Password         string `gorm:"column:db_password" json:"password"`
+	DbName           string `gorm:"column:db_name" json:"db_name"`
+	Charset          string
+	Collation        string
+	SettingTableName string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
 }
 
 // EsConfig elastic search 设置
@@ -55,6 +59,14 @@ type RabbitMQConfig struct {
 	Password string `json:"password"`
 }
 
+// OssConfig oss参数
+type OssConfig struct {
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
+	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
+	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
+	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
+}
 
 // WechatMiniConfig 微信小程序参数
 type WechatMiniConfig struct {
@@ -88,15 +100,6 @@ type WechatPayConfig struct {
 type AliPayConfig struct {
 	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id"`           //【支付宝】appID
 	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key"` //【支付宝】密钥（PKCS1）
-}
-
-// OSSConfig oss参数
-type OSSConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
-	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
-	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
-	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
 }
 
 type ProjectConfig interface {

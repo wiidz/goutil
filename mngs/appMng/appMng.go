@@ -4,6 +4,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
+	"github.com/wiidz/goutil/mngs/redisMng"
 	"time"
 )
 
@@ -20,8 +21,8 @@ const SqlRow SqlConfigLocation = 2    // 总库记录，例如center库中存放
 
 type AppMng struct {
 	ID                uint64            `gorm:"column:id" json:"id"`
-	//RunningMode       RunningMode       // 脚本运行模式
-	//SqlConfigLocation SqlConfigLocation // sql配置存放位置
+	// RunningMode       RunningMode       // 脚本运行模式
+	// SqlConfigLocation SqlConfigLocation // sql配置存放位置
 	AppNo             string            `gorm:"column:app_no" json:"app_no"`
 	AppName           string            `gorm:"column:app_name" json:"app_name"`
 	Location          *time.Location    `gorm:"-" json:"-"`
@@ -43,9 +44,18 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *MysqlConfig, configStruct Pro
 		ProjectConfig: configStruct,
 	}
 
-	//【2】基础配置
-	mng.BaseConfig, _ = mng.SetBaseConfig(mysqlConfig.DbName, mysqlConfig.SettingTableName)
+	//【2】初始化mysql
+	mysqlMng.Init(mysqlConfig)
+
+	//【3】基础配置
+	mng.BaseConfig, err = mng.SetBaseConfig(mysqlConfig.DbName, mysqlConfig.SettingTableName)
+	if err != nil {
+		return
+	}
 	mng.BaseConfig.MysqlConfig = mysqlConfig
+
+	//【4】初始化redis、es
+	redisMng.Init(mng.BaseConfig.RedisConfig)
 
 	//【3】项目配置
 	mng.ProjectConfig.Build()
