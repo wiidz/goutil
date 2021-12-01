@@ -3,11 +3,11 @@ package redisMng
 import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/mngs/appMng"
 	"time"
 )
 
-var config *configMng.RedisConfig
+var config *appMng.RedisConfig
 
 /**
  * @func：实例化一个redis连接池
@@ -20,13 +20,8 @@ type RedisMng struct {
 	Conn redis.Conn
 }
 
-/**
- * @func:   init 获取redis配置
- * @author: Wiidz
- * @date:   2020-04-15
- */
-func init() {
-	config = configMng.GetRedis()
+func Init(redisConfig *appMng.RedisConfig){
+	config = redisConfig
 }
 
 /**

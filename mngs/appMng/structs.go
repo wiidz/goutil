@@ -24,8 +24,37 @@ type MysqlConfig struct {
 	Username string `gorm:"column:db_account" json:"username"`
 	Password string `gorm:"column:db_password" json:"password"`
 	DbName   string `gorm:"column:db_name" json:"db_name"`
+	Charset string
+	Collation string
 	SettingTableName   string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
 }
+
+// EsConfig elastic search 设置
+type EsConfig struct {
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// RedisConfig redis服务器设置
+type RedisConfig struct {
+	IP          string `json:"ip"`
+	Port        string `json:"port"`
+	Password    string `json:"password"`
+	IdleTimeout int    `json:"idle_timeout"`
+	Database    int    `json:"datebase"`
+	MaxActive   int    `json:"max_active"`
+	MaxIdle     int    `json:"max_idle"`
+}
+
+// RabbitMQConfig rabbit mq配置
+type RabbitMQConfig struct {
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 
 // WechatMiniConfig 微信小程序参数
 type WechatMiniConfig struct {

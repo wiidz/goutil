@@ -3,7 +3,7 @@ package mysqlMng
 import (
 	"errors"
 	"fmt"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/mngs/appMng"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -18,21 +18,8 @@ type MysqlMng struct {
 	TransConn *gorm.DB // 事务会话
 }
 
-/**
- * @func:   init 获取mysql配置
- * @author: Wiidz
- * @date:   2020-04-15
- */
-func init() {
-
-	//【1】获取配置
-	config := configMng.GetMysql()
-	if config.Host == "" {
-		log.Println("【err】mysql host is empty")
-		return
-	}
-
-	//【2】构建DSN
+func Init(config *appMng.MysqlConfig){
+	//【1】构建DSN
 	dsn := config.Username + ":" + config.Password +
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
 		"?charset=" + config.Charset +
