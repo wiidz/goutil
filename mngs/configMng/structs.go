@@ -51,12 +51,24 @@ type RedisConfig struct {
 	MaxIdle     int    `json:"max_idle"`
 }
 
-// WechatConfig 微信设置
-type WechatConfig struct {
+// WechatMiniConfig 微信小程序设置
+type WechatMiniConfig struct {
 	AppID     string `json:"app_id"`
 	AppSecret string `json:"app_secret"`
-	GrantType string `json:"grant_type"`
 }
+
+// WechatOaConfig 微信公众号设置
+type WechatOaConfig struct {
+	AppID     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
+}
+
+// WechatOpenConfig 微信开放平台设置
+type WechatOpenConfig struct {
+	AppID     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
+}
+
 
 // WechatPayConfig 微信支付配置
 type WechatPayConfig struct {

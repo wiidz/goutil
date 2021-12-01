@@ -50,7 +50,6 @@ func getAPPRootPath() string {
 	return filepath.Dir(p)
 }
 
-
 // 获取指定目录里的配置文件
 func getTargetDir() string {
 	var dir string
@@ -90,21 +89,40 @@ func GetRedis() *RedisConfig {
 	return &redisConfig
 }
 
-// GetWechat 获取微信配置
-func GetWechat() *WechatConfig {
+// GetWechatMini 获取微信小程序配置
+func GetWechatMini() *WechatMiniConfig {
 	buf := getFileBuf(AliPayConfigFileName)
-	var wechatConfig WechatConfig
-	_ = wechatConfig.UnmarshalJSON(buf)
-	log.Println("【wechat-config】", wechatConfig)
-	return &wechatConfig
+	var miniConfig WechatMiniConfig
+	_ = miniConfig.UnmarshalJSON(buf)
+	log.Println("【wechat-mini-config】", miniConfig)
+	return &miniConfig
 }
+
+// GetWechatOa 获取微信公众号配置
+func GetWechatOa() *WechatOaConfig {
+	buf := getFileBuf(AliPayConfigFileName)
+	var oaConfig WechatOaConfig
+	_ = oaConfig.UnmarshalJSON(buf)
+	log.Println("【wechat-oa-config】", oaConfig)
+	return &oaConfig
+}
+
+// GetWechatOpen 获取微信开放平台
+func GetWechatOpen() *WechatOpenConfig {
+	buf := getFileBuf(AliPayConfigFileName)
+	var openConfig WechatOpenConfig
+	_ = openConfig.UnmarshalJSON(buf)
+	log.Println("【wechat-open-config】", openConfig)
+	return &openConfig
+}
+
 
 // GetWechatPay 获取微信支付配置
 func GetWechatPay() *WechatPayConfig {
 	buf := getFileBuf(WechatPayConfigFileName)
 	var wechatPayConfig WechatPayConfig
 	_ = wechatPayConfig.UnmarshalJSON(buf)
-	log.Println("【wechatPay-config】", wechatPayConfig)
+	log.Println("【wechat-pay-config】", wechatPayConfig)
 	return &wechatPayConfig
 }
 
@@ -143,3 +161,11 @@ func GetRabbitMQ() *RabbitMQConfig {
 	log.Println("【rabbitMQ-config】", rabbitMQConfig)
 	return &rabbitMQConfig
 }
+
+
+//// GetWechatMiniFromDB 从数据库获取微信小程序配置
+//func GetWechatMiniFromDB(conn *gorm.DB) *WechatMiniConfig {
+//
+//	var miniConfig WechatMiniConfig
+//	return &miniConfig
+//}

@@ -18,6 +18,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/moul/http2curl v1.0.0 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shamsher31/goimgext v1.0.0 // indirect
