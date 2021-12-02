@@ -13,7 +13,6 @@ var SingletonAppMng *AppMng
 var cacheM = memoryMng.NewCacheMng()
 var mysqlM = mysqlMng.NewMysqlMng()
 
-
 // GetSingletonAppMng : 获取单例app管理器
 func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig) (mng *AppMng, err error) {
 
@@ -74,6 +73,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.WechatOpenConfig = getWechatOpenConfig(rows)
 	config.AliPayConfig = getAliPayConfig(rows)
 	config.OssConfig = getOssConfig(rows)
+	config.Profile = getAppProfile(rows)
 	return
 }
 
@@ -130,6 +130,16 @@ func getOssConfig(rows []*DbSettingRow) *configStruct.OssConfig {
 		Host:            getRow(rows, "ali", "oss", "host").Value,
 		EndPoint:        getRow(rows, "ali", "oss", "end_point").Value,
 		BucketName:      getRow(rows, "ali", "oss", "bucket_name").Value,
+	}
+}
+
+func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
+	return &configStruct.AppProfile{
+		No:      getRow(rows, "app", "no", "").Value,
+		Name:    getRow(rows, "app", "name", "").Value,
+		Host:    getRow(rows, "app", "host", "").Value,
+		Debug:   getRow(rows, "app", "debug", "").Value == "0", // 0 = 调试 ， 1 = 生产
+		Version: getRow(rows, "app", "version", "").Value,
 	}
 }
 

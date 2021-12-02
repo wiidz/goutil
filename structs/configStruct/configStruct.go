@@ -2,8 +2,19 @@ package configStruct
 
 import "time"
 
+// AppProfile App资料
+type AppProfile struct {
+	Host       string // host地址
+	Debug      bool   // 是否调试模式
+	No      string
+	Name    string
+	Version string
+}
+
 // BaseConfig 参数
 type BaseConfig struct {
+	Profile *AppProfile
+
 	Location *time.Location `gorm:"-" json:"-"` // 时区
 
 	MysqlConfig    *MysqlConfig    // 数据库设定
