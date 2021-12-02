@@ -1,7 +1,7 @@
 package lbsMng
 
 type BaseRes struct {
-	Status   int
+	Status   string
 	Info     string
 	InfoCode string
 }
