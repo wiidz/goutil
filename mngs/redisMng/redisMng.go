@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"time"
 )
 
@@ -26,15 +27,16 @@ func Init(redisC *configStruct.RedisConfig) (err error){
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (redis.Conn, error) {
 			redisURL := redisC.Host + ":" + redisC.Port
+			log.Println("【redis-dsn】",redisURL)
 			var conn redis.Conn
 			conn, err = redis.Dial("tcp", redisURL)
 			if err != nil {
-				fmt.Println("【redis】", err)
+				fmt.Println("【redis-dial-err】", err)
 				return nil, err
 			}
 
 			if _, err := conn.Do("AUTH", redisC.Password); err != nil {
-				fmt.Println("【redis-auth】", err)
+				fmt.Println("【redis-auth-err】", err)
 				conn.Close()
 				return nil, err
 			}
