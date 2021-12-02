@@ -8,7 +8,7 @@ type BaseRes struct {
 
 type ReGeoRes struct {
 	*BaseRes
-	ReGeoCode ReGeoData
+	ReGeoCode *ReGeoData
 }
 
 type ReGeoData struct {

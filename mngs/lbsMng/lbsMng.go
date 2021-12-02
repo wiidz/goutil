@@ -2,7 +2,6 @@ package lbsMng
 
 import (
 	"github.com/wiidz/goutil/helpers/networkHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
@@ -24,18 +23,18 @@ func GetLbsMng(config *configStruct.AliApiConfig)*LbsMng{
 
 // ReGeo : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
 func (mng *LbsMng)ReGeo(longitude,latitude string)(*ReGeoData,error){
-	var resStr string
-	var err error
-	resStr, _, _, err = networkHelper.RequestRaw(networkHelper.Get, Domain+"/geocode/regeo", map[string]interface{}{
+
+	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkHelper.Get, Domain+"/geocode/regeo", map[string]interface{}{
 		"location": longitude + "," + latitude,
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	})
+	},&ReGeoRes{})
+
 	if err != nil {
 		return nil,err
 	}
-	data := typeHelper.JsonDecodeWithStruct(resStr,&ReGeoData{}).(*ReGeoData)
-	return data,nil
+
+	return resStr.(*ReGeoRes).ReGeoCode,nil
 }
 
 
