@@ -13,9 +13,9 @@ type AppProfile struct {
 
 // CheckStart 约定启动时要验证的项目
 type CheckStart struct {
-	Mysql bool   //
+	Mysql bool //
 	Redis bool
-	Es bool
+	Es    bool
 }
 
 // BaseConfig 参数
@@ -59,13 +59,13 @@ type EsConfig struct {
 
 // RedisConfig redis服务器设置
 type RedisConfig struct {
-	IP          string `json:"ip"`
+	Host          string `json:"host"`
 	Port        string `json:"port"`
 	Password    string `json:"password"`
-	IdleTimeout int    `json:"idle_timeout"`
-	Database    int    `json:"datebase"`
-	MaxActive   int    `json:"max_active"`
-	MaxIdle     int    `json:"max_idle"`
+	IdleTimeout int    `json:"idle_timeout"` // 默认60
+	Database    int    `json:"datebase"` // 默认0
+	MaxActive   int    `json:"max_active"` // 默认10
+	MaxIdle     int    `json:"max_idle"` // 默认10
 }
 
 // RabbitMQConfig rabbit mq配置

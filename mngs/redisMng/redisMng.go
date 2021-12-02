@@ -19,14 +19,13 @@ type RedisMng struct {
 	Conn redis.Conn
 }
 
-func Init(redisConfig *configStruct.RedisConfig) (err error){
-	var config = redisConfig
+func Init(redisC *configStruct.RedisConfig) (err error){
 	pool = redis.Pool{
-		MaxActive:   config.MaxActive,
-		MaxIdle:     config.MaxIdle,
-		IdleTimeout: time.Duration(config.IdleTimeout),
+		MaxActive:   redisC.MaxActive,
+		MaxIdle:     redisC.MaxIdle,
+		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (redis.Conn, error) {
-			redisURL := config.IP + ":" + config.Port
+			redisURL := redisC.Host + ":" + redisC.Port
 			var conn redis.Conn
 			conn, err = redis.Dial("tcp", redisURL)
 			if err != nil {
@@ -34,7 +33,7 @@ func Init(redisConfig *configStruct.RedisConfig) (err error){
 				return nil, err
 			}
 
-			if _, err := conn.Do("AUTH", config.Password); err != nil {
+			if _, err := conn.Do("AUTH", redisC.Password); err != nil {
 				fmt.Println("【redis-auth】", err)
 				conn.Close()
 				return nil, err

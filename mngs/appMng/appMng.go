@@ -13,7 +13,7 @@ var cacheM = memoryMng.NewCacheMng()
 var mysqlM = mysqlMng.NewMysqlMng()
 
 // GetSingletonAppMng : 获取单例app管理器
-func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig,checkStart *configStruct.CheckStart) (mng *AppMng, err error) {
+func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig, checkStart *configStruct.CheckStart) (mng *AppMng, err error) {
 
 	//【1】从缓存中提取
 	res, isExist := cacheM.Get("app-" + typeHelper.Uint64ToStr(appID) + "-config")
@@ -49,7 +49,6 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-
 	//【3】项目配置
 	mng.ProjectConfig.Build()
 
@@ -82,6 +81,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.WechatPayConfig = getWechatPayConfig(rows)
 	config.AliPayConfig = getAliPayConfig(rows)
 	config.OssConfig = getOssConfig(rows)
+	config.RedisConfig = getRedisConfig(rows)
 	config.Profile = getAppProfile(rows)
 	return
 }
@@ -144,6 +144,18 @@ func getAliPayConfig(rows []*DbSettingRow) *configStruct.AliPayConfig {
 		PrivateKey: getRow(rows, "ali", "pay", "private_key").Value,
 		NotifyURL:  getRow(rows, "ali", "pay", "notify_url").Value,
 		IsProd:     getRow(rows, "ali", "pay", "is_prod").Value == "1", // 0=调试，1=生产
+	}
+}
+
+func getRedisConfig(rows []*DbSettingRow) *configStruct.RedisConfig {
+	return &configStruct.RedisConfig{
+		Host:        getRow(rows, "redis", "host", "").Value,
+		Port:        getRow(rows, "redis", "port", "").Value,
+		Password:    getRow(rows, "redis", "password", "").Value,
+		IdleTimeout: typeHelper.Str2Int(getRow(rows, "redis", "idle_timeout", "").Value),
+		Database:    typeHelper.Str2Int(getRow(rows, "redis", "database", "").Value),
+		MaxActive:   typeHelper.Str2Int(getRow(rows, "redis", "max_active", "").Value),
+		MaxIdle:     typeHelper.Str2Int(getRow(rows, "redis", "max_idle", "").Value),
 	}
 }
 
