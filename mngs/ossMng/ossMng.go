@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/wiidz/goutil/helpers/timeHelper"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"hash"
 	"io"
 	"log"
@@ -19,12 +19,10 @@ const base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr2345601
 var coder = base64.NewEncoding(base64Table)
 
 // NewOssMngSingle 创建单例ossMng
-func NewOssMngSingle() (*OssMng, error) {
-
-	config := configMng.GetOss()
+func NewOssMngSingle(ossC *configStruct.OssConfig) (*OssMng, error) {
 
 	ossMng := OssMng{}
-	client, err := oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret)
+	client, err := oss.New(ossC.EndPoint, ossC.AccessKeyID, ossC.AccessKeySecret)
 
 	if err != nil {
 		return &ossMng, err
@@ -35,7 +33,7 @@ func NewOssMngSingle() (*OssMng, error) {
 }
 
 // NewOssMng 创建ossMng
-func NewOssMng(config *configMng.OssConfig) (*OssMng, error) {
+func NewOssMng(config *configStruct.OssConfig) (*OssMng, error) {
 	ossMng := OssMng{
 		Config: config,
 	}

@@ -2,12 +2,12 @@ package ossMng
 
 import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 // easyjson:skip
 type OssMng struct {
-	Config *configMng.OssConfig
+	Config *configStruct.OssConfig
 	Client *oss.Client //一个db连接
 }
 

@@ -46,12 +46,12 @@ type MysqlConfig struct {
 	DbName           string `gorm:"column:db_name" json:"db_name"`
 	Charset          string
 	Collation        string
-	MaxOpenConns        int    `json:"max_open_conns"`                                          // 默认10
+	MaxOpenConns     int    `json:"max_open_conns"`                                      // 默认10
 	MaxIdle          int    `json:"max_idle"`                                            // 默认5
-	MaxLifeTime int    `json:"max_life_time"` // 最长生命周期（秒） 默认60
+	MaxLifeTime      int    `json:"max_life_time"`                                       // 最长生命周期（秒） 默认60
 	SettingTableName string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
-	TimeZone string // 时区
-	ParseTime bool
+	TimeZone         string // 时区
+	ParseTime        bool
 }
 
 // EsConfig elastic search 设置
@@ -87,6 +87,7 @@ type OssConfig struct {
 	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
 	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
 	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
+	ExpireTime      int64 // 上传策略Policy的失效时间，单位为秒。默认30
 }
 
 // WechatMiniConfig 微信小程序参数
