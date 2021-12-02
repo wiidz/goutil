@@ -22,8 +22,8 @@ func GetLbsMng(config *configStruct.AliApiConfig)*LbsMng{
 }
 
 
-// ReGeoMng : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
-func (mng *LbsMng)ReGeoMng(longitude,latitude string)(*ReGeoData,error){
+// ReGeo : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
+func (mng *LbsMng)ReGeo(longitude,latitude string)(*ReGeoData,error){
 	var resStr string
 	var err error
 	resStr, _, _, err = networkHelper.RequestRaw(networkHelper.Get, Domain+"/geocode/regeo", map[string]interface{}{
@@ -34,10 +34,10 @@ func (mng *LbsMng)ReGeoMng(longitude,latitude string)(*ReGeoData,error){
 	if err != nil {
 		return nil,err
 	}
-	data := typeHelper.JsonDecodeWithStruct(resStr,&ReGeoData{}).(ReGeoData)
-	return &data,nil
+	data := typeHelper.JsonDecodeWithStruct(resStr,&ReGeoData{}).(*ReGeoData)
+	return data,nil
 }
 
 
-// GeoMng : 地理编码(将详细的结构化地址转换为高德经纬度坐标。且支持对地标性名胜景区、建筑物名称解析为高德经纬度坐标)
+// Geo : 地理编码(将详细的结构化地址转换为高德经纬度坐标。且支持对地标性名胜景区、建筑物名称解析为高德经纬度坐标)
 // Tips：举例，北京市朝阳区阜通东大街6号转换后经纬度：116.480881,39.989410 地
