@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -25,7 +26,7 @@ func Init(config *configStruct.MysqlConfig) (err error) {
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
 		"?charset=" + config.Charset +
 		"&collation=" + config.Collation +
-		"&loc=" +config.TimeZone+
+		"&loc=" +url.QueryEscape(config.TimeZone)+
 		"&parseTime="+strconv.FormatBool(config.ParseTime)
 
 	//【3】构建DB对象
