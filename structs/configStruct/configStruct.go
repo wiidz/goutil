@@ -6,17 +6,17 @@ import "time"
 type BaseConfig struct {
 	Location *time.Location `gorm:"-" json:"-"` // 时区
 
-	*MysqlConfig    // 数据库设定
-	*RedisConfig    // redis设定
-	*OssConfig      // oss对象存储设定
-	*EsConfig       // es设定
-	*RabbitMQConfig // es设定
+	MysqlConfig *MysqlConfig    // 数据库设定
+	RedisConfig *RedisConfig    // redis设定
+	OssConfig *OssConfig      // oss对象存储设定
+	EsConfig *EsConfig       // es设定
+	RabbitMQConfig *RabbitMQConfig // es设定
 
-	*WechatMiniConfig // 小程序设定
-	*WechatOaConfig   // 公众号设定
-	*WechatOpenConfig // 开放平台设定
-	*WechatPayConfig  // 微信支付设定
-	*AliPayConfig     // 支付宝设定
+	WechatMiniConfig *WechatMiniConfig // 小程序设定
+	WechatOaConfig *WechatOaConfig   // 公众号设定
+	WechatOpenConfig *WechatOpenConfig // 开放平台设定
+	WechatPayConfig *WechatPayConfig  // 微信支付设定
+	AliPayConfig *AliPayConfig     // 支付宝设定
 }
 
 // MysqlConfig mysql数据库参数

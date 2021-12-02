@@ -830,16 +830,6 @@ func easyjson4db26ec9DecodeGithubComWiidzGoutilStructsConfigStruct9(in *jlexer.L
 		in.Skip()
 		return
 	}
-	out.MysqlConfig = new(MysqlConfig)
-	out.RedisConfig = new(RedisConfig)
-	out.OssConfig = new(OssConfig)
-	out.EsConfig = new(EsConfig)
-	out.RabbitMQConfig = new(RabbitMQConfig)
-	out.WechatMiniConfig = new(WechatMiniConfig)
-	out.WechatOaConfig = new(WechatOaConfig)
-	out.WechatOpenConfig = new(WechatOpenConfig)
-	out.WechatPayConfig = new(WechatPayConfig)
-	out.AliPayConfig = new(AliPayConfig)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -850,56 +840,106 @@ func easyjson4db26ec9DecodeGithubComWiidzGoutilStructsConfigStruct9(in *jlexer.L
 			continue
 		}
 		switch key {
-		case "alipay_app_id":
-			out.AppID = string(in.String())
-		case "alipay_private_key":
-			out.PrivateKey = string(in.String())
-		case "wechat_pay_secret":
-			out.Secret = string(in.String())
-		case "wechat_pay_mch_id":
-			out.MchID = string(in.String())
-		case "wechat_pay_cert_uri":
-			out.CertURI = string(in.String())
-		case "wechat_pay_key_uri":
-			out.KeyURI = string(in.String())
-		case "wechat_pay_cert_content":
-			out.CertContent = string(in.String())
-		case "wechat_oa_app_secret":
-			out.AppSecret = string(in.String())
-		case "host":
-			out.Host = string(in.String())
-		case "username":
-			out.Username = string(in.String())
-		case "password":
-			out.Password = string(in.String())
-		case "port":
-			out.Port = string(in.String())
-		case "oss_access_key_id":
-			out.AccessKeyID = string(in.String())
-		case "oss_access_key_secret":
-			out.AccessKeySecret = string(in.String())
-		case "oss_end_point":
-			out.EndPoint = string(in.String())
-		case "oss_bucket_name":
-			out.BucketName = string(in.String())
-		case "ip":
-			out.IP = string(in.String())
-		case "idle_timeout":
-			out.IdleTimeout = int(in.Int())
-		case "datebase":
-			out.Database = int(in.Int())
-		case "max_active":
-			out.MaxActive = int(in.Int())
-		case "max_idle":
-			out.MaxIdle = int(in.Int())
-		case "db_name":
-			out.DbName = string(in.String())
-		case "charset":
-			out.Charset = string(in.String())
-		case "collation":
-			out.Collation = string(in.String())
-		case "setting_table_name":
-			out.SettingTableName = string(in.String())
+		case "mysql_config":
+			if in.IsNull() {
+				in.Skip()
+				out.MysqlConfig = nil
+			} else {
+				if out.MysqlConfig == nil {
+					out.MysqlConfig = new(MysqlConfig)
+				}
+				(*out.MysqlConfig).UnmarshalEasyJSON(in)
+			}
+		case "redis_config":
+			if in.IsNull() {
+				in.Skip()
+				out.RedisConfig = nil
+			} else {
+				if out.RedisConfig == nil {
+					out.RedisConfig = new(RedisConfig)
+				}
+				(*out.RedisConfig).UnmarshalEasyJSON(in)
+			}
+		case "oss_config":
+			if in.IsNull() {
+				in.Skip()
+				out.OssConfig = nil
+			} else {
+				if out.OssConfig == nil {
+					out.OssConfig = new(OssConfig)
+				}
+				(*out.OssConfig).UnmarshalEasyJSON(in)
+			}
+		case "es_config":
+			if in.IsNull() {
+				in.Skip()
+				out.EsConfig = nil
+			} else {
+				if out.EsConfig == nil {
+					out.EsConfig = new(EsConfig)
+				}
+				(*out.EsConfig).UnmarshalEasyJSON(in)
+			}
+		case "rabbit_mq_config":
+			if in.IsNull() {
+				in.Skip()
+				out.RabbitMQConfig = nil
+			} else {
+				if out.RabbitMQConfig == nil {
+					out.RabbitMQConfig = new(RabbitMQConfig)
+				}
+				(*out.RabbitMQConfig).UnmarshalEasyJSON(in)
+			}
+		case "wechat_mini_config":
+			if in.IsNull() {
+				in.Skip()
+				out.WechatMiniConfig = nil
+			} else {
+				if out.WechatMiniConfig == nil {
+					out.WechatMiniConfig = new(WechatMiniConfig)
+				}
+				(*out.WechatMiniConfig).UnmarshalEasyJSON(in)
+			}
+		case "wechat_oa_config":
+			if in.IsNull() {
+				in.Skip()
+				out.WechatOaConfig = nil
+			} else {
+				if out.WechatOaConfig == nil {
+					out.WechatOaConfig = new(WechatOaConfig)
+				}
+				(*out.WechatOaConfig).UnmarshalEasyJSON(in)
+			}
+		case "wechat_open_config":
+			if in.IsNull() {
+				in.Skip()
+				out.WechatOpenConfig = nil
+			} else {
+				if out.WechatOpenConfig == nil {
+					out.WechatOpenConfig = new(WechatOpenConfig)
+				}
+				(*out.WechatOpenConfig).UnmarshalEasyJSON(in)
+			}
+		case "wechat_pay_config":
+			if in.IsNull() {
+				in.Skip()
+				out.WechatPayConfig = nil
+			} else {
+				if out.WechatPayConfig == nil {
+					out.WechatPayConfig = new(WechatPayConfig)
+				}
+				(*out.WechatPayConfig).UnmarshalEasyJSON(in)
+			}
+		case "ali_pay_config":
+			if in.IsNull() {
+				in.Skip()
+				out.AliPayConfig = nil
+			} else {
+				if out.AliPayConfig == nil {
+					out.AliPayConfig = new(AliPayConfig)
+				}
+				(*out.AliPayConfig).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -915,134 +955,99 @@ func easyjson4db26ec9EncodeGithubComWiidzGoutilStructsConfigStruct9(out *jwriter
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"alipay_app_id\":"
+		const prefix string = ",\"mysql_config\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
 		} else {
 			out.RawString(prefix)
 		}
-		out.String(string(in.AppID))
+		if in.MysqlConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.MysqlConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"alipay_private_key\":"
+		const prefix string = ",\"redis_config\":"
 		out.RawString(prefix)
-		out.String(string(in.PrivateKey))
+		if in.RedisConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.RedisConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_pay_secret\":"
+		const prefix string = ",\"oss_config\":"
 		out.RawString(prefix)
-		out.String(string(in.Secret))
+		if in.OssConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.OssConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_pay_mch_id\":"
+		const prefix string = ",\"es_config\":"
 		out.RawString(prefix)
-		out.String(string(in.MchID))
+		if in.EsConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.EsConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_pay_cert_uri\":"
+		const prefix string = ",\"rabbit_mq_config\":"
 		out.RawString(prefix)
-		out.String(string(in.CertURI))
+		if in.RabbitMQConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.RabbitMQConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_pay_key_uri\":"
+		const prefix string = ",\"wechat_mini_config\":"
 		out.RawString(prefix)
-		out.String(string(in.KeyURI))
+		if in.WechatMiniConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.WechatMiniConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_pay_cert_content\":"
+		const prefix string = ",\"wechat_oa_config\":"
 		out.RawString(prefix)
-		out.String(string(in.CertContent))
+		if in.WechatOaConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.WechatOaConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"wechat_oa_app_secret\":"
+		const prefix string = ",\"wechat_open_config\":"
 		out.RawString(prefix)
-		out.String(string(in.AppSecret))
+		if in.WechatOpenConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.WechatOpenConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"host\":"
+		const prefix string = ",\"wechat_pay_config\":"
 		out.RawString(prefix)
-		out.String(string(in.Host))
+		if in.WechatPayConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.WechatPayConfig).MarshalEasyJSON(out)
+		}
 	}
 	{
-		const prefix string = ",\"username\":"
+		const prefix string = ",\"ali_pay_config\":"
 		out.RawString(prefix)
-		out.String(string(in.Username))
-	}
-	{
-		const prefix string = ",\"password\":"
-		out.RawString(prefix)
-		out.String(string(in.Password))
-	}
-	{
-		const prefix string = ",\"port\":"
-		out.RawString(prefix)
-		out.String(string(in.Port))
-	}
-	{
-		const prefix string = ",\"oss_access_key_id\":"
-		out.RawString(prefix)
-		out.String(string(in.AccessKeyID))
-	}
-	{
-		const prefix string = ",\"oss_access_key_secret\":"
-		out.RawString(prefix)
-		out.String(string(in.AccessKeySecret))
-	}
-	{
-		const prefix string = ",\"oss_end_point\":"
-		out.RawString(prefix)
-		out.String(string(in.EndPoint))
-	}
-	{
-		const prefix string = ",\"oss_bucket_name\":"
-		out.RawString(prefix)
-		out.String(string(in.BucketName))
-	}
-	{
-		const prefix string = ",\"ip\":"
-		out.RawString(prefix)
-		out.String(string(in.IP))
-	}
-	{
-		const prefix string = ",\"idle_timeout\":"
-		out.RawString(prefix)
-		out.Int(int(in.IdleTimeout))
-	}
-	{
-		const prefix string = ",\"datebase\":"
-		out.RawString(prefix)
-		out.Int(int(in.Database))
-	}
-	{
-		const prefix string = ",\"max_active\":"
-		out.RawString(prefix)
-		out.Int(int(in.MaxActive))
-	}
-	{
-		const prefix string = ",\"max_idle\":"
-		out.RawString(prefix)
-		out.Int(int(in.MaxIdle))
-	}
-	{
-		const prefix string = ",\"db_name\":"
-		out.RawString(prefix)
-		out.String(string(in.DbName))
-	}
-	{
-		const prefix string = ",\"charset\":"
-		out.RawString(prefix)
-		out.String(string(in.Charset))
-	}
-	{
-		const prefix string = ",\"collation\":"
-		out.RawString(prefix)
-		out.String(string(in.Collation))
-	}
-	{
-		const prefix string = ",\"setting_table_name\":"
-		out.RawString(prefix)
-		out.String(string(in.SettingTableName))
+		if in.AliPayConfig == nil {
+			out.RawString("null")
+		} else {
+			(*in.AliPayConfig).MarshalEasyJSON(out)
+		}
 	}
 	out.RawByte('}')
 }
