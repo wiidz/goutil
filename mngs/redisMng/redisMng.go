@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var config *configStruct.RedisConfig
+var pool redis.Pool
 
 /**
  * @func：实例化一个redis连接池
@@ -16,12 +16,33 @@ var config *configStruct.RedisConfig
  */
 type RedisMng struct {
 	//config configStruct.Redis
-	Pool redis.Pool
 	Conn redis.Conn
 }
 
-func Init(redisConfig *configStruct.RedisConfig){
-	config = redisConfig
+func Init(redisConfig *configStruct.RedisConfig) (err error){
+	var config = redisConfig
+	pool = redis.Pool{
+		MaxActive:   config.MaxActive,
+		MaxIdle:     config.MaxIdle,
+		IdleTimeout: time.Duration(config.IdleTimeout),
+		Dial: func() (redis.Conn, error) {
+			redisURL := config.IP + ":" + config.Port
+			var conn redis.Conn
+			conn, err = redis.Dial("tcp", redisURL)
+			if err != nil {
+				fmt.Println("【redis】", err)
+				return nil, err
+			}
+
+			if _, err := conn.Do("AUTH", config.Password); err != nil {
+				fmt.Println("【redis-auth】", err)
+				conn.Close()
+				return nil, err
+			}
+			return conn, err
+		},
+	}
+	return
 }
 
 /**
@@ -31,26 +52,6 @@ func Init(redisConfig *configStruct.RedisConfig){
  */
 func NewRedisMng() *RedisMng {
 	redisMng := RedisMng{}
-	redisMng.Pool = redis.Pool{
-		MaxActive:   config.MaxActive,
-		MaxIdle:     config.MaxIdle,
-		IdleTimeout: time.Duration(config.IdleTimeout),
-		Dial: func() (redis.Conn, error) {
-			redisURL := config.IP + ":" + config.Port
-			c, err := redis.Dial("tcp", redisURL)
-			if err != nil {
-				fmt.Println("【redis】", err)
-				return nil, err
-			}
-
-			if _, err := c.Do("AUTH", config.Password); err != nil {
-				fmt.Println("【redis-auth】", err)
-				c.Close()
-				return nil, err
-			}
-			return c, err
-		},
-	}
 	return &redisMng
 }
 
@@ -64,7 +65,7 @@ func NewRedisMng() *RedisMng {
 func (mng *RedisMng) GetString(key string) (string, error) {
 
 	//【1】取出一条连接
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	//【2】读取值
@@ -87,7 +88,7 @@ func (mng *RedisMng) GetString(key string) (string, error) {
 func (mng *RedisMng) Get(key string) (interface{}, error) {
 
 	//【1】取出一条连接
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	//【2】读取值
@@ -111,7 +112,7 @@ func (mng *RedisMng) Get(key string) (interface{}, error) {
 func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
 
 	//【1】取出一条连接
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	//【2】获取redis连接
@@ -143,7 +144,7 @@ func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
  */
 func (mng *RedisMng) HGet(key_name, field string) (interface{}, error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := redis.String(rc.Do("hget", key_name, field))
@@ -157,7 +158,7 @@ func (mng *RedisMng) HGet(key_name, field string) (interface{}, error) {
  */
 func (mng *RedisMng) HSet(key_name, field string, value interface{}) (interface{}, error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := rc.Do("hset", key_name, field, value)
@@ -171,7 +172,7 @@ func (mng *RedisMng) HSet(key_name, field string, value interface{}) (interface{
  */
 func (mng *RedisMng) HDel(key_name string, fields ...string) (interface{}, error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := rc.Do("hdel", key_name, fields)
@@ -186,7 +187,7 @@ func (mng *RedisMng) HDel(key_name string, fields ...string) (interface{}, error
  */
 
 func (mng *RedisMng) HExists(key_name, field_name string) (interface{}, error) {
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := rc.Do("hexists", key_name, field_name)
@@ -202,7 +203,7 @@ func (mng *RedisMng) HExists(key_name, field_name string) (interface{}, error) {
 //
 func (mng *RedisMng) HKeys(key_name string) (interface{}, error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := redis.Strings(rc.Do("hkeys", key_name))
@@ -219,7 +220,7 @@ func (mng *RedisMng) HKeys(key_name string) (interface{}, error) {
 //
 func (mng *RedisMng) HIncrby(key_name, field_name, incr_by_number interface{}) (res interface{}, err error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := rc.Do("hincrby", key_name, field_name, incr_by_number)
@@ -237,7 +238,7 @@ func (mng *RedisMng) HIncrby(key_name, field_name, incr_by_number interface{}) (
 //
 func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 
-	rc := mng.Pool.Get()
+	rc := pool.Get()
 	defer rc.Close()
 
 	result, err := redis.String(rc.Do("hlen", key_name))

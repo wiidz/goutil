@@ -11,6 +11,13 @@ type AppProfile struct {
 	Version string
 }
 
+// CheckStart 约定启动时要验证的项目
+type CheckStart struct {
+	Mysql bool   //
+	Redis bool
+	Es bool
+}
+
 // BaseConfig 参数
 type BaseConfig struct {
 	Profile *AppProfile

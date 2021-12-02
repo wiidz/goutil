@@ -9,12 +9,11 @@ import (
 	"time"
 )
 
-var SingletonAppMng *AppMng
 var cacheM = memoryMng.NewCacheMng()
 var mysqlM = mysqlMng.NewMysqlMng()
 
 // GetSingletonAppMng : 获取单例app管理器
-func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig) (mng *AppMng, err error) {
+func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig,checkStart *configStruct.CheckStart) (mng *AppMng, err error) {
 
 	//【1】从缓存中提取
 	res, isExist := cacheM.Get("app-" + typeHelper.Uint64ToStr(appID) + "-config")
@@ -28,28 +27,34 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 	}
 
 	//【2】初始化mysql
-	err = mysqlMng.Init(mysqlConfig)
-	if err != nil {
-		return
+	if checkStart.Mysql {
+		//【2-1】基础配置
+		err = mysqlMng.Init(mng.BaseConfig.MysqlConfig)
+		if err != nil {
+			return
+		}
+		//【2-2】基础配置
+		mng.BaseConfig, err = mng.SetBaseConfig(mysqlConfig.DbName, mysqlConfig.SettingTableName)
+		if err != nil {
+			return
+		}
+		mng.BaseConfig.MysqlConfig = mysqlConfig
 	}
-
-	//【3】基础配置
-	mng.BaseConfig, err = mng.SetBaseConfig(mysqlConfig.DbName, mysqlConfig.SettingTableName)
-	if err != nil {
-		return
-	}
-	mng.BaseConfig.MysqlConfig = mysqlConfig
 
 	//【4】初始化redis、es
-	redisMng.Init(mng.BaseConfig.RedisConfig)
+	if checkStart.Redis {
+		err = redisMng.Init(mng.BaseConfig.RedisConfig)
+		if err != nil {
+			return
+		}
+	}
+
 
 	//【3】项目配置
 	mng.ProjectConfig.Build()
 
 	//【5】写入缓存
 	cacheM.Set("app-"+typeHelper.Uint64ToStr(appID)+"-config", mng, time.Minute*30)
-
-	SingletonAppMng = mng
 
 	//【4】返回
 	return
