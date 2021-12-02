@@ -9,7 +9,7 @@ import (
 func TestGetLbsMng(t *testing.T){
 	t.Log("start")
 	lbsM := lbsMng.GetLbsMng(&configStruct.AliApiConfig{
-		AppCode:   "7191c7623e4043388c6a7d06f6589997",
+		AppCode:   "",
 		AppID:     "",
 		AppSecret: "",
 	})
@@ -21,5 +21,5 @@ func TestGetLbsMng(t *testing.T){
 		t.Log("err", err)
 	}
 
-	t.Log("res", res,	res.AddressComponent)
+	t.Log("res", res)
 }
