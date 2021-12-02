@@ -464,7 +464,7 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
 
-	json.Unmarshal(data, &iStruct)
+	err = json.Unmarshal(data, &iStruct)
 
 	//【8】返回
 	return iStruct, &resp.Header, resp.StatusCode, err
