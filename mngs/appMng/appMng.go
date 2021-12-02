@@ -185,9 +185,9 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 
 func getAliApiConfig(rows []*DbSettingRow) *configStruct.AliApiConfig {
 	return &configStruct.AliApiConfig{
-		AppID:     getRow(rows, "ali", "app_id", "", "").Value,
-		AppSecret: getRow(rows, "ali", "app_secret", "", "").Value,
-		AppCode:   getRow(rows, "ali", "app_code", "", "").Value,
+		AppID:     getRow(rows, "ali", "api", "app_id", "").Value,
+		AppSecret: getRow(rows, "ali", "api", "app_secret", "").Value,
+		AppCode:   getRow(rows, "ali", "api", "app_code", "").Value,
 	}
 }
 
