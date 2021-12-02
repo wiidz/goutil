@@ -18,7 +18,7 @@ type MysqlMng struct {
 	TransConn *gorm.DB // 事务会话
 }
 
-func Init(config *configStruct.MysqlConfig){
+func Init(config *configStruct.MysqlConfig) (err error) {
 	//【1】构建DSN
 	dsn := config.Username + ":" + config.Password +
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
@@ -29,7 +29,6 @@ func Init(config *configStruct.MysqlConfig){
 
 	//【3】构建DB对象
 	log.Println("【mysql-DSN】",dsn)
-	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -40,9 +39,7 @@ func Init(config *configStruct.MysqlConfig){
 	sqlDB.SetMaxIdleConns(5)                   //最大空闲连接数
 	sqlDB.SetMaxOpenConns(10)                  //最大连接数
 	sqlDB.SetConnMaxLifetime(time.Second * 10) //设置连接空闲超时
-
-	//err := sqlDB.Ping()
-	//log.Println("err", err)
+	return
 }
 
 /**

@@ -28,7 +28,10 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 	}
 
 	//【2】初始化mysql
-	mysqlMng.Init(mysqlConfig)
+	err = mysqlMng.Init(mysqlConfig)
+	if err != nil {
+		return
+	}
 
 	//【3】基础配置
 	mng.BaseConfig, err = mng.SetBaseConfig(mysqlConfig.DbName, mysqlConfig.SettingTableName)
@@ -138,7 +141,7 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 		No:      getRow(rows, "app", "no", "").Value,
 		Name:    getRow(rows, "app", "name", "").Value,
 		Host:    getRow(rows, "app", "host", "").Value,
-		Debug:   getRow(rows, "app", "debug", "").Value == "0", // 0 = 调试 ， 1 = 生产
+		Debug:   getRow(rows, "app", "debug", "").Value == "0", // 0=生产，1=调试
 		Version: getRow(rows, "app", "version", "").Value,
 	}
 }
