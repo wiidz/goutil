@@ -1,8 +1,28 @@
 package appMng
 
 import (
+	"github.com/wiidz/goutil/structs/configStruct"
 	"time"
 )
+
+type RunningMode int8           // 脚本运行模式
+const Singleton RunningMode = 1 // 单例
+const Multiton RunningMode = 2  // 多例
+
+type SqlConfigLocation int8           // 配置文件存放位置
+const LocalFile SqlConfigLocation = 1 // 本地文件，在/configs/目录下
+const SqlRow SqlConfigLocation = 2    // 总库记录，例如center库中存放了以appID为主键的配置记录
+
+type AppMng struct {
+	ID                uint64            `gorm:"column:id" json:"id"`
+	// RunningMode       RunningMode       // 脚本运行模式
+	// SqlConfigLocation SqlConfigLocation // sql配置存放位置
+	AppNo             string            `gorm:"column:app_no" json:"app_no"`
+	AppName           string            `gorm:"column:app_name" json:"app_name"`
+	Location          *time.Location    `gorm:"-" json:"-"`
+	BaseConfig        *configStruct.BaseConfig
+	ProjectConfig     configStruct.ProjectConfig
+}
 
 /******sql******
 CREATE TABLE `u_setting` (

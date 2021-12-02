@@ -8,7 +8,7 @@ import (
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"github.com/silenceper/wechat/v2/miniprogram/encryptor"
 	"github.com/silenceper/wechat/v2/miniprogram/qrcode"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/mngs/appMng"
 )
 
 // MiniMng 微信小程序管理器
@@ -24,7 +24,7 @@ func NewMiniMng(appID string, appSecret string) *MiniMng {
 
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中
-	redisConfig := configMng.GetRedis()
+	redisConfig := appMng.SingletonAppMng.BaseConfig.RedisConfig
 	redisOpts := &cache.RedisOpts{
 		Host:     redisConfig.IP + ":" + redisConfig.Port,
 		Password: redisConfig.Password,
