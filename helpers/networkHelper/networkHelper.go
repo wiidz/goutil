@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
@@ -13,6 +14,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"reflect"
@@ -398,6 +400,14 @@ func  RequestJson(method Method, targetURL string, params map[string]interface{}
 	resp, _ := client.Do(request)
 	defer resp.Body.Close()
 
+
+	b, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(string(b))
+
 	//【7】读取body
 	data, err := ioutil.ReadAll(resp.Body)
 
@@ -455,6 +465,7 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	//【5-1】增加content-Length
 	if method != 1{
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
+		request.Header.Add("Content-type", "application/json;charset=utf-8")
 	}
 
 	//【6】发送请求
@@ -462,9 +473,12 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	defer resp.Body.Close()
 
 	//【7】读取body
-	data, err := ioutil.ReadAll(resp.Body)
+	resStr, err := ioutil.ReadAll(resp.Body)
 
-	err = json.Unmarshal(data, &iStruct)
+	log.Println("resStr",string(resStr))
+
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	err = json2.Unmarshal(resStr, iStruct)
 
 	//【8】返回
 	return iStruct, &resp.Header, resp.StatusCode, err
