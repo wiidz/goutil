@@ -1,6 +1,9 @@
 package appMng
 
-import "log"
+import (
+	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
+)
 
 type CustomerConfig  struct {
 	TestConfig *TestConfig
@@ -20,7 +23,7 @@ type TestConfig struct {
 
 func test(){
 	//appM,_ := appMng.GetAppMng(1,"a_space","a_setting",&CustomerConfig{})
-	appM,_ := GetSingletonAppMng(1,&MysqlConfig{
+	appM,_ := GetSingletonAppMng(1,&configStruct.MysqlConfig{
 		Host:             "localhost",
 		Port:             "3306",
 		Username:         "test",
