@@ -25,7 +25,7 @@ func NewMiniMng(redisC *configStruct.RedisConfig,miniC *configStruct.WechatMiniC
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中
 	redisOpts := &cache.RedisOpts{
-		Host:     redisC.IP + ":" + redisC.Port,
+		Host:     redisC.Host + ":" + redisC.Port,
 		Password: redisC.Password,
 	}
 	redisCache := cache.NewRedis(redisOpts)
