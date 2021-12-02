@@ -28,7 +28,7 @@ func (mng *LbsMng)ReGeo(longitude,latitude string)(*ReGeoData,error){
 		"location": longitude + "," + latitude,
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	},&ReGeoData{})
+	},ReGeoData{})
 
 	if err != nil {
 		return nil,err
