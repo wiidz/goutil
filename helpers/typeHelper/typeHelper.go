@@ -474,6 +474,13 @@ func JsonDecodeMap(jsonStr string)(parsedData map[string]interface{}){
 	return
 }
 
+// JsonDecodeWithStruct 解码json
+func  JsonDecodeWithStruct(jsonStr string, iStruct interface{}) interface{} {
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal([]byte(jsonStr), &iStruct)
+	return iStruct
+}
+
 
 // JsonDecodeInt64Slice json解码至int64切片
 func  JsonDecodeInt64Slice(jsonStr string) []int64 {
@@ -507,11 +514,7 @@ func  JsonDecodeIntSlice(jsonStr string) []int {
 	return data
 }
 
-// JsonDecode 解码json
-func  JsonDecodeWithStruct(jsonStr string, istruct interface{}) interface{} {
-	_ = json.Unmarshal([]byte(jsonStr), &istruct)
-	return istruct
-}
+
 
 // InterfaceSlice2MapSlice
 func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
