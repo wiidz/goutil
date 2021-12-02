@@ -29,8 +29,7 @@ func Init(redisC *configStruct.RedisConfig) (err error){
 		Dial: func() (redis.Conn, error) {
 			redisURL := redisC.Host + ":" + redisC.Port
 			log.Println("【redis-dsn】",redisURL)
-			var conn redis.Conn
-			conn, err = redis.Dial("tcp", redisURL)
+			conn, err := redis.Dial("tcp", redisURL)
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
 				return nil, err
@@ -44,7 +43,7 @@ func Init(redisC *configStruct.RedisConfig) (err error){
 			return conn, err
 		},
 	}
-	log.Println("pool",pool)
+	_,err = pool.Dial()
 	return
 }
 
