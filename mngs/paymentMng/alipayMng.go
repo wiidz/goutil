@@ -6,16 +6,16 @@ import (
 	"github.com/go-pay/gopay/alipay"
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/wiidz/goutil/helpers/typeHelper"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 type AliPayMng struct {
 	Client *alipay.Client
-	Config *configMng.AliPayConfig
+	Config *configStruct.AliPayConfig
 }
 
 // getAliPayInstance 获取实例
-func getAliPayInstance(config *configMng.AliPayConfig) *AliPayMng {
+func getAliPayInstance(config *configStruct.AliPayConfig) *AliPayMng {
 
 	var alipayMng = &AliPayMng{
 		Config: config,
@@ -55,14 +55,8 @@ func getAliPayInstance(config *configMng.AliPayConfig) *AliPayMng {
 	return alipayMng
 }
 
-// NewAliPayMngSingle 根据configs里的配置文件生成单例
-func NewAliPayMngSingle() *AliPayMng {
-	config := configMng.GetAliPay()
-	return getAliPayInstance(config)
-}
-
 // NewAliPayMng 根据传入的config生成管理器
-func NewAliPayMng(config *configMng.AliPayConfig) *AliPayMng {
+func NewAliPayMng(config *configStruct.AliPayConfig) *AliPayMng {
 	return getAliPayInstance(config)
 }
 

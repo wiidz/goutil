@@ -4,8 +4,8 @@ import "time"
 
 // AppProfile App资料
 type AppProfile struct {
-	Host       string // host地址
-	Debug      bool   // 是否调试模式
+	Host    string // host地址
+	Debug   bool   // 是否调试模式
 	No      string
 	Name    string
 	Version string
@@ -97,18 +97,23 @@ type WechatOpenConfig struct {
 
 // WechatPayConfig 微信支付参数
 type WechatPayConfig struct {
-	AppID       string `gorm:"column:wechat_pay_app_id" json:"wechat_pay_app_id"`             //【微信支付】appID
-	Secret      string `gorm:"column:wechat_pay_secret" json:"wechat_pay_secret"`             //【微信支付】密钥
-	MchID       string `gorm:"column:wechat_pay_mch_id" json:"wechat_pay_mch_id"`             //【微信支付】商户号
-	CertURI     string `gorm:"column:wechat_pay_cert_uri" json:"wechat_pay_cert_uri"`         //【微信支付】公钥文件
-	KeyURI      string `gorm:"column:wechat_pay_key_uri" json:"wechat_pay_key_uri"`           //【微信支付】私钥文件
-	CertContent string `gorm:"column:wechat_pay_cert_content" json:"wechat_pay_cert_content"` //【微信支付】私钥文件内容
+	AppID           string `gorm:"column:wechat_pay_app_id" json:"wechat_pay_app_id"`             //【微信支付】appID
+	ApiKey          string `gorm:"column:wechat_pay_secret" json:"wechat_pay_secret"`             //【微信支付】api密钥
+	MchID           string `gorm:"column:wechat_pay_mch_id" json:"wechat_pay_mch_id"`             //【微信支付】商户号
+	CertURI         string `gorm:"column:wechat_pay_cert_uri" json:"wechat_pay_cert_uri"`         //【微信支付】公钥文件
+	KeyURI          string `gorm:"column:wechat_pay_key_uri" json:"wechat_pay_key_uri"`           //【微信支付】私钥文件
+	CertContent     string `gorm:"column:wechat_pay_cert_content" json:"wechat_pay_cert_content"` //【微信支付】私钥文件内容
+	NotifyURL       string // 【微信支付】支付回调地址
+	RefundNotifyURL string // 【微信支付】退款回调地址
+	IsProd          bool   // 【微信支付】是否是生产模式
 }
 
 // AliPayConfig 支付宝参数
 type AliPayConfig struct {
 	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id"`           //【支付宝】appID
 	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key"` //【支付宝】密钥（PKCS1）
+	NotifyURL  string // 【支付宝】回调地址
+	IsProd     bool   // 【支付宝】是否是生产模式
 }
 
 type ProjectConfig interface {

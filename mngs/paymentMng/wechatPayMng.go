@@ -6,23 +6,23 @@ import (
 	"github.com/go-pay/gopay/pkg/util"
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat"
-	"github.com/wiidz/goutil/mngs/configMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
 	"strconv"
 	"time"
 )
 
 type WechatPayMng struct {
-	Config *configMng.WechatPayConfig
+	Config *configStruct.WechatPayConfig
 	Client *wechat.Client
 }
 
 // getWechatPayInstance 获取微信支付实例
-func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
+func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMng {
 
 	var wechatPayMng = &WechatPayMng{
 		Config: config,
-		Client: wechat.NewClient(config.AppID, config.MchID, config.PayKey, config.IsProd),
+		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, config.IsProd),
 	}
 
 	// 打开Debug开关，输出请求日志，默认关闭
@@ -39,21 +39,15 @@ func getWechatPayInstance(config *configMng.WechatPayConfig) *WechatPayMng {
 	//keyPath:= ""
 
 	//_ = wechatPayMng.Client.AddCertPemFilePath(Config.CertPath,Config.CertKeyPath)
-	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.CertFileContent))
+	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.CertContent))
 	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
 
 	// 添加微信pem证书
 	return wechatPayMng
 }
 
-// NewWechatPayMngSingle 从本地configs里的配置，生成单例
-func NewWechatPayMngSingle() *WechatPayMng {
-	config := configMng.GetWechatPay()
-	return getWechatPayInstance(config)
-}
-
 // NewWechatPayMng 根据传入的config，获取信的微信支付
-func NewWechatPayMng(config *configMng.WechatPayConfig) *WechatPayMng {
+func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMng {
 	return getWechatPayInstance(config)
 }
 
@@ -146,7 +140,7 @@ func (mng *WechatPayMng) UnifiedOrderJs(param *UnifiedOrderParam,openID string) 
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 
 	pac := "prepay_id=" + wxRsp.PrepayId
-	paySign := wechat.GetJsapiPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.PayKey)
+	paySign := wechat.GetJsapiPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.ApiKey)
 	xlog.Debug("paySign:", paySign)
 
 	return map[string]interface{}{
@@ -210,7 +204,7 @@ func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (paySi
 	log.Println("timeStamp", timeStamp)
 
 	pac := "prepay_id=" + wxRsp.PrepayId
-	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.PayKey)
+	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.ApiKey)
 	xlog.Debug("paySign:", paySign)
 
 	return

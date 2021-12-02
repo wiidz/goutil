@@ -74,6 +74,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.WechatMiniConfig = getWechatMiniConfig(rows)
 	config.WechatOaConfig = getWechatOaConfig(rows)
 	config.WechatOpenConfig = getWechatOpenConfig(rows)
+	config.WechatPayConfig = getWechatPayConfig(rows)
 	config.AliPayConfig = getAliPayConfig(rows)
 	config.OssConfig = getOssConfig(rows)
 	config.Profile = getAppProfile(rows)
@@ -118,11 +119,26 @@ func getWechatOpenConfig(rows []*DbSettingRow) *configStruct.WechatOpenConfig {
 		AppSecret: getRow(rows, "wechat", "open", "app_secret").Value,
 	}
 }
+func getWechatPayConfig(rows []*DbSettingRow) *configStruct.WechatPayConfig {
+	return &configStruct.WechatPayConfig{
+		AppID:           getRow(rows, "wechat", "pay", "app_id").Value,
+		ApiKey:          getRow(rows, "wechat", "pay", "api_key").Value,
+		MchID:           getRow(rows, "wechat", "pay", "mch_id").Value,
+		CertURI:         getRow(rows, "wechat", "pay", "cert_uri").Value,
+		KeyURI:          getRow(rows, "wechat", "pay", "key_uri").Value,
+		CertContent:     getRow(rows, "wechat", "pay", "cert_content").Value,
+		NotifyURL:       getRow(rows, "wechat", "pay", "notify_url").Value,
+		RefundNotifyURL: getRow(rows, "wechat", "pay", "refund_notify_url").Value,
+		IsProd:          getRow(rows, "wechat", "pay", "is_prod").Value == "1", // 0=调试，1=生产
+	}
+}
 
 func getAliPayConfig(rows []*DbSettingRow) *configStruct.AliPayConfig {
 	return &configStruct.AliPayConfig{
 		AppID:      getRow(rows, "ali", "pay", "app_id").Value,
 		PrivateKey: getRow(rows, "ali", "pay", "private_key").Value,
+		NotifyURL:  getRow(rows, "ali", "pay", "notify_url").Value,
+		IsProd:     getRow(rows, "ali", "pay", "is_prod").Value == "1", // 0=调试，1=生产
 	}
 }
 
