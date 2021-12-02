@@ -5,6 +5,7 @@ import (
 	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"time"
 )
 
@@ -26,12 +27,12 @@ type AppMng struct {
 	AppNo             string            `gorm:"column:app_no" json:"app_no"`
 	AppName           string            `gorm:"column:app_name" json:"app_name"`
 	Location          *time.Location    `gorm:"-" json:"-"`
-	BaseConfig        *BaseConfig
-	ProjectConfig     ProjectConfig
+	BaseConfig        *configStruct.BaseConfig
+	ProjectConfig     configStruct.ProjectConfig
 }
 
 // GetSingletonAppMng : 获取单例app管理器
-func GetSingletonAppMng(appID uint64, mysqlConfig *MysqlConfig, configStruct ProjectConfig) (mng *AppMng, err error) {
+func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig) (mng *AppMng, err error) {
 
 	//【1】从缓存中提取
 	res, isExist := cacheM.Get("app-" + typeHelper.Uint64ToStr(appID) + "-config")
@@ -67,9 +68,9 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *MysqlConfig, configStruct Pro
 	return
 }
 
-func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *BaseConfig, err error) {
+func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *configStruct.BaseConfig, err error) {
 
-	config = &BaseConfig{}
+	config = &configStruct.BaseConfig{}
 
 	//【1】初始化sql
 	conn := mysqlM.GetDBConn(dbName)
@@ -100,8 +101,8 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location) {
 	return
 }
 
-func getMysqlConfig(rows []*DbSettingRow) *MysqlConfig {
-	return &MysqlConfig{
+func getMysqlConfig(rows []*DbSettingRow) *configStruct.MysqlConfig {
+	return &configStruct.MysqlConfig{
 		Host:     getRow(rows, "mysql", "host", "").Value,
 		Username: getRow(rows, "mysql", "username", "").Value,
 		Password: getRow(rows, "mysql", "password", "").Value,
@@ -109,36 +110,36 @@ func getMysqlConfig(rows []*DbSettingRow) *MysqlConfig {
 	}
 }
 
-func getWechatMiniConfig(rows []*DbSettingRow) *WechatMiniConfig {
-	return &WechatMiniConfig{
+func getWechatMiniConfig(rows []*DbSettingRow) *configStruct.WechatMiniConfig {
+	return &configStruct.WechatMiniConfig{
 		AppID:     getRow(rows, "wechat", "mini", "app_id").Value,
 		AppSecret: getRow(rows, "wechat", "mini", "app_secret").Value,
 	}
 }
 
-func getWechatOaConfig(rows []*DbSettingRow) *WechatOaConfig {
-	return &WechatOaConfig{
+func getWechatOaConfig(rows []*DbSettingRow) *configStruct.WechatOaConfig {
+	return &configStruct.WechatOaConfig{
 		AppID:     getRow(rows, "wechat", "oa", "app_id").Value,
 		AppSecret: getRow(rows, "wechat", "oa", "app_secret").Value,
 	}
 }
 
-func getWechatOpenConfig(rows []*DbSettingRow) *WechatOpenConfig {
-	return &WechatOpenConfig{
+func getWechatOpenConfig(rows []*DbSettingRow) *configStruct.WechatOpenConfig {
+	return &configStruct.WechatOpenConfig{
 		AppID:     getRow(rows, "wechat", "open", "app_id").Value,
 		AppSecret: getRow(rows, "wechat", "open", "app_secret").Value,
 	}
 }
 
-func getAliPayConfig(rows []*DbSettingRow) *AliPayConfig {
-	return &AliPayConfig{
+func getAliPayConfig(rows []*DbSettingRow) *configStruct.AliPayConfig {
+	return &configStruct.AliPayConfig{
 		AppID:      getRow(rows, "ali", "pay", "app_id").Value,
 		PrivateKey: getRow(rows, "ali", "pay", "private_key").Value,
 	}
 }
 
-func getOssConfig(rows []*DbSettingRow) *OssConfig {
-	return &OssConfig{
+func getOssConfig(rows []*DbSettingRow) *configStruct.OssConfig {
+	return &configStruct.OssConfig{
 		AccessKeyID:     getRow(rows, "ali", "oss", "access_key_id").Value,
 		AccessKeySecret: getRow(rows, "ali", "oss", "access_key_secret").Value,
 		Host:            getRow(rows, "ali", "oss", "host").Value,

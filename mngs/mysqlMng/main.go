@@ -3,7 +3,7 @@ package mysqlMng
 import (
 	"errors"
 	"fmt"
-	"github.com/wiidz/goutil/mngs/appMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -18,7 +18,7 @@ type MysqlMng struct {
 	TransConn *gorm.DB // 事务会话
 }
 
-func Init(config *appMng.MysqlConfig){
+func Init(config *configStruct.MysqlConfig){
 	//【1】构建DSN
 	dsn := config.Username + ":" + config.Password +
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
