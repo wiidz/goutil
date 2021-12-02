@@ -35,6 +35,8 @@ type BaseConfig struct {
 	WechatOpenConfig *WechatOpenConfig // 开放平台设定
 	WechatPayConfig  *WechatPayConfig  // 微信支付设定
 	AliPayConfig     *AliPayConfig     // 支付宝设定
+
+	AliApiConfig *AliApiConfig // 阿里云APi市场设定
 }
 
 // MysqlConfig mysql数据库参数
