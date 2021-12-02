@@ -21,7 +21,6 @@ type RedisMng struct {
 }
 
 func Init(redisC *configStruct.RedisConfig) (err error){
-	log.Println("redis-init")
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,
 		MaxIdle:     redisC.MaxIdle,

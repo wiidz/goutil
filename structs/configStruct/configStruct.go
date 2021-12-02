@@ -46,7 +46,12 @@ type MysqlConfig struct {
 	DbName           string `gorm:"column:db_name" json:"db_name"`
 	Charset          string
 	Collation        string
+	MaxOpenConns        int    `json:"max_open_conns"`                                          // 默认10
+	MaxIdle          int    `json:"max_idle"`                                            // 默认5
+	MaxLifeTime int    `json:"max_life_time"` // 最长生命周期（秒） 默认60
 	SettingTableName string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
+	TimeZone string // 时区
+	ParseTime bool
 }
 
 // EsConfig elastic search 设置
@@ -59,13 +64,13 @@ type EsConfig struct {
 
 // RedisConfig redis服务器设置
 type RedisConfig struct {
-	Host          string `json:"host"`
+	Host        string `json:"host"`
 	Port        string `json:"port"`
 	Password    string `json:"password"`
 	IdleTimeout int    `json:"idle_timeout"` // 默认60
-	Database    int    `json:"datebase"` // 默认0
-	MaxActive   int    `json:"max_active"` // 默认10
-	MaxIdle     int    `json:"max_idle"` // 默认10
+	Database    int    `json:"datebase"`     // 默认0
+	MaxActive   int    `json:"max_active"`   // 默认10
+	MaxIdle     int    `json:"max_idle"`     // 默认10
 }
 
 // RabbitMQConfig rabbit mq配置

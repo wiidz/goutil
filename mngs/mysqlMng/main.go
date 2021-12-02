@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -24,21 +25,21 @@ func Init(config *configStruct.MysqlConfig) (err error) {
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
 		"?charset=" + config.Charset +
 		"&collation=" + config.Collation +
-		"&loc=Asia%2FShanghai" +
-		"&parseTime=true"
+		"&loc=" +config.TimeZone+
+		"&parseTime="+strconv.FormatBool(config.ParseTime)
 
 	//【3】构建DB对象
-	log.Println("【mysql-DSN】",dsn)
+	log.Println("【mysql-dsn】", dsn)
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Println("【mysql-init-err】",err)
+		log.Println("【mysql-init-err】", err)
 		return
 	}
 	sqlDB, _ := db.DB()
-	sqlDB.SetMaxIdleConns(5)                   //最大空闲连接数
-	sqlDB.SetMaxOpenConns(10)                  //最大连接数
-	sqlDB.SetConnMaxLifetime(time.Second * 10) //设置连接空闲超时
+	sqlDB.SetMaxIdleConns(config.MaxIdle)                                     //最大空闲连接数
+	sqlDB.SetMaxOpenConns(config.MaxOpenConns)                                //最大连接数
+	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(config.MaxLifeTime)) //设置连接空闲超时
 	return
 }
 
@@ -68,21 +69,18 @@ func (mysql *MysqlMng) GetConn() *gorm.DB {
 	})
 }
 
-
 // GetDBConn 获取一个新的会话，并且切换数据库名
 func (mysql *MysqlMng) GetDBConn(dbName string) *gorm.DB {
 	return db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
-	}).Exec("use "+dbName)
+	}).Exec("use " + dbName)
 }
-
 
 // GetDBTransConn 获取一个新的会话，并且切换数据库名
 func (mysql *MysqlMng) GetDBTransConn(dbName string) *gorm.DB {
-	return db.Begin().Exec("use "+dbName)
+	return db.Begin().Exec("use " + dbName)
 }
-
 
 // 开启一个事务会话
 func (mysql *MysqlMng) NewTransConn() {
@@ -158,7 +156,7 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 						vals = append(vals, (int8Slice)[k])
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
-				}else if uint64Slice, ok := v.([]interface{})[1].([]uint64); ok {
+				} else if uint64Slice, ok := v.([]interface{})[1].([]uint64); ok {
 					for k := 0; k < len((uint64Slice)); k++ {
 						whereSQL += "?,"
 						vals = append(vals, (uint64Slice)[k])
@@ -290,7 +288,7 @@ func RequireExist(conn *gorm.DB, condition map[string]interface{}, tableName str
 }
 
 // WhereFindAll 条件查询全部
-func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) ( err error) {
+func WhereFindAll(conn *gorm.DB, condition map[string]interface{}, rows interface{}) (err error) {
 
 	cons, vals, err := WhereBuild(condition)
 	if err != nil {
@@ -328,10 +326,8 @@ func GetOffset(pageNow, pageSize int) int {
 	return offset
 }
 
-
-
 // SimpleUpdate 简单更新操作
-func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model interface{},tableName string)(rowsAffected int64,err error) {
+func SimpleUpdate(conn *gorm.DB, condition, data map[string]interface{}, model interface{}, tableName string) (rowsAffected int64, err error) {
 
 	//【1】判断条件是否为空
 	if len(condition) == 0 {
@@ -346,10 +342,10 @@ func SimpleUpdate(conn *gorm.DB,condition,data map[string]interface{},model inte
 	}
 
 	//【3】拆分条件
-	cons,vals, _ := WhereBuild(condition)
+	cons, vals, _ := WhereBuild(condition)
 
 	//【4】执行操作
-	conn = conn.Debug().Table(tableName).Model(model).Where(cons,vals...).Updates(data)
+	conn = conn.Debug().Table(tableName).Model(model).Where(cons, vals...).Updates(data)
 
 	//【5】返回
 	err = conn.Error
