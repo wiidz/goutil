@@ -30,6 +30,10 @@ func test(){
 		Password:         "test",
 		DbName:           "a_space",
 		SettingTableName: "a_setting",
-	},&CustomerConfig{})
+	},&CustomerConfig{},&configStruct.CheckStart{
+		Mysql: true,
+		Redis: false,
+		Es:    false,
+	})
 	log.Println("appM",appM.BaseConfig.Location,appM.ProjectConfig.(*CustomerConfig).TestConfig.Number)
 }
