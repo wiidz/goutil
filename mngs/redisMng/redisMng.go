@@ -3,11 +3,11 @@ package redisMng
 import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"github.com/wiidz/goutil/mngs/appMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"time"
 )
 
-var config *appMng.RedisConfig
+var config *configStruct.RedisConfig
 
 /**
  * @func：实例化一个redis连接池
@@ -20,7 +20,7 @@ type RedisMng struct {
 	Conn redis.Conn
 }
 
-func Init(redisConfig *appMng.RedisConfig){
+func Init(redisConfig *configStruct.RedisConfig){
 	config = redisConfig
 }
 
