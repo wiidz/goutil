@@ -8,7 +8,6 @@ import (
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"github.com/silenceper/wechat/v2/miniprogram/encryptor"
 	"github.com/silenceper/wechat/v2/miniprogram/qrcode"
-	"github.com/wiidz/goutil/mngs/appMng"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
@@ -21,21 +20,20 @@ type MiniMng struct {
 }
 
 // NewMiniMng 获取小程序管理器
-func NewMiniMng(config *configStruct.WechatMiniConfig) *MiniMng {
+func NewMiniMng(redisC *configStruct.RedisConfig,miniC *configStruct.WechatMiniConfig) *MiniMng {
 
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中
-	redisConfig := appMng.SingletonAppMng.BaseConfig.RedisConfig
 	redisOpts := &cache.RedisOpts{
-		Host:     redisConfig.IP + ":" + redisConfig.Port,
-		Password: redisConfig.Password,
+		Host:     redisC.IP + ":" + redisC.Port,
+		Password: redisC.Password,
 	}
 	redisCache := cache.NewRedis(redisOpts)
 
 	//【2】创建mini实例
 	cfg := &miniConfig.Config{
-		AppID:     config.AppID,
-		AppSecret: config.AppSecret,
+		AppID:     miniC.AppID,
+		AppSecret: miniC.AppSecret,
 		Cache:     redisCache,
 	}
 	wc := wechat.NewWechat()
@@ -43,8 +41,8 @@ func NewMiniMng(config *configStruct.WechatMiniConfig) *MiniMng {
 
 	//【3】返回
 	var wechatMng = MiniMng{
-		AppID:     config.AppID,
-		AppSecret: config.AppSecret,
+		AppID:     miniC.AppID,
+		AppSecret: miniC.AppSecret,
 		Client:    mini,
 	}
 	return &wechatMng
