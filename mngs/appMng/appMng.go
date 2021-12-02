@@ -29,7 +29,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 	//【2】初始化mysql
 	if checkStart.Mysql {
 		//【2-1】基础配置
-		err = mysqlMng.Init(mng.BaseConfig.MysqlConfig)
+		err = mysqlMng.Init(mysqlConfig)
 		if err != nil {
 			return
 		}
