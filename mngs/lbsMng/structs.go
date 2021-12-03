@@ -13,7 +13,7 @@ type ReGeoRes struct {
 
 type ReGeoData struct {
 	FormattedAddress string           `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
-	AddressComponent AddressComponent `json:"addressComponent"`
+	AddressComponent *AddressComponent `json:"addressComponent"`
 }
 
 type AddressComponent struct {
@@ -25,10 +25,10 @@ type AddressComponent struct {
 	AdCode        string      `json:"adcode"`   // 邮政编码：110105
 	Township      string      `json:"township"` // 乡镇：望京街道
 	TownCode      string      `json:"towncode"` // 乡镇编号：110105026000
-	Neighborhood  MetaPlace   `json:"neighborhood"`
-	Building      MetaPlace   `json:"building"`
-	StreetNumber  Street      `json:"streetNumber"`
-	BusinessAreas []MetaPlace `json:"businessAreas"`
+	Neighborhood  *MetaPlace   `json:"neighborhood"`
+	Building      *MetaPlace   `json:"building"`
+	StreetNumber  *Street      `json:"streetNumber"`
+	BusinessAreas []*MetaPlace `json:"businessAreas"`
 }
 
 type MetaPlace struct {

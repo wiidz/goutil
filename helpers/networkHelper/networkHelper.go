@@ -419,8 +419,6 @@ func  RequestJson(method Method, targetURL string, params map[string]interface{}
 
 }
 
-
-
 func  RequestJsonWithStruct(method Method, targetURL string, params map[string]interface{}, headers map[string]string,iStruct interface{}) (interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
@@ -475,14 +473,11 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	//【7】读取body
 	resStr, err := ioutil.ReadAll(resp.Body)
 
-	log.Println("resStr",string(resStr))
-
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	err = json2.Unmarshal(resStr, iStruct)
 
 	//【8】返回
 	return iStruct, &resp.Header, resp.StatusCode, err
-
 }
 
 

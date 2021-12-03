@@ -474,13 +474,6 @@ func JsonDecodeMap(jsonStr string)(parsedData map[string]interface{}){
 	return
 }
 
-// JsonDecodeWithStruct 解码json
-func  JsonDecodeWithStruct(jsonStr string, iStruct interface{}) interface{} {
-	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
-	_ = json2.Unmarshal([]byte(jsonStr), &iStruct)
-	return iStruct
-}
-
 
 // JsonDecodeInt64Slice json解码至int64切片
 func  JsonDecodeInt64Slice(jsonStr string) []int64 {
@@ -514,7 +507,13 @@ func  JsonDecodeIntSlice(jsonStr string) []int {
 	return data
 }
 
-
+// JsonDecodeWithStruct 带结构体的json解码
+// 	temp := ReGeoRes{}
+//	typeHelper.JsonDecodeWithStruct(tempStr,&temp)
+func  JsonDecodeWithStruct(jsonStr string, iStruct interface{}) {
+	_ = json.Unmarshal([]byte(jsonStr), &iStruct)
+	return
+}
 
 // InterfaceSlice2MapSlice
 func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
