@@ -10,10 +10,11 @@ type CustomerConfig  struct {
 }
 
 // Build : 这个方法完成设置的初始化
-func (config *CustomerConfig) Build(){
+func (config *CustomerConfig) Build() error{
 	config.TestConfig = &TestConfig{
 		Number:2,
 	}
+	return nil
 }
 
 // TestConfig 项目中的设置
