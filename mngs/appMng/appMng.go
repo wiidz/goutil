@@ -50,7 +50,11 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 	}
 
 	//【3】项目配置
-	mng.ProjectConfig.Build()
+	err = mng.ProjectConfig.Build()
+	if err != nil {
+		return
+	}
+
 
 	//【5】写入缓存
 	cacheM.Set("app-"+typeHelper.Uint64ToStr(appID)+"-config", mng, time.Minute*30)

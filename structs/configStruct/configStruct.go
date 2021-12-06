@@ -132,7 +132,7 @@ type AliPayConfig struct {
 }
 
 type ProjectConfig interface {
-	Build() // 构建参数
+	Build() error  // 构建参数
 }
 
 // AliApiConfig 阿里云市场提供的服务的基本配置
