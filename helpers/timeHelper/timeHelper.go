@@ -176,6 +176,21 @@ func (tm MyJsonTime) Day() int {
 	return temp.Day()
 }
 
+func (tm MyJsonTime) Hour() int {
+	temp := time.Time(tm)
+	return temp.Hour()
+}
+
+func (tm MyJsonTime) Minute() int {
+	temp := time.Time(tm)
+	return temp.Minute()
+}
+
+func (tm MyJsonTime) Second() int {
+	temp := time.Time(tm)
+	return temp.Second()
+}
+
 // WeekdayStrCn 返回中文星期
 func (tm MyJsonTime) WeekdayStrCn(style int) string {
 	temp := time.Time(tm)
