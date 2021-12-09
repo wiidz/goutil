@@ -90,10 +90,17 @@ func GetISO8601(date int64) string {
 
 type MyJsonTime time.Time
 
-// ParseFromDate 从DateStr 专程MyJsonTime
-func ParseFromDate(dateStr string) MyJsonTime {
+// ParseFromDateStr 从DateStr 转成 MyJsonTime
+func ParseFromDateStr(dateStr string) MyJsonTime {
 	local, _ := time.LoadLocation("Local")
 	temp, _ := time.ParseInLocation(HyphenDateStr, dateStr, local)
+	return MyJsonTime(temp)
+}
+
+// ParseFromTimeStr 从DateStr 转成 MyJsonTime
+func ParseFromTimeStr(dateStr string) MyJsonTime {
+	local, _ := time.LoadLocation("Local")
+	temp, _ := time.ParseInLocation(HyphenTimeStr, dateStr, local)
 	return MyJsonTime(temp)
 }
 
