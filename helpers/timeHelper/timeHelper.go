@@ -114,7 +114,6 @@ const (
 
 type MyJsonTime time.Time
 
-
 // GetTimePoint 实现它的json序列化方法 注意测试
 func (tm MyJsonTime) GetTimePoint() *time.Time {
 	//temp,_:= time.Parse("2006-01-02 15:04:05",tm.GetDateTimeStr())
@@ -168,6 +167,12 @@ func (tm MyJsonTime) IsNull() bool {
 func (tm MyJsonTime) AddDate(years int, months int, days int) MyJsonTime {
 	temp := time.Time(tm)
 	temp = temp.AddDate(years, months, days)
+	return MyJsonTime(temp)
+}
+
+func (tm MyJsonTime) Add(duration time.Duration) MyJsonTime {
+	temp := time.Time(tm)
+	temp = temp.Add(duration)
 	return MyJsonTime(temp)
 }
 
