@@ -104,11 +104,28 @@ func ParseFromTimeStr(dateStr string) MyJsonTime {
 	return MyJsonTime(temp)
 }
 
-// GetTimePoint 实现它的json序列化方法 注意测试
+
+// GetHyphenDateStr 获取 短横线 日期 字符串
+func (tm MyJsonTime) GetHyphenDateStr() string {
+	if tm.IsNull() {
+		return ""
+	}
+	return time.Time(tm).Format(HyphenDateStr)
+}
+
+// GetHyphenTimeStr 获取 短横线 日期+时间 字符串
+func (tm MyJsonTime) GetHyphenTimeStr() string {
+	if tm.IsNull() {
+		return ""
+	}
+	return time.Time(tm).Format(HyphenTimeStr)
+}
+
+// GetTimePoint 获取时间指针类型
 func (tm MyJsonTime) GetTimePoint() *time.Time {
 	//temp,_:= time.Parse("2006-01-02 15:04:05",tm.GetHyphenDateStrStr())
 	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation("2006-01-02 15:04:05", tm.GetHyphenDateStrStr(), local)
+	temp, _ := time.ParseInLocation(HyphenTimeStr, tm.GetHyphenDateStr(), local)
 
 	return &temp
 }
@@ -117,14 +134,6 @@ func (tm MyJsonTime) GetTimePoint() *time.Time {
 func (tm MyJsonTime) MarshalJSON() ([]byte, error) {
 	var stamp = fmt.Sprintf("\"%s\"", time.Time(tm).Format(HyphenTimeStr))
 	return []byte(stamp), nil
-}
-
-// GetHyphenDateStrStr 实现它的json序列化方法
-func (tm MyJsonTime) GetHyphenDateStrStr() string {
-	if tm.IsNull() {
-		return ""
-	}
-	return time.Time(tm).Format(HyphenTimeStr)
 }
 
 // GetSlashTimeStr 获取 斜杠 日期+时间 字符串
