@@ -64,7 +64,6 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		return
 	}
 
-
 	//【5】写入缓存
 	cacheM.Set("app-"+typeHelper.Uint64ToStr(appID)+"-config", mng, time.Minute*30)
 
@@ -88,15 +87,21 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 
 	//【2】初始化配置
 	config.Location = getLocationConfig(rows)
+	config.Profile = getAppProfile(rows)
+
+	config.RedisConfig = getRedisConfig(rows)
+	config.EsConfig = getEsConfig(rows)
+
+	config.OssConfig = getOssConfig(rows)
+
 	config.WechatMiniConfig = getWechatMiniConfig(rows)
 	config.WechatOaConfig = getWechatOaConfig(rows)
 	config.WechatOpenConfig = getWechatOpenConfig(rows)
 	config.WechatPayConfig = getWechatPayConfig(rows)
 	config.AliPayConfig = getAliPayConfig(rows)
-	config.OssConfig = getOssConfig(rows)
-	config.RedisConfig = getRedisConfig(rows)
-	config.Profile = getAppProfile(rows)
+
 	config.AliApiConfig = getAliApiConfig(rows)
+
 	return
 }
 
@@ -172,6 +177,15 @@ func getRedisConfig(rows []*DbSettingRow) *configStruct.RedisConfig {
 		Database:    typeHelper.Str2Int(getRow(rows, "redis", "database", "", "").Value),
 		MaxActive:   typeHelper.Str2Int(getRow(rows, "redis", "max_active", "", "10").Value),
 		MaxIdle:     typeHelper.Str2Int(getRow(rows, "redis", "max_idle", "", "10").Value),
+	}
+}
+
+func getEsConfig(rows []*DbSettingRow) *configStruct.EsConfig {
+	return &configStruct.EsConfig{
+		Host:     getRow(rows, "es", "host", "", "").Value,
+		Port:     getRow(rows, "es", "port", "", "").Value,
+		Password: getRow(rows, "es", "password", "", "").Value,
+		Username: getRow(rows, "es", "username", "", "").Value,
 	}
 }
 

@@ -19,8 +19,8 @@ type EsMng struct {
 // Init 初始化
 func Init(params *configStruct.EsConfig) (err error) {
 
-	dsn := params.Host+":"+params.Port
-	log.Println("【es-dsn】",dsn)
+	dsn := params.Host + ":" + params.Port
+	log.Println("【es-dsn】", dsn)
 
 	client, err = elastic.NewClient(
 		elastic.SetURL(dsn),
@@ -46,7 +46,6 @@ func (es *EsMng) Start() {
 func (es *EsMng) Stop() {
 	es.client.Stop()
 }
-
 
 // Add 添加数据
 func (es *EsMng) Add(db, id string, data interface{}) (err error) {
