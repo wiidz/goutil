@@ -251,12 +251,67 @@ func NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interfac
 }
 
 
-// UniqueMapByUint64key 根据某一个uint64键来去重
-func UniqueMapByUint64key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+// UniqueMapByUint64Key 根据某一个uint64键来去重
+func UniqueMapByUint64Key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
 	var uint64Map map[uint64]bool
 	var handledSlice []map[string]interface{}
 	for k :=range sourceSlice {
 		if _,ok := uint64Map[sourceSlice[k][keyName].(uint64)]; ok {
+			continue
+		}
+		handledSlice = append(handledSlice,sourceSlice[k])
+	}
+	return handledSlice
+}
+
+
+// UniqueMapByFloat64Key 根据某一个float64键来去重
+func UniqueMapByFloat64Key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+	var uint64Map map[float64]bool
+	var handledSlice []map[string]interface{}
+	for k :=range sourceSlice {
+		if _,ok := uint64Map[sourceSlice[k][keyName].(float64)]; ok {
+			continue
+		}
+		handledSlice = append(handledSlice,sourceSlice[k])
+	}
+	return handledSlice
+}
+
+
+// UniqueMapByStrKey 根据某一个str键来去重
+func UniqueMapByStrKey(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+	var uint64Map map[float64]bool
+	var handledSlice []map[string]interface{}
+	for k :=range sourceSlice {
+		if _,ok := uint64Map[sourceSlice[k][keyName].(float64)]; ok {
+			continue
+		}
+		handledSlice = append(handledSlice,sourceSlice[k])
+	}
+	return handledSlice
+}
+
+// UniqueMapByIntKey 根据某一个int键来去重
+func UniqueMapByIntKey(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+	var uint64Map map[int]bool
+	var handledSlice []map[string]interface{}
+	for k :=range sourceSlice {
+		if _,ok := uint64Map[sourceSlice[k][keyName].(int)]; ok {
+			continue
+		}
+		handledSlice = append(handledSlice,sourceSlice[k])
+	}
+	return handledSlice
+}
+
+
+// UniqueMapByInt64Key 根据某一个int64键来去重
+func UniqueMapByInt64Key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+	var uint64Map map[int64]bool
+	var handledSlice []map[string]interface{}
+	for k :=range sourceSlice {
+		if _,ok := uint64Map[sourceSlice[k][keyName].(int64)]; ok {
 			continue
 		}
 		handledSlice = append(handledSlice,sourceSlice[k])
