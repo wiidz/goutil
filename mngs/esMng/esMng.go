@@ -26,8 +26,8 @@ func Init(params *configStruct.EsConfig) (err error) {
 	return
 }
 
-// GetEsMng  获取es管理器
-func GetEsMng() (es EsMng) {
+// NewEsMng  获取es管理器
+func NewEsMng() (es EsMng) {
 	return EsMng{
 		client: client,
 	}
