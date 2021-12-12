@@ -48,55 +48,24 @@ func (es *EsMng) Stop() {
 }
 
 // Add 添加数据
-func (es *EsMng) Add(index, id string, data interface{}) (err error) {
-
-	//创建索引如果不存在那么就创建
-	fmt.Println(index, id, data)
-	var res *elastic.IndexResponse
-	res, err = es.client.Index().Index(index).Id(id).BodyJson(data).Do(context.Background())
-
-	fmt.Println("res", res)
-	fmt.Println("err", err)
-	fmt.Printf("indexed skus %s to index %s ,type %s\n", res.Id, res.Index, res.Type)
-	return
+func (es *EsMng) Add(index, id string, data interface{}) (res *elastic.IndexResponse,err error) {
+	return es.client.Index().Index(index).Id(id).BodyJson(data).Do(context.Background())
 }
 
 // Update 修改
-func (es *EsMng) Update(index, id string, data map[string]interface{}) (err error) {
-
-	var res *elastic.UpdateResponse
-	res, err = es.client.Update().Index(index).Id(id).Doc(data).Do(context.Background())
-
-	fmt.Println("res", res)
-	fmt.Println("err", err)
-	fmt.Printf("indexed skus %s to index %s ,type %s\n", res.Id, res.Index, res.Type)
-	return err
-
+func (es *EsMng) Update(index, id string, data map[string]interface{}) ( res *elastic.UpdateResponse,err error) {
+	return es.client.Update().Index(index).Id(id).Doc(data).Do(context.Background())
 }
 
 // DeleteByID 根据ID删除数据
-func (es *EsMng) DeleteByID(index, id string) (err error) {
-
-	var res *elastic.DeleteResponse
-	res, err = es.client.Delete().Index(index).Id(id).Do(context.Background())
-
-	fmt.Println("res", res)
-	fmt.Println("err", err)
-	fmt.Printf("indexed skus %s to index %s ,type %s\n", res.Id, res.Index, res.Type)
-	return
+func (es *EsMng) DeleteByID(index, id string) (res *elastic.DeleteResponse,err error) {
+	return es.client.Delete().Index(index).Id(id).Do(context.Background())
 }
 
 
 // Truncate 清空一个index
-func (es *EsMng) Truncate(index string) (err error) {
-
-	var res *elastic.DeleteResponse
-	res, err = es.client.Delete().Index(index).Do(context.Background())
-
-	fmt.Println("res", res)
-	fmt.Println("err", err)
-	fmt.Printf("indexed skus %s to index %s ,type %s\n", res.Id, res.Index, res.Type)
-	return
+func (es *EsMng) Truncate(index string) (res *elastic.IndicesDeleteResponse,err error) {
+	return es.client.DeleteIndex(index).Do(context.Background())
 }
 
 // LikeQuery 多字段模糊查询
