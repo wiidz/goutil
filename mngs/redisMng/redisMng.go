@@ -10,59 +10,49 @@ import (
 
 var pool redis.Pool
 
-/**
- * @func：实例化一个redis连接池
- * @author Hank
- * @date   2019-02-24
- */
 type RedisMng struct {
 	//config configStruct.Redis
 	Conn redis.Conn
 }
 
+// Init 初始化
 func Init(redisC *configStruct.RedisConfig) (err error){
+
+	redisURL := redisC.Host + ":" + redisC.Port
+	log.Println("【redis-dsn】",redisURL)
+
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
-		Dial: func() (redis.Conn, error) {
-			redisURL := redisC.Host + ":" + redisC.Port
-			log.Println("【redis-dsn】",redisURL)
-			conn, err := redis.Dial("tcp", redisURL)
+		Dial: func() (conn redis.Conn,err error) {
+			conn, err = redis.Dial("tcp", redisURL)
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
-				return nil, err
+				return
 			}
 
-			if _, err := conn.Do("AUTH", redisC.Password); err != nil {
+			if _, err = conn.Do("AUTH", redisC.Password); err != nil {
 				fmt.Println("【redis-auth-err】", err)
-				conn.Close()
-				return nil, err
+				_ = conn.Close()
+				return
 			}
-			return conn, err
+
+			return
 		},
 	}
-	_,err = pool.Dial()
+
+	_ , err = pool.Dial()
 	return
 }
 
-/**
- * @func:   NewRedisMng 返回一个redis管理器实例
- * @author: Wiidz
- * @date:   2020-04-15
- */
+// NewRedisMng 返回一个redis管理器实例
 func NewRedisMng() *RedisMng {
 	redisMng := RedisMng{}
 	return &redisMng
 }
 
-/**
- * @func:   Get 读取指定键的值
- * @author: Wiidz
- * @date:   2020-04-15
- * @Param: [key] 键名
- * @return: [str] 键值
- */
+// GetString 读取指定键的字符串值
 func (mng *RedisMng) GetString(key string) (string, error) {
 
 	//【1】取出一条连接
@@ -79,13 +69,7 @@ func (mng *RedisMng) GetString(key string) (string, error) {
 	return res, err
 }
 
-/**
- * @func:   Get 读取指定键的值
- * @author: Wiidz
- * @date:   2020-04-15
- * @Param: [key] 键名
- * @return: [str] 键值
- */
+// Get 读取指定键的值
 func (mng *RedisMng) Get(key string) (interface{}, error) {
 
 	//【1】取出一条连接
@@ -102,14 +86,7 @@ func (mng *RedisMng) Get(key string) (interface{}, error) {
 	return res, err
 }
 
-/**
- * @func:   Set 设置键值
- * @author: Wiidz
- * @date:   2020-04-15
- * @Param: [key] 键名
- * 		   [value] 键值
- *         [expire] 过期时间（秒）
- */
+// Set 设置键值
 func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
 
 	//【1】取出一条连接
@@ -138,111 +115,77 @@ func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
 }
 
 // -------BEGIN------哈希相关的操作-----BEGIN--------
-/**
-* @func: HSGet 设置key
-* @author Hank
-* @date   2019-06-21
- */
-func (mng *RedisMng) HGet(key_name, field string) (interface{}, error) {
+
+// HGet 设置key
+func (mng *RedisMng) HGet(keyName, field string) (interface{}, error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := redis.String(rc.Do("hget", key_name, field))
+	result, err := redis.String(rc.Do("hget", keyName, field))
 	return result, err
 }
 
-/**
-* @func: HSET 设置key
-* @author Hank
-* @date   2019-06-21
- */
-func (mng *RedisMng) HSet(key_name, field string, value interface{}) (interface{}, error) {
+// HSet 设置key
+func (mng *RedisMng) HSet(keyName, field string, value interface{}) (interface{}, error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := rc.Do("hset", key_name, field, value)
+	result, err := rc.Do("hset", keyName, field, value)
 	return result, err
 }
 
-/**
-* @func: HDEL 删除hash里的key
-* @author Hank
-* @date   2019-06-21
- */
-func (mng *RedisMng) HDel(key_name string, fields ...string) (interface{}, error) {
+// HDel 删除hash里的key
+func (mng *RedisMng) HDel(keyName string, fields ...string) (interface{}, error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := rc.Do("hdel", key_name, fields)
+	result, err := rc.Do("hdel", keyName, fields)
 	return result, err
 
 }
 
-/**
-* @func: HEXISTS 判断hashkey中有没有这个字段
-* @author Hank
-* @date   2019-06-21
- */
-
-func (mng *RedisMng) HExists(key_name, field_name string) (interface{}, error) {
+// HExists 判断hashkey中有没有这个字段
+func (mng *RedisMng) HExists(keyName, field_name string) (interface{}, error) {
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := rc.Do("hexists", key_name, field_name)
+	result, err := rc.Do("hexists", keyName, field_name)
 	return result, err
 }
 
-//
-///**
-// * @func: HKEYS 获取hash中所有的field
-// * @author Hank
-// * @date   2019-06-21
-// */
-//
-func (mng *RedisMng) HKeys(key_name string) (interface{}, error) {
+// HKeys 获取hash中所有的field
+func (mng *RedisMng) HKeys(keyName string) (interface{}, error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := redis.Strings(rc.Do("hkeys", key_name))
+	result, err := redis.Strings(rc.Do("hkeys", keyName))
 	return result, err
 
 }
 
-//
-///**
-// * @func: HINCRBY 增加hash中的字段的值  返回的是字段被修改过后的值
-// * @author Hank
-// * @date   2019-06-21
-// */
-//
-func (mng *RedisMng) HIncrby(key_name, field_name, incr_by_number interface{}) (res interface{}, err error) {
+// HIncrBy 增加hash中的字段的值  返回的是字段被修改过后的值
+func (mng *RedisMng) HIncrBy(keyName, field_name, incr_by_number interface{}) (res interface{}, err error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := rc.Do("hincrby", key_name, field_name, incr_by_number)
+	result, err := rc.Do("hincrby", keyName, field_name, incr_by_number)
 
 	return result, err
 
 }
 
-//
-///**
-// * @func: HLEN  hash 中 一个key下的数量
-// * @author Hank
-// * @date   2019-06-21
-// */
-//
-func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
+// HLen  hash 中 一个key下的数量
+func (mng *RedisMng) HLen(keyName string) (res interface{}, err error) {
 
 	rc := pool.Get()
 	defer rc.Close()
 
-	result, err := redis.String(rc.Do("hlen", key_name))
+	result, err := redis.String(rc.Do("hlen", keyName))
 	return result, err
 
 }
@@ -313,13 +256,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////设置新的值 返回久的值
-//func GETSET(key_name string, value interface{}) (res interface{}, err error) {
+//func GETSET(keyName string, value interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("set", key_name, value))
+//	result, _ := redis.String(client.Do("set", keyName, value))
 //
 //	defer pool.Close()
 //
@@ -330,13 +273,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////设置新的值 返回久的值
-//func SETEX(key_name string, expire interface{}, value interface{}) (res interface{}, err error) {
+//func SETEX(keyName string, expire interface{}, value interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("setex", key_name, expire, value)
+//	result, _ := client.Do("setex", keyName, expire, value)
 //
 //	defer pool.Close()
 //
@@ -347,13 +290,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////设置新的值 返回久的值  返回 1 成功 0  设置失败
-//func SETNX(key_name string, expire interface{}, value interface{}) (res interface{}, err error) {
+//func SETNX(keyName string, expire interface{}, value interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("setnx", key_name, value)
+//	result, _ := client.Do("setnx", keyName, value)
 //
 //	defer pool.Close()
 //
@@ -364,13 +307,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////将 key 中储存的数字值增一
-//func INCR(key_name string) (res interface{}, err error) {
+//func INCR(keyName string) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("incr", key_name)
+//	result, _ := client.Do("incr", keyName)
 //
 //	defer pool.Close()
 //
@@ -381,13 +324,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////将 key 中储存的数字值减一
-//func DECR(key_name string) (res interface{}, err error) {
+//func DECR(keyName string) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("decr", key_name)
+//	result, _ := client.Do("decr", keyName)
 //
 //	defer pool.Close()
 //
@@ -398,13 +341,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////将 key 中储存的数字值增量
-//func INCRBY(key_name string, increment interface{}) (res interface{}, err error) {
+//func INCRBY(keyName string, increment interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("incrby", key_name, increment)
+//	result, _ := client.Do("incrby", keyName, increment)
 //
 //	defer pool.Close()
 //
@@ -415,13 +358,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////将 key 中储存的数字值减去一定的量
-//func DECRBY(key_name string, increment interface{}) (res interface{}, err error) {
+//func DECRBY(keyName string, increment interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("decrby", key_name, increment)
+//	result, _ := client.Do("decrby", keyName, increment)
 //
 //	defer pool.Close()
 //
@@ -432,13 +375,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////将 key 设置过期时间
-//func EXPIRE(key_name string, expire interface{}) (res interface{}, err error) {
+//func EXPIRE(keyName string, expire interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("expire", key_name, expire)
+//	result, _ := client.Do("expire", keyName, expire)
 //
 //	defer pool.Close()
 //
@@ -453,13 +396,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 ////--------BEGIN-----列表相关操作-----BEGIN---------
 //
 ////Redis Lindex 命令用于通过索引获取列表中的元素。你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
-//func LINDEX(key_name string, position interface{}) (res interface{}, err error) {
+//func LINDEX(keyName string, position interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("lindex", key_name, position))
+//	result, _ := redis.String(client.Do("lindex", keyName, position))
 //
 //	defer pool.Close()
 //
@@ -470,13 +413,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////一个列表的长度
-//func LLEN(key_name string) (res interface{}, err error) {
+//func LLEN(keyName string) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int64(client.Do("llen", key_name))
+//	result, _ := redis.Int64(client.Do("llen", keyName))
 //
 //	defer pool.Close()
 //
@@ -486,13 +429,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////从列表中左边删除第一个元素 ，返回这个元素的值
-//func LPOP(key_name string) (res interface{}, err error) {
+//func LPOP(keyName string) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("lpop", key_name))
+//	result, _ := redis.String(client.Do("lpop", keyName))
 //
 //	defer pool.Close()
 //
@@ -502,13 +445,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////从列表中左边删除第一个元素 ，返回这个元素的值
-//func RPOP(key_name string) (res interface{}, err error) {
+//func RPOP(keyName string) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("rpop", key_name))
+//	result, _ := redis.String(client.Do("rpop", keyName))
 //
 //	defer pool.Close()
 //
@@ -518,13 +461,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////添加元素 如果失败 0  成功  返回列表的长度
-//func RPUSH(key_name string, value interface{}) (res interface{}, err error) {
+//func RPUSH(keyName string, value interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("rpush", key_name, value))
+//	result, _ := redis.String(client.Do("rpush", keyName, value))
 //
 //	defer pool.Close()
 //
@@ -534,13 +477,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////列表的长度 0 -1 全部
-//func LRANGE(key_name string, start, end interface{}) (res interface{}, err error) {
+//func LRANGE(keyName string, start, end interface{}) (res interface{}, err error) {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("lrange", key_name, start, end))
+//	result, _ := redis.String(client.Do("lrange", keyName, start, end))
 //
 //	defer pool.Close()
 //
@@ -554,13 +497,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 ////--------BEGIN-----有序集合相关操作-----BEGIN---------
 //
 ////向有序集合添加成员 被成功添加的新成员的数量，不包括那些被更新的、已经存在的成员。
-//func ZADD(key_name string, score interface{}, member interface{}) interface{} {
+//func ZADD(keyName string, score interface{}, member interface{}) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := client.Do("zadd", key_name, score, member)
+//	result, _ := client.Do("zadd", keyName, score, member)
 //
 //	defer pool.Close()
 //
@@ -571,13 +514,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Redis Zcard 命令用于计算集合中元素的数量。 返回这个集合的个数
-//func ZCARD(key_name string) interface{} {
+//func ZCARD(keyName string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("zcard", key_name))
+//	result, _ := redis.Int(client.Do("zcard", keyName))
 //
 //	defer pool.Close()
 //
@@ -588,13 +531,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Zcount 命令用于计算有序集合中指定分数区间的成员数量。
-//func ZCOUNT(key_name string, min interface{}, end interface{}) interface{} {
+//func ZCOUNT(keyName string, min interface{}, end interface{}) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("zcount", key_name, min, end))
+//	result, _ := redis.Int(client.Do("zcount", keyName, min, end))
 //
 //	defer pool.Close()
 //
@@ -605,13 +548,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////ZINCRBY 命令对有序集合中指定成员的分数加上增量 increment  member 成员的新分数值，以字符串形式表示。
-//func ZINCRBY(key_name string, increment interface{}, field string) interface{} {
+//func ZINCRBY(keyName string, increment interface{}, field string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("zincrby", key_name, increment, field))
+//	result, _ := redis.Int(client.Do("zincrby", keyName, increment, field))
 //
 //	defer pool.Close()
 //
@@ -622,13 +565,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Zrange 返回有序集中，指定区间内的成员。
-//func ZRANGE(key_name string, start_index, end_index interface{}) interface{} {
+//func ZRANGE(keyName string, start_index, end_index interface{}) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Strings(client.Do("zrevrange", key_name, start_index, end_index))
+//	result, _ := redis.Strings(client.Do("zrevrange", keyName, start_index, end_index))
 //
 //	defer pool.Close()
 //
@@ -638,13 +581,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////ZREM 删除一个有序集合中的指定成员  被成功移除的成员的数量，不包括被忽略的成员。
-//func ZREM(key_name string) interface{} {
+//func ZREM(keyName string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("zrem", key_name))
+//	result, _ := redis.Int(client.Do("zrem", keyName))
 //
 //	defer pool.Close()
 //
@@ -654,13 +597,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Zscore 命令返回有序集中，成员的分数值。 如果成员元素不是有序集 key 的成员，或 key 不存在，返回 nil 。 成员的分数值，以字符串形式表示。
-//func ZSCORE(key_name, member string) interface{} {
+//func ZSCORE(keyName, member string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("zscore", key_name, member))
+//	result, _ := redis.String(client.Do("zscore", keyName, member))
 //
 //	defer pool.Close()
 //
@@ -675,13 +618,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 ////--------BEGIN-----无序集合相关操作-----BEGIN---------
 //
 ////Sadd 命令将一个或多个成员元素加入到集合中，已经存在于集合的成员元素将被忽略。
-//func SADD(key_name string, value interface{}) interface{} {
+//func SADD(keyName string, value interface{}) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.String(client.Do("zscore", key_name, value))
+//	result, _ := redis.String(client.Do("zscore", keyName, value))
 //
 //	defer pool.Close()
 //
@@ -691,13 +634,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Scard 命令返回集合中元素的数量。
-//func SCARD(key_name string) interface{} {
+//func SCARD(keyName string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("scard", key_name))
+//	result, _ := redis.Int(client.Do("scard", keyName))
 //
 //	defer pool.Close()
 //
@@ -741,13 +684,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Smembers 命令返回集合中的所有的成员。 不存在的集合 key 被视为空集合。
-//func SMEMBERS(key_name string) interface{} {
+//func SMEMBERS(keyName string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Strings(client.Do("smembers", key_name))
+//	result, _ := redis.Strings(client.Do("smembers", keyName))
 //
 //	defer pool.Close()
 //
@@ -775,13 +718,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //}
 //
 ////Srem 命令用于移除集合中的一个或多个成员元素，不存在的成员元素会被忽略。
-//func SREM(key_name string) interface{} {
+//func SREM(keyName string) interface{} {
 //
 //	pool := newRedisClient()
 //
 //	client := pool.Get()
 //
-//	result, _ := redis.Int(client.Do("srem", key_name))
+//	result, _ := redis.Int(client.Do("srem", keyName))
 //
 //	defer pool.Close()
 //
@@ -794,7 +737,7 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //
 ////Srandmember 命令用于返回集合中的一个随机元素。
 //// 只提供集合 key 参数时，返回一个元素；如果集合为空，返回 nil 。 如果提供了 count 参数，那么返回一个数组；如果集合为空，返回空数组。
-//func SRANDMEMBER(key_name string, count interface{}) interface{} {
+//func SRANDMEMBER(keyName string, count interface{}) interface{} {
 //
 //	pool := newRedisClient()
 //
@@ -806,13 +749,13 @@ func (mng *RedisMng) HLen(key_name string) (res interface{}, err error) {
 //
 //	if count == nil {
 //
-//		result, _ := redis.String(client.Do("srandmember", key_name))
+//		result, _ := redis.String(client.Do("srandmember", keyName))
 //
 //		return result
 //
 //	} else {
 //
-//		result, _ := redis.Strings(client.Do("srandmember", key_name, count))
+//		result, _ := redis.Strings(client.Do("srandmember", keyName, count))
 //
 //		return result
 //	}

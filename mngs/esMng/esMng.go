@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"time"
 )
 
@@ -18,8 +19,11 @@ type EsMng struct {
 // Init 初始化
 func Init(params *configStruct.EsConfig) (err error) {
 
+	dsn := params.Host+":"+params.Port
+	log.Println("【es-dsn】",dsn)
+
 	client, err = elastic.NewClient(
-		elastic.SetURL(params.Host+":"+params.Port),
+		elastic.SetURL(dsn),
 		elastic.SetSniff(false), elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetBasicAuth(params.Username, params.Password))
 
