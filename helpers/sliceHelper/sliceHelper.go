@@ -250,6 +250,20 @@ func NarrowSlice(arr []map[string]interface{}, amount int) []map[string]interfac
 	return arr[half_length-half_amount : half_length+half_amount]
 }
 
+
+// UniqueMapByUint64key 根据某一个uint64键来去重
+func UniqueMapByUint64key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
+	var uint64Map map[uint64]bool
+	var handledSlice []map[string]interface{}
+	for k :=range sourceSlice {
+		if _,ok := uint64Map[sourceSlice[k][keyName].(uint64)]; ok {
+			continue
+		}
+		handledSlice = append(handledSlice,sourceSlice[k])
+	}
+	return handledSlice
+}
+
 /**
  * @func: UniqueIntSlice int slice去重
  * @author Wiidz

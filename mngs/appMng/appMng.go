@@ -170,8 +170,8 @@ func getAliPayConfig(rows []*DbSettingRow) *configStruct.AliPayConfig {
 
 func getRedisConfig(rows []*DbSettingRow) *configStruct.RedisConfig {
 	return &configStruct.RedisConfig{
-		Host:        getRow(rows, "redis", "host", "", "").Value,
-		Port:        getRow(rows, "redis", "port", "", "").Value,
+		Host:        getRow(rows, "redis", "host", "", "127.0.0.1").Value,
+		Port:        getRow(rows, "redis", "port", "", "6379").Value,
 		Password:    getRow(rows, "redis", "password", "", "").Value,
 		IdleTimeout: typeHelper.Str2Int(getRow(rows, "redis", "idle_timeout", "", "60").Value),
 		Database:    typeHelper.Str2Int(getRow(rows, "redis", "database", "", "").Value),
@@ -182,10 +182,10 @@ func getRedisConfig(rows []*DbSettingRow) *configStruct.RedisConfig {
 
 func getEsConfig(rows []*DbSettingRow) *configStruct.EsConfig {
 	return &configStruct.EsConfig{
-		Host:     getRow(rows, "es", "host", "", "").Value,
-		Port:     getRow(rows, "es", "port", "", "").Value,
-		Password: getRow(rows, "es", "password", "", "").Value,
-		Username: getRow(rows, "es", "username", "", "").Value,
+		Host:     getRow(rows, "es", "host", "", "http://127.0.0.1").Value,
+		Port:     getRow(rows, "es", "port", "", "9200").Value,
+		Password: getRow(rows, "es", "password", "", "123456").Value,
+		Username: getRow(rows, "es", "username", "", "es").Value,
 	}
 }
 
