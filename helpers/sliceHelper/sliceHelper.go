@@ -316,7 +316,7 @@ func UniqueMapByIntKey(sourceSlice []map[string]interface{},keyName string) []ma
 
 // UniqueMapByInt64Key 根据某一个int64键来去重
 func UniqueMapByInt64Key(sourceSlice []map[string]interface{},keyName string) []map[string]interface{} {
-	var int64Map map[int64]bool
+	int64Map := map[int64]bool{}
 	var handledSlice []map[string]interface{}
 	for k :=range sourceSlice {
 		var key = sourceSlice[k][keyName].(int64)

@@ -48,12 +48,12 @@ func (es *EsMng) Stop() {
 }
 
 // Add 添加数据
-func (es *EsMng) Add(db, id string, data interface{}) (err error) {
+func (es *EsMng) Add(index, id string, data interface{}) (err error) {
 
 	//创建索引如果不存在那么就创建
-	fmt.Println(db, id, data)
+	fmt.Println(index, id, data)
 	var res *elastic.IndexResponse
-	res, err = es.client.Index().Index(db).Id(id).BodyJson(data).Do(context.Background())
+	res, err = es.client.Index().Index(index).Id(id).BodyJson(data).Do(context.Background())
 
 	fmt.Println("res", res)
 	fmt.Println("err", err)
@@ -62,10 +62,10 @@ func (es *EsMng) Add(db, id string, data interface{}) (err error) {
 }
 
 // Update 修改
-func (es *EsMng) Update(db, id string, data map[string]interface{}) (err error) {
+func (es *EsMng) Update(index, id string, data map[string]interface{}) (err error) {
 
 	var res *elastic.UpdateResponse
-	res, err = es.client.Update().Index(db).Id(id).Doc(data).Do(context.Background())
+	res, err = es.client.Update().Index(index).Id(id).Doc(data).Do(context.Background())
 
 	fmt.Println("res", res)
 	fmt.Println("err", err)
@@ -74,11 +74,24 @@ func (es *EsMng) Update(db, id string, data map[string]interface{}) (err error) 
 
 }
 
-// Delete 删除数据
-func (es *EsMng) Delete(db, id string) (err error) {
+// DeleteByID 根据ID删除数据
+func (es *EsMng) DeleteByID(index, id string) (err error) {
 
 	var res *elastic.DeleteResponse
-	res, err = es.client.Delete().Index(db).Id(id).Do(context.Background())
+	res, err = es.client.Delete().Index(index).Id(id).Do(context.Background())
+
+	fmt.Println("res", res)
+	fmt.Println("err", err)
+	fmt.Printf("indexed skus %s to index %s ,type %s\n", res.Id, res.Index, res.Type)
+	return
+}
+
+
+// Truncate 清空一个index
+func (es *EsMng) Truncate(index string) (err error) {
+
+	var res *elastic.DeleteResponse
+	res, err = es.client.Delete().Index(index).Do(context.Background())
 
 	fmt.Println("res", res)
 	fmt.Println("err", err)
@@ -87,14 +100,14 @@ func (es *EsMng) Delete(db, id string) (err error) {
 }
 
 // LikeQuery 多字段模糊查询
-func (es *EsMng) LikeQuery(db string, page, pageSize int, searchStr string, searchFields ...string) (data []map[string]interface{}, err error) {
+func (es *EsMng) LikeQuery(index string, page, pageSize int, searchStr string, searchFields ...string) (data []map[string]interface{}, err error) {
 
 	//【1】拼接字符串
 	matchPhraseQuery := elastic.NewMultiMatchQuery(searchStr, searchFields...)
 
 	//【2】查询
 	var res *elastic.SearchResult
-	res, err = es.client.Search(db).Query(matchPhraseQuery).From(page * pageSize).Size(pageSize).Do(context.Background())
+	res, err = es.client.Search(index).Query(matchPhraseQuery).From(page * pageSize).Size(pageSize).Do(context.Background())
 	if err != nil {
 		return
 	}
@@ -119,7 +132,7 @@ func (es *EsMng) LikeQuery(db string, page, pageSize int, searchStr string, sear
 }
 
 // Query 模糊查询数据
-func (es *EsMng) Query(db, searchKey, searchStr string) (data []map[string]interface{}, err error) {
+func (es *EsMng) Query(index, searchKey, searchStr string) (data []map[string]interface{}, err error) {
 
 	//【1】拼接字符串
 	matchPhraseQuery1 := elastic.NewMatchPhraseQuery(searchKey, searchStr)
@@ -128,7 +141,7 @@ func (es *EsMng) Query(db, searchKey, searchStr string) (data []map[string]inter
 
 	//【2】查询
 	var res *elastic.SearchResult
-	res, err = es.client.Search(db).Query(matchPhraseQuery1).From(0).Size(300).Do(context.Background())
+	res, err = es.client.Search(index).Query(matchPhraseQuery1).From(0).Size(300).Do(context.Background())
 	if err != nil {
 		return
 	}
@@ -153,12 +166,12 @@ func (es *EsMng) Query(db, searchKey, searchStr string) (data []map[string]inter
 }
 
 // QueryByField 指定字段模糊查询数据
-func (es *EsMng) QueryByField(db, searchKey, searchStr, field string) (data []interface{}, err error) {
+func (es *EsMng) QueryByField(index, searchKey, searchStr, field string) (data []interface{}, err error) {
 
 	//【1】查询
 	var res *elastic.SearchResult
 	matchPhraseQuery1 := elastic.NewMatchPhraseQuery(searchKey, searchStr)
-	res, err = es.client.Search(db).Query(matchPhraseQuery1).From(0).Size(300).Do(context.Background())
+	res, err = es.client.Search(index).Query(matchPhraseQuery1).From(0).Size(300).Do(context.Background())
 	if err != nil {
 		return
 	}
