@@ -6,6 +6,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 )
 
 const Domain = "dysmsapi.aliyuncs.com"
@@ -15,6 +16,9 @@ type SmsMng struct {
 }
 
 func NewSmsMng(params *configStruct.AliSmsConfig) (smsM *SmsMng, err error) {
+
+	log.Println("AccessKeyID", params.AccessKeyID)
+	log.Println("AccessKeySecret", params.AccessKeySecret)
 	config := &openapi.Config{
 		AccessKeyId:     &params.AccessKeyID,     // 您的AccessKey ID
 		AccessKeySecret: &params.AccessKeySecret, // 您的AccessKey Secret
@@ -32,13 +36,13 @@ func NewSmsMng(params *configStruct.AliSmsConfig) (smsM *SmsMng, err error) {
 }
 
 // SendOne 发送一条短信
-func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber string) (res *dysmsapi.SendSmsResponse, err error) {
+func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber, paramsJson string) (res *dysmsapi.SendSmsResponse, err error) {
 
 	sendSmsRequest := &dysmsapi.SendSmsRequest{
 		SignName:      &signName,
 		TemplateCode:  &templateCode,
 		PhoneNumbers:  &phoneNumber,
-		TemplateParam: &phoneNumber,
+		TemplateParam: &paramsJson,
 	}
 
 	// 复制代码运行请自行打印 API 的返回值
@@ -46,13 +50,14 @@ func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber string) (res *dys
 }
 
 // SendMany 发送多条短信
-func (mng *SmsMng) SendMany(signName, templateCode string, phoneNumbers []string) (res *dysmsapi.SendBatchSmsResponse, err error) {
+func (mng *SmsMng) SendMany(signName, templateCode string, phoneNumbers []string, paramsJson string) (res *dysmsapi.SendBatchSmsResponse, err error) {
 
 	numbers, _ := typeHelper.JsonEncode(phoneNumbers)
 	sendSmsRequest := &dysmsapi.SendBatchSmsRequest{
-		SignNameJson:    &signName,
-		TemplateCode:    &templateCode,
-		PhoneNumberJson: &numbers,
+		SignNameJson:      &signName,
+		TemplateCode:      &templateCode,
+		PhoneNumberJson:   &numbers,
+		TemplateParamJson: &paramsJson,
 	}
 
 	// 复制代码运行请自行打印 API 的返回值
