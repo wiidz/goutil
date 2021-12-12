@@ -89,18 +89,21 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.Location = getLocationConfig(rows)
 	config.Profile = getAppProfile(rows)
 
+	// 数据源
 	config.RedisConfig = getRedisConfig(rows)
 	config.EsConfig = getEsConfig(rows)
 
-	config.OssConfig = getOssConfig(rows)
-
+	// 腾讯系
 	config.WechatMiniConfig = getWechatMiniConfig(rows)
 	config.WechatOaConfig = getWechatOaConfig(rows)
 	config.WechatOpenConfig = getWechatOpenConfig(rows)
 	config.WechatPayConfig = getWechatPayConfig(rows)
-	config.AliPayConfig = getAliPayConfig(rows)
 
+	// 阿里系
+	config.OssConfig = getOssConfig(rows)
+	config.AliPayConfig = getAliPayConfig(rows)
 	config.AliApiConfig = getAliApiConfig(rows)
+	config.AliSmsConfig = getAliSmsConfig(rows)
 
 	return
 }
@@ -200,6 +203,7 @@ func getOssConfig(rows []*DbSettingRow) *configStruct.OssConfig {
 	}
 }
 
+// getAppProfile 项目基础信息
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
 		No:      getRow(rows, "app", "no", "", "").Value,
@@ -210,11 +214,20 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	}
 }
 
+// getAliApiConfig 阿里云云市场API服务
 func getAliApiConfig(rows []*DbSettingRow) *configStruct.AliApiConfig {
 	return &configStruct.AliApiConfig{
 		AppID:     getRow(rows, "ali", "api", "app_id", "").Value,
 		AppSecret: getRow(rows, "ali", "api", "app_secret", "").Value,
 		AppCode:   getRow(rows, "ali", "api", "app_code", "").Value,
+	}
+}
+
+// getAliSmsConfig 阿里云短信服务
+func getAliSmsConfig(rows []*DbSettingRow) *configStruct.AliSmsConfig {
+	return &configStruct.AliSmsConfig{
+		AccessKeySecret: getRow(rows, "ali", "sms", "access_key_secret", "").Value,
+		AccessKeyID:     getRow(rows, "ali", "sms", "access_key_id", "").Value,
 	}
 }
 

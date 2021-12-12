@@ -4,6 +4,9 @@ go 1.16
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/alibabacloud-go/darabonba-openapi v0.1.12
+	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8
+	github.com/alibabacloud-go/tea v1.1.17
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
@@ -12,7 +15,7 @@ require (
 	github.com/gomodule/redigo v1.8.5
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
-	github.com/json-iterator/go v1.1.9
+	github.com/json-iterator/go v1.1.10
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7
@@ -26,7 +29,6 @@ require (
 	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/silenceper/wechat/v2 v2.0.9
-	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/valyala/fasthttp v1.27.0 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect

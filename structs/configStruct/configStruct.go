@@ -37,6 +37,7 @@ type BaseConfig struct {
 	AliPayConfig     *AliPayConfig     // 支付宝设定
 
 	AliApiConfig *AliApiConfig // 阿里云APi市场设定
+	AliSmsConfig *AliSmsConfig // 阿里云APi市场设定
 }
 
 // MysqlConfig mysql数据库参数
@@ -140,4 +141,11 @@ type AliApiConfig struct {
 	AppCode string
 	AppID string
 	AppSecret string
+}
+
+
+// AliSmsConfig 阿里云短信服务的配置
+type AliSmsConfig struct {
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
 }
