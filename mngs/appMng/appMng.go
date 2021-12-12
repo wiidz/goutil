@@ -2,6 +2,7 @@ package appMng
 
 import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
@@ -41,7 +42,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		mng.BaseConfig.MysqlConfig = mysqlConfig
 	}
 
-	//【4】初始化redis、es
+	//【4】初始化redis
 	if checkStart.Redis {
 		err = redisMng.Init(mng.BaseConfig.RedisConfig)
 		if err != nil {
@@ -49,7 +50,15 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-	//【3】项目配置
+	//【5】初始化es
+	if checkStart.Es {
+		err = esMng.Init(mng.BaseConfig.EsConfig)
+		if err != nil {
+			return
+		}
+	}
+
+	//【6】项目配置
 	err = mng.ProjectConfig.Build()
 	if err != nil {
 		return
