@@ -155,12 +155,14 @@ func (mng *WechatPayMng) UnifiedOrderJs(param *UnifiedOrderParam,openID string) 
 
 
 // UnifiedOrderWechatMini 小程序下单
-func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (paySign string, err error) {
+func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (timestampStr,packageStr,nonceStr,paySign string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
+	nonceStr = util.GetRandomString(32)
+
 	bm := make(gopay.BodyMap)
-	bm.Set("nonce_str", util.GetRandomString(32)).
+	bm.Set("nonce_str", nonceStr).
 		Set("body", param.Title).
 		Set("out_trade_no", param.OutTradeNo).
 		Set("total_fee", totalFee).
@@ -200,13 +202,10 @@ func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (paySi
 		return
 	}
 
-	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
-	log.Println("timeStamp", timeStamp)
-
-	pac := "prepay_id=" + wxRsp.PrepayId
-	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.ApiKey)
+	timestampStr = strconv.FormatInt(time.Now().Unix(), 10)
+	packageStr = "prepay_id=" + wxRsp.PrepayId
+	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, packageStr, wechat.SignType_MD5, timestampStr, mng.Config.ApiKey)
 	xlog.Debug("paySign:", paySign)
-
 	return
 }
 

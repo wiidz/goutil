@@ -158,7 +158,7 @@ func getWechatPayConfig(rows []*DbSettingRow) *configStruct.WechatPayConfig {
 		CertContent:     getRow(rows, "wechat", "pay", "cert_content", "").Value,
 		NotifyURL:       getRow(rows, "wechat", "pay", "notify_url", "").Value,
 		RefundNotifyURL: getRow(rows, "wechat", "pay", "refund_notify_url", "").Value,
-		IsProd:          getRow(rows, "wechat", "pay", "is_prod", "false").Value == "1", // 0=调试，1=生产
+		IsProd:          getRow(rows, "wechat", "pay", "is_prod", "0").Value == "1", // 0=调试，1=生产
 	}
 }
 

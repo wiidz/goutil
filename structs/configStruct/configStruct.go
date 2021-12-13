@@ -90,7 +90,7 @@ type OssConfig struct {
 	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
 	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
 	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
-	ExpireTime      int64 // 上传策略Policy的失效时间，单位为秒。默认30
+	ExpireTime      int64  // 上传策略Policy的失效时间，单位为秒。默认30
 }
 
 // WechatMiniConfig 微信小程序参数
@@ -119,9 +119,9 @@ type WechatPayConfig struct {
 	CertURI         string `gorm:"column:wechat_pay_cert_uri" json:"wechat_pay_cert_uri"`         //【微信支付】公钥文件
 	KeyURI          string `gorm:"column:wechat_pay_key_uri" json:"wechat_pay_key_uri"`           //【微信支付】私钥文件
 	CertContent     string `gorm:"column:wechat_pay_cert_content" json:"wechat_pay_cert_content"` //【微信支付】私钥文件内容
-	NotifyURL       string // 【微信支付】支付回调地址
-	RefundNotifyURL string // 【微信支付】退款回调地址
-	IsProd          bool   // 【微信支付】是否是生产模式
+	NotifyURL       string `gorm:"column:notify_url" json:"notify_url"`                           // 【微信支付】支付回调地址
+	RefundNotifyURL string `gorm:"column:refund_notify_url" json:"refund_notify_url"`             // 【微信支付】退款回调地址
+	IsProd          bool   `gorm:"column:is_prod" json:"is_prod"`                                 // 【微信支付】是否是生产模式
 }
 
 // AliPayConfig 支付宝参数
@@ -133,16 +133,15 @@ type AliPayConfig struct {
 }
 
 type ProjectConfig interface {
-	Build() error  // 构建参数
+	Build() error // 构建参数
 }
 
 // AliApiConfig 阿里云市场提供的服务的基本配置
 type AliApiConfig struct {
-	AppCode string
-	AppID string
+	AppCode   string
+	AppID     string
 	AppSecret string
 }
-
 
 // AliSmsConfig 阿里云短信服务的配置
 type AliSmsConfig struct {
