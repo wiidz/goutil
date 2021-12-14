@@ -51,8 +51,8 @@ func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMng {
 	return getWechatPayInstance(config)
 }
 
-// UnifiedOrder 统一下单获取paysign totalFee 是分为单位
-func (mng *WechatPayMng) UnifiedOrder(param *UnifiedOrderParam) (mWebUrl string, err error) {
+// H5 H5场景 totalFee 是分为单位
+func (mng *WechatPayMng) H5(param *UnifiedOrderParam) (mWebUrl string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -103,8 +103,8 @@ func (mng *WechatPayMng) UnifiedOrder(param *UnifiedOrderParam) (mWebUrl string,
 	return
 }
 
-// UnifiedOrderJs 统一下单获取paysign totalFee 是分为单位
-func (mng *WechatPayMng) UnifiedOrderJs(param *UnifiedOrderParam,openID string) (data map[string]interface{}, err error) {
+// Js js场景 统一下单获取 totalFee 是分为单位
+func (mng *WechatPayMng) Js(param *UnifiedOrderParam,openID string) (data map[string]interface{}, err error) {
 
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -153,9 +153,8 @@ func (mng *WechatPayMng) UnifiedOrderJs(param *UnifiedOrderParam,openID string) 
 	}, nil
 }
 
-
-// UnifiedOrderWechatMini 小程序下单
-func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (timestampStr,packageStr,nonceStr,paySign string, err error) {
+// Mini 小程序场景下单
+func (mng *WechatPayMng) Mini(param *UnifiedOrderParam,openID string) (timestampStr,packageStr,nonceStr,paySign string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -171,6 +170,7 @@ func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (times
 		Set("trade_type", wechat.TradeType_Mini).
 		Set("device_info", "WEB").
 		Set("sign_type", wechat.SignType_MD5).
+		Set("openid", openID). //js支付必填
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
 			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
 				bm.Set("type", "Wap")
