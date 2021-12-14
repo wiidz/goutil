@@ -168,7 +168,7 @@ func (mng *WechatPayMng) UnifiedOrderWechatMini(param *UnifiedOrderParam) (times
 		Set("total_fee", totalFee).
 		Set("spbill_create_ip", param.IP).
 		Set("notify_url", mng.Config.NotifyURL).
-		Set("trade_type", wechat.TradeType_H5).
+		Set("trade_type", wechat.TradeType_Mini).
 		Set("device_info", "WEB").
 		Set("sign_type", wechat.SignType_MD5).
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
