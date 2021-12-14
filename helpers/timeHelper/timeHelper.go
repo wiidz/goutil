@@ -233,6 +233,17 @@ func (tm MyJsonTime) EqualTime(target time.Time) bool {
 	temp := time.Time(tm)
 	return temp.Equal(target)
 }
+
+func (tm MyJsonTime) Unix() int64 {
+	temp := time.Time(tm)
+	return temp.Unix()
+}
+
+func (tm MyJsonTime) UnixNano() int64 {
+	temp := time.Time(tm)
+	return temp.UnixNano()
+}
+
 func (tm MyJsonTime) Year() int {
 	return time.Time(tm).Year()
 }
