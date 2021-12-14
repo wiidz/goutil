@@ -223,7 +223,13 @@ func (tm MyJsonTime) Before(target time.Time) bool {
 	return temp.Before(target)
 }
 
-func (tm MyJsonTime) Equal(target time.Time) bool {
+func (tm MyJsonTime) Equal(target MyJsonTime) bool {
+	temp := time.Time(tm)
+	targetTemp := time.Time(target)
+	return temp.Equal(targetTemp)
+}
+
+func (tm MyJsonTime) EqualTime(target time.Time) bool {
 	temp := time.Time(tm)
 	return temp.Equal(target)
 }

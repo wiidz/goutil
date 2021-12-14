@@ -202,6 +202,10 @@ func (mng *WechatPayMng) Mini(param *UnifiedOrderParam,openID string) (timestamp
 		return
 	}
 
+	//pac := "prepay_id=" + wxRsp.PrepayId
+	//paySign := wechat.GetMiniPaySign("wxdaa2ab9ef87b5497", wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, "GFDS8j98rewnmgl45wHTt980jg543abc")
+	//xlog.Debug("paySign:", paySign)
+
 	timestampStr = strconv.FormatInt(time.Now().Unix(), 10)
 	packageStr = "prepay_id=" + wxRsp.PrepayId
 	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, packageStr, wechat.SignType_MD5, timestampStr, mng.Config.ApiKey)
