@@ -73,7 +73,7 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
 	if err != nil {
 		return
 	}
-	if captchaCache == nil {
+	if captchaCache == "" {
 		return errors.New("验证码已失效")
 	}
 
@@ -105,5 +105,5 @@ func (mng *CaptchaMng)GetCache(keyName string)( string , error){
 		value,_ :=  mng.MemoryMng.GetString(keyName)
 		return value,nil
 	}
-	return nil,nil
+	return "",errors.New("未知数据源")
 }
