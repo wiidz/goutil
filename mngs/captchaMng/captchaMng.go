@@ -6,18 +6,36 @@ import (
 	"github.com/wiidz/goutil/helpers/mathHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
+	"github.com/wiidz/goutil/structs/dataSourceStruct"
 	"image/color"
 	"strings"
+	"time"
 )
 
+type CaptchaMng struct {
+	DataSource dataSourceStruct.DataSource
+	RedisMng   *redisMng.RedisMng
+	MemoryMng  *memoryMng.MemoryMng
+}
 
-var redis = redisMng.NewRedisMng()
+func NewCaptchaMngRedis(redisM *redisMng.RedisMng) (*CaptchaMng, error) {
+	return &CaptchaMng{
+		DataSource: dataSourceStruct.Redis,
+		RedisMng:   redisM,
+	}, nil
+}
 
-// 目前是单机部署版本，后续改redis
+func NewCaptchaMngMemory(memoryM *memoryMng.MemoryMng) (*CaptchaMng, error) {
+	return &CaptchaMng{
+		DataSource: dataSourceStruct.Memory,
+		MemoryMng:  memoryM,
+	}, nil
+}
 
-// 验证是否有效
-func VerifyCaptcha(id, answer string) bool {
+// VerifyCaptcha 验证是否有效
+func (mng *CaptchaMng) VerifyCaptcha(id, answer string) bool {
 	get := cp.DefaultMemStore.Get(id, false)
 	if get == "" {
 		return false
@@ -28,40 +46,61 @@ func VerifyCaptcha(id, answer string) bool {
 	return true
 }
 
-// 生成base64
-func GenerateCaptcha(width,height,noiseCount,length int) (id, b64s string, err error) {
+// GenerateCaptcha 生成base64
+func (mng *CaptchaMng) GenerateCaptcha(width, height, noiseCount, length int) (id, b64s string, err error) {
 	driver := cp.NewDriverString(height, width, noiseCount, cp.OptionShowHollowLine,
 		length, cp.TxtSimpleCharaters, &color.RGBA{254, 254, 254, 254}, []string{"Flim-Flam.ttf"})
 	captcha := cp.NewCaptcha(driver, cp.DefaultMemStore)
-
 	return captcha.Generate()
 }
 
 // GetNumberCaptcha 获取数字验证码
-func GetNumberCaptcha()(id,captchaStr string,err error){
+func (mng *CaptchaMng) GetNumberCaptcha() (id, captchaStr string, err error) {
 
-	captcha := mathHelper.GetRandomInt(100000,999999) // 默认六位
+	captcha := mathHelper.GetRandomInt(100000, 999999) // 默认六位
 	captchaStr = typeHelper.Int2Str(captcha)
 	id = strHelper.GetRandomString(10)
 
-	_ = redis.Set("captcha-"+id,captchaStr,300) // 300秒有效
+	_ = mng.SetCache("captcha-"+id, captchaStr, 300) // 300秒有效
 	return
 }
 
 // VerifyNumberCaptcha 验证数字验证码
-func VerifyNumberCaptcha(id,captchaStr string)(err error){
-	var captchMem string
-	keyName := "captcha-"+id
-	captchMem,err = redis.GetString(keyName)
+func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
+
+	keyName := "captcha-" + id
+	captchaCache, err := mng.GetCache(keyName)
 	if err != nil {
 		return
 	}
 
-	if captchMem != captchaStr {
+	if captchaCache.(string) != captchaStr {
 		return errors.New("验证码错误")
 	}
 
-	_ = redis.Set(keyName,0,0)
+	_ = mng.SetCache(keyName, "0", 0)
 
 	return nil
+}
+
+// SetCache 记录缓存
+func (mng *CaptchaMng)SetCache(keyName,value string,expire int)(err  error){
+	if mng.DataSource == dataSourceStruct.Redis {
+		err =  mng.RedisMng.Set(keyName,value,expire)
+	} else if mng.DataSource == dataSourceStruct.Memory{
+		mng.MemoryMng.Set(keyName,value,time.Duration(expire)*time.Second)
+	}
+	return err
+}
+
+
+// GetCache 读取缓存
+func (mng *CaptchaMng)GetCache(keyName string)( interface{} ,error){
+	if mng.DataSource == dataSourceStruct.Redis {
+		return   mng.RedisMng.Get(keyName)
+	} else if mng.DataSource == dataSourceStruct.Memory{
+		value,_ :=  mng.MemoryMng.Get(keyName)
+		return value,nil
+	}
+	return nil,nil
 }
