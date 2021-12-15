@@ -77,7 +77,7 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
 		return errors.New("验证码已失效")
 	}
 
-	if captchaCache.(string) != captchaStr {
+	if captchaCache != captchaStr {
 		return errors.New("验证码错误")
 	}
 
@@ -98,11 +98,11 @@ func (mng *CaptchaMng)SetCache(keyName,value string,expire int)(err  error){
 
 
 // GetCache 读取缓存
-func (mng *CaptchaMng)GetCache(keyName string)( interface{} ,error){
+func (mng *CaptchaMng)GetCache(keyName string)( string , error){
 	if mng.DataSource == dataSourceStruct.Redis {
-		return   mng.RedisMng.Get(keyName)
+		return   mng.RedisMng.GetString(keyName)
 	} else if mng.DataSource == dataSourceStruct.Memory{
-		value,_ :=  mng.MemoryMng.Get(keyName)
+		value,_ :=  mng.MemoryMng.GetString(keyName)
 		return value,nil
 	}
 	return nil,nil
