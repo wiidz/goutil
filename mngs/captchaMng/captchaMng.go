@@ -34,8 +34,8 @@ func NewCaptchaMngMemory(memoryM *memoryMng.MemoryMng) (*CaptchaMng, error) {
 	}, nil
 }
 
-// VerifyCaptcha 验证是否有效
-func (mng *CaptchaMng) VerifyCaptcha(id, answer string) bool {
+// VerifyGraphCaptcha 验证图形验证码是否有效
+func (mng *CaptchaMng) VerifyGraphCaptcha(id, answer string) bool {
 	get := cp.DefaultMemStore.Get(id, false)
 	if get == "" {
 		return false
@@ -46,8 +46,8 @@ func (mng *CaptchaMng) VerifyCaptcha(id, answer string) bool {
 	return true
 }
 
-// GenerateCaptcha 生成base64
-func (mng *CaptchaMng) GenerateCaptcha(width, height, noiseCount, length int) (id, b64s string, err error) {
+// GenerateGraphCaptcha 生成图形验证码base64
+func (mng *CaptchaMng) GenerateGraphCaptcha(width, height, noiseCount, length int) (id, b64s string, err error) {
 	driver := cp.NewDriverString(height, width, noiseCount, cp.OptionShowHollowLine,
 		length, cp.TxtSimpleCharaters, &color.RGBA{254, 254, 254, 254}, []string{"Flim-Flam.ttf"})
 	captcha := cp.NewCaptcha(driver, cp.DefaultMemStore)
@@ -72,6 +72,9 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
 	captchaCache, err := mng.GetCache(keyName)
 	if err != nil {
 		return
+	}
+	if captchaCache == nil {
+		return errors.New("验证码已失效")
 	}
 
 	if captchaCache.(string) != captchaStr {
