@@ -79,6 +79,6 @@ type Step struct {
 	TollRoad        []interface{} `json:"toll_road"`        // []
 	Duration        string        `json:"duration"`         // 5
 	Polyline        string        `json:"polyline"`         // 116.481216,39.989532;116.48101,39.989311;116.480957,39.989262;116.480904,39.989216
-	Action          string        `json:"action"`           // 右转
-	AssistantAction string        `json:"assistant_action"` // 进入主路
+	Action          interface{}        `json:"action"`           // 右转 或者 []
+	AssistantAction interface{}        `json:"assistant_action"` // 进入主路 或者 []
 }

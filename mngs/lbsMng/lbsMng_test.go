@@ -78,5 +78,5 @@ func TestDriveRoute(t *testing.T){
 		t.Log("err", err)
 	}
 
-	t.Log("res", res)
+	t.Log("res", res.Route.Paths[0].Distance)
 }
