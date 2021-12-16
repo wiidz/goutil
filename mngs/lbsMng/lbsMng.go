@@ -9,6 +9,9 @@ import (
 
 const ReGeoURL = "https://regeo.market.alicloudapi.com/v3/geocode/regeo"
 const GeoURL = "https://geo.market.alicloudapi.com/v3/geocode/geo"
+const DriveRouteURL = "http://direction.market.alicloudapi.com/v3/direction/driving"
+const WalkRouteURL = "http://direction.market.alicloudapi.com/v3/direction/walking"
+const BusRouteURL = "http://direction.market.alicloudapi.com/v3/direction/transit/integrated"
 
 // 以下方法均为高德地图在阿里云市场中提供的服务
 
@@ -66,3 +69,19 @@ func (mng *LbsMng)Geo(address string)(*ReGeoData,error){
 	return resStr.(*ReGeoRes).ReGeoCode,nil
 }
 
+// GetDriveRoute 驾车路径规划
+// Docs: https://market.aliyun.com/products/56928004/cmapi020537.html?spm=5176.2020520132.101.1.4ed572180w4m2J#sku=yuncode1453700000
+func (mng *LbsMng)GetDriveRoute(originLongitude,originLatitude,targetLongitude,targetLatitude string)(*RouteRes,error){
+	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkHelper.Get, DriveRouteURL, map[string]interface{}{
+		"destination": targetLongitude + "," + targetLatitude,
+		"origin":originLongitude+","+originLatitude,
+	}, map[string]string{
+		"Authorization": "APPCODE " + mng.Config.AppCode,
+	},&RouteRes{})
+
+	if err != nil {
+		return nil,err
+	}
+
+	return resStr.(*RouteRes),nil
+}

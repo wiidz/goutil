@@ -56,3 +56,27 @@ func TestReGeo(t *testing.T){
 //	t.Log("resStr", resStr)
 //	t.Log("err", err)
 //}
+
+func TestDriveRoute(t *testing.T){
+	t.Log("start")
+	lbsM := lbsMng.GetLbsMng(&configStruct.AliApiConfig{
+		AppCode:   "7191c7623e4043388c6a7d06f6589997",
+		AppID:     "",
+		AppSecret: "7191c7623e4043388c6a7d06f6589997",
+	})
+	//latitude := "30.319352"
+	//longitude := "120.388651"
+	originLatitude := "39.990056"
+	originLongitude := "116.482005"
+
+	targetLatitude := "39.994356"
+	targetLongitude := "116.442005"
+
+	res,err :=  lbsM.GetDriveRoute(originLongitude,originLatitude,targetLongitude,targetLatitude)
+
+	if err != nil {
+		t.Log("err", err)
+	}
+
+	t.Log("res", res)
+}

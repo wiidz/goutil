@@ -12,19 +12,19 @@ type ReGeoRes struct {
 }
 
 type ReGeoData struct {
-	FormattedAddress string           `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
+	FormattedAddress string            `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
 	AddressComponent *AddressComponent `json:"addressComponent"`
 }
 
 type AddressComponent struct {
-	Country       string      `json:"country"`  // 国家：中国
-	Province      string      `json:"province"` // 省份：北京市
-	City          string      `json:"city"`     // 城市：
-	CityCode      string      `json:"citycode"` // 城市编码：010
-	District      string      `json:"district"` // 街道：朝阳区
-	AdCode        string      `json:"adcode"`   // 邮政编码：110105
-	Township      string      `json:"township"` // 乡镇：望京街道
-	TownCode      string      `json:"towncode"` // 乡镇编号：110105026000
+	Country       string       `json:"country"`  // 国家：中国
+	Province      string       `json:"province"` // 省份：北京市
+	City          string       `json:"city"`     // 城市：
+	CityCode      string       `json:"citycode"` // 城市编码：010
+	District      string       `json:"district"` // 街道：朝阳区
+	AdCode        string       `json:"adcode"`   // 邮政编码：110105
+	Township      string       `json:"township"` // 乡镇：望京街道
+	TownCode      string       `json:"towncode"` // 乡镇编号：110105026000
 	Neighborhood  *MetaPlace   `json:"neighborhood"`
 	Building      *MetaPlace   `json:"building"`
 	StreetNumber  *Street      `json:"streetNumber"`
@@ -44,4 +44,41 @@ type Street struct {
 	Location  string `json:"location"`  // 经纬度：（经度，纬度）
 	Direction string `json:"Direction"` // 方向：西南
 	Distance  string `json:"distance"`  // 距离：25.9205
+}
+
+// RouteRes 驾车路线
+type RouteRes struct {
+	Count string `json:"count"`
+	Route string `json:"route"`
+	*BaseRes
+}
+
+type Route struct {
+	Origin      string `json:"origin"`
+	Destination string `json:"destination"`
+	Paths       []*Path `json:"paths"`
+}
+
+type Path struct {
+	Distance      string `json:"distance"`       // 27876
+	Duration      string `json:"duration"`       // 4197
+	Strategy      string `json:"strategy"`       // 速度最快
+	Tolls         string `json:"tolls"`          // 0
+	TollDistance  string `json:"toll_distance"`  // 0
+	Restriction   string `json:"restriction"`    // 0
+	TrafficLights string `json:"traffic_lights"` // 23
+	Steps         []*Step `json:"steps"`
+}
+
+type Step struct {
+	Instruction     string        `json:"instruction"`      // 向西南行驶44米右转进入主路
+	Orientation     string        `json:"orientation"`      // 西南
+	Distance        string        `json:"distance"`         // 44
+	Tolls           string        `json:"tolls"`            // 0
+	TollDistance    string        `json:"toll_distance"`    // 0
+	TollRoad        []interface{} `json:"toll_road"`        // []
+	Duration        string        `json:"duration"`         // 5
+	Polyline        string        `json:"polyline"`         // 116.481216,39.989532;116.48101,39.989311;116.480957,39.989262;116.480904,39.989216
+	Action          string        `json:"action"`           // 右转
+	AssistantAction string        `json:"assistant_action"` // 进入主路
 }
