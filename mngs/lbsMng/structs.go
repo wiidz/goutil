@@ -49,7 +49,7 @@ type Street struct {
 // RouteRes 驾车路线
 type RouteRes struct {
 	Count string `json:"count"`
-	Route string `json:"route"`
+	Route *Route `json:"route"`
 	*BaseRes
 }
 
