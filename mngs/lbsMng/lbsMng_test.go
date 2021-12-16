@@ -66,11 +66,11 @@ func TestDriveRoute(t *testing.T){
 	})
 	//latitude := "30.319352"
 	//longitude := "120.388651"
-	originLatitude := "39.990056"
-	originLongitude := "116.482005"
+	originLatitude := "30.319352"
+	originLongitude := "120.388651"
 
-	targetLatitude := "39.994356"
-	targetLongitude := "116.442005"
+	targetLatitude := "29.816140"
+	targetLongitude := "121.547540"
 
 	res,err :=  lbsM.GetDriveRoute(originLongitude,originLatitude,targetLongitude,targetLatitude)
 

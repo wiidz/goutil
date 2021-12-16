@@ -83,5 +83,6 @@ func (mng *LbsMng)GetDriveRoute(originLongitude,originLatitude,targetLongitude,t
 		return nil,err
 	}
 
+
 	return resStr.(*RouteRes),nil
 }

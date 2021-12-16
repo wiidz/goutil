@@ -54,31 +54,31 @@ type RouteRes struct {
 }
 
 type Route struct {
-	Origin      string `json:"origin"`
-	Destination string `json:"destination"`
+	Origin      string  `json:"origin"`
+	Destination string  `json:"destination"`
 	Paths       []*Path `json:"paths"`
 }
 
 type Path struct {
-	Distance      string `json:"distance"`       // 27876
-	Duration      string `json:"duration"`       // 4197
-	Strategy      string `json:"strategy"`       // 速度最快
-	Tolls         string `json:"tolls"`          // 0
-	TollDistance  string `json:"toll_distance"`  // 0
-	Restriction   string `json:"restriction"`    // 0
-	TrafficLights string `json:"traffic_lights"` // 23
-	Steps         []*Step `json:"steps"`
+	Distance      string      `json:"distance"`       // 27876
+	Duration      string      `json:"duration"`       // 4197
+	Strategy      string      `json:"strategy"`       // 速度最快
+	Tolls         interface{} `json:"tolls"`          // 0
+	TollDistance  interface{} `json:"toll_distance"`  // 0
+	Restriction   string      `json:"restriction"`    // 0
+	TrafficLights string      `json:"traffic_lights"` // 23
+	Steps         []*Step     `json:"steps"`
 }
 
 type Step struct {
-	Instruction     string        `json:"instruction"`      // 向西南行驶44米右转进入主路
-	Orientation     string        `json:"orientation"`      // 西南
-	Distance        string        `json:"distance"`         // 44
-	Tolls           string        `json:"tolls"`            // 0
-	TollDistance    string        `json:"toll_distance"`    // 0
-	TollRoad        []interface{} `json:"toll_road"`        // []
-	Duration        string        `json:"duration"`         // 5
-	Polyline        string        `json:"polyline"`         // 116.481216,39.989532;116.48101,39.989311;116.480957,39.989262;116.480904,39.989216
-	Action          interface{}        `json:"action"`           // 右转 或者 []
-	AssistantAction interface{}        `json:"assistant_action"` // 进入主路 或者 []
+	Instruction     string      `json:"instruction"`      // 向西南行驶44米右转进入主路
+	Orientation     string      `json:"orientation"`      // 西南
+	Distance        string      `json:"distance"`         // 44
+	Tolls           interface{} `json:"tolls"`            // 0
+	TollDistance    interface{} `json:"toll_distance"`    // 0
+	TollRoad        interface{} `json:"toll_road"`        // []
+	Duration        string      `json:"duration"`         // 5
+	Polyline        string      `json:"polyline"`         // 116.481216,39.989532;116.48101,39.989311;116.480957,39.989262;116.480904,39.989216
+	Action          interface{} `json:"action"`           // 右转 或者 []
+	AssistantAction interface{} `json:"assistant_action"` // 进入主路 或者 []
 }
