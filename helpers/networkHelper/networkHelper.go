@@ -638,7 +638,7 @@ func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode
  */
 func ReturnError(ctx iris.Context, msg string) {
 
-	ctx.StatusCode(404)
+	ctx.StatusCode(400)
 
 	ctx.JSON(iris.Map{
 		"msg":  msg,
