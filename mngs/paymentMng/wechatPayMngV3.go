@@ -130,17 +130,16 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 	return
 }
 
-// Js JSAPI/小程序下单API totalFee 是分为单位
-func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.PrepayRsp, err error) {
+// jsApiPlaceOrder JSAPI/小程序下单API totalFee 是分为单位
+func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	totalFee := params.TotalAmount * 100 // 分为单位
 
 	// 初始化 BodyMap
 	bm := make(gopay.BodyMap)
-	bm.Set("sp_appid", mng.Config.AppID).
-		Set("sp_mchid", mng.Config.MchID).
-		//Set("sub_mchid", "sub_mchid").
+	bm.Set("appid", mng.Config.AppID).
+		Set("mchid", mng.Config.MchID).
 		Set("description", params.Title).
 		Set("out_trade_no", params.OutTradeNo).
 		Set("time_expire", expire).
