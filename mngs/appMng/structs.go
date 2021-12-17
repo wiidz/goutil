@@ -14,12 +14,12 @@ const LocalFile SqlConfigLocation = 1 // 本地文件，在/configs/目录下
 const SqlRow SqlConfigLocation = 2    // 总库记录，例如center库中存放了以appID为主键的配置记录
 
 type AppMng struct {
-	ID                uint64            `gorm:"column:id" json:"id"`
+	ID uint64 `gorm:"column:id" json:"id"`
 	// RunningMode       RunningMode       // 脚本运行模式
 	// SqlConfigLocation SqlConfigLocation // sql配置存放位置
-	Location          *time.Location    `gorm:"-" json:"-"`
-	BaseConfig        *configStruct.BaseConfig
-	ProjectConfig     configStruct.ProjectConfig
+	Location      *time.Location `gorm:"-" json:"-"`
+	BaseConfig    *configStruct.BaseConfig
+	ProjectConfig configStruct.ProjectConfig
 }
 
 /******sql******

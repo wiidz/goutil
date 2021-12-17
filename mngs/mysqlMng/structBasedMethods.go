@@ -178,7 +178,7 @@ func (mysql *MysqlMng) Delete(params DeleteInterface) error {
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleGetListWithLog(read ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【3】查询
 	mysql.LogRead(read, userID, authID)
@@ -202,7 +202,7 @@ func (mysql *MysqlMng)SimpleGetListWithLog(read ReadInterface, userID, authID in
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleGetDetailWithLog(params ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【2】查询
 	mysql.LogRead(params, userID, authID)
@@ -226,7 +226,7 @@ func (mysql *MysqlMng)SimpleGetDetailWithLog(params ReadInterface, userID, authI
  *         [data] interface{} 错误
  *         [statusCode]int 状态码
  */
-func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
 	err := mysql.Update(params)
@@ -245,7 +245,7 @@ func (mysql *MysqlMng)SimpleUpdate(params UpdateInterface) (msg string, data int
  *          [data] interface{} 错误
  *          [statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
 	err := mysql.Update(params)
@@ -263,11 +263,11 @@ func (mysql *MysqlMng)SimpleUpdateMany(params UpdateInterface) (msg string, data
  *          [data] interface{}错误
  *          [statusCode] int 状态码
  */
-func (mysql *MysqlMng)SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
 	mysql.CreateOne(params)
-	if err := params.GetError();err != nil {
+	if err := params.GetError(); err != nil {
 		return err.Error(), nil, 404
 	}
 
@@ -282,11 +282,11 @@ func (mysql *MysqlMng)SimpleCreateOne(params InsertInterface) (msg string, data 
  *          [data] interface{} 错误
  *          [statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
 	mysql.Delete(params)
-	if err := params.GetError();err != nil {
+	if err := params.GetError(); err != nil {
 		return err.Error(), nil, 404
 	}
 
@@ -304,7 +304,7 @@ func (mysql *MysqlMng)SimpleDelete(params DeleteInterface) (msg string, data int
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleGetList(read ReadInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleGetList(read ReadInterface) (msg string, data interface{}, statusCode int) {
 
 	//【3】查询
 	mysql.Read(read)
@@ -328,7 +328,7 @@ func (mysql *MysqlMng)SimpleGetList(read ReadInterface) (msg string, data interf
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng)SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】查询
 	mysql.Read(params)

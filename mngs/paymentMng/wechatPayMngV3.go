@@ -17,15 +17,15 @@ type WechatPayMngV3 struct {
 }
 
 // getWechatPayV3Instance 获取微信支付V3实例
-func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPayMngV3,err error) {
+func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPayMngV3, err error) {
 
 	var client *wechat.ClientV3
-	client , err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3,config.CertContent)
+	client, err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3, config.CertContent)
 	if err != nil {
 		return
 	}
 	client.DebugSwitch = gopay.DebugOn // 打开Debug开关，输出请求日志，默认关闭
-	client.AutoVerifySign() // 启用自动同步返回验签，并定时更新微信平台API证书
+	client.AutoVerifySign()            // 启用自动同步返回验签，并定时更新微信平台API证书
 
 	mng = &WechatPayMngV3{
 		Config: config,
@@ -36,15 +36,15 @@ func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPa
 }
 
 // NewWechatPayMngV3 根据传入的config，获取信的微信支付
-func NewWechatPayMngV3(config *configStruct.WechatPayConfig)( *WechatPayMngV3 ,error){
+func NewWechatPayMngV3(config *configStruct.WechatPayConfig) (*WechatPayMngV3, error) {
 	return getWechatPayV3Instance(config)
 }
 
 // Mini 小程序场景下单
-func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam,openID string) (timestampStr,packageStr,nonceStr,paySign string, err error) {
+func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
 
 	//【1】获取prepayID
-	prepayRes,err := mng.jsPlaceOrder(params,openID)
+	prepayRes, err := mng.jsPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
@@ -63,10 +63,10 @@ func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam,openID string) (timest
 }
 
 // Js 公众号支付
-func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam,openID string) (appID,timestampStr,nonceStr,packageStr,paySign,signType string, err error) {
+func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
-	prepayRes,err := mng.jsPlaceOrder(params,openID)
+	prepayRes, err := mng.jsPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
@@ -88,10 +88,10 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam,openID string) (appID,ti
 }
 
 // H5 网页支付
-func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam,openID string) (appID,timestampStr,nonceStr,packageStr,paySign,signType string, err error) {
+func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
-	prepayRes,err := mng.jsPlaceOrder(params,openID)
+	prepayRes, err := mng.jsPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
@@ -113,7 +113,7 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam,openID string) (appID,ti
 }
 
 // Refund 退款
-func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp,err error) {
+func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, err error) {
 	bm := make(gopay.BodyMap)
 	bm.Set("out_trade_no", param.OutTradeNo).
 		Set("nonce_str", util.GetRandomString(32)).
@@ -122,16 +122,16 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp,e
 		Set("notify_url", mng.Config.RefundNotifyURL).
 		SetBodyMap("amount", func(bm gopay.BodyMap) {
 			bm.Set("refund", param.RefundAmount).
-				Set("total",param.TotalAmount).
+				Set("total", param.TotalAmount).
 				Set("currency", "CNY")
 		})
 
-	wxRsp,err = mng.Client.V3Refund(bm)
+	wxRsp, err = mng.Client.V3Refund(bm)
 	return
 }
 
 // Js JSAPI/小程序下单API totalFee 是分为单位
-func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam,openID string) (prepayRsp *wechat.PrepayRsp , err error) {
+func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	totalFee := params.TotalAmount * 100 // 分为单位
@@ -168,7 +168,7 @@ func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam,openID string)
 }
 
 // h5PlaceOrder H5下单
-func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam,openID string) (prepayRsp *wechat.H5Rsp , err error) {
+func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.H5Rsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	totalFee := params.TotalAmount * 100 // 分为单位
@@ -205,7 +205,7 @@ func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam,openID string)
 }
 
 // NotifyPayment 一般支付回调
-func (mng *WechatPayMngV3) NotifyPayment(req *http.Request)(res *wechat.V3DecryptResult,err error){
+func (mng *WechatPayMngV3) NotifyPayment(req *http.Request) (res *wechat.V3DecryptResult, err error) {
 
 	var notifyReq *wechat.V3NotifyReq
 	notifyReq, err = wechat.V3ParseNotify(req)
@@ -220,7 +220,7 @@ func (mng *WechatPayMngV3) NotifyPayment(req *http.Request)(res *wechat.V3Decryp
 }
 
 // NotifyRefund 退款回调
-func (mng *WechatPayMngV3) NotifyRefund(req *http.Request)(res *wechat.V3DecryptRefundResult,err error){
+func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3DecryptRefundResult, err error) {
 
 	var notifyReq *wechat.V3NotifyReq
 	notifyReq, err = wechat.V3ParseNotify(req)
@@ -233,4 +233,3 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request)(res *wechat.V3Decrypt
 	res, err = notifyReq.DecryptRefundCipherText(mng.Config.ApiKeyV3)
 	return
 }
-

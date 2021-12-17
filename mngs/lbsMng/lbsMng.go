@@ -20,14 +20,14 @@ type LbsMng struct {
 }
 
 // GetLbsMng : 返回地理位置管理器
-func GetLbsMng(config *configStruct.AliApiConfig)*LbsMng{
+func GetLbsMng(config *configStruct.AliApiConfig) *LbsMng {
 	return &LbsMng{
-		Config:config,
+		Config: config,
 	}
 }
 
 // ReGeo : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
-func (mng *LbsMng)ReGeo(longitude,latitude string)(*ReGeoData,error){
+func (mng *LbsMng) ReGeo(longitude, latitude string) (*ReGeoData, error) {
 
 	tempStr, _, _, err := networkHelper.RequestRaw(networkHelper.Get, ReGeoURL, map[string]interface{}{
 		"location": longitude + "," + latitude,
@@ -35,54 +35,52 @@ func (mng *LbsMng)ReGeo(longitude,latitude string)(*ReGeoData,error){
 		"Authorization": "APPCODE " + mng.Config.AppCode,
 	})
 
-	log.Println("【res】",tempStr)
+	log.Println("【res】", tempStr)
 
 	temp := ReGeoRes{}
-	typeHelper.JsonDecodeWithStruct(tempStr,&temp)
+	typeHelper.JsonDecodeWithStruct(tempStr, &temp)
 
-	log.Println("【temp】",temp)
+	log.Println("【temp】", temp)
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	//return resStr.(*ReGeoRes).ReGeoCode,nil
 	//return res.(*ReGeoData),nil
-	return temp.ReGeoCode,nil
+	return temp.ReGeoCode, nil
 }
-
 
 // Geo : 地理编码(将详细的结构化地址转换为高德经纬度坐标。且支持对地标性名胜景区、建筑物名称解析为高德经纬度坐标)
 // Tips：举例，北京市朝阳区阜通东大街6号转换后经纬度：116.480881,39.989410 地
-func (mng *LbsMng)Geo(address string)(*ReGeoData,error){
+func (mng *LbsMng) Geo(address string) (*ReGeoData, error) {
 
 	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkHelper.Get, GeoURL, map[string]interface{}{
 		"address": address,
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	},&ReGeoRes{})
+	}, &ReGeoRes{})
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	return resStr.(*ReGeoRes).ReGeoCode,nil
+	return resStr.(*ReGeoRes).ReGeoCode, nil
 }
 
 // GetDriveRoute 驾车路径规划
 // Docs: https://market.aliyun.com/products/56928004/cmapi020537.html?spm=5176.2020520132.101.1.4ed572180w4m2J#sku=yuncode1453700000
-func (mng *LbsMng)GetDriveRoute(originLongitude,originLatitude,targetLongitude,targetLatitude string)(*RouteRes,error){
+func (mng *LbsMng) GetDriveRoute(originLongitude, originLatitude, targetLongitude, targetLatitude string) (*RouteRes, error) {
 	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkHelper.Get, DriveRouteURL, map[string]interface{}{
 		"destination": targetLongitude + "," + targetLatitude,
-		"origin":originLongitude+","+originLatitude,
+		"origin":      originLongitude + "," + originLatitude,
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	},&RouteRes{})
+	}, &RouteRes{})
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-
-	return resStr.(*RouteRes),nil
+	return resStr.(*RouteRes), nil
 }

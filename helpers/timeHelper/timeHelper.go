@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	HyphenTimeStr = "2006-01-02 15:04:05"
-	SlashTimeStr  = "2006/01/02 15:04:05"
-	HyphenDateStr = "2006-01-02"
-	SlashDateStr  = "2006/01/02"
+	HyphenTimeStr  = "2006-01-02 15:04:05"
+	SlashTimeStr   = "2006/01/02 15:04:05"
+	HyphenDateStr  = "2006-01-02"
+	SlashDateStr   = "2006/01/02"
 	ISO8601TimeStr = "2006-01-02T15:04:05Z"
 )
 
@@ -103,7 +103,6 @@ func ParseFromTimeStr(dateStr string) MyJsonTime {
 	temp, _ := time.ParseInLocation(HyphenTimeStr, dateStr, local)
 	return MyJsonTime(temp)
 }
-
 
 // GetHyphenDateStr 获取 短横线 日期 字符串
 func (tm MyJsonTime) GetHyphenDateStr() string {

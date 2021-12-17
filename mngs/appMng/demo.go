@@ -5,14 +5,14 @@ import (
 	"log"
 )
 
-type CustomerConfig  struct {
+type CustomerConfig struct {
 	TestConfig *TestConfig
 }
 
 // Build : 这个方法完成设置的初始化
-func (config *CustomerConfig) Build() error{
+func (config *CustomerConfig) Build() error {
 	config.TestConfig = &TestConfig{
-		Number:2,
+		Number: 2,
 	}
 	return nil
 }
@@ -22,9 +22,9 @@ type TestConfig struct {
 	Number uint64
 }
 
-func test(){
+func test() {
 	//appM,_ := appMng.GetAppMng(1,"a_space","a_setting",&CustomerConfig{})
-	appM,_ := GetSingletonAppMng(1,&configStruct.MysqlConfig{
+	appM, _ := GetSingletonAppMng(1, &configStruct.MysqlConfig{
 		Host:             "localhost",
 		Port:             "3306",
 		Username:         "test",
@@ -38,10 +38,10 @@ func test(){
 		MaxIdle:          10,
 		MaxLifeTime:      60,
 		ParseTime:        true,
-	},&CustomerConfig{},&configStruct.CheckStart{
+	}, &CustomerConfig{}, &configStruct.CheckStart{
 		Mysql: true,
 		Redis: false,
 		Es:    false,
 	})
-	log.Println("appM",appM.BaseConfig.Location,appM.ProjectConfig.(*CustomerConfig).TestConfig.Number)
+	log.Println("appM", appM.BaseConfig.Location, appM.ProjectConfig.(*CustomerConfig).TestConfig.Number)
 }

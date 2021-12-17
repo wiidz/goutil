@@ -48,23 +48,22 @@ func (es *EsMng) Stop() {
 }
 
 // Add 添加数据
-func (es *EsMng) Add(index, id string, data interface{}) (res *elastic.IndexResponse,err error) {
+func (es *EsMng) Add(index, id string, data interface{}) (res *elastic.IndexResponse, err error) {
 	return es.client.Index().Index(index).Id(id).BodyJson(data).Do(context.Background())
 }
 
 // Update 修改
-func (es *EsMng) Update(index, id string, data map[string]interface{}) ( res *elastic.UpdateResponse,err error) {
+func (es *EsMng) Update(index, id string, data map[string]interface{}) (res *elastic.UpdateResponse, err error) {
 	return es.client.Update().Index(index).Id(id).Doc(data).Do(context.Background())
 }
 
 // DeleteByID 根据ID删除数据
-func (es *EsMng) DeleteByID(index, id string) (res *elastic.DeleteResponse,err error) {
+func (es *EsMng) DeleteByID(index, id string) (res *elastic.DeleteResponse, err error) {
 	return es.client.Delete().Index(index).Id(id).Do(context.Background())
 }
 
-
 // Truncate 清空一个index
-func (es *EsMng) Truncate(index string) (res *elastic.IndicesDeleteResponse,err error) {
+func (es *EsMng) Truncate(index string) (res *elastic.IndicesDeleteResponse, err error) {
 	return es.client.DeleteIndex(index).Do(context.Background())
 }
 

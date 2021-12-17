@@ -20,7 +20,7 @@ type MiniMng struct {
 }
 
 // NewMiniMng 获取小程序管理器
-func NewMiniMng(redisC *configStruct.RedisConfig,miniC *configStruct.WechatMiniConfig) *MiniMng {
+func NewMiniMng(redisC *configStruct.RedisConfig, miniC *configStruct.WechatMiniConfig) *MiniMng {
 
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中

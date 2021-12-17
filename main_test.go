@@ -1,4 +1,5 @@
 package goutil
+
 //
 //import (
 //	"github.com/wiidz/goutil/helpers"

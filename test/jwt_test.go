@@ -14,7 +14,7 @@ type TokenData struct {
 }
 
 var tokenData = TokenData{}
-var mng = jwtMng.GetJwtMng("hujiayilu123",tokenData)
+var mng = jwtMng.GetJwtMng("hujiayilu123", tokenData)
 
 func GetToken() {
 

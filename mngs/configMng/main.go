@@ -162,7 +162,6 @@ package configMng
 //	return &rabbitMQConfig
 //}
 
-
 //// GetWechatMiniFromDB 从数据库获取微信小程序配置
 //func GetWechatMiniFromDB(conn *gorm.DB) *WechatMiniConfig {
 //

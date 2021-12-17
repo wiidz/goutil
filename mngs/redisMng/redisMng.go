@@ -16,16 +16,16 @@ type RedisMng struct {
 }
 
 // Init 初始化
-func Init(redisC *configStruct.RedisConfig) (err error){
+func Init(redisC *configStruct.RedisConfig) (err error) {
 
 	redisURL := redisC.Host + ":" + redisC.Port
-	log.Println("【redis-dsn】",redisURL)
+	log.Println("【redis-dsn】", redisURL)
 
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
-		Dial: func() (conn redis.Conn,err error) {
+		Dial: func() (conn redis.Conn, err error) {
 			conn, err = redis.Dial("tcp", redisURL)
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
@@ -42,7 +42,7 @@ func Init(redisC *configStruct.RedisConfig) (err error){
 		},
 	}
 
-	_ , err = pool.Dial()
+	_, err = pool.Dial()
 	return
 }
 
@@ -62,7 +62,7 @@ func (mng *RedisMng) GetString(key string) (string, error) {
 	//【2】读取值
 	res, err := redis.String(rc.Do("GET", key))
 	if err != nil && err.Error() == "redigo: nil returned" {
-		return "",nil
+		return "", nil
 	}
 
 	//【3】返回
@@ -79,7 +79,7 @@ func (mng *RedisMng) Get(key string) (interface{}, error) {
 	//【2】读取值
 	res, err := rc.Do("GET", key)
 	if err != nil && err.Error() == "redigo: nil returned" {
-		return "",nil
+		return "", nil
 	}
 
 	//【3】返回

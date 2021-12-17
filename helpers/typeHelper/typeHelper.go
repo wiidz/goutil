@@ -17,7 +17,7 @@ import (
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Implode(data interface{}, glue string) string {
+func Implode(data interface{}, glue string) string {
 	var tmp []string
 	for _, item := range data.([]interface{}) {
 		tmp = append(tmp, ToString(item))
@@ -27,7 +27,7 @@ func  Implode(data interface{}, glue string) string {
 }
 
 // ImplodeInt8 将Int8切片转换成string
-func  ImplodeInt8(data []int8, glue string) string {
+func ImplodeInt8(data []int8, glue string) string {
 	var tmp []string
 	for _, item := range data {
 		tmp = append(tmp, ToString(item))
@@ -37,10 +37,10 @@ func  ImplodeInt8(data []int8, glue string) string {
 }
 
 // ImplodeUint64 将slice转换成字符串
-func  ImplodeUint64(data []uint64, glue string) string {
+func ImplodeUint64(data []uint64, glue string) string {
 	var tmp []string
 	for _, item := range data {
-		tmp = append(tmp, strconv.FormatUint(item,10))
+		tmp = append(tmp, strconv.FormatUint(item, 10))
 	}
 
 	return strings.Join(tmp, glue)
@@ -51,7 +51,7 @@ func  ImplodeUint64(data []uint64, glue string) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ImplodeInt(data []int, glue string) string {
+func ImplodeInt(data []int, glue string) string {
 	var tmp []string
 	for _, item := range data {
 		tmp = append(tmp, strconv.Itoa(item))
@@ -60,9 +60,8 @@ func  ImplodeInt(data []int, glue string) string {
 	return strings.Join(tmp, glue)
 }
 
-
 // ImplodeStr 将 str slice转换成字符串
-func  ImplodeStr(data []string, glue string) string {
+func ImplodeStr(data []string, glue string) string {
 	var tmp []string
 	for _, item := range data {
 		tmp = append(tmp, item)
@@ -76,7 +75,7 @@ func  ImplodeStr(data []string, glue string) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Explode(data string, sep string) []interface{} {
+func Explode(data string, sep string) []interface{} {
 
 	if len(data) == 0 {
 		return []interface{}{}
@@ -94,13 +93,12 @@ func  Explode(data string, sep string) []interface{} {
 
 }
 
-
 /**
  * @func: ExplodeStr  字符串转str clise
  * @author Wiidz
  * @date   2019-11-16
  */
-func    ExplodeStr(data string, sep string) []string {
+func ExplodeStr(data string, sep string) []string {
 	if len(data) == 0 {
 		return []string{}
 	}
@@ -117,7 +115,7 @@ func    ExplodeStr(data string, sep string) []string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ExplodeInt(data string, sep string) []int {
+func ExplodeInt(data string, sep string) []int {
 	if len(data) == 0 {
 		return []int{}
 	}
@@ -134,14 +132,14 @@ func  ExplodeInt(data string, sep string) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ExplodeUint64(data string, sep string) []uint64 {
+func ExplodeUint64(data string, sep string) []uint64 {
 	if len(data) == 0 {
 		return []uint64{}
 	}
 	old := strings.Split(data, sep)
 	newS := make([]uint64, len(old))
 	for i, v := range old {
-		newS[i], _ = strconv.ParseUint(v,10,64)
+		newS[i], _ = strconv.ParseUint(v, 10, 64)
 	}
 	return newS
 }
@@ -151,7 +149,7 @@ func  ExplodeUint64(data string, sep string) []uint64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ExplodeFloat64(data string, sep string) []float64 {
+func ExplodeFloat64(data string, sep string) []float64 {
 	if len(data) == 0 {
 		return []float64{}
 	}
@@ -168,7 +166,7 @@ func  ExplodeFloat64(data string, sep string) []float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ExplodeInt64(data string, sep string) []int64 {
+func ExplodeInt64(data string, sep string) []int64 {
 	if len(data) == 0 {
 		return []int64{}
 	}
@@ -181,7 +179,7 @@ func  ExplodeInt64(data string, sep string) []int64 {
 }
 
 // ExplodeInt8 字符串转int8 slice
-func  ExplodeInt8(data string, sep string) []int8 {
+func ExplodeInt8(data string, sep string) []int8 {
 	if len(data) == 0 {
 		return []int8{}
 	}
@@ -194,15 +192,14 @@ func  ExplodeInt8(data string, sep string) []int8 {
 	return newS
 }
 
-
 /**
  * @func: GetType 获取目标的数据类型
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetType(params interface{}) string {
+func GetType(params interface{}) string {
 	vT := reflect.TypeOf(params)
-	log.Println("vT",vT)
+	log.Println("vT", vT)
 	if params == nil {
 		return "nil"
 	}
@@ -223,7 +220,7 @@ func  GetType(params interface{}) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Empty(arg interface{}) bool {
+func Empty(arg interface{}) bool {
 
 	if arg == nil {
 		return true
@@ -232,7 +229,6 @@ func  Empty(arg interface{}) bool {
 	var dataType = reflect.TypeOf(arg)
 
 	return reflect.Zero(dataType) == arg
-
 
 	//switch arg.(type) {
 	//
@@ -298,7 +294,7 @@ func  Empty(arg interface{}) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  IsType(needle interface{}, type_name string) bool {
+func IsType(needle interface{}, type_name string) bool {
 	if reflect.TypeOf(needle).String() == type_name {
 		return true
 	}
@@ -310,7 +306,7 @@ func  IsType(needle interface{}, type_name string) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  StrSlice2InterfaceSlice(data []string) []interface{} {
+func StrSlice2InterfaceSlice(data []string) []interface{} {
 	tmp := make([]interface{}, 0)
 	for _, v := range data {
 		tmp = append(tmp, v)
@@ -323,7 +319,7 @@ func  StrSlice2InterfaceSlice(data []string) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ToString(data interface{}) string {
+func ToString(data interface{}) string {
 	switch data.(type) {
 	case int:
 		return strconv.Itoa(data.(int))
@@ -355,7 +351,7 @@ func  ToString(data interface{}) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Map2InterfaceSlice(data map[string]interface{}) []interface{} {
+func Map2InterfaceSlice(data map[string]interface{}) []interface{} {
 	islice := []interface{}{}
 	for _, v := range data {
 		islice = append(islice, v)
@@ -368,7 +364,7 @@ func  Map2InterfaceSlice(data map[string]interface{}) []interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Str2Int64(str string) int64 {
+func Str2Int64(str string) int64 {
 	number, _ := strconv.ParseInt(str, 10, 64)
 	return number
 }
@@ -378,7 +374,7 @@ func  Str2Int64(str string) int64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Str2Int(str string) int {
+func Str2Int(str string) int {
 	ints, _ := strconv.Atoi(str)
 	return ints
 }
@@ -388,7 +384,7 @@ func  Str2Int(str string) int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Str2Int8(str string) int8 {
+func Str2Int8(str string) int8 {
 	ints, _ := strconv.Atoi(str)
 	return int8(ints)
 }
@@ -398,8 +394,8 @@ func  Str2Int8(str string) int8 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Str2Uint64(str string) uint64 {
-	number, _ := strconv.ParseUint(str,10,64)
+func Str2Uint64(str string) uint64 {
+	number, _ := strconv.ParseUint(str, 10, 64)
 	return number
 }
 
@@ -408,7 +404,7 @@ func  Str2Uint64(str string) uint64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64ToStr(number float64) string {
+func Float64ToStr(number float64) string {
 	return strconv.FormatFloat(number, 'f', -1, 64)
 }
 
@@ -417,7 +413,7 @@ func  Float64ToStr(number float64) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Int64ToStr(number int64) string {
+func Int64ToStr(number int64) string {
 	str := strconv.FormatInt(number, 10)
 	return str
 }
@@ -427,7 +423,7 @@ func  Int64ToStr(number int64) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Str2Float64(str string) float64 {
+func Str2Float64(str string) float64 {
 	v, _ := strconv.ParseFloat(str, 64)
 	return v
 }
@@ -437,7 +433,7 @@ func  Str2Float64(str string) float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  JsonEncode(data interface{}) (string, error) {
+func JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
 
 	if err != nil {
@@ -461,22 +457,20 @@ func  JsonEncode(data interface{}) (string, error) {
 //	return data
 //}
 
-
-func JsonDecode(jsonStr string)(parsedData interface{}){
+func JsonDecode(jsonStr string) (parsedData interface{}) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
 	return
 }
 
-func JsonDecodeMap(jsonStr string)(parsedData map[string]interface{}){
+func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
 	return
 }
-
 
 // JsonDecodeInt64Slice json解码至int64切片
-func  JsonDecodeInt64Slice(jsonStr string) []int64 {
+func JsonDecodeInt64Slice(jsonStr string) []int64 {
 
 	var data []int64
 
@@ -485,9 +479,8 @@ func  JsonDecodeInt64Slice(jsonStr string) []int64 {
 	return data
 }
 
-
 // JsonDecodeStrSlice json解码至str切片
-func  JsonDecodeStrSlice(jsonStr string) []string {
+func JsonDecodeStrSlice(jsonStr string) []string {
 
 	var data []string
 
@@ -496,9 +489,8 @@ func  JsonDecodeStrSlice(jsonStr string) []string {
 	return data
 }
 
-
 // JsonDecodeIntSlice json解码至int切片
-func  JsonDecodeIntSlice(jsonStr string) []int {
+func JsonDecodeIntSlice(jsonStr string) []int {
 
 	var data []int
 
@@ -510,13 +502,13 @@ func  JsonDecodeIntSlice(jsonStr string) []int {
 // JsonDecodeWithStruct 带结构体的json解码
 // 	temp := ReGeoRes{}
 //	typeHelper.JsonDecodeWithStruct(tempStr,&temp)
-func  JsonDecodeWithStruct(jsonStr string, iStruct interface{}) {
+func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) {
 	_ = json.Unmarshal([]byte(jsonStr), &iStruct)
 	return
 }
 
 // InterfaceSlice2MapSlice
-func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
+func InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
 
 	tmp := make([]map[string]interface{}, 0)
 
@@ -535,7 +527,7 @@ func  InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64Slice2IntSlice(slice []interface{}) []int {
+func Float64Slice2IntSlice(slice []interface{}) []int {
 	int_slice := []int{}
 	for _, v := range slice {
 		//fmt.Println("v",v)
@@ -552,34 +544,32 @@ func  Float64Slice2IntSlice(slice []interface{}) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Int2Str(number int) string {
+func Int2Str(number int) string {
 	return strconv.Itoa(number)
 }
-
 
 /**
  * @func: Float64SliceToInt float64 slice转换成 int slice
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Uint64ToStr(number uint64) string {
-	return strconv.FormatUint(number,10)
+func Uint64ToStr(number uint64) string {
+	return strconv.FormatUint(number, 10)
 }
-
 
 /**
  * @func: If 三元运算符
  * @author Wiidz
  * @date   2019-11-16
  */
-func  If(conditions bool, trueVal, falseVal interface{}) interface{} {
+func If(conditions bool, trueVal, falseVal interface{}) interface{} {
 	if conditions {
 		return trueVal
 	}
 	return falseVal
 }
 
-func  Int64Slice2IntSlice(int64_slice []int64) []int {
+func Int64Slice2IntSlice(int64_slice []int64) []int {
 	res := []int{}
 	for _, v := range int64_slice {
 		res = append(res, int(v))
@@ -587,14 +577,13 @@ func  Int64Slice2IntSlice(int64_slice []int64) []int {
 	return res
 }
 
-func  IsNil(i interface{}) bool {
+func IsNil(i interface{}) bool {
 	vi := reflect.ValueOf(i)
 	if vi.Kind() == reflect.Ptr {
 		return vi.IsNil()
 	}
 	return false
 }
-
 
 // 整形转换成字节
 func Int2Bytes(n int) []byte {
@@ -603,6 +592,7 @@ func Int2Bytes(n int) []byte {
 	binary.Write(bytesBuffer, binary.BigEndian, x)
 	return bytesBuffer.Bytes()
 }
+
 // 字节转换成整形
 func Bytes2Int(b []byte) int {
 	bytesBuffer := bytes.NewBuffer(b)
@@ -614,17 +604,16 @@ func Bytes2Int(b []byte) int {
 }
 
 // Float64ToInt float64转int
-func  Float64ToInt(number float64) int {
+func Float64ToInt(number float64) int {
 	return int(number)
 }
-
 
 /**
  * @func: Float64ToIntSlice float64 slice转换成 int slice
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64ToIntSlice(slice []interface{}) []int {
+func Float64ToIntSlice(slice []interface{}) []int {
 	newSlice := []int{}
 	for _, v := range slice {
 		newSlice = append(newSlice, int(int64(v.(float64))))
@@ -637,27 +626,25 @@ func  Float64ToIntSlice(slice []interface{}) []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64ToInt8(number float64) int8 {
+func Float64ToInt8(number float64) int8 {
 	return int8(number)
 }
-
 
 /**
  * @func: Float64ToUint64 将字符串转为int8
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Float64ToUint64(number float64) uint64 {
+func Float64ToUint64(number float64) uint64 {
 	return uint64(number)
 }
 
-
 // Float64ToInt64 float64转为int64
-func  Float64ToInt64(number float64) int64 {
+func Float64ToInt64(number float64) int64 {
 	return int64(number)
 }
 
 // Int8ToStr int8转字符串
-func Int8ToStr(number int8)string {
+func Int8ToStr(number int8) string {
 	return strconv.Itoa(int(number))
 }

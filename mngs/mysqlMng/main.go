@@ -26,8 +26,8 @@ func Init(config *configStruct.MysqlConfig) (err error) {
 		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
 		"?charset=" + config.Charset +
 		"&collation=" + config.Collation +
-		"&loc=" +url.QueryEscape(config.TimeZone)+
-		"&parseTime="+strconv.FormatBool(config.ParseTime)
+		"&loc=" + url.QueryEscape(config.TimeZone) +
+		"&parseTime=" + strconv.FormatBool(config.ParseTime)
 
 	//【3】构建DB对象
 	log.Println("【mysql-dsn】", dsn)

@@ -21,11 +21,12 @@ import (
 	"strconv"
 	"strings"
 )
+
 // ReadCommonStruct 读取列表公用的参数
 type ReadCommonStruct struct {
-	PageNow   int    `json:"page_now" belong:"etc" default:"1"`
-	PageSize  int    `json:"page_size" belong:"etc" default:"10"`
-	Order     string `json:"order" belong:"etc" default:"id asc"`
+	PageNow  int    `json:"page_now" belong:"etc" default:"1"`
+	PageSize int    `json:"page_size" belong:"etc" default:"10"`
+	Order    string `json:"order" belong:"etc" default:"id asc"`
 }
 
 type Method int8
@@ -60,7 +61,7 @@ func (p Method) String() string {
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func  GetParsedURL(apiURL string, params map[string]interface{}) (string, error) {
+func GetParsedURL(apiURL string, params map[string]interface{}) (string, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -88,7 +89,7 @@ func  GetParsedURL(apiURL string, params map[string]interface{}) (string, error)
  * @author: Wiidz
  * @date: 2021-06-20
  */
-func  GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
+func GetRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -129,7 +130,7 @@ func  GetRequest(apiURL string, params map[string]interface{}) (map[string]inter
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func  PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
+func PostRequest(apiURL string, params map[string]interface{}) (map[string]interface{}, *http.Header, error) {
 
 	//【1】解析URL
 	var targetURL *url.URL
@@ -171,7 +172,7 @@ func  PostRequest(apiURL string, params map[string]interface{}) (map[string]inte
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func  DownloadFile(targetURL, localPath string) (fileName, pathString string, err error) {
+func DownloadFile(targetURL, localPath string) (fileName, pathString string, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -210,7 +211,7 @@ func  DownloadFile(targetURL, localPath string) (fileName, pathString string, er
  * @author: Wiidz
  * @date:  2021-6-20
  */
-func  DownloadFileWithFormat(targetURL, localPath, format string, headers map[string]string) (fileName, tempPath string, header *http.Header, err error) {
+func DownloadFileWithFormat(targetURL, localPath, format string, headers map[string]string) (fileName, tempPath string, header *http.Header, err error) {
 
 	if localPath == "" {
 		localPath = "/tmp/download/"
@@ -268,7 +269,7 @@ func  DownloadFileWithFormat(targetURL, localPath, format string, headers map[st
  * @author Wiidz
  * @date   2019-11-16
  */
-func  PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, error) {
+func PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, error) {
 
 	param := url.Values{}
 
@@ -293,7 +294,7 @@ func  PostJsonRequest(apiURL string, params map[string]interface{}) ([]byte, err
 	return data, e
 }
 
-func  RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
+func RequestRaw(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -334,7 +335,7 @@ func  RequestRaw(method Method, targetURL string, params map[string]interface{},
 		}
 	}
 	//【5-1】增加content-Length
-		if method != 1{
+	if method != 1 {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
@@ -350,7 +351,7 @@ func  RequestRaw(method Method, targetURL string, params map[string]interface{},
 
 }
 
-func  RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
+func RequestJson(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -392,14 +393,13 @@ func  RequestJson(method Method, targetURL string, params map[string]interface{}
 	}
 
 	//【5-1】增加content-Length
-		if method != 1{
+	if method != 1 {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
 	defer resp.Body.Close()
-
 
 	b, err := httputil.DumpResponse(resp, true)
 	if err != nil {
@@ -419,7 +419,7 @@ func  RequestJson(method Method, targetURL string, params map[string]interface{}
 
 }
 
-func  RequestJsonWithStruct(method Method, targetURL string, params map[string]interface{}, headers map[string]string,iStruct interface{}) (interface{}, *http.Header, int, error) {
+func RequestJsonWithStruct(method Method, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -461,7 +461,7 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	}
 
 	//【5-1】增加content-Length
-	if method != 1{
+	if method != 1 {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 		request.Header.Add("Content-type", "application/json;charset=utf-8")
 	}
@@ -480,9 +480,7 @@ func  RequestJsonWithStruct(method Method, targetURL string, params map[string]i
 	return iStruct, &resp.Header, resp.StatusCode, err
 }
 
-
-
-func  RequestRawTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
+func RequestRawTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -524,7 +522,7 @@ func  RequestRawTest(method Method, targetURL string, params map[string]interfac
 		}
 	}
 	//【5-1】增加content-Length
-		if method != 1{
+	if method != 1 {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
@@ -546,7 +544,7 @@ func  RequestRawTest(method Method, targetURL string, params map[string]interfac
 
 }
 
-func  RequestJsonTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
+func RequestJsonTest(method Method, targetURL string, params map[string]interface{}, headers map[string]string) (map[string]interface{}, *http.Header, int, error) {
 
 	//【1】解析URL
 	var parsedURL *url.URL
@@ -588,12 +586,11 @@ func  RequestJsonTest(method Method, targetURL string, params map[string]interfa
 		}
 	}
 	//【5-1】增加content-Length
-	if method != 1{
-			if method != 1{
-		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
+	if method != 1 {
+		if method != 1 {
+			request.Header.Add("Content-Length", strconv.Itoa(len(param)))
+		}
 	}
-	}
-
 
 	fmt.Println("\n***************************")
 	fmt.Println("Request:")
@@ -680,7 +677,7 @@ func GetJson(ctx iris.Context, target interface{}) error {
 }
 
 // QueryParamsFilter get参数过滤器+验证
-func QueryParamsFilter(ctx iris.Context, params interface{}) (condition,etc map[string]interface{},err error) {
+func QueryParamsFilter(ctx iris.Context, params interface{}) (condition, etc map[string]interface{}, err error) {
 
 	//【1】提取字段
 	t := reflect.TypeOf(params)
@@ -748,7 +745,7 @@ func QueryParamsFilter(ctx iris.Context, params interface{}) (condition,etc map[
 }
 
 // JsonParamsFilter 依据json格式从body体中过滤参数+验证
-func JsonParamsFilter(params interface{}) (condition,value,etc map[string]interface{},err error){
+func JsonParamsFilter(params interface{}) (condition, value, etc map[string]interface{}, err error) {
 
 	//【1】提取字段
 	t := reflect.TypeOf(params)
@@ -825,9 +822,9 @@ func getFormattedValue(t string, value interface{}) interface{} {
 	case "string":
 		if valueType == "float64" {
 			return typeHelper.Float64ToStr(value.(float64))
-		}else if valueType == "int" {
+		} else if valueType == "int" {
 			return typeHelper.Int2Str(value.(int))
-		}else if valueType == "nil" {
+		} else if valueType == "nil" {
 			return ""
 		} else {
 			return value.(string)
@@ -845,7 +842,7 @@ func getFormattedValue(t string, value interface{}) interface{} {
 			return typeHelper.Str2Int8(value.(string))
 		} else if valueType == "nil" {
 			return int8(0)
-		}else {
+		} else {
 			return typeHelper.Float64ToInt8(value.(float64))
 		}
 	case "int64":
@@ -853,7 +850,7 @@ func getFormattedValue(t string, value interface{}) interface{} {
 			return typeHelper.Str2Int64(value.(string))
 		} else if valueType == "nil" {
 			return int64(0)
-		}else {
+		} else {
 			return typeHelper.Float64ToInt64(value.(float64))
 		}
 	case "uint64":
@@ -861,7 +858,7 @@ func getFormattedValue(t string, value interface{}) interface{} {
 			return typeHelper.Str2Uint64(value.(string))
 		} else if valueType == "nil" {
 			return uint64(0)
-		}else {
+		} else {
 			return typeHelper.Float64ToUint64(value.(float64))
 		}
 	case "float64":
@@ -876,9 +873,9 @@ func getFormattedValue(t string, value interface{}) interface{} {
 		if str, ok := value.(string); ok {
 			slice := typeHelper.ExplodeInt(str, ",")
 			return slice
-		}  else if valueType == "nil" {
+		} else if valueType == "nil" {
 			return []int{}
-		}else {
+		} else {
 			slice := typeHelper.Float64ToIntSlice(value.([]interface{}))
 			return slice
 		}
@@ -923,7 +920,7 @@ func GetReadInterface(ctx iris.Context, params mysqlMng.ReadInterface) error {
 
 		//【3-2】取值
 		temp := ctx.URLParam(jsonTag)
-		log.Println("temp:",jsonTag,temp)
+		log.Println("temp:", jsonTag, temp)
 		if temp == "" {
 			if defaultValue == "" {
 				//即没有默认值也没有值传递过来的，跳过
@@ -1020,10 +1017,9 @@ func GetCreateInterface(params mysqlMng.InsertInterface) error {
 		//【2-3】将值赋值给param结构体的对应字段
 		val := reflect.ValueOf(formattedValue)
 
-		if val != reflect.Zero(field.Type){
+		if val != reflect.Zero(field.Type) {
 			v.Elem().Field(i).Set(val)
 		}
-
 
 		//【2-4】填充到valueMap中
 		if belong != "value" {

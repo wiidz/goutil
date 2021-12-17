@@ -87,23 +87,22 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
 }
 
 // SetCache 记录缓存
-func (mng *CaptchaMng)SetCache(keyName,value string,expire int)(err  error){
+func (mng *CaptchaMng) SetCache(keyName, value string, expire int) (err error) {
 	if mng.DataSource == dataSourceStruct.Redis {
-		err =  mng.RedisMng.Set(keyName,value,expire)
-	} else if mng.DataSource == dataSourceStruct.Memory{
-		mng.MemoryMng.Set(keyName,value,time.Duration(expire)*time.Second)
+		err = mng.RedisMng.Set(keyName, value, expire)
+	} else if mng.DataSource == dataSourceStruct.Memory {
+		mng.MemoryMng.Set(keyName, value, time.Duration(expire)*time.Second)
 	}
 	return err
 }
 
-
 // GetCache 读取缓存
-func (mng *CaptchaMng)GetCache(keyName string)( string , error){
+func (mng *CaptchaMng) GetCache(keyName string) (string, error) {
 	if mng.DataSource == dataSourceStruct.Redis {
-		return   mng.RedisMng.GetString(keyName)
-	} else if mng.DataSource == dataSourceStruct.Memory{
-		value,_ :=  mng.MemoryMng.GetString(keyName)
-		return value,nil
+		return mng.RedisMng.GetString(keyName)
+	} else if mng.DataSource == dataSourceStruct.Memory {
+		value, _ := mng.MemoryMng.GetString(keyName)
+		return value, nil
 	}
-	return "",errors.New("未知数据源")
+	return "", errors.New("未知数据源")
 }

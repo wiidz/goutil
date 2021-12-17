@@ -82,7 +82,7 @@ func (s *Set) SortList() []int {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetStructAllMethods(target interface{}) {
+func GetStructAllMethods(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumMethod(); i++ {
@@ -95,7 +95,7 @@ func  GetStructAllMethods(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetStructAllFields(target interface{}) {
+func GetStructAllFields(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
@@ -108,7 +108,7 @@ func  GetStructAllFields(target interface{}) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetStructAllKV(target interface{}) {
+func GetStructAllKV(target interface{}) {
 	value := reflect.ValueOf(target)
 	typ := value.Type()
 	for i := 0; i < value.NumField(); i++ {
@@ -117,19 +117,18 @@ func  GetStructAllKV(target interface{}) {
 	}
 }
 
-
 /**
  * @func: GetStructAllFields  打印结构体的所有键值对
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetStructPointAllKV(target interface{}) {
+func GetStructPointAllKV(target interface{}) {
 
 	value := reflect.ValueOf(target)
 	typ := value.Elem().Type()
 
-	log.Println("value",value)
-	log.Println("typ",typ)
+	log.Println("value", value)
+	log.Println("typ", typ)
 
 	for i := 0; i < value.Elem().NumField(); i++ {
 		//fmt.Println(fmt.Sprintf("field [%d]%s and type is %v", i, typ.Field(i).Name, typ.Field(i).Type))
@@ -138,12 +137,12 @@ func  GetStructPointAllKV(target interface{}) {
 }
 
 // GetValueByKeyName 根据键名获取结构体中的数据
-func GetValueByKeyName(targetStruct interface{},keyName string)interface{}{
+func GetValueByKeyName(targetStruct interface{}, keyName string) interface{} {
 
-	v:=reflect.ValueOf(targetStruct)
+	v := reflect.ValueOf(targetStruct)
 
 	//获取指针
-	ptr:=v.Elem()
+	ptr := v.Elem()
 
 	//获取具体字段的封装
 	return ptr.FieldByName(keyName)

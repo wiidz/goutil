@@ -130,18 +130,18 @@ func (ossMng *OssMng) Upload(filePath, objectName string) (string, error) {
 }
 
 // GetBucketInfo 获取Bucket信息
-func (ossMng *OssMng) GetBucketInfo(){
+func (ossMng *OssMng) GetBucketInfo() {
 	//response, err := ossMng.getPolicyToken(object)
 
 	// 获取存储空间。
 	bucket, _ := ossMng.Client.Bucket(ossMng.Config.BucketName)
-	log.Println("bucket",bucket)
+	log.Println("bucket", bucket)
 	//log.Println("bucket",bucket.Get)
 
 }
 
 // SimpleGetOssSign 简单获取签名
-func SimpleGetOssSign(ossMng *OssMng,object string) (msg string, data interface{}, statusCode int) {
+func SimpleGetOssSign(ossMng *OssMng, object string) (msg string, data interface{}, statusCode int) {
 
 	remotePath := GetRemotePath(object)
 

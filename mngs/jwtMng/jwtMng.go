@@ -208,16 +208,16 @@ func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
 
 // IsPkSet 主要用来判断是否是前端请求
 // Tips：此方法试用于前后端非同表的项目，判断是否是前端（tokenData里是否有jwtMng约定的主键）
-func (mng *JwtMng) IsPkSet(tokenData jwt.Claims)  bool {
+func (mng *JwtMng) IsPkSet(tokenData jwt.Claims) bool {
 	immutable := reflect.ValueOf(tokenData)
-	if immutable.IsValid() == false{
+	if immutable.IsValid() == false {
 		return false
 	}
 
 	temp := immutable.Elem().FieldByName(mng.IdentifyKey)
-	log.Println("temp",temp)
+	log.Println("temp", temp)
 
-	if temp.IsValid() == false{
+	if temp.IsValid() == false {
 		return false
 	}
 
@@ -229,23 +229,22 @@ func (mng *JwtMng) IsPkSet(tokenData jwt.Claims)  bool {
 	}
 }
 
-
 // GetTokenData 获取token
-func (mng *JwtMng) GetTokenData(ctx iris.Context)  (data jwt.Claims,err error) {
-	tempData :=  ctx.Values().Get(TokenKeyName)
+func (mng *JwtMng) GetTokenData(ctx iris.Context) (data jwt.Claims, err error) {
+	tempData := ctx.Values().Get(TokenKeyName)
 	if tempData == nil {
 		err = errors.New("token数据为空")
 		return
 	}
 
 	var ok bool
-	data,ok = tempData.(jwt.Claims)
+	data, ok = tempData.(jwt.Claims)
 	if !ok {
 		err = errors.New("token解析失败")
 		return
 	}
 
-	log.Println("mng.IsPkSet",mng.IsPkSet(data))
+	log.Println("mng.IsPkSet", mng.IsPkSet(data))
 
 	if mng.IsPkSet(data) == false {
 		err = errors.New("登陆主体为空")

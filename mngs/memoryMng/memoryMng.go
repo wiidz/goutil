@@ -25,14 +25,13 @@ func (mng *MemoryMng) Get(keyName string) (data interface{}, isExist bool) {
 	return
 }
 
-
 // GetString 提取
 func (mng *MemoryMng) GetString(keyName string) (data string, isExist bool) {
 	var temp interface{}
 	temp, isExist = mng.Client.Get(keyName)
 	var ok bool
-	if data , ok = temp.(string) ; !ok {
-		return "",false
+	if data, ok = temp.(string); !ok {
+		return "", false
 	}
 	return
 }

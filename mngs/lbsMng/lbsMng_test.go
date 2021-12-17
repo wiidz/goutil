@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestReGeo(t *testing.T){
+func TestReGeo(t *testing.T) {
 	t.Log("start")
 	lbsM := lbsMng.GetLbsMng(&configStruct.AliApiConfig{
 		AppCode:   "7191c7623e4043388c6a7d06f6589997",
@@ -17,7 +17,7 @@ func TestReGeo(t *testing.T){
 	//longitude := "120.388651"
 	latitude := "39.990056"
 	longitude := "116.482005"
-	res,err :=  lbsM.ReGeo(longitude,latitude)
+	res, err := lbsM.ReGeo(longitude, latitude)
 
 	if err != nil {
 		t.Log("err", err)
@@ -25,8 +25,6 @@ func TestReGeo(t *testing.T){
 
 	t.Log("res", res)
 }
-
-
 
 //func TestGeo(t *testing.T){
 //	t.Log("start")
@@ -44,8 +42,6 @@ func TestReGeo(t *testing.T){
 //	t.Log("res", res)
 //}
 
-
-
 //func TestExpress(t *testing.T){
 //
 //	resStr, _, _, err := networkHelper.RequestJson(networkHelper.Get, "https://wuliu.market.alicloudapi.com/kdi", map[string]interface{}{
@@ -57,7 +53,7 @@ func TestReGeo(t *testing.T){
 //	t.Log("err", err)
 //}
 
-func TestDriveRoute(t *testing.T){
+func TestDriveRoute(t *testing.T) {
 	t.Log("start")
 	lbsM := lbsMng.GetLbsMng(&configStruct.AliApiConfig{
 		AppCode:   "7191c7623e4043388c6a7d06f6589997",
@@ -72,7 +68,7 @@ func TestDriveRoute(t *testing.T){
 	targetLatitude := "29.816140"
 	targetLongitude := "121.547540"
 
-	res,err :=  lbsM.GetDriveRoute(originLongitude,originLatitude,targetLongitude,targetLatitude)
+	res, err := lbsM.GetDriveRoute(originLongitude, originLatitude, targetLongitude, targetLatitude)
 
 	if err != nil {
 		t.Log("err", err)

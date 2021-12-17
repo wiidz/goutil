@@ -92,7 +92,7 @@ func (mng *WechatPayMngV2) H5(param *UnifiedOrderParam) (mWebUrl string, err err
 	if wxRsp.ReturnCode == "FAIL" {
 		err = errors.New(wxRsp.ReturnMsg)
 		return
-	} else  if len(wxRsp.ErrCodeDes) != 0 {
+	} else if len(wxRsp.ErrCodeDes) != 0 {
 		err = errors.New(wxRsp.ErrCodeDes)
 		return
 	}
@@ -104,7 +104,7 @@ func (mng *WechatPayMngV2) H5(param *UnifiedOrderParam) (mWebUrl string, err err
 }
 
 // Js js场景 统一下单获取 totalFee 是分为单位
-func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam,openID string) (data map[string]interface{}, err error) {
+func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam, openID string) (data map[string]interface{}, err error) {
 
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -154,7 +154,7 @@ func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam,openID string) (data map[
 }
 
 // Mini 小程序场景下单
-func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam,openID string) (timestampStr,packageStr,nonceStr,paySign string, err error) {
+func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -197,7 +197,7 @@ func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam,openID string) (timesta
 	if wxRsp.ReturnCode == "FAIL" {
 		err = errors.New(wxRsp.ReturnMsg)
 		return
-	} else  if len(wxRsp.ErrCodeDes) != 0 {
+	} else if len(wxRsp.ErrCodeDes) != 0 {
 		err = errors.New(wxRsp.ErrCodeDes)
 		return
 	}
@@ -218,8 +218,8 @@ func (mng *WechatPayMngV2) Refund(param *RefundParam) (err error) {
 
 	xlog.Debug("out_refund_no:", param.OutTradeNo)
 
-	totalFee :=  param.TotalAmount * 100 // 分为单位
-	refundFee :=  param.RefundAmount * 100 // 分为单位
+	totalFee := param.TotalAmount * 100   // 分为单位
+	refundFee := param.RefundAmount * 100 // 分为单位
 
 	// 初始化参数结构体
 	bm := make(gopay.BodyMap)

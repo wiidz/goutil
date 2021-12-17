@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode"
 )
+
 const (
 	base64Str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -19,7 +20,7 @@ const (
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Base64Encode(src []byte) (str string) {
+func Base64Encode(src []byte) (str string) {
 	coder := base64.NewEncoding(base64Str)
 	str = coder.EncodeToString(src)
 	return
@@ -30,7 +31,7 @@ func  Base64Encode(src []byte) (str string) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Base64Decode(str string) (data []byte) {
+func Base64Decode(str string) (data []byte) {
 	coder := base64.NewEncoding(base64Str)
 	var err error
 	data, err = coder.DecodeString(str)
@@ -45,7 +46,7 @@ func  Base64Decode(str string) (data []byte) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetRandomString(l int) string {
+func GetRandomString(l int) string {
 	str := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
 	result := []byte{}
@@ -61,7 +62,7 @@ func  GetRandomString(l int) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  GetWordsLength(str string) float64 {
+func GetWordsLength(str string) float64 {
 	var total float64
 	reg := regexp.MustCompile("/·|，|。|《|》|‘|’|”|“|；|：|【|】|？|（|）|、/")
 	for _, r := range str {
@@ -79,7 +80,7 @@ func  GetWordsLength(str string) float64 {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  StripTags(body string) string {
+func StripTags(body string) string {
 
 	src := string(body)
 
@@ -112,7 +113,7 @@ func  StripTags(body string) string {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Trim(str string) (data string) {
+func Trim(str string) (data string) {
 	tmp := bytes.Trim([]byte(str), " ")
 	data = string(tmp)
 	return
@@ -123,7 +124,7 @@ func  Trim(str string) (data string) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  Substr(s string, start, length int) string {
+func Substr(s string, start, length int) string {
 	bt := []rune(s)
 	if start < 0 {
 		start = 0
@@ -145,14 +146,14 @@ func  Substr(s string, start, length int) string {
  * @author Hank
  * @date   2019-02-24
  */
-func  ValidatePhone(phoneNum string) bool {
+func ValidatePhone(phoneNum string) bool {
 	regular := `(?:^1[3456789]|^9[28])\d{9}$`
 	reg := regexp.MustCompile(regular)
 	return reg.MatchString(phoneNum)
 }
 
 // Exist 判断目标字符串中是否存在需要的字符
-func Exist(targetStr,needleStr string) bool {
+func Exist(targetStr, needleStr string) bool {
 	if strings.Index(targetStr, needleStr) == -1 {
 		return false
 	} else {

@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kataras/iris/v12"
+	"github.com/shamsher31/goimgtype"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
-	"github.com/shamsher31/goimgtype"
 	"image"
 	"image/gif"
 	"image/jpeg"
@@ -27,7 +27,7 @@ import (
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ExistFile(filename string, filesize int64) bool {
+func ExistFile(filename string, filesize int64) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		fmt.Println(info)
@@ -49,7 +49,7 @@ func  ExistFile(filename string, filesize int64) bool {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
+func DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
 	var (
 		fsize   int64
 		buf     = make([]byte, 32*1024)
@@ -124,12 +124,11 @@ func  DownloadFile(url string, localPath string, fb func(length, downLen int64))
 	return err
 }
 
-
 /**
 * @func: OpenImageFile 打开图像文件
 * @author Wiidz
 * @date   2019-11-16
-*/
+ */
 func OpenImageFile(localUri string) (image.Image, error) {
 	var m image.Image
 	ff, _ := ioutil.ReadFile(localUri) //读取文件 要先下载
@@ -165,7 +164,7 @@ func Buff2Image(bytes []byte) {
  * @author Wiidz
  * @date   2019-11-16
  */
-func  ReadJsonFile(filePath string) map[string]interface{} {
+func ReadJsonFile(filePath string) map[string]interface{} {
 	file, _ := os.Open(filePath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
@@ -177,13 +176,13 @@ func  ReadJsonFile(filePath string) map[string]interface{} {
 	return conf
 }
 
-func  GetFileBuf(uri string) []byte {
+func GetFileBuf(uri string) []byte {
 	buf, _ := ioutil.ReadFile(uri)
 	return buf
 }
 
 // DownloadFileFromContext 从请求体中保存文件
-func  DownloadFileFromContext(ctx iris.Context,fieldName,targetPath string) (fileName,filePath string,err error){
+func DownloadFileFromContext(ctx iris.Context, fieldName, targetPath string) (fileName, filePath string, err error) {
 
 	// Get the file from the request.
 	file, info, err := ctx.FormFile(fieldName)
@@ -199,7 +198,7 @@ func  DownloadFileFromContext(ctx iris.Context,fieldName,targetPath string) (fil
 	// mkdir uploads
 	// chomod -R 777 uploads
 
-	out, err := os.OpenFile( filePath,
+	out, err := os.OpenFile(filePath,
 		os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		err = errors.New("下载时出错")

@@ -1,6 +1,5 @@
 package dataSourceStruct
 
-
 type DataSource int8
 
 const Memory DataSource = 1

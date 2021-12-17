@@ -114,16 +114,16 @@ type WechatOpenConfig struct {
 // WechatPayConfig 微信支付参数
 type WechatPayConfig struct {
 	AppID           string `gorm:"column:wechat_pay_app_id" json:"app_id"`             //【微信支付】appID
-	ApiKey          string `gorm:"column:wechat_api_key" json:"api_key"`             //【微信支付】apiKey（v2）
-	ApiKeyV3          string `gorm:"column:wechat_api_key_v3" json:"api_key_v3"`             //【微信支付】apiKey,apiV3Key（v3）
+	ApiKey          string `gorm:"column:wechat_api_key" json:"api_key"`               //【微信支付】apiKey（v2）
+	ApiKeyV3        string `gorm:"column:wechat_api_key_v3" json:"api_key_v3"`         //【微信支付】apiKey,apiV3Key（v3）
 	MchID           string `gorm:"column:wechat_pay_mch_id" json:"mch_id"`             //【微信支付】商户ID 或者服务商模式的 sp_mchid
 	CertURI         string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri"`         //【微信支付】公钥文件
 	KeyURI          string `gorm:"column:wechat_pay_key_uri" json:"key_uri"`           //【微信支付】私钥文件
-	CertSerialNo    string `gorm:"column:cert_serial_mo" json:"cert_serial_mo"`                   //【微信支付】证书序列号（V3使用）
+	CertSerialNo    string `gorm:"column:cert_serial_mo" json:"cert_serial_mo"`        //【微信支付】证书序列号（V3使用）
 	CertContent     string `gorm:"column:wechat_pay_cert_content" json:"cert_content"` //【微信支付】私钥文件内容（私钥 apiclient_key.pem 读取后的字符串内容）
-	NotifyURL       string `gorm:"column:notify_url" json:"notify_url"`                           // 【微信支付】支付回调地址
-	RefundNotifyURL string `gorm:"column:refund_notify_url" json:"refund_notify_url"`             // 【微信支付】退款回调地址
-	IsProd          bool   `gorm:"column:is_prod" json:"is_prod"`                                 // 【微信支付】是否是生产模式
+	NotifyURL       string `gorm:"column:notify_url" json:"notify_url"`                // 【微信支付】支付回调地址
+	RefundNotifyURL string `gorm:"column:refund_notify_url" json:"refund_notify_url"`  // 【微信支付】退款回调地址
+	IsProd          bool   `gorm:"column:is_prod" json:"is_prod"`                      // 【微信支付】是否是生产模式
 }
 
 // AliPayConfig 支付宝参数

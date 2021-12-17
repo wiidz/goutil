@@ -19,7 +19,6 @@ type IDInterface interface {
 	GetID() uint64
 }
 
-
 type BaseInterface interface {
 	GetError() error
 	GetRowsAffected() int64
