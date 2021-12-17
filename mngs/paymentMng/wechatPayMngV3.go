@@ -149,7 +149,7 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 				Set("currency", "CNY")
 		}).
 		SetBodyMap("payer", func(bm gopay.BodyMap) {
-			bm.Set("sp_openid", openID)
+			bm.Set("openid", openID)
 		})
 
 	prepayRsp, err = mng.Client.V3TransactionJsapi(bm)
@@ -174,8 +174,8 @@ func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam, openID string
 
 	// 初始化 BodyMap
 	bm := make(gopay.BodyMap)
-	bm.Set("sp_appid", "sp_appid").
-		Set("sp_mchid", "sp_mchid").
+	bm.Set("appid", "appid").
+		Set("mchid", "mchid").
 		Set("sub_mchid", "sub_mchid").
 		Set("description", params.Title).
 		Set("out_trade_no", params.OutTradeNo).
@@ -186,7 +186,7 @@ func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam, openID string
 				Set("currency", "CNY")
 		}).
 		SetBodyMap("payer", func(bm gopay.BodyMap) {
-			bm.Set("sp_openid", openID)
+			bm.Set("openid", openID)
 		})
 
 	prepayRsp, err = mng.Client.V3TransactionH5(bm)
