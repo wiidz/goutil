@@ -59,6 +59,7 @@ func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (times
 	timestampStr = applet.TimeStamp
 	packageStr = "prepay_id=" + prepayRes.Response.PrepayId
 	paySign = applet.PaySign
+	nonceStr = applet.NonceStr
 	return
 }
 
