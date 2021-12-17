@@ -138,9 +138,9 @@ func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam, openID string
 
 	// 初始化 BodyMap
 	bm := make(gopay.BodyMap)
-	bm.Set("sp_appid", "sp_appid").
-		Set("sp_mchid", "sp_mchid").
-		Set("sub_mchid", "sub_mchid").
+	bm.Set("sp_appid", mng.Config.AppID).
+		Set("sp_mchid", mng.Config.MchID).
+		//Set("sub_mchid", "sub_mchid").
 		Set("description", params.Title).
 		Set("out_trade_no", params.OutTradeNo).
 		Set("time_expire", expire).
