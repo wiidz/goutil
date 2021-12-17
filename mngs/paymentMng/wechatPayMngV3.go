@@ -19,7 +19,7 @@ type WechatPayMngV3 struct {
 func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPayMngV3,err error) {
 
 	var client *wechat.ClientV3
-	client , err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKey,config.CertContent)
+	client , err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3,config.CertContent)
 	if err != nil {
 		return
 	}

@@ -152,6 +152,7 @@ func getWechatPayConfig(rows []*DbSettingRow) *configStruct.WechatPayConfig {
 	return &configStruct.WechatPayConfig{
 		AppID:           GetValueFromRow(rows, "wechat", "pay", "app_id", "").Value,
 		ApiKey:          GetValueFromRow(rows, "wechat", "pay", "api_key", "").Value,
+		ApiKeyV3:        GetValueFromRow(rows, "wechat", "pay", "api_key_v3", "").Value,
 		MchID:           GetValueFromRow(rows, "wechat", "pay", "mch_id", "").Value,
 		CertURI:         GetValueFromRow(rows, "wechat", "pay", "cert_uri", "").Value,
 		KeyURI:          GetValueFromRow(rows, "wechat", "pay", "key_uri", "").Value,
