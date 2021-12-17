@@ -44,7 +44,7 @@ func NewWechatPayMngV3(config *configStruct.WechatPayConfig) (*WechatPayMngV3, e
 func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
 
 	//【1】获取prepayID
-	prepayRes, err := mng.jsPlaceOrder(params, openID)
+	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
@@ -66,7 +66,7 @@ func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (times
 func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
-	prepayRes, err := mng.jsPlaceOrder(params, openID)
+	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
-	prepayRes, err := mng.jsPlaceOrder(params, openID)
+	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
 	if err != nil {
 		return
 	}
