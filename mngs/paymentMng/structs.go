@@ -46,11 +46,12 @@ type AliUnifiedOrderParam struct {
 
 // RefundParam 退款参数
 type RefundParam struct {
-	OutTradeNo    string  // 外部订单号
-	OrderRefundNo string  // 退款单号
+	TransactionID string // 原支付交易对应的微信订单号（二选一）
+	OutTradeNo    string  // 原支付交易对应的商户订单号（二选一）
+	OrderRefundNo string  // 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
 	TotalAmount   float64 // 订单总金额
 	RefundAmount float64 // 退款金额
-	Reason        string  // 退款原因
+	Reason        string  // 退款原因，若商户传入，会在下发给用户的退款消息中体现退款原因
 }
 
 

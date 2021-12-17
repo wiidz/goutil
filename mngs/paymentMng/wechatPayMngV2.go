@@ -12,15 +12,15 @@ import (
 	"time"
 )
 
-type WechatPayMng struct {
+type WechatPayMngV2 struct {
 	Config *configStruct.WechatPayConfig
 	Client *wechat.Client
 }
 
 // getWechatPayInstance 获取微信支付实例
-func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMng {
+func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
 
-	var wechatPayMng = &WechatPayMng{
+	var wechatPayMng = &WechatPayMngV2{
 		Config: config,
 		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, config.IsProd),
 	}
@@ -47,12 +47,12 @@ func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMng {
 }
 
 // NewWechatPayMng 根据传入的config，获取信的微信支付
-func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMng {
+func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
 	return getWechatPayInstance(config)
 }
 
 // H5 H5场景 totalFee 是分为单位
-func (mng *WechatPayMng) H5(param *UnifiedOrderParam) (mWebUrl string, err error) {
+func (mng *WechatPayMngV2) H5(param *UnifiedOrderParam) (mWebUrl string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -104,7 +104,7 @@ func (mng *WechatPayMng) H5(param *UnifiedOrderParam) (mWebUrl string, err error
 }
 
 // Js js场景 统一下单获取 totalFee 是分为单位
-func (mng *WechatPayMng) Js(param *UnifiedOrderParam,openID string) (data map[string]interface{}, err error) {
+func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam,openID string) (data map[string]interface{}, err error) {
 
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -154,7 +154,7 @@ func (mng *WechatPayMng) Js(param *UnifiedOrderParam,openID string) (data map[st
 }
 
 // Mini 小程序场景下单
-func (mng *WechatPayMng) Mini(param *UnifiedOrderParam,openID string) (timestampStr,packageStr,nonceStr,paySign string, err error) {
+func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam,openID string) (timestampStr,packageStr,nonceStr,paySign string, err error) {
 	//初始化参数Map
 	totalFee := param.TotalAmount * 100 // 分为单位
 
@@ -214,7 +214,7 @@ func (mng *WechatPayMng) Mini(param *UnifiedOrderParam,openID string) (timestamp
 }
 
 // Refund 退款
-func (mng *WechatPayMng) Refund(param *RefundParam) (err error) {
+func (mng *WechatPayMngV2) Refund(param *RefundParam) (err error) {
 
 	xlog.Debug("out_refund_no:", param.OutTradeNo)
 
