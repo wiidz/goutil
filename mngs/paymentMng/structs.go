@@ -12,14 +12,10 @@ const Check PaymentWay = 6                // 支票
 
 type PaymentKind int8 // 支付方式
 
-const UnknownKind PaymentKind = 0      // 未知
-const UserPay PaymentKind = 1          // 用户支付
-const UserRefund PaymentKind = 2       // 用户退款（订单退款、充值退款等）
-const UserWithdraw PaymentKind = 3     // 用户提现（活动奖励、红包等）
-const PromoterPay PaymentKind = 4      // 推广员支付（门槛费、管理费、素材费、进货等）
-const PromoterWithdraw PaymentKind = 5 // 推广员提现
-const SupplierPay PaymentKind = 6      // 供应商付款（门槛费、管理费等）
-const SupplierWithdraw PaymentKind = 7 // 供应商提现
+const UnknownKind PaymentKind = 0 // 未知
+const Pay PaymentKind = 1         // 支付
+const Refund PaymentKind = 2      // 退款（订单退款、充值退款等）
+const Withdraw PaymentKind = 3    // 提现（钱包余额）
 
 // AliNotifyData 支付宝回调参数
 type AliNotifyData struct {
