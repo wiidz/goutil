@@ -1,5 +1,14 @@
 package paymentMng
 
+type PaymentWay int8
+
+const Cash PaymentWay = 1                 // 现金
+const WechatPay PaymentWay = 2            // 微信支付
+const AliPay PaymentWay = 3               // 支付宝支付
+const OfficalBankTransfer PaymentWay = 4  // 对公账户转账
+const PersonalBankTransfer PaymentWay = 5 // 私人账户转账
+const Check PaymentWay = 6                // 支票
+
 // AliNotifyData 支付宝回调参数
 type AliNotifyData struct {
 	NotifyTime        string  `json:"notify_time"`         // 通知的发送时间。格式为 yyyy-MM-dd HH:mm:ss。示例值：2015-14-27 15:45:58
@@ -46,14 +55,13 @@ type AliUnifiedOrderParam struct {
 
 // RefundParam 退款参数
 type RefundParam struct {
-	TransactionID string // 原支付交易对应的微信订单号（二选一）
+	TransactionID string  // 原支付交易对应的微信订单号（二选一）
 	OutTradeNo    string  // 原支付交易对应的商户订单号（二选一）
 	OrderRefundNo string  // 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
 	TotalAmount   float64 // 订单总金额
-	RefundAmount float64 // 退款金额
+	RefundAmount  float64 // 退款金额
 	Reason        string  // 退款原因，若商户传入，会在下发给用户的退款消息中体现退款原因
 }
-
 
 // UnifiedOrderParam 微信统一下单参数
 type UnifiedOrderParam struct {
@@ -62,5 +70,5 @@ type UnifiedOrderParam struct {
 	TotalAmount float64 // 总金额（元为单位）
 	ReturnURL   string  // 支付后返回的页面URL
 	IP          string  // 下单人的IP
-	AppName string // 我们的项目名称
+	AppName     string  // 我们的项目名称
 }
