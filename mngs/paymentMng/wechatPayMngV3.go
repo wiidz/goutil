@@ -7,6 +7,7 @@ import (
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"net/http"
 	"time"
 )
 
@@ -166,7 +167,6 @@ func (mng *WechatPayMngV3) jsPlaceOrder(params *UnifiedOrderParam,openID string)
 	return
 }
 
-
 // h5PlaceOrder H5下单
 func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam,openID string) (prepayRsp *wechat.H5Rsp , err error) {
 
@@ -201,6 +201,36 @@ func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam,openID string)
 		return
 	}
 
+	return
+}
+
+// NotifyPayment 一般支付回调
+func (mng *WechatPayMngV3) NotifyPayment(req *http.Request)(res *wechat.V3DecryptResult,err error){
+
+	var notifyReq *wechat.V3NotifyReq
+	notifyReq, err = wechat.V3ParseNotify(req)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+	// 普通支付通知解密
+	res, err = notifyReq.DecryptCipherText(mng.Config.ApiKeyV3)
+	return
+}
+
+// NotifyRefund 退款回调
+func (mng *WechatPayMngV3) NotifyRefund(req *http.Request)(res *wechat.V3DecryptRefundResult,err error){
+
+	var notifyReq *wechat.V3NotifyReq
+	notifyReq, err = wechat.V3ParseNotify(req)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+	// 普通支付通知解密
+	res, err = notifyReq.DecryptRefundCipherText(mng.Config.ApiKeyV3)
 	return
 }
 
