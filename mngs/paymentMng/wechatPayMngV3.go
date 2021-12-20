@@ -3,7 +3,6 @@ package paymentMng
 import (
 	"errors"
 	"github.com/go-pay/gopay"
-	"github.com/go-pay/gopay/pkg/util"
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/wiidz/goutil/structs/configStruct"
@@ -117,7 +116,6 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (appID, 
 func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, err error) {
 	bm := make(gopay.BodyMap)
 	bm.Set("out_trade_no", param.OutTradeNo).
-		Set("nonce_str", util.GetRandomString(32)).
 		Set("out_refund_no", param.OrderRefundNo).
 		Set("reason", param.Reason).
 		Set("notify_url", mng.Config.RefundNotifyURL).
