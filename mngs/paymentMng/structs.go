@@ -9,6 +9,9 @@ const AliPay PaymentWay = 3               // 支付宝支付
 const OfficalBankTransfer PaymentWay = 4  // 对公账户转账
 const PersonalBankTransfer PaymentWay = 5 // 私人账户转账
 const Check PaymentWay = 6                // 支票
+const UserWallet PaymentWay = 7           // 用户账户储值金
+const PromoterWallet PaymentWay = 8       // 推广员账户储值金
+const OgWallet PaymentWay = 9             // 单位账户储值金
 
 type PaymentKind int8 // 支付方式
 
