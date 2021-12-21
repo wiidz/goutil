@@ -104,9 +104,10 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 
 // BindDelayQueue 申明并绑定延迟队列
 // 声明延时队列队列，该队列中消息如果过期，就将消息发送到交换器上，交换器就分发消息到普通队列
+// 先把数据推到delayQueueName上，会放进queueName里，再消费
 func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amqp.Queue, err error) {
 
-	//【2】申明交换机
+	//【1】申明交换机
 	err = mng.SetExchange(nil)
 	if err != nil {
 		return
@@ -126,7 +127,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amq
 
 	//【4】申明延迟队列
 	_, err = mng.Channel.QueueDeclare(
-		"test_delay",    // name
+		delayQueueName,    // name
 		false, // durable
 		false, // delete when unused
 		true,  // exclusive
