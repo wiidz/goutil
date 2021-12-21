@@ -8,19 +8,23 @@ import (
 
 type Producer struct {
 	*RabbitMQ
+	//BindingKey string
+	RoutingKey     string
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(exchangeName string, exchangeType ExchangeType, bindingKey string) (producer *Producer, err error) {
+func NewProducer(exchangeName string, exchangeType ExchangeType,routingKey string) (producer *Producer, err error) {
 
 	var rabbitM *RabbitMQ
-	rabbitM, err = NewRabbitMQ(exchangeName, exchangeType, bindingKey, bindingKey)
+	rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
 	if err != nil {
 		return
 	}
 
 	producer = &Producer{
 		RabbitMQ: rabbitM,
+		//BindingKey: bindingKey,
+		RoutingKey: routingKey,
 	}
 	return
 }

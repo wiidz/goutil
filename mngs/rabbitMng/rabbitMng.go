@@ -12,10 +12,10 @@ var conn *amqp.Connection
 type RabbitMQ struct {
 	Conn    *amqp.Connection // 连接，是指物理的连接，一个client与一个server之间有一个连接；
 	Channel *amqp.Channel    // 频道，一个连接上可以建立多个channel，可以理解为逻辑上的连接。一般应用的情况下，有一个channel就够用了，不需要创建更多的channel
-	//Queue   *amqp.Queue      // 队列，仅是针对接收方（consumer）的，由接收方根据需求创建的。只有队列创建了，交换机才会将新接受到的消息送到队列中，交换机是不会在队列创建之前的消息放进来的。 即在建立队列之前，发出的所有消息都被丢弃了。
+	// Queue   *amqp.Queue      // 队列，仅是针对接收方（consumer）的，由接收方根据需求创建的。只有队列创建了，交换机才会将新接受到的消息送到队列中，交换机是不会在队列创建之前的消息放进来的。 即在建立队列之前，发出的所有消息都被丢弃了。
 	// QueueName    string
-	BindingKey   string       // 绑定（Binding）Exchange与Queue的同时，一般会指定一个binding key ; binding key 并不是在所有情况下都生效，它依赖于Exchange Type，比如fanout类型的Exchange就会无视binding key，而是将消息路由到所有绑定到该Exchange的Queue
-	RoutingKey   string       // 消费者将消息发送给Exchange时，一般会指定一个routing key，当binding key与routing key相匹配时，消息将会被路由到对应的Queue中
+	// BindingKey   string       // 绑定（Binding）Exchange与Queue的同时，一般会指定一个binding key ; binding key 并不是在所有情况下都生效，它依赖于Exchange Type，比如fanout类型的Exchange就会无视binding key，而是将消息路由到所有绑定到该Exchange的Queue
+	// RoutingKey   string       // 消费者将消息发送给Exchange时，一般会指定一个routing key，当binding key与routing key相匹配时，消息将会被路由到对应的Queue中
 	ExchangeName string       // 交换机名称
 	ExchangeType ExchangeType // 交换器类型，常用的Exchange Type有 Fanout、 Direct、 Topic、 Headers 这四种。
 }
@@ -41,11 +41,9 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 	return
 }
 
-func NewRabbitMQ(exchangeName string,exchangeType ExchangeType,bindingKey,routingKey string) (mng *RabbitMQ,err error){
+func NewRabbitMQ(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ, err error) {
 	mng = &RabbitMQ{
 		Conn:         conn,
-		BindingKey:   bindingKey,
-		RoutingKey:   routingKey,
 		ExchangeName: exchangeName,
 		ExchangeType: exchangeType,
 	}
@@ -73,13 +71,13 @@ func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 		false,                    // delete when complete 完成后是否删除
 		false,                    // internal
 		false,                    // noWait
-		arguments,               // arguments
+		arguments,                // arguments
 	)
 	return
 }
 
-// BindQueue 申明并绑定队列
-func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
+// BindQueue 申明并绑定队列到当前channel和exchange上
+func (mng *RabbitMQ) BindQueue(queueName,bindingKey string) (queue amqp.Queue, err error) {
 
 	//【3】申明队列
 	queue, err = mng.Channel.QueueDeclare(
@@ -93,7 +91,7 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 	//【4】队列绑定至交换机
 	err = mng.Channel.QueueBind(
 		queueName,
-		mng.BindingKey, // Producer
+		bindingKey, // Producer
 		mng.ExchangeName,
 		true,
 		nil)
@@ -101,43 +99,31 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 	return
 }
 
-// BindDelayQueue 申明并绑定延迟队列
-// 声明延时队列队列，该队列中消息如果过期，就将消息发送到交换器上，交换器就分发消息到普通队列
-// 先把数据推到delayQueueName上，会放进queueName里，再消费
-func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName,routingKey string) (queue amqp.Queue, err error) {
+// BindDelayQueue 申明并绑定延迟队列到当前的channel信道的exchange上
+// queueName 绑定到当前信道的bindingKey上
+// 过期后的信息会被推送到targetExchangeName，路由是routingKey
+func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string) (queue amqp.Queue, err error) {
 
-	//【3】声明一个普通队列，该队列接收到消息就马上分发消息
+	//【1】申明延迟队列
 	queue, err = mng.Channel.QueueDeclare(
-		queueName,
-		true,
-		false,
-		false,
-		false,
-		nil)
-	if err != nil {
-		return
-	}
-
-	//【4】申明延迟队列
-	_, err = mng.Channel.QueueDeclare(
-		delayQueueName,    // name
-		true, // durable
-		false, // delete when unused
-		false,  // exclusive
-		false, // no-wait
+		queueName, // name
+		true,      // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
 		amqp.Table{
-			"x-dead-letter-exchange": mng.ExchangeName, // 将过期消息发送到执行的exchange中
-			"x-dead-letter-routing-key": routingKey, // 将过期消息发送到指定的路由中
-		},   // arguments
+			"x-dead-letter-exchange":    targetExchangeName,       // 将过期消息发送到执行的exchange中
+			"x-dead-letter-routing-key": targetExchangeRoutingKey, // 将过期消息发送到指定的路由中
+		}, // arguments
 	)
 	if err != nil {
 		return
 	}
 
-	//【5】常规队列绑定至交换机
+	//【2】常规队列绑定至交换机
 	err = mng.Channel.QueueBind(
-		queueName,
-		mng.BindingKey, // Producer
+		queue.Name,
+		bindingKey,
 		mng.ExchangeName,
 		false,
 		nil)

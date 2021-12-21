@@ -8,17 +8,18 @@ import (
 
 type Consumer struct {
 	*RabbitMQ
+	BindingKey string
 	ConsumerTag string
 	done        chan error
 	//HandleFunc  func(deliveries <-chan amqp.Delivery, done chan error)
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName string, exchangeType ExchangeType, routingKey string) (consumer *Consumer, err error) {
+func NewConsumer(exchangeName string, exchangeType ExchangeType, bidingKey string) (consumer *Consumer, err error) {
 
 	//【1】创建mq
 	var rabbitM *RabbitMQ
-	rabbitM,err = NewRabbitMQ(exchangeName,exchangeType,routingKey,routingKey)
+	rabbitM,err = NewRabbitMQ(exchangeName,exchangeType)
 	if err != nil {
 		return
 	}
@@ -28,6 +29,7 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType, routingKey stri
 	consumer = &Consumer{
 		RabbitMQ:    rabbitM,
 		done:        make(chan error),
+		BindingKey: bidingKey,
 		//HandleFunc:  handleFunc,
 	}
 
@@ -39,16 +41,12 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType, routingKey stri
 	return consumer, nil
 }
 
+// Start 开始消费
+// Tips：记得在外部先绑定队列
 func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(deliveries <-chan amqp.Delivery, done chan error)) (err error) {
 
-	//【2】开始消费
+	//【1】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
-
-	//【1】申明并绑定队列
-	_, err = consumer.BindQueue(queueName)
-	if err != nil {
-		return
-	}
 	consumer.ConsumerTag = consumerTag
 
 	var deliveries <-chan amqp.Delivery
