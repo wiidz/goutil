@@ -105,9 +105,12 @@ func (producer *Producer) PublishDelay(routingKey,body, expiration string, relia
 		false,               // mandatory
 		false,               // immediate
 		amqp.Publishing{
+			Headers: amqp.Table{
+				"x-delay" : expiration,
+			},
 			ContentType:     "text/plain",
 			Body:            []byte(body),
-			Expiration:      expiration,     // ms，设置2小时7200000  测试五秒
+			//Expiration:      expiration,     // ms，设置2小时7200000  测试五秒
 		},
 	)
 	if err != nil {
