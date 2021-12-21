@@ -111,7 +111,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName,routingKey string) 
 		queueName,
 		true,
 		false,
-		true,
+		false,
 		false,
 		nil)
 	if err != nil {
@@ -123,7 +123,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName,routingKey string) 
 		delayQueueName,    // name
 		true, // durable
 		false, // delete when unused
-		true,  // exclusive
+		false,  // exclusive
 		false, // no-wait
 		amqp.Table{
 			"x-dead-letter-exchange": mng.ExchangeName, // 将过期消息发送到执行的exchange中
