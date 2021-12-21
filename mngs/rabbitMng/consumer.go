@@ -63,7 +63,20 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(del
 		return
 	}
 
-	go handleFunc(deliveries, consumer.done)
+	forver := make(chan bool)
+	var delivery amqp.Delivery
+	go func() {
+		for {
+			select {
+			case delivery = <-deliveries:
+				log.Printf(" 普通队列 %s", delivery.Body)
+			}
+		}
+	}()
+
+	<-forver
+
+	//go handleFunc(deliveries, consumer.done)
 	return
 }
 
