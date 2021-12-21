@@ -76,12 +76,12 @@ func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 	return
 }
 
-// BindQueue 申明并绑定队列到当前channel和exchange上 ttl 是毫秒
+// BindQueue 申明并绑定队列到当前channel和exchange上 ttl 是毫秒,-1表示不设置
 func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amqp.Queue, err error) {
 
 	//【3】申明队列
 	var args  = amqp.Table{}
-	if ttl != 0 {
+	if ttl != -1 {
 		args["x-message-ttl"] = ttl
 	}
 
@@ -109,6 +109,14 @@ func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amq
 // 过期后的信息会被推送到targetExchangeName，路由是routingKey
 func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string,ttl int32) (queue amqp.Queue, err error) {
 
+	var args  = amqp.Table{
+		"x-dead-letter-exchange":    targetExchangeName,       // 将过期消息发送到执行的exchange中
+		"x-dead-letter-routing-key": targetExchangeRoutingKey, // 将过期消息发送到指定的路由中
+	}
+	if ttl != -1 {
+		args["x-message-ttl"] = ttl
+	}
+
 	//【1】申明延迟队列
 	queue, err = mng.Channel.QueueDeclare(
 		queueName, // name
@@ -116,11 +124,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, t
 		true,     // delete when unused
 		false,     // exclusive
 		false,     // no-wait
-		amqp.Table{
-			"x-message-ttl":ttl,
-			"x-dead-letter-exchange":    targetExchangeName,       // 将过期消息发送到执行的exchange中
-			"x-dead-letter-routing-key": targetExchangeRoutingKey, // 将过期消息发送到指定的路由中
-		}, // arguments
+		args, // arguments
 	)
 	if err != nil {
 		return
