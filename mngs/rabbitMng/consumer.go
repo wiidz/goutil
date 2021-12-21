@@ -14,25 +14,23 @@ type Consumer struct {
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName string, exchangeType ExchangeType, queueName, routingKey string) (consumer *Consumer, err error) {
-	rabbitM := &RabbitMQ{
-		Conn:         conn,
-		QueueName:    queueName,
-		RoutingKey:   routingKey,
-		ExchangeName: exchangeName,
-		ExchangeType: exchangeType,
-	}
-	_, err = rabbitM.GetQueue()
+func NewConsumer(exchangeName string, exchangeType ExchangeType, routingKey string) (consumer *Consumer, err error) {
+
+	//【1】创建mq
+	var rabbitM *RabbitMQ
+	rabbitM,err = NewRabbitMQ(exchangeName,exchangeType,routingKey,routingKey)
 	if err != nil {
 		return
 	}
 
-	//【1】构建消费者
+
+	//【3】构建消费者
 	consumer = &Consumer{
 		RabbitMQ:    rabbitM,
 		done:        make(chan error),
 		//HandleFunc:  handleFunc,
 	}
+
 	go func() {
 		// 通知信道关闭
 		fmt.Printf("closing: %s", <-consumer.Conn.NotifyClose(make(chan *amqp.Error)))
@@ -41,15 +39,21 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType, queueName, rout
 	return consumer, nil
 }
 
-func (consumer *Consumer) Start(consumerTag string,handleFunc func(deliveries <-chan amqp.Delivery, done chan error)) (err error) {
-	//【1】开始消费
+func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(deliveries <-chan amqp.Delivery, done chan error)) (err error) {
+
+	//【2】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
 
+	//【1】申明并绑定队列
+	_, err = consumer.BindQueue(queueName)
+	if err != nil {
+		return
+	}
 	consumer.ConsumerTag = consumerTag
 
 	var deliveries <-chan amqp.Delivery
 	deliveries, err = consumer.Channel.Consume(
-		consumer.QueueName,   // name
+		queueName,   // name
 		consumer.ConsumerTag, // consumerTag,
 		false,                // noAck
 		false,                // exclusive

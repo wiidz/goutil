@@ -11,19 +11,14 @@ type Producer struct {
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(exchangeName string, exchangeType ExchangeType, queueName, bindingKey string) (producer *Producer, err error) {
-	rabbitM := &RabbitMQ{
-		Conn:         conn,
-		QueueName:    queueName,
-		BindingKey:   bindingKey,
-		RoutingKey:   bindingKey,
-		ExchangeName: exchangeName,
-		ExchangeType: exchangeType,
-	}
-	_, err = rabbitM.GetQueue()
+func NewProducer(exchangeName string, exchangeType ExchangeType, bindingKey string) (producer *Producer, err error) {
+
+	var rabbitM *RabbitMQ
+	rabbitM,err = NewRabbitMQ(exchangeName,exchangeType,bindingKey,bindingKey)
 	if err != nil {
 		return
 	}
+
 	producer = &Producer{
 		RabbitMQ: rabbitM,
 	}
@@ -45,6 +40,7 @@ func (producer *Producer) Publish(body, expiration string, reliable bool) error 
 	}
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
+
 	if err := producer.Channel.Publish(
 		producer.ExchangeName, // publish to an exchange
 		producer.RoutingKey,   // routing to 0 or more queues
