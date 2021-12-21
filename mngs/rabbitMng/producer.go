@@ -83,7 +83,7 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 }
 
 // PublishDelay 发布延时任务
-func (producer *Producer) PublishDelay(routingKey,body, expiration string, reliable bool) error {
+func (producer *Producer) PublishDelay(routingKey,body string, expiration int32, reliable bool) error {
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
