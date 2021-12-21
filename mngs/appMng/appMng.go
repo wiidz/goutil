@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/mngs/rabbitMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"log"
 	"time"
 )
 
@@ -123,12 +122,9 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error) {
 	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai").Value
 	location, err = time.LoadLocation(timeZone)
-	log.Println("【location】",location)
-	log.Println("err",err)
 	if err != nil {
 		location = time.FixedZone("CST-8", 8*3600)
 	}
-	log.Println("【location】",location)
 	return
 }
 

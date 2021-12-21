@@ -69,6 +69,7 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(dat
 		for {
 			select {
 				case delivery = <-deliveries:
+					log.Println("delivery",delivery)
 					handleFunc(delivery.Body)
 				}
 		}
