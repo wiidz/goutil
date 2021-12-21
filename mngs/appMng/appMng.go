@@ -95,7 +95,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	}
 
 	//【2】初始化配置
-	config.Location = getLocationConfig(rows)
+	config.Location,_ = getLocationConfig(rows)
 	config.Profile = getAppProfile(rows)
 
 	// 数据源
@@ -119,12 +119,16 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 }
 
 // getLocationConfig : 获取时区设置
-func getLocationConfig(rows []*DbSettingRow) (location *time.Location) {
+func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error) {
 	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai").Value
 	if timeZone == "" {
 		timeZone = "Asia/Shanghai" // 默认东八区
 	}
-	location, _ = time.LoadLocation(timeZone)
+	location, err = time.LoadLocation(timeZone)
+	if err != nil {
+		location = time.FixedZone("CST", 8*3600)
+	}
+
 	return
 }
 
