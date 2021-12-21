@@ -70,7 +70,7 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(dat
 			select {
 				case delivery = <-deliveries:
 					log.Printf(" 普通队列 %s", delivery.Body)
-					go handleFunc(delivery.Body)
+					//go handleFunc(delivery.Body)
 				}
 		}
 	}()
