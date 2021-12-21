@@ -130,33 +130,3 @@ func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, t
 
 	return
 }
-
-//
-///**
-// * @func: UserCouponDelay 用户的优惠券延迟
-// * @author Hank
-// * @date   2019-06-24
-// */
-//func UserCouponDelay(user_coupon_id, delay_time string) {
-//
-//	conn, err := getMqConn()
-//	defer conn.Close()
-//
-//	ch, err := conn.Channel()
-//	defer ch.Close()
-//
-//	// 将消息发送到延时队列上
-//	err = ch.Publish(
-//		"",             // exchange 这里为空则不选择 exchange
-//		"coupon_delay", // routing key
-//		false,          // mandatory
-//		false,          // immediate
-//		amqp.Publishing{
-//			ContentType: "text/plain",
-//			Body:        []byte(user_coupon_id),
-//			Expiration:  delay_time, // 设置2小时7200000  测试五秒
-//		})
-//
-//	failOnError(err, "Failed to publish a message")
-//
-//}

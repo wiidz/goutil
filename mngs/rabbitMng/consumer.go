@@ -8,28 +8,26 @@ import (
 
 type Consumer struct {
 	*RabbitMQ
-	BindingKey string
+	BindingKey  string
 	ConsumerTag string
 	done        chan error
 	//HandleFunc  func(deliveries <-chan amqp.Delivery, done chan error)
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName string, exchangeType ExchangeType, bidingKey string) (consumer *Consumer, err error) {
+func NewConsumer(exchangeName string, exchangeType ExchangeType) (consumer *Consumer, err error) {
 
 	//【1】创建mq
 	var rabbitM *RabbitMQ
-	rabbitM,err = NewRabbitMQ(exchangeName,exchangeType)
+	rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
 	if err != nil {
 		return
 	}
 
-
 	//【3】构建消费者
 	consumer = &Consumer{
-		RabbitMQ:    rabbitM,
-		done:        make(chan error),
-		BindingKey: bidingKey,
+		RabbitMQ:   rabbitM,
+		done:       make(chan error),
 		//HandleFunc:  handleFunc,
 	}
 
@@ -43,7 +41,7 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType, bidingKey strin
 
 // Start 开始消费
 // Tips：记得在外部先绑定队列
-func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(delivery amqp.Delivery) ) (err error) {
+func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(delivery amqp.Delivery)) (err error) {
 
 	//【1】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
@@ -51,7 +49,7 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(del
 
 	var deliveries <-chan amqp.Delivery
 	deliveries, err = consumer.Channel.Consume(
-		queueName,   // name
+		queueName,            // name
 		consumer.ConsumerTag, // consumerTag,
 		false,                // noAck
 		false,                // exclusive
@@ -68,9 +66,9 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(del
 	go func() {
 		for {
 			select {
-				case delivery = <-deliveries:
-					handleFunc(delivery)
-				}
+			case delivery = <-deliveries:
+				handleFunc(delivery)
+			}
 		}
 	}()
 
@@ -96,18 +94,3 @@ func (consumer *Consumer) Shutdown() error {
 	// wait for handle() to exit
 	return <-consumer.done
 }
-
-// handle 具体处理逻辑
-//func handle(deliveries <-chan amqp.Delivery, done chan error) {
-//	for d := range deliveries {
-//		log.Printf(
-//			"got %dB delivery: [%v] %q",
-//			len(d.Body),
-//			d.DeliveryTag,
-//			d.Body,
-//		)
-//		_ = d.Ack(false)
-//	}
-//	log.Printf("handle: deliveries channel closed")
-//	done <- nil
-//}

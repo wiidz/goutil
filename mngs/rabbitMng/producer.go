@@ -8,12 +8,10 @@ import (
 
 type Producer struct {
 	*RabbitMQ
-	//BindingKey string
-	RoutingKey     string
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(exchangeName string, exchangeType ExchangeType,routingKey string) (producer *Producer, err error) {
+func NewProducer(exchangeName string, exchangeType ExchangeType) (producer *Producer, err error) {
 
 	var rabbitM *RabbitMQ
 	rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
@@ -23,14 +21,12 @@ func NewProducer(exchangeName string, exchangeType ExchangeType,routingKey strin
 
 	producer = &Producer{
 		RabbitMQ: rabbitM,
-		//BindingKey: bindingKey,
-		RoutingKey: routingKey,
 	}
 	return
 }
 
 // Publish 发布任务
-func (producer *Producer) Publish(body, expiration string, reliable bool) error {
+func (producer *Producer) Publish(routingKey string,body, expiration string, reliable bool) error {
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
@@ -47,7 +43,7 @@ func (producer *Producer) Publish(body, expiration string, reliable bool) error 
 
 	if err := producer.Channel.Publish(
 		producer.ExchangeName, // publish to an exchange
-		producer.RoutingKey,   // routing to 0 or more queues
+		routingKey,   // routing to 0 or more queues
 		false,                 // mandatory
 		false,                 // immediate
 		amqp.Publishing{
@@ -82,7 +78,7 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 }
 
 // PublishDelay 发布延时任务
-func (producer *Producer) PublishDelay(body, expiration string, reliable bool) error {
+func (producer *Producer) PublishDelay(routingKey,body, expiration string, reliable bool) error {
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
@@ -100,7 +96,7 @@ func (producer *Producer) PublishDelay(body, expiration string, reliable bool) e
 	err := producer.Channel.Publish(
 		//"",                  // exchange 这里为空则不选择 exchange
 		producer.ExchangeName,
-		producer.RoutingKey, // routing to 0 or more queues
+		routingKey, // routing to 0 or more queues
 		false,               // mandatory
 		false,               // immediate
 		amqp.Publishing{
