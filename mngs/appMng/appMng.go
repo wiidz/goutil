@@ -8,6 +8,7 @@ import (
 	"github.com/wiidz/goutil/mngs/rabbitMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"time"
 )
 
@@ -125,10 +126,12 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error)
 		timeZone = "Asia/Shanghai" // 默认东八区
 	}
 	location, err = time.LoadLocation(timeZone)
+	log.Println("【location】",location)
+	log.Println("err",err)
 	if err != nil {
 		location = time.FixedZone("CST-8", 8*3600)
 	}
-
+	log.Println("【location】",location)
 	return
 }
 
