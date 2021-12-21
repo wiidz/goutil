@@ -126,7 +126,7 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error)
 	}
 	location, err = time.LoadLocation(timeZone)
 	if err != nil {
-		location = time.FixedZone("CST", 8*3600)
+		location = time.FixedZone("CST-8", 8*3600)
 	}
 
 	return
