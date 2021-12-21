@@ -49,6 +49,7 @@ func NewRabbitMQ(exchangeName string,exchangeType ExchangeType,bindingKey,routin
 		ExchangeName: exchangeName,
 		ExchangeType: exchangeType,
 	}
+	err = mng.SetExchange(nil)
 	err = mng.SetChannel()
 	return
 }
@@ -76,12 +77,6 @@ func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 // BindQueue 申明并绑定队列
 func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 
-	//【2】申明交换机
-	err = mng.SetExchange(nil)
-	if err != nil {
-		return
-	}
-
 	//【3】申明队列
 	queue, err = mng.Channel.QueueDeclare(
 		queueName,
@@ -106,12 +101,6 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 // 声明延时队列队列，该队列中消息如果过期，就将消息发送到交换器上，交换器就分发消息到普通队列
 // 先把数据推到delayQueueName上，会放进queueName里，再消费
 func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName,routingKey string) (queue amqp.Queue, err error) {
-
-	//【1】申明交换机
-	err = mng.SetExchange(nil)
-	if err != nil {
-		return
-	}
 
 	//【3】声明一个普通队列，该队列接收到消息就马上分发消息
 	queue, err = mng.Channel.QueueDeclare(
