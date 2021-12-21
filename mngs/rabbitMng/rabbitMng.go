@@ -105,7 +105,7 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 // BindDelayQueue 申明并绑定延迟队列
 // 声明延时队列队列，该队列中消息如果过期，就将消息发送到交换器上，交换器就分发消息到普通队列
 // 先把数据推到delayQueueName上，会放进queueName里，再消费
-func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName,routingKey string) (queue amqp.Queue, err error) {
 
 	//【1】申明交换机
 	err = mng.SetExchange(nil)
@@ -113,12 +113,12 @@ func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amq
 		return
 	}
 
-	//【3】申明常规队列
+	//【3】声明一个普通队列，该队列接收到消息就马上分发消息
 	queue, err = mng.Channel.QueueDeclare(
 		queueName,
+		true,
 		false,
-		false,
-		false,
+		true,
 		false,
 		nil)
 	if err != nil {
@@ -128,13 +128,13 @@ func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amq
 	//【4】申明延迟队列
 	_, err = mng.Channel.QueueDeclare(
 		delayQueueName,    // name
-		false, // durable
+		true, // durable
 		false, // delete when unused
-		false,  // exclusive
+		true,  // exclusive
 		false, // no-wait
 		amqp.Table{
-			"x-dead-letter-exchange": mng.ExchangeName, //当消息过期时把消息发送到logs这个交换器
-			//"x-dead-letter-routing-key": "hah.t",
+			"x-dead-letter-exchange": mng.ExchangeName, // 将过期消息发送到执行的exchange中
+			"x-dead-letter-routing-key": routingKey, // 将过期消息发送到指定的路由中
 		},   // arguments
 	)
 	if err != nil {

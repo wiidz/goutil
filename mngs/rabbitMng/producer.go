@@ -51,7 +51,7 @@ func (producer *Producer) Publish(body, expiration string, reliable bool) error 
 			ContentType:     "text/plain",
 			ContentEncoding: "",
 			Body:            []byte(body),
-			DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
+			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
 			Priority:        0,              // 0-9
 			Expiration:      expiration,     // 设置2小时7200000  测试五秒
 			// a bunch of application/implementation-specific fields
@@ -80,6 +80,8 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 // PublishDelay 发布延时任务
 func (producer *Producer) PublishDelay(body, expiration string, reliable bool) error {
 
+	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
+
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
 		log.Printf("enabling publishing confirms.")
@@ -91,10 +93,9 @@ func (producer *Producer) PublishDelay(body, expiration string, reliable bool) e
 		defer producer.confirmOne(confirms)
 	}
 
-	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
-
-	if err := producer.Channel.Publish(
-		"",                  // exchange 这里为空则不选择 exchange
+	err := producer.Channel.Publish(
+		//"",                  // exchange 这里为空则不选择 exchange
+		producer.ExchangeName,
 		producer.RoutingKey, // routing to 0 or more queues
 		false,               // mandatory
 		false,               // immediate
@@ -103,12 +104,13 @@ func (producer *Producer) PublishDelay(body, expiration string, reliable bool) e
 			ContentType:     "text/plain",
 			ContentEncoding: "",
 			Body:            []byte(body),
-			DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
+			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
 			Priority:        0,              // 0-9
 			Expiration:      expiration,     // 设置2小时7200000  测试五秒
 			// a bunch of application/implementation-specific fields
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return fmt.Errorf("Exchange Publish: %s", err)
 	}
 
