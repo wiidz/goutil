@@ -41,7 +41,6 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 	return
 }
 
-
 func NewRabbitMQ(exchangeName string,exchangeType ExchangeType,bindingKey,routingKey string) (mng *RabbitMQ,err error){
 	mng = &RabbitMQ{
 		Conn:         conn,
@@ -103,13 +102,13 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 	return
 }
 
-// GetDelayQueue 获取延迟队列
+// BindDelayQueue 申明并绑定延迟队列
 // 声明延时队列队列，该队列中消息如果过期，就将消息发送到交换器上，交换器就分发消息到普通队列
-func (mng *RabbitMQ) GetDelayQueue(queueName string) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amqp.Queue, err error) {
 
 	//【2】申明交换机
 	err = mng.SetExchange(&amqp.Table{
-		"x-dead-letter-exchange": "logs", //当消息过期时把消息发送到logs这个交换器
+		"x-dead-letter-exchange": delayQueueName, //当消息过期时把消息发送到logs这个交换器
 		//"x-dead-letter-routing-key": "hah.t",
 	})
 	if err != nil {
