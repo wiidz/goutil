@@ -60,7 +60,7 @@ func (mng *RabbitMQ) SetChannel() (err error) {
 }
 
 // SetExchange 申明交换机
-func (mng *RabbitMQ) SetExchange(arguments *amqp.Table) (err error) {
+func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 	err = mng.Channel.ExchangeDeclare(
 		mng.ExchangeName,         // name of the exchange
 		string(mng.ExchangeType), // type
@@ -68,7 +68,7 @@ func (mng *RabbitMQ) SetExchange(arguments *amqp.Table) (err error) {
 		false,                    // delete when complete 完成后是否删除
 		false,                    // internal
 		false,                    // noWait
-		*arguments,               // arguments
+		arguments,               // arguments
 	)
 	return
 }
