@@ -107,7 +107,7 @@ func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amq
 // BindDelayQueue 申明并绑定延迟队列到当前的channel信道的exchange上
 // queueName 绑定到当前信道的bindingKey上
 // 过期后的信息会被推送到targetExchangeName，路由是routingKey
-func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string,ttl uint64) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string,ttl int32) (queue amqp.Queue, err error) {
 
 	//【1】申明延迟队列
 	queue, err = mng.Channel.QueueDeclare(
