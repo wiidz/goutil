@@ -69,7 +69,7 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(dat
 		for {
 			select {
 				case delivery = <-deliveries:
-					go handleFunc(delivery.Body)
+					handleFunc(delivery.Body)
 				}
 		}
 	}()
