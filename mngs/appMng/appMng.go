@@ -122,9 +122,6 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 // getLocationConfig : 获取时区设置
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error) {
 	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai").Value
-	if timeZone == "" {
-		timeZone = "Asia/Shanghai" // 默认东八区
-	}
 	location, err = time.LoadLocation(timeZone)
 	log.Println("【location】",location)
 	log.Println("err",err)

@@ -17,7 +17,6 @@ type AppMng struct {
 	ID uint64 `gorm:"column:id" json:"id"`
 	// RunningMode       RunningMode       // 脚本运行模式
 	// SqlConfigLocation SqlConfigLocation // sql配置存放位置
-	Location      *time.Location `gorm:"-" json:"-"`
 	BaseConfig    *configStruct.BaseConfig
 	ProjectConfig configStruct.ProjectConfig
 }
