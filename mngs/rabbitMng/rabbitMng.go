@@ -83,7 +83,7 @@ func (mng *RabbitMQ) BindQueue(queueName,bindingKey string) (queue amqp.Queue, e
 	queue, err = mng.Channel.QueueDeclare(
 		queueName,
 		true,
-		false,
+		true,
 		false,
 		true,
 		nil)
@@ -108,7 +108,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, t
 	queue, err = mng.Channel.QueueDeclare(
 		queueName, // name
 		true,      // durable
-		false,     // delete when unused
+		true,     // delete when unused
 		false,     // exclusive
 		false,     // no-wait
 		amqp.Table{

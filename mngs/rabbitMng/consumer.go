@@ -65,18 +65,17 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(del
 
 	forever := make(chan bool)
 	var delivery amqp.Delivery
-	go func(handleFunc func(delivery amqp.Delivery)) {
+	go func() {
 		for {
 			select {
 				case delivery = <-deliveries:
 					handleFunc(delivery)
 				}
 		}
-	}(handleFunc)
+	}()
 
 	<-forever
 
-	//go handleFunc(deliveries, consumer.done)
 	return
 }
 
