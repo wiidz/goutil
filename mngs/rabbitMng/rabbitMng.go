@@ -70,21 +70,12 @@ func (mng *RabbitMQ) GetQueue() (queue amqp.Queue, err error) {
 		nil)
 
 	//【4】队列绑定至交换机
-	if mng.BindingKey != "" {
-		err = channel.QueueBind(
-			mng.QueueName,
-			mng.BindingKey, // Producer
-			mng.ExchangeName,
-			true,
-			nil)
-	} else {
-		err = channel.QueueBind(
-			mng.QueueName,
-			mng.RoutingKey, // Consumer
-			mng.ExchangeName,
-			true,
-			nil)
-	}
+	err = channel.QueueBind(
+		mng.QueueName,
+		mng.BindingKey, // Producer
+		mng.ExchangeName,
+		true,
+		nil)
 
 	mng.Channel = channel
 	mng.Queue = &queue

@@ -16,6 +16,7 @@ func NewProducer(exchangeName string, exchangeType ExchangeType, queueName, bind
 		Conn:         conn,
 		QueueName:    queueName,
 		BindingKey:   bindingKey,
+		RoutingKey:   bindingKey,
 		ExchangeName: exchangeName,
 		ExchangeType: exchangeType,
 	}
@@ -30,20 +31,7 @@ func NewProducer(exchangeName string, exchangeType ExchangeType, queueName, bind
 }
 
 // Publish 发布任务
-func (producer *Producer) Publish(exchange, exchangeType, routingKey, body, expiration string, reliable bool) error {
-
-	log.Printf("got Channel, declaring %q Exchange (%q)", exchangeType, exchange)
-	if err := producer.Channel.ExchangeDeclare(
-		exchange,     // name
-		exchangeType, // type
-		true,         // durable
-		false,        // auto-deleted
-		false,        // internal
-		false,        // noWait
-		nil,          // arguments
-	); err != nil {
-		return fmt.Errorf("Exchange Declare: %s", err)
-	}
+func (producer *Producer) Publish(body, expiration string, reliable bool) error {
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
@@ -58,10 +46,10 @@ func (producer *Producer) Publish(exchange, exchangeType, routingKey, body, expi
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 	if err := producer.Channel.Publish(
-		exchange,   // publish to an exchange
-		routingKey, // routing to 0 or more queues
-		false,      // mandatory
-		false,      // immediate
+		producer.ExchangeName, // publish to an exchange
+		producer.RoutingKey,   // routing to 0 or more queues
+		false,                 // mandatory
+		false,                 // immediate
 		amqp.Publishing{
 			Headers:         amqp.Table{},
 			ContentType:     "text/plain",
