@@ -71,9 +71,11 @@ func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(d
 		for {
 			select {
 			case delivery = <-deliveries:
-				err := handleFunc(delivery)
-				if err == nil {
-					_ = delivery.Ack(false)
+				handledError := handleFunc(delivery)
+				log.Println("handledError",handledError)
+				if handledError == nil {
+					ackErr := delivery.Ack(false)
+					log.Println("ackErr",ackErr)
 				}
 			}
 		}
