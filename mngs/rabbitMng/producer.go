@@ -11,19 +11,20 @@ type Producer struct {
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(name, key, exchange string) (producer  *Producer,err error) {
+func NewProducer(exchangeName string, exchangeType ExchangeType, queueName, bindingKey string) (producer *Producer, err error) {
 	rabbitM := &RabbitMQ{
-		Conn:     conn,
-		QueueName:     name,
-		Key:      key,
-		ExchangeName: exchange,
+		Conn:         conn,
+		QueueName:    queueName,
+		BindingKey:   bindingKey,
+		ExchangeName: exchangeName,
+		ExchangeType: exchangeType,
 	}
-	_,err = rabbitM.GetQueue()
+	_, err = rabbitM.GetQueue()
 	if err != nil {
 		return
 	}
-	producer =  &Producer{
-		RabbitMQ:rabbitM,
+	producer = &Producer{
+		RabbitMQ: rabbitM,
 	}
 	return
 }

@@ -10,16 +10,17 @@ type Consumer struct {
 	*RabbitMQ
 	ConsumerTag string
 	done        chan error
-	HandleFunc  func(deliveries <-chan amqp.Delivery, done chan error)
+	//HandleFunc  func(deliveries <-chan amqp.Delivery, done chan error)
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName, queueName, key, consumerTag string, handleFunc func(deliveries <-chan amqp.Delivery, done chan error)) (consumer *Consumer, err error) {
+func NewConsumer(exchangeName string, exchangeType ExchangeType, queueName, routingKey string) (consumer *Consumer, err error) {
 	rabbitM := &RabbitMQ{
 		Conn:         conn,
 		QueueName:    queueName,
-		Key:          key,
+		RoutingKey:   routingKey,
 		ExchangeName: exchangeName,
+		ExchangeType: exchangeType,
 	}
 	_, err = rabbitM.GetQueue()
 	if err != nil {
@@ -29,9 +30,8 @@ func NewConsumer(exchangeName, queueName, key, consumerTag string, handleFunc fu
 	//【1】构建消费者
 	consumer = &Consumer{
 		RabbitMQ:    rabbitM,
-		ConsumerTag: consumerTag,
 		done:        make(chan error),
-		HandleFunc:  handleFunc,
+		//HandleFunc:  handleFunc,
 	}
 	go func() {
 		// 通知信道关闭
@@ -41,9 +41,11 @@ func NewConsumer(exchangeName, queueName, key, consumerTag string, handleFunc fu
 	return consumer, nil
 }
 
-func (consumer *Consumer) Start() (err error) {
-	//【2】开始消费
-	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumer.ConsumerTag)
+func (consumer *Consumer) Start(consumerTag string,handleFunc func(deliveries <-chan amqp.Delivery, done chan error)) (err error) {
+	//【1】开始消费
+	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
+
+	consumer.ConsumerTag = consumerTag
 
 	var deliveries <-chan amqp.Delivery
 	deliveries, err = consumer.Channel.Consume(
@@ -59,7 +61,7 @@ func (consumer *Consumer) Start() (err error) {
 		return
 	}
 
-	go consumer.HandleFunc(deliveries, consumer.done)
+	go handleFunc(deliveries, consumer.done)
 	return
 }
 
