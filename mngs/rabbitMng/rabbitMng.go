@@ -57,6 +57,23 @@ func NewRabbitMQ(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ,
 	return
 }
 
+func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ, err error) {
+	mng = &RabbitMQ{
+		Conn:         conn,
+		ExchangeName: exchangeName,
+		ExchangeType: exchangeType,
+	}
+	err = mng.SetChannel()
+	if err != nil {
+		return
+	}
+
+	err = mng.SetExchange(amqp.Table{
+		"x-delayed-type":string(Direct),
+	})
+	return
+}
+
 // SetChannel 获取信道
 func (mng *RabbitMQ) SetChannel() (err error) {
 	mng.Channel, err = mng.Conn.Channel()

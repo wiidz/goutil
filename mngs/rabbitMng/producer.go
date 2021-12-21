@@ -11,10 +11,15 @@ type Producer struct {
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(exchangeName string, exchangeType ExchangeType) (producer *Producer, err error) {
+func NewProducer(exchangeName string, exchangeType ExchangeType,isDelay bool) (producer *Producer, err error) {
 
 	var rabbitM *RabbitMQ
-	rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
+	if isDelay {
+		rabbitM, err = NewRabbitMQDelay(exchangeName, exchangeType)
+	} else {
+		rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
+	}
+
 	if err != nil {
 		return
 	}
