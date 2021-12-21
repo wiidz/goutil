@@ -107,29 +107,45 @@ func (mng *RabbitMQ) BindQueue(queueName string) (queue amqp.Queue, err error) {
 func (mng *RabbitMQ) BindDelayQueue(queueName,delayQueueName string,) (queue amqp.Queue, err error) {
 
 	//【2】申明交换机
-	err = mng.SetExchange(&amqp.Table{
-		"x-dead-letter-exchange": delayQueueName, //当消息过期时把消息发送到logs这个交换器
-		//"x-dead-letter-routing-key": "hah.t",
-	})
+	err = mng.SetExchange(nil)
 	if err != nil {
 		return
 	}
 
-	//【3】申明队列
+	//【3】申明常规队列
 	queue, err = mng.Channel.QueueDeclare(
 		queueName,
-		true,
 		false,
 		false,
 		true,
+		false,
 		nil)
+	if err != nil {
+		return
+	}
 
-	//【4】队列绑定至交换机
+	//【4】申明延迟队列
+	_, err = mng.Channel.QueueDeclare(
+		"test_delay",    // name
+		false, // durable
+		false, // delete when unused
+		true,  // exclusive
+		false, // no-wait
+		amqp.Table{
+			"x-dead-letter-exchange": mng.ExchangeName, //当消息过期时把消息发送到logs这个交换器
+			//"x-dead-letter-routing-key": "hah.t",
+		},   // arguments
+	)
+	if err != nil {
+		return
+	}
+
+	//【5】常规队列绑定至交换机
 	err = mng.Channel.QueueBind(
 		queueName,
 		mng.BindingKey, // Producer
 		mng.ExchangeName,
-		true,
+		false,
 		nil)
 
 	return
