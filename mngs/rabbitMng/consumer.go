@@ -43,7 +43,7 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType, bidingKey strin
 
 // Start 开始消费
 // Tips：记得在外部先绑定队列
-func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(delivery amqp.Delivery) error ) (err error) {
+func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(delivery amqp.Delivery) ) (err error) {
 
 	//【1】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
@@ -65,16 +65,14 @@ func (consumer *Consumer) Start(queueName,consumerTag string,handleFunc func(del
 
 	forever := make(chan bool)
 	var delivery amqp.Delivery
-	go func() {
+	go func(handleFunc func(delivery amqp.Delivery)) {
 		for {
 			select {
 				case delivery = <-deliveries:
-					log.Println("delivery",delivery)
-					log.Println("consumer",consumer.ConsumerTag)
-					_ = handleFunc(delivery)
+					handleFunc(delivery)
 				}
 		}
-	}()
+	}(handleFunc)
 
 	<-forever
 
