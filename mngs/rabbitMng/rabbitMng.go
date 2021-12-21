@@ -77,7 +77,7 @@ func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 }
 
 // BindQueue 申明并绑定队列到当前channel和exchange上 ttl 是毫秒
-func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl uint64) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amqp.Queue, err error) {
 
 	//【3】申明队列
 	var args  = amqp.Table{}
