@@ -5,6 +5,7 @@ import (
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
+	"github.com/wiidz/goutil/mngs/rabbitMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"time"
@@ -58,16 +59,24 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-	//【6】项目配置
+	//【6】初始化mq
+	if checkStart.RabbitMQ {
+		err = rabbitMng.Init(mng.BaseConfig.RabbitMQConfig)
+		if err != nil {
+			return
+		}
+	}
+
+	//【7】项目配置
 	err = mng.ProjectConfig.Build()
 	if err != nil {
 		return
 	}
 
-	//【5】写入缓存
+	//【8】写入缓存
 	cacheM.Set("app-"+typeHelper.Uint64ToStr(appID)+"-config", mng, time.Minute*30)
 
-	//【4】返回
+	//【9】返回
 	return
 }
 
@@ -92,6 +101,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	// 数据源
 	config.RedisConfig = getRedisConfig(rows)
 	config.EsConfig = getEsConfig(rows)
+	config.RabbitMQConfig = getRabbitMQConfig(rows)
 
 	// 腾讯系
 	config.WechatMiniConfig = getWechatMiniConfig(rows)
@@ -191,6 +201,15 @@ func getEsConfig(rows []*DbSettingRow) *configStruct.EsConfig {
 		Port:     GetValueFromRow(rows, "es", "port", "", "9200").Value,
 		Password: GetValueFromRow(rows, "es", "password", "", "123456").Value,
 		Username: GetValueFromRow(rows, "es", "username", "", "es").Value,
+	}
+}
+
+
+func getRabbitMQConfig(rows []*DbSettingRow) *configStruct.RabbitMQConfig {
+	return &configStruct.RabbitMQConfig{
+		Host:     GetValueFromRow(rows, "rabbit_mq", "host", "", "http://127.0.0.1").Value,
+		Password: GetValueFromRow(rows, "rabbit_mq", "password", "", "123456").Value,
+		Username: GetValueFromRow(rows, "rabbit_mq", "username", "", "root").Value,
 	}
 }
 

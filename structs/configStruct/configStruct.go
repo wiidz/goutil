@@ -16,6 +16,7 @@ type CheckStart struct {
 	Mysql bool //
 	Redis bool
 	Es    bool
+	RabbitMQ    bool
 }
 
 // BaseConfig 参数
