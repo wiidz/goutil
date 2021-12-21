@@ -49,8 +49,12 @@ func NewRabbitMQ(exchangeName string,exchangeType ExchangeType,bindingKey,routin
 		ExchangeName: exchangeName,
 		ExchangeType: exchangeType,
 	}
-	err = mng.SetExchange(nil)
 	err = mng.SetChannel()
+	if err != nil {
+		return
+	}
+
+	err = mng.SetExchange(nil)
 	return
 }
 
