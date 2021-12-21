@@ -45,8 +45,7 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 func (mng *RabbitMQ) GetQueue() (queue amqp.Queue, err error) {
 
 	//【1】获取信道
-	var channel *amqp.Channel
-	channel, err = mng.Conn.Channel()
+	mng.Channel, err = mng.Conn.Channel()
 	if err != nil {
 		return
 	}
@@ -66,7 +65,7 @@ func (mng *RabbitMQ) GetQueue() (queue amqp.Queue, err error) {
 	}
 
 	//【3】申明队列
-	queue, err = channel.QueueDeclare(
+	queue, err = mng.Channel.QueueDeclare(
 		mng.QueueName,
 		true,
 		false,
@@ -75,14 +74,13 @@ func (mng *RabbitMQ) GetQueue() (queue amqp.Queue, err error) {
 		nil)
 
 	//【4】队列绑定至交换机
-	err = channel.QueueBind(
+	err = mng.Channel.QueueBind(
 		mng.QueueName,
 		mng.BindingKey, // Producer
 		mng.ExchangeName,
 		true,
 		nil)
 
-	mng.Channel = channel
 	mng.Queue = &queue
 
 	return
