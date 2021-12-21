@@ -25,6 +25,7 @@ type ExchangeType string
 const Fanout ExchangeType = "fanout" // 【fanout】类型的Exchange路由会把所有发送到该Exchange的消息路由到所有与它绑定的Queue中。
 const Direct ExchangeType = "direct" // 【direct】类型的Exchange路由会把消息路由到那些binding key与routing key完全匹配的queue中。
 const Topic ExchangeType = "topic"   // 【topic】类型的Exchange路由会把消息路由到binding key与routing key相匹配的Queue中。
+const XDelayedMessage ExchangeType = "x-delayed-message"   // 【XDelayedMessage】延迟插件
 
 func Init(config *configStruct.RabbitMQConfig) (err error) {
 
