@@ -44,7 +44,12 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 // GetQueue 获取队列
 func (mng *RabbitMQ) GetQueue() (queue amqp.Queue, err error) {
 
-	channel, _ := mng.Conn.Channel()
+	//【1】获取信道
+	var channel *amqp.Channel
+	channel, err = mng.Conn.Channel()
+	if err != nil {
+		return
+	}
 
 	//【2】申明交换机
 	err = mng.Channel.ExchangeDeclare(
