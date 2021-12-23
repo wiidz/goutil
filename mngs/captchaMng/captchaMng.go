@@ -55,20 +55,20 @@ func (mng *CaptchaMng) GenerateGraphCaptcha(width, height, noiseCount, length in
 }
 
 // GetNumberCaptcha 获取数字验证码
-func (mng *CaptchaMng) GetNumberCaptcha() (id, captchaStr string, err error) {
+func (mng *CaptchaMng) GetNumberCaptcha(identify string) (id, captchaStr string, err error) {
 
 	captcha := mathHelper.GetRandomInt(100000, 999999) // 默认六位
 	captchaStr = typeHelper.Int2Str(captcha)
 	id = strHelper.GetRandomString(10)
 
-	_ = mng.SetCache("captcha-"+id, captchaStr, 300) // 300秒有效
+	_ = mng.SetCache(identify+id, captchaStr, 300) // 300秒有效
 	return
 }
 
 // VerifyNumberCaptcha 验证数字验证码
-func (mng *CaptchaMng) VerifyNumberCaptcha(id, captchaStr string) (err error) {
+func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey,id, captchaStr string) (err error) {
 
-	keyName := "captcha-" + id
+	keyName := identifyKey + id
 	captchaCache, err := mng.GetCache(keyName)
 	if err != nil {
 		return

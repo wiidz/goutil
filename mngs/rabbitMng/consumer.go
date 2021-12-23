@@ -72,10 +72,8 @@ func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(d
 			select {
 			case delivery = <-deliveries:
 				handledError := handleFunc(delivery)
-				log.Println("handledError",handledError)
 				if handledError == nil {
-					ackErr := delivery.Ack(false)
-					log.Println("ackErr",ackErr)
+					_ = delivery.Ack(false)
 				}
 			}
 		}

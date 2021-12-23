@@ -82,7 +82,8 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 	}
 }
 
-// PublishDelay 发布延时任务
+// PublishDelay 发布延时任务,注意千万不能绑定队列，不然会直接推到队列里去
+// 这个插件的作用是发挥在exchange上的，到时间了，分发到队列里去
 func (producer *Producer) PublishDelay(routingKey,body string, expiration int64, reliable bool) error {
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
@@ -99,7 +100,6 @@ func (producer *Producer) PublishDelay(routingKey,body string, expiration int64,
 	}
 
 	err := producer.Channel.Publish(
-		//"",                  // exchange 这里为空则不选择 exchange
 		producer.ExchangeName,
 		routingKey, // routing to 0 or more queues
 		false,               // mandatory
