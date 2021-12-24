@@ -13,10 +13,10 @@ type AppProfile struct {
 
 // CheckStart 约定启动时要验证的项目
 type CheckStart struct {
-	Mysql bool //
-	Redis bool
-	Es    bool
-	RabbitMQ    bool
+	Mysql    bool //
+	Redis    bool
+	Es       bool
+	RabbitMQ bool
 }
 
 // BaseConfig 参数
@@ -141,8 +141,8 @@ type ProjectConfig interface {
 
 // AliApiConfig 阿里云市场提供的服务的基本配置
 type AliApiConfig struct {
-	AppCode   string
-	AppID     string
+	AppCode   string // 一般有这个就够用了
+	AppKey    string
 	AppSecret string
 }
 

@@ -95,7 +95,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	}
 
 	//【2】初始化配置
-	config.Location,_ = getLocationConfig(rows)
+	config.Location, _ = getLocationConfig(rows)
 	config.Profile = getAppProfile(rows)
 
 	// 数据源
@@ -119,7 +119,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 }
 
 // getLocationConfig : 获取时区设置
-func getLocationConfig(rows []*DbSettingRow) (location *time.Location,err error) {
+func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error) {
 	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai").Value
 	location, err = time.LoadLocation(timeZone)
 	if err != nil {
@@ -167,7 +167,7 @@ func getWechatPayConfig(rows []*DbSettingRow) *configStruct.WechatPayConfig {
 		CertURI:         GetValueFromRow(rows, "wechat", "pay", "cert_uri", "").Value,
 		KeyURI:          GetValueFromRow(rows, "wechat", "pay", "key_uri", "").Value,
 		CertContent:     GetValueFromRow(rows, "wechat", "pay", "cert_content", "").Value,
-		CertSerialNo: GetValueFromRow(rows, "wechat", "pay", "cert_serial_no", "").Value,
+		CertSerialNo:    GetValueFromRow(rows, "wechat", "pay", "cert_serial_no", "").Value,
 		NotifyURL:       GetValueFromRow(rows, "wechat", "pay", "notify_url", "").Value,
 		RefundNotifyURL: GetValueFromRow(rows, "wechat", "pay", "refund_notify_url", "").Value,
 		IsProd:          GetValueFromRow(rows, "wechat", "pay", "is_prod", "0").Value == "1", // 0=调试，1=生产
@@ -204,7 +204,6 @@ func getEsConfig(rows []*DbSettingRow) *configStruct.EsConfig {
 	}
 }
 
-
 func getRabbitMQConfig(rows []*DbSettingRow) *configStruct.RabbitMQConfig {
 	return &configStruct.RabbitMQConfig{
 		Host:     GetValueFromRow(rows, "rabbit_mq", "host", "", "http://127.0.0.1").Value,
@@ -238,7 +237,7 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 // getAliApiConfig 阿里云云市场API服务
 func getAliApiConfig(rows []*DbSettingRow) *configStruct.AliApiConfig {
 	return &configStruct.AliApiConfig{
-		AppID:     GetValueFromRow(rows, "ali", "api", "app_id", "").Value,
+		AppKey:    GetValueFromRow(rows, "ali", "api", "app_key", "").Value,
 		AppSecret: GetValueFromRow(rows, "ali", "api", "app_secret", "").Value,
 		AppCode:   GetValueFromRow(rows, "ali", "api", "app_code", "").Value,
 	}
