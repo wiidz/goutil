@@ -22,7 +22,7 @@ func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 
 
 	var wechatPayMng = &WechatPayMngV2{
 		Config: config,
-		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, config.IsProd),
+		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, !config.Debug),
 	}
 
 	// 打开Debug开关，输出请求日志，默认关闭

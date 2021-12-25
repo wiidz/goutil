@@ -19,7 +19,7 @@ func getAliPayInstance(config *configStruct.AliPayConfig) *AliPayMng {
 
 	var alipayMng = &AliPayMng{
 		Config: config,
-		Client: alipay.NewClient(config.AppID, config.PrivateKey, config.IsProd),
+		Client: alipay.NewClient(config.AppID, config.PrivateKey, !config.Debug),
 	}
 
 	//配置公共参数

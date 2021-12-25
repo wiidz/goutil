@@ -124,7 +124,7 @@ type WechatPayConfig struct {
 	CertContent     string `gorm:"column:wechat_pay_cert_content" json:"cert_content"` //【微信支付】私钥文件内容（私钥 apiclient_key.pem 读取后的字符串内容）
 	NotifyURL       string `gorm:"column:notify_url" json:"notify_url"`                // 【微信支付】支付回调地址
 	RefundNotifyURL string `gorm:"column:refund_notify_url" json:"refund_notify_url"`  // 【微信支付】退款回调地址
-	IsProd          bool   `gorm:"column:is_prod" json:"is_prod"`                      // 【微信支付】是否是生产模式
+	Debug          bool   `gorm:"column:debug" json:"debug"`                      // 【微信支付】是否是调试模式
 }
 
 // AliPayConfig 支付宝参数
@@ -132,7 +132,7 @@ type AliPayConfig struct {
 	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id"`           //【支付宝】appID
 	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key"` //【支付宝】密钥（PKCS1）
 	NotifyURL  string // 【支付宝】回调地址
-	IsProd     bool   // 【支付宝】是否是生产模式
+	Debug     bool   // 【支付宝】是否是调试模式
 }
 
 type ProjectConfig interface {

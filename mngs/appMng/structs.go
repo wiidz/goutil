@@ -50,9 +50,9 @@ type DbSettingRow struct {
 	Name      string    `gorm:"column:name;type:varchar(24)" json:"name"`              // 名称
 	Flag1     string    `gorm:"column:flag_1;type:varchar(128)" json:"flag_1"`         // 【属性】补充的一个标识符1
 	Flag2     string    `gorm:"column:flag_2;type:varchar(128)" json:"flag_2"`         // 【属性】补充的一个标识符2
-	Value     string    `gorm:"column:value;type:text" json:"value"`                   // 值
-	Value1    string    `gorm:"column:value_1;type:text" json:"value_1"`               // 值-2
-	Value2    string    `gorm:"column:value_2;type:text" json:"value_2"`               // 值-1
+	Value1    string    `gorm:"column:value_1;type:text" json:"value_1"`               // 值-1
+	Value2    string    `gorm:"column:value_2;type:text" json:"value_2"`               // 值-2
+	Value3    string    `gorm:"column:value_3;type:text" json:"value_3"`               // 值-2
 	Tips      string    `gorm:"column:tips;type:varchar(255)" json:"tips"`             // 说明
 }
 
