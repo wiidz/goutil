@@ -149,6 +149,8 @@ func getWechatOaConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatOaCo
 	return &configStruct.WechatOaConfig{
 		AppID:     GetValueFromRow(rows, "wechat", "oa", "app_id", "",debug),
 		AppSecret: GetValueFromRow(rows, "wechat", "oa", "app_secret", "",debug),
+		Token: GetValueFromRow(rows, "wechat", "oa", "token", "",debug),
+		EncodingAESKey: GetValueFromRow(rows, "wechat", "oa", "encoding_aes_key", "",debug),
 	}
 }
 
