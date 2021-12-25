@@ -88,28 +88,33 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 }
 
 // H5 网页支付
-func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
+func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url string, err error) {
 
-	//【1】获取prepayID
-	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
-	if err != nil {
-		return
-	}
+	//【1】构建结构体
+	bm := make(gopay.BodyMap)
+	bm.Set("appid", mng.Config.AppID).
+		Set("mchid", mng.Config.MchID).
+		Set("description", params.Title).
+		Set("out_trade_no", params.OutTradeNo).
+		Set("notify_url", mng.Config.NotifyURL).
+		SetBodyMap("amount", func(bm gopay.BodyMap) {
+			bm.Set("total", params.TotalAmount).
+				Set("currency", "CNY")
+		}).
+		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+			bm.Set("payer_client_ip", params.IP).
+			Set("h5_info", func(bm gopay.BodyMap) {
+				bm.Set("type","Wap")
+			})
+		})
 
 	//【2】获取签名
-	var jsapi *wechat.JSAPIPayParams
-	jsapi, err = mng.Client.PaySignOfJSAPI(mng.Config.AppID, prepayRes.Response.PrepayId)
+	var jsapi *wechat.H5Rsp
+	jsapi, err = mng.Client.V3TransactionH5(bm)
 	if err != nil {
 		return
 	}
-
-	appID = jsapi.AppId
-	timestampStr = jsapi.TimeStamp
-	nonceStr = jsapi.NonceStr
-	packageStr = jsapi.Package
-	paySign = jsapi.PaySign
-	signType = jsapi.SignType
-	return
+	return jsapi.Response.H5Url,err
 }
 
 // Refund 退款
