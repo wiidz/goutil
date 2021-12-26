@@ -10,7 +10,42 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 )
+
+
+type Kind string
+
+const (
+	Invalid       Kind = "invalid"
+	Bool          Kind = "bool"
+	Int           Kind = "int"
+	Int8          Kind = "int8"
+	Int16         Kind = "int16"
+	Int32         Kind = "int32"
+	Int64         Kind = "int64"
+	Uint          Kind = "uint"
+	Uint8         Kind = "uint8"
+	Uint16        Kind = "uint16"
+	Uint32        Kind = "uint32"
+	Uint64        Kind = "uint64"
+	Uintptr       Kind = "uintptr"
+	Float32       Kind = "float32"
+	Float64       Kind = "float64"
+	Complex64     Kind = "complex64"
+	Complex128    Kind = "complex128"
+	Array         Kind = ""
+	Chan          Kind = ""
+	Func          Kind = ""
+	Interface     Kind = "interface{}"
+	Map           Kind = ""
+	Ptr           Kind = ""
+	Slice         Kind = ""
+	String        Kind = "string"
+	Struct        Kind = ""
+	UnsafePointer Kind = ""
+)
+
 
 /**
  * @func: Implode 将slice转换成字符串
@@ -648,3 +683,214 @@ func Float64ToInt64(number float64) int64 {
 func Int8ToStr(number int8) string {
 	return strconv.Itoa(int(number))
 }
+
+
+
+
+// ForceUint64 强制转换为Uint64
+func ForceUint64(value interface{}) uint64 {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case string(Int):
+		return uint64(value.(int))
+	case string(Int8):
+		return uint64(value.(int8))
+	case string(Int16):
+		return uint64(value.(int16))
+	case string(Int32):
+		return uint64(value.(int32))
+	case string(Int64):
+		return uint64(value.(int64))
+	case string(Uint):
+		return uint64(value.(uint))
+	case string(Uint8):
+		return uint64(value.(uint8))
+	case string(Uint16):
+		return uint64(value.(uint16))
+	case string(Uint32):
+		return uint64(value.(uint32))
+	case string(Uint64):
+		return value.(uint64)
+	case string(Uintptr):
+		temp := (*uint64)(unsafe.Pointer(&value))
+		return *temp
+	case string(Float32):
+		return uint64(value.(float32))
+	case string(Float64):
+		return uint64(value.(float64))
+	case string(String):
+		number, _ := strconv.ParseUint(value.(string), 10, 64)
+		return number
+	default:
+		return 0
+	}
+}
+
+// ForceInt 强制转换为int
+func ForceInt(value interface{}) int {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case string(Int):
+		return value.(int)
+	case string(Int8):
+		return int(value.(int8))
+	case string(Int16):
+		return int(value.(int16))
+	case string(Int32):
+		return int(value.(int32))
+	case string(Int64):
+		return int(value.(int64))
+	case string(Uint):
+		return int(value.(uint))
+	case string(Uint8):
+		return int(value.(uint8))
+	case string(Uint16):
+		return int(value.(uint16))
+	case string(Uint32):
+		return int(value.(uint32))
+	case string(Uint64):
+		return int(value.(uint64))
+	case string(Uintptr):
+		temp := (*uint64)(unsafe.Pointer(&value))
+		return int(*temp)
+	case string(Float32):
+		return int(value.(float32))
+	case string(Float64):
+		return int(value.(float64))
+	case string(String):
+		temp, _ := strconv.Atoi(value.(string))
+		return temp
+	default:
+		return 0
+	}
+}
+
+// ForceInt8 强制转换为int8
+func ForceInt8(value interface{}) int8 {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case string(Int):
+		return int8(value.(int))
+	case string(Int8):
+		return value.(int8)
+	case string(Int16):
+		return int8(value.(int16))
+	case string(Int32):
+		return int8(value.(int32))
+	case string(Int64):
+		return int8(value.(int64))
+	case string(Uint):
+		return int8(value.(uint))
+	case string(Uint8):
+		return int8(value.(uint8))
+	case string(Uint16):
+		return int8(value.(uint16))
+	case string(Uint32):
+		return int8(value.(uint32))
+	case string(Uint64):
+		return int8(value.(uint64))
+	case string(Uintptr):
+		temp := (*uint64)(unsafe.Pointer(&value))
+		return int8(*temp)
+	case string(Float32):
+		return int8(value.(float32))
+	case string(Float64):
+		return int8(value.(float64))
+	case string(String):
+		temp, _ := strconv.Atoi(value.(string))
+		return int8(temp)
+	default:
+		return 0
+	}
+}
+
+// ForceString 强制转换为string
+func ForceString(value interface{}) string {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case string(Int):
+		return strconv.Itoa(value.(int))
+	case string(Int8):
+		return strconv.Itoa(int(value.(int8)))
+	case string(Int16):
+		return strconv.Itoa(int(value.(int16)))
+	case string(Int32):
+		return strconv.Itoa(int(value.(int32)))
+	case string(Int64):
+		return strconv.FormatInt(value.(int64), 10)
+	case string(Uint):
+		return strconv.FormatUint(uint64(value.(uint)), 10)
+	case string(Uint8):
+		return strconv.FormatUint(uint64(value.(uint8)), 10)
+	case string(Uint16):
+		return strconv.FormatUint(uint64(value.(uint16)), 10)
+	case string(Uint32):
+		return strconv.FormatUint(uint64(value.(uint32)), 10)
+	case string(Uint64):
+		return strconv.FormatUint(value.(uint64), 10)
+	case string(Uintptr):
+		temp := (*uint64)(unsafe.Pointer(&value))
+		return strconv.FormatUint(*temp, 10)
+	case string(Float32):
+		return strconv.FormatFloat(float64(value.(float32)), 'f', -1, 32)
+	case string(Float64):
+		return strconv.FormatFloat(value.(float64), 'f', -1, 32)
+	case string(String):
+		return value.(string)
+	default:
+		return ""
+	}
+}
+
+// ForceIntSlice 强制转换成int64切片
+func ForceIntSlice(value interface{}) []int {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case "string":
+		slice := ExplodeInt(value.(string), ",")
+		return slice
+	case "[]int":
+		return value.([]int)
+	//case "[]float64":
+	//	return typeHelper.Float64ToIntSlice(value.([]float64))
+	default :
+		return []int{}
+	}
+}
+
+// ForceUint64Slice 强制转换成uint64切片
+func ForceUint64Slice(value interface{}) []uint64 {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case "string":
+		slice := ExplodeUint64(value.(string), ",")
+		return slice
+	//case "[]int":
+	//	return value.([]int)
+	case "[]uint64":
+		return value.([]uint64)
+	//case "[]float64":
+	//	return typeHelper.Float64ToIntSlice(value.([]float64))
+	default :
+		return []uint64{}
+	}
+}
+
+// ForceFloat64Slice 强制转换成float64切片
+func ForceFloat64Slice(value interface{}) []float64 {
+	valueType := reflect.TypeOf(value).String()
+	switch valueType {
+	case "string":
+		slice := ExplodeFloat64(value.(string), ",")
+		return slice
+	//case "[]int":
+	//	return value.([]int)
+	case "[]float64":
+		return value.([]float64)
+	//case "[]float64":
+	//	return typeHelper.Float64ToIntSlice(value.([]float64))
+	default :
+		return []float64{}
+	}
+}
+

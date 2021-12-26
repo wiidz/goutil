@@ -1,6 +1,6 @@
 package mysqlMng
 
-// 用于判断是否是null值
+// NullType 用于判断是否是null值
 type NullType byte
 
 const (
@@ -9,12 +9,12 @@ const (
 	IsNotNull          // IsNotNull the same as `is not null`
 )
 
-// 简单方法种用来获取新插入记录的ID值
+// OnlyID 简单方法种用来获取新插入记录的ID值
 type OnlyID struct {
 	ID uint64 `gorm:"primary_key;column:id;type:bigint(20) unsigned;not null" json:"id"` // 编号
 }
 
-// 结构化方法种用来获取新插入记录的ID值
+// IDInterface 结构化方法种用来获取新插入记录的ID值
 type IDInterface interface {
 	GetID() uint64
 }
@@ -31,7 +31,7 @@ type BaseStruct struct {
 	RowsAffected int64
 }
 
-// 读接口
+// ReadInterface 读接口
 type ReadInterface interface {
 	BaseInterface
 	// Getter
@@ -53,7 +53,7 @@ type ReadInterface interface {
 	SetPageSize(int)
 }
 
-// 读取操作的基本结构体
+// Read 读取操作的基本结构体
 type Read struct {
 	BaseStruct
 	Condition map[string]interface{}
@@ -131,7 +131,7 @@ func (read *Read) SetRowsAffected(rowsAffected int64) {
 	read.RowsAffected = rowsAffected
 }
 
-// 涉及到json操作的接口
+// JsonInterface 涉及到json操作的接口
 type JsonInterface interface {
 	// Getter
 	GetRawJsonMap() map[string]interface{}
@@ -139,7 +139,7 @@ type JsonInterface interface {
 	SetRawJsonMap(map[string]interface{})
 }
 
-// 插入接口
+// InsertInterface 插入接口
 type InsertInterface interface {
 	JsonInterface
 	BaseInterface
@@ -151,7 +151,7 @@ type InsertInterface interface {
 	SetNewID(uint64)
 }
 
-// 插入操作的基本结构体
+// Insert 插入操作的基本结构体
 type Insert struct {
 	BaseStruct
 	NewID      uint64 // 没有实际意义，无法实现，只为了区分interface
@@ -190,7 +190,7 @@ func (insert *Insert) SetError(err error) {
 	insert.Error = err
 }
 
-// 修改接口
+// UpdateInterface 修改接口
 type UpdateInterface interface {
 	JsonInterface
 	BaseInterface
@@ -204,7 +204,7 @@ type UpdateInterface interface {
 	SetValue(map[string]interface{})
 }
 
-// 修改操作的基本结构体
+// Update 修改操作的基本结构体
 type Update struct {
 	BaseStruct
 	TableName  string
@@ -250,7 +250,7 @@ func (update *Update) SetError(err error) {
 	update.Error = err
 }
 
-// 删除接口
+// DeleteInterface 删除接口
 type DeleteInterface interface {
 	JsonInterface
 	BaseInterface
@@ -262,7 +262,7 @@ type DeleteInterface interface {
 	SetRow(interface{})
 }
 
-// 删除操作的基本结构体
+// Delete 删除操作的基本结构体
 type Delete struct {
 	BaseStruct
 	Condition  map[string]interface{}

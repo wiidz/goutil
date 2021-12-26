@@ -39,6 +39,14 @@ const (
 	Options Method = 5
 )
 
+type ContentType int8
+
+const (
+	Query    ContentType = 1
+	BodyJson ContentType = 2
+	BodyForm ContentType = 3
+)
+
 func (p Method) String() string {
 	switch p {
 	case Get:
