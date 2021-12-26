@@ -313,3 +313,19 @@ func StrSlice2InterfaceSlice(data []string) []interface{} {
 	}
 	return tmp
 }
+
+
+// InterfaceSlice2MapSlice
+func InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
+
+	tmp := make([]map[string]interface{}, 0)
+
+	for _, v := range inter {
+
+		tmp = append(tmp, v.(map[string]interface{}))
+
+	}
+
+	return tmp
+
+}

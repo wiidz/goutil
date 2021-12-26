@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 )
 
 
@@ -369,18 +368,6 @@ func ToString(data interface{}) string {
 	}
 }
 
-/**
- * @func: Map2InterfaceSlice 将map转换成interface slice
- * @author Wiidz
- * @date   2019-11-16
- */
-func Map2InterfaceSlice(data map[string]interface{}) []interface{} {
-	islice := []interface{}{}
-	for _, v := range data {
-		islice = append(islice, v)
-	}
-	return islice
-}
 
 /**
  * @func: Str2Int64 将字符串转为int64
@@ -466,19 +453,6 @@ func JsonEncode(data interface{}) (string, error) {
 	return string(res), err
 }
 
-///**
-// * @func: JsonDecode 解码json
-// * @author Wiidz
-// * @date   2019-11-16
-// */
-//func  JsonDecode(jsonStr string) map[string]interface{} {
-//
-//	var data map[string]interface{}
-//
-//	json.Unmarshal([]byte(jsonStr), &data)
-//
-//	return data
-//}
 
 func JsonDecode(jsonStr string) (parsedData interface{}) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -530,20 +504,6 @@ func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) {
 	return
 }
 
-// InterfaceSlice2MapSlice
-func InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {
-
-	tmp := make([]map[string]interface{}, 0)
-
-	for _, v := range inter {
-
-		tmp = append(tmp, v.(map[string]interface{}))
-
-	}
-
-	return tmp
-
-}
 
 /**
  * @func: Float64SliceToInt float64 slice转换成 int slice
@@ -633,163 +593,3 @@ func Float64ToInt64(number float64) int64 {
 func Int8ToStr(number int8) string {
 	return strconv.Itoa(int(number))
 }
-
-
-// ForceUint64 强制转换为Uint64
-func ForceUint64(value interface{}) uint64 {
-	valueType := reflect.TypeOf(value).String()
-	switch valueType {
-	case string(Int):
-		return uint64(value.(int))
-	case string(Int8):
-		return uint64(value.(int8))
-	case string(Int16):
-		return uint64(value.(int16))
-	case string(Int32):
-		return uint64(value.(int32))
-	case string(Int64):
-		return uint64(value.(int64))
-	case string(Uint):
-		return uint64(value.(uint))
-	case string(Uint8):
-		return uint64(value.(uint8))
-	case string(Uint16):
-		return uint64(value.(uint16))
-	case string(Uint32):
-		return uint64(value.(uint32))
-	case string(Uint64):
-		return value.(uint64)
-	case string(Uintptr):
-		temp := (*uint64)(unsafe.Pointer(&value))
-		return *temp
-	case string(Float32):
-		return uint64(value.(float32))
-	case string(Float64):
-		return uint64(value.(float64))
-	case string(String):
-		number, _ := strconv.ParseUint(value.(string), 10, 64)
-		return number
-	default:
-		return 0
-	}
-}
-
-// ForceFloat64 强制转换为Float64
-func ForceFloat64(value interface{}) float64 {
-	valueType := reflect.TypeOf(value).String()
-	switch valueType {
-	case string(Int):
-		return float64(value.(int))
-	case string(Int8):
-		return float64(value.(int8))
-	case string(Int16):
-		return float64(value.(int16))
-	case string(Int32):
-		return float64(value.(int32))
-	case string(Int64):
-		return float64(value.(int64))
-	case string(Uint):
-		return float64(value.(uint))
-	case string(Uint8):
-		return float64(value.(uint8))
-	case string(Uint16):
-		return float64(value.(uint16))
-	case string(Uint32):
-		return float64(value.(uint32))
-	case string(Uint64):
-		return float64(value.(uint64))
-	case string(Uintptr):
-		temp := (*uint64)(unsafe.Pointer(&value))
-		return float64(*temp)
-	case string(Float32):
-		return float64(value.(float32))
-	case string(Float64):
-		return value.(float64)
-	case string(String):
-		number, _ := strconv.ParseFloat(value.(string), 64)
-		return number
-	default:
-		return 0
-	}
-}
-
-// ForceInt 强制转换为int
-func ForceInt(value interface{}) int {
-	valueType := reflect.TypeOf(value).String()
-	switch valueType {
-	case string(Int):
-		return value.(int)
-	case string(Int8):
-		return int(value.(int8))
-	case string(Int16):
-		return int(value.(int16))
-	case string(Int32):
-		return int(value.(int32))
-	case string(Int64):
-		return int(value.(int64))
-	case string(Uint):
-		return int(value.(uint))
-	case string(Uint8):
-		return int(value.(uint8))
-	case string(Uint16):
-		return int(value.(uint16))
-	case string(Uint32):
-		return int(value.(uint32))
-	case string(Uint64):
-		return int(value.(uint64))
-	case string(Uintptr):
-		temp := (*uint64)(unsafe.Pointer(&value))
-		return int(*temp)
-	case string(Float32):
-		return int(value.(float32))
-	case string(Float64):
-		return int(value.(float64))
-	case string(String):
-		temp, _ := strconv.Atoi(value.(string))
-		return temp
-	default:
-		return 0
-	}
-}
-
-// ForceInt8 强制转换为int8
-func ForceInt8(value interface{}) int8 {
-	valueType := reflect.TypeOf(value).String()
-	switch valueType {
-	case string(Int):
-		return int8(value.(int))
-	case string(Int8):
-		return value.(int8)
-	case string(Int16):
-		return int8(value.(int16))
-	case string(Int32):
-		return int8(value.(int32))
-	case string(Int64):
-		return int8(value.(int64))
-	case string(Uint):
-		return int8(value.(uint))
-	case string(Uint8):
-		return int8(value.(uint8))
-	case string(Uint16):
-		return int8(value.(uint16))
-	case string(Uint32):
-		return int8(value.(uint32))
-	case string(Uint64):
-		return int8(value.(uint64))
-	case string(Uintptr):
-		temp := (*uint64)(unsafe.Pointer(&value))
-		return int8(*temp)
-	case string(Float32):
-		return int8(value.(float32))
-	case string(Float64):
-		return int8(value.(float64))
-	case string(String):
-		temp, _ := strconv.Atoi(value.(string))
-		return int8(temp)
-	default:
-		return 0
-	}
-}
-
-
-
