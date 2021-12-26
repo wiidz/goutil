@@ -823,82 +823,31 @@ func JsonParamsFilter(params interface{}) (condition, value, etc map[string]inte
 
 // getFormattedValue 获取指定格式的数值
 func getFormattedValue(t string, value interface{}) interface{} {
-
-	valueType := typeHelper.GetType(value)
-
 	switch t {
 	case "string":
-		if valueType == "float64" {
-			return typeHelper.Float64ToStr(value.(float64))
-		} else if valueType == "int" {
-			return typeHelper.Int2Str(value.(int))
-		} else if valueType == "nil" {
-			return ""
-		} else {
-			return value.(string)
-		}
+		return typeHelper.ForceString(value)
 	case "int":
-		if valueType == "float64" {
-			return typeHelper.Float64ToInt(value.(float64))
-		} else if valueType == "nil" {
-			return 0
-		} else {
-			return typeHelper.Str2Int(value.(string))
-		}
+		return typeHelper.ForceInt(value)
 	case "int8":
-		if valueType == "string" {
-			return typeHelper.Str2Int8(value.(string))
-		} else if valueType == "nil" {
-			return int8(0)
-		} else {
-			return typeHelper.Float64ToInt8(value.(float64))
-		}
-	case "int64":
-		if valueType == "string" {
-			return typeHelper.Str2Int64(value.(string))
-		} else if valueType == "nil" {
-			return int64(0)
-		} else {
-			return typeHelper.Float64ToInt64(value.(float64))
-		}
+		return typeHelper.ForceInt8(value)
+	//case "int64":
+	//	return typeHelper.ForceInt64(value)
 	case "uint64":
-		if valueType == "string" {
-			return typeHelper.Str2Uint64(value.(string))
-		} else if valueType == "nil" {
-			return uint64(0)
-		} else {
-			return typeHelper.Float64ToUint64(value.(float64))
-		}
+		return typeHelper.ForceUint64(value)
 	case "float64":
-		if str, ok := value.(string); ok {
-			return typeHelper.Str2Float64(str)
-		} else if valueType == "nil" {
-			return float64(0)
-		} else {
-			return value.(float64)
-		}
+		return typeHelper.ForceFloat64(value)
 	case "[]int":
-		if str, ok := value.(string); ok {
-			slice := typeHelper.ExplodeInt(str, ",")
-			return slice
-		} else if valueType == "nil" {
-			return []int{}
-		} else {
-			slice := typeHelper.Float64ToIntSlice(value.([]interface{}))
-			return slice
-		}
+		return typeHelper.ForceIntSlice(value)
 	case "[]string":
-		if valueType == "nil" {
-			return []string{}
-		}
-		slice := typeHelper.ExplodeStr(value.(string), ",")
-		return slice
+		return typeHelper.ForceStrSlice(value)
 	default:
+		// 其他情况默认是结构体
 		temp, _ := typeHelper.JsonEncode(value)
 		typeHelper.JsonDecodeWithStruct(temp, value)
 		return value
 	}
 }
+
 
 // GetReadInterface 获取read参数
 func GetReadInterface(ctx iris.Context, params mysqlMng.ReadInterface) error {
