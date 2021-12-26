@@ -1,4 +1,47 @@
-package networkHelper
+package networkStruct
+
+type ContentType int8
+
+const (
+	Query    ContentType = 1
+	BodyJson ContentType = 2
+	BodyForm ContentType = 3
+)
+
+// ReadCommonStruct 读取列表公用的参数
+type ReadCommonStruct struct {
+	PageNow  int    `json:"page_now" belong:"etc" default:"1"`
+	PageSize int    `json:"page_size" belong:"etc" default:"10"`
+	Order    string `json:"order" belong:"etc" default:"id asc"`
+}
+
+type Method int8
+
+const (
+	Get     Method = 1
+	Post    Method = 2
+	Put     Method = 3
+	Delete  Method = 4
+	Options Method = 5
+)
+
+func (p Method) String() string {
+	switch p {
+	case Get:
+		return "GET"
+	case Post:
+		return "POST"
+	case Put:
+		return "PUT"
+	case Delete:
+		return "DELETE"
+	case Options:
+		return "OPTIONS"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 
 // ParamsInterface 参数接口
 type ParamsInterface interface {
@@ -19,8 +62,8 @@ type ParamsInterface interface {
 	GetPreloads() []string
 	SetPreloads([]string)
 
-	GetRawJsonMap()map[string]interface{}
-	SetRawJsonMap(map[string]interface{})
+	GetRawMap()map[string]interface{}
+	SetRawMap(map[string]interface{})
 
 	// [read、update、delete] - condition 条件
 	GetCondition() map[string]interface{}
@@ -51,7 +94,12 @@ type ParamsInterface interface {
 	SetTableName(string)
 
 	// [insert] - 新的主键
-	GetNewID(ID uint64)
+	GetNewID() uint64
+	SetNewID(newID uint64)
+
+	// 其他
+	GetEtc() map[string]interface{}
+	SetEtc(data map[string]interface{})
 }
 
 // Params 参数结构体
@@ -65,7 +113,8 @@ type Params struct {
 	// 根据前端参数处理后的数据
 	Condition map[string]interface{} // [read、update、delete] 条件
 	Value      map[string]interface{} // [update、insert] - 数据
-	RawJsonMap map[string]interface{}
+	Etc  map[string]interface{} // 其他
+	RawMap map[string]interface{}
 
 	// 内部补充参数
 	Single    bool // [read] - 附加条件
@@ -130,12 +179,12 @@ func (params *Params) GetLimit() int {
 	return params.PageSize
 }
 
-// RawJsonMap 原始数据
-func (params *Params) GetRawJsonMap() map[string]interface{} {
-	return params.RawJsonMap
+// RawMap 原始数据
+func (params *Params) GetRawMap() map[string]interface{} {
+	return params.RawMap
 }
-func (params *Params) SetRawJsonMap(rawJsonMap map[string]interface{}) {
-	params.RawJsonMap = rawJsonMap
+func (params *Params) SetRawMap(RawMap map[string]interface{}) {
+	params.RawMap = RawMap
 }
 
 
@@ -155,6 +204,7 @@ func (params *Params) SetRowsAffected(rowsAffected int64) {
 	params.RowsAffected = rowsAffected
 }
 
+
 // Error 错误
 func (params *Params) GetError() error {
 	return params.Error
@@ -164,10 +214,10 @@ func (params *Params) SetError(err error) {
 }
 
 // Rows 查询结果
-func (params *Params) GetRows(rows interface{}) {
+func (params *Params)  SetRows(rows interface{}) {
 	params.Rows = rows
 }
-func (params *Params) SetRows() interface{} {
+func (params *Params)GetRows() interface{} {
 	return params.Rows
 }
 
@@ -185,7 +235,7 @@ func (params *Params) GetPreloads() []string {
 	return params.Preloads
 }
 func (params *Params) SetPreloads(preloads []string)  {
-  params.Preloads = preloads
+	params.Preloads = preloads
 }
 
 // NewID 新主键
@@ -194,4 +244,12 @@ func (params *Params) GetNewID() uint64 {
 }
 func (params *Params) SetNewID(newID uint64) {
 	params.NewID = newID
+}
+
+// Etc 其他
+func (params *Params) GetEtc() map[string]interface{} {
+	return params.Etc
+}
+func (params *Params) SetEtc(data map[string]interface{}) {
+	params.Etc = data
 }
