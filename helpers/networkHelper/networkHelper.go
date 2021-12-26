@@ -755,10 +755,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
-		log.Println("fieldName",fieldName)
 		if currentValue.Interface() == reflect.Zero(fileType).Interface(){
 			if defaultValue != "" {
-				log.Println("defaultValue",defaultValue)
 				formattedDefaultValue := getFormattedValue(field.Type.String(), defaultValue)
 				currentValue = reflect.ValueOf(formattedDefaultValue)
 				structValues.Elem().Field(i).Set(currentValue) // 记得填充回结构体
@@ -767,12 +765,10 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 				continue
 			}
 			// 给的就是零值，继续
-		} else {
-			log.Println("fieldName",fieldName,belong)
 		}
 
 		formattedValue := getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
-		log.Println("formattedValue",formattedValue)
+
 		//【4】按照belong进行填充
 		switch belong {
 		case "condition":
@@ -803,23 +799,22 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	params.SetValue(value)
 	params.SetEtc(etc)
 
-	//if pageNow, ok := etc["page_now"].(string); ok {
-	//	params.SetPageNow(typeHelper.Str2Int(pageNow))
-	//} else {
-	//	params.SetPageNow(0)
-	//}
-	//
-	//if pageSize, ok := etc["page_size"].(string); ok {
-	//	params.SetPageSize(typeHelper.Str2Int(pageSize))
-	//} else {
-	//	params.SetPageSize(10)
-	//}
-	//
-	//if order, ok := etc["order"].(string); ok {
-	//	params.SetOrder(order)
-	//} else {
-	//	params.SetOrder("id asc")
-	//}
+	// Tips：特别注意这里必须要set，外部的pageNow等字段，嵌入本结构体，外部的pageSize有值，但是取的GetPageSize还是内部的，注意
+	if pageNow, ok := etc["page_now"].(string); ok {
+		params.SetPageNow(typeHelper.Str2Int(pageNow))
+	} else {
+		params.SetPageNow(0)
+	}
+	if pageSize, ok := etc["page_size"].(string); ok {
+		params.SetPageSize(typeHelper.Str2Int(pageSize))
+	} else {
+		params.SetPageSize(10)
+	}
+	if order, ok := etc["order"].(string); ok {
+		params.SetOrder(order)
+	} else {
+		params.SetOrder("id asc")
+	}
 
 	return
 }
