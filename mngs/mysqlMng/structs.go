@@ -134,9 +134,9 @@ func (read *Read) SetRowsAffected(rowsAffected int64) {
 // JsonInterface 涉及到json操作的接口
 type JsonInterface interface {
 	// Getter
-	GetRawJsonMap() map[string]interface{}
+	GetRawMap() map[string]interface{}
 	//Setter
-	SetRawJsonMap(map[string]interface{})
+	SetRawMap(map[string]interface{})
 }
 
 // InsertInterface 插入接口
@@ -156,11 +156,11 @@ type Insert struct {
 	BaseStruct
 	NewID      uint64 // 没有实际意义，无法实现，只为了区分interface
 	Row        interface{}
-	RawJsonMap map[string]interface{}
+	RawMap map[string]interface{}
 }
 
-func (insert *Insert) GetRawJsonMap() map[string]interface{} {
-	return insert.RawJsonMap
+func (insert *Insert) GetRawMap() map[string]interface{} {
+	return insert.RawMap
 }
 func (insert *Insert) GetRow() interface{} {
 	return insert.Row
@@ -174,8 +174,8 @@ func (insert *Insert) GetRowsAffected() int64 {
 func (insert *Insert) GetError() error {
 	return insert.Error
 }
-func (insert *Insert) SetRawJsonMap(rawJsonMap map[string]interface{}) {
-	insert.RawJsonMap = rawJsonMap
+func (insert *Insert) SetRawMap(rawJsonMap map[string]interface{}) {
+	insert.RawMap = rawJsonMap
 }
 func (insert *Insert) SetRow(row interface{}) {
 	insert.Row = row
@@ -210,11 +210,11 @@ type Update struct {
 	TableName  string
 	Condition  map[string]interface{}
 	Value      map[string]interface{}
-	RawJsonMap map[string]interface{}
+	RawMap map[string]interface{}
 }
 
-func (update *Update) GetRawJsonMap() map[string]interface{} {
-	return update.RawJsonMap
+func (update *Update) GetRawMap() map[string]interface{} {
+	return update.RawMap
 }
 func (update *Update) GetTableName() string {
 	return update.TableName
@@ -231,8 +231,8 @@ func (update *Update) GetRowsAffected() int64 {
 func (update *Update) GetError() error {
 	return update.Error
 }
-func (update *Update) SetRawJsonMap(rawJsonMap map[string]interface{}) {
-	update.RawJsonMap = rawJsonMap
+func (update *Update) SetRawMap(rawJsonMap map[string]interface{}) {
+	update.RawMap = rawJsonMap
 }
 func (update *Update) SetTableName(tableName string) {
 	update.TableName = tableName
@@ -267,11 +267,11 @@ type Delete struct {
 	BaseStruct
 	Condition  map[string]interface{}
 	Row        interface{}
-	RawJsonMap map[string]interface{}
+	RawMap map[string]interface{}
 }
 
-func (delete *Delete) GetRawJsonMap() map[string]interface{} {
-	return delete.RawJsonMap
+func (delete *Delete) GetRawMap() map[string]interface{} {
+	return delete.RawMap
 }
 func (delete *Delete) GetCondition() map[string]interface{} {
 	return delete.Condition
@@ -285,8 +285,8 @@ func (delete *Delete) GetRowsAffected() int64 {
 func (delete *Delete) GetError() error {
 	return delete.Error
 }
-func (delete *Delete) SetRawJsonMap(rawJsonMap map[string]interface{}) {
-	delete.RawJsonMap = rawJsonMap
+func (delete *Delete) SetRawMap(rawJsonMap map[string]interface{}) {
+	delete.RawMap = rawJsonMap
 }
 func (delete *Delete) SetCondition(condition map[string]interface{}) {
 	delete.Condition = condition

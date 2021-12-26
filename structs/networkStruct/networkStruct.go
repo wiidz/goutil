@@ -62,6 +62,7 @@ type ParamsInterface interface {
 	GetPreloads() []string
 	SetPreloads([]string)
 
+	// [read、update、post、delete] - 原始数据
 	GetRawMap()map[string]interface{}
 	SetRawMap(map[string]interface{})
 
@@ -72,6 +73,10 @@ type ParamsInterface interface {
 	// [read] - rows 查询记录
 	GetRows() interface{}
 	SetRows(interface{})
+
+	// [read、insert、update、delete] - row
+	GetRow() interface{}
+	SetRow(interface{})
 
 	// [read] -  count 查询数目
 	GetCount() int64
@@ -123,7 +128,8 @@ type Params struct {
 
 	// 操作结果
 	NewID uint64 // [insert] - 新主键
-	Rows      interface{} // [read] - 查询结构
+	Rows      interface{} // [read] - 结构切片
+	Row      interface{} // [read、update、delete、insert] - 结构
 	Count     int64 // [read] - 统计行数
 	RowsAffected int64 // [update、delete] - 影响行数
 	Error        error // 错误
@@ -221,6 +227,13 @@ func (params *Params)GetRows() interface{} {
 	return params.Rows
 }
 
+// Row 查询结果
+func (params *Params)  SetRow(rows interface{}) {
+	params.Row = rows
+}
+func (params *Params)GetRow() interface{} {
+	return params.Row
+}
 
 // Order 顺序
 func (params *Params) GetOrder() string {
