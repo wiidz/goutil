@@ -92,7 +92,9 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url string, err error) {
 
 	//【1】构建结构体
-	bm := make(gopay.BodyMap)
+	log.Println("config",mng.Config)
+	log.Println("AppID",mng.Config.AppID)
+	bm := gopay.BodyMap{}
 	bm.Set("appid", mng.Config.AppID).
 		Set("mchid", mng.Config.MchID).
 		Set("description", params.Title).
