@@ -326,31 +326,3 @@ func GetOffset(pageNow, pageSize int) int {
 	}
 	return offset
 }
-
-// SimpleUpdate 简单更新操作
-func SimpleUpdate(conn *gorm.DB, condition, data map[string]interface{}, model interface{}, tableName string) (rowsAffected int64, err error) {
-
-	//【1】判断条件是否为空
-	if len(condition) == 0 {
-		err = errors.New("条件为空")
-		return
-	}
-
-	//【2】判断值是否为空
-	if len(data) == 0 {
-		err = errors.New("值为空")
-		return
-	}
-
-	//【3】拆分条件
-	cons, vals, _ := WhereBuild(condition)
-
-	//【4】执行操作
-	conn = conn.Debug().Table(tableName).Model(model).Where(cons, vals...).Updates(data)
-
-	//【5】返回
-	err = conn.Error
-	rowsAffected = conn.RowsAffected
-
-	return
-}

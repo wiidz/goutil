@@ -193,15 +193,7 @@ func (mysql *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID i
 	}, 200
 }
 
-/**
- * @func  : 获取新闻详情
- * @author: Wiidz
- * @date  : 2020-04-15
- * @params: [newsID] int 新闻ID
- * @return: [msg] string 消息体
- * 			[data] interface{} 数据
- * 			[statusCode] 状态码
- */
+// SimpleGetDetailWithLog 简单获取记录
 func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【2】查询
@@ -214,18 +206,7 @@ func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, auth
 	return "ok", params.GetRows(), 200
 }
 
-/**
- * @func : UpdateOneByID 修改某一条新闻信息
- * @param: [mysql]mysqlMng* MysqlMng 数据库连接
- *         [newsID] int 新闻ID
- *         [kind] int8 类型
- *         [title] string 标题
- *         [status] int8  状态
- *         [staffID] int 作者编号
- * @return:[msg] string 消息体
- *         [data] interface{} 错误
- *         [statusCode]int 状态码
- */
+// SimpleUpdate 简单修改
 func (mysql *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
