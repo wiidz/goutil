@@ -726,7 +726,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 
 		//【1】获取标签
 		field := structType.Elem().Field(i)
-		fileType := field.Type              // 字段的类型
+		fieldType := field.Type              // 字段的类型
 
 		jsonTag := field.Tag.Get("json") // body体中使用
 		urlTag := field.Tag.Get("url") // query中使用
@@ -754,10 +754,10 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
-		if fileType.Kind() == reflect.Struct || fileType.Kind() == reflect.Slice {
+		if fieldType.Kind() == reflect.Struct || fieldType.Kind() == reflect.Slice {
 			continue // 结构体类型和切片类型 默认不予填充和计算
 		}
-		if currentValue.Interface() == reflect.Zero(fileType).Interface(){
+		if currentValue.Interface() == reflect.Zero(fieldType).Interface(){
 			if defaultValue != "" {
 				log.Println("defaultValue",defaultValue)
 				log.Println("field.Type",field.Type)
@@ -774,7 +774,9 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		}
 
 		formattedValue := getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
-
+		log.Println("fieldName",fieldName)
+		log.Println("type",fieldType,fieldType.String())
+		log.Println("formattedValue",formattedValue)
 		//【4】按照belong进行填充
 		switch belong {
 		case "condition":
@@ -788,6 +790,12 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 				}
 			case "in":
 				condition[fieldName] = []interface{}{"in"}
+				condition[fieldName] = append(condition[fieldName].([]interface{}), formattedValue)
+			case "not in":
+				condition[fieldName] = []interface{}{"not in"}
+				condition[fieldName] = append(condition[fieldName].([]interface{}), formattedValue)
+			case "!=":
+				condition[fieldName] = []interface{}{"!="}
 				condition[fieldName] = append(condition[fieldName].([]interface{}), formattedValue)
 			default:
 				condition[fieldName] = formattedValue
