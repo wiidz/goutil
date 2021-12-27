@@ -102,9 +102,9 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 			bm.Set("total", params.TotalAmount)
 				//Set("currency", "CNY")
 		}).
-		SetBodyMap("payer", func(bm gopay.BodyMap) {
-			bm.Set("openid", openID)
-		}).
+		//SetBodyMap("payer", func(bm gopay.BodyMap) {
+		//	bm.Set("openid", openID)
+		//}).
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
 			bm.Set("payer_client_ip", params.IP).
 				SetBodyMap("h5_info", func(bm gopay.BodyMap) {
