@@ -39,7 +39,7 @@ func NewWechatPayMngV3(config *configStruct.WechatPayConfig) (*WechatPayMngV3, e
 	return getWechatPayV3Instance(config)
 }
 
-// Mini 小程序场景下单
+// Mini 小程序场景下单，注意params.TotalAmount是元为单位
 func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
 
 	//【1】获取prepayID
@@ -62,7 +62,7 @@ func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (times
 	return
 }
 
-// Js 公众号支付
+// Js 公众号支付，注意params.TotalAmount是元为单位
 func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
@@ -87,10 +87,11 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 	return
 }
 
-// H5 网页支付
+// H5 网页支付，注意params.TotalAmount是元为单位
 func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url string, err error) {
 
 	//【1】构建结构体
+	totalFee := int(params.TotalAmount * 100)
 	bm := gopay.BodyMap{}
 	bm.Set("appid", mng.Config.AppID).
 		Set("mchid", mng.Config.MchID).
@@ -98,7 +99,7 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		Set("out_trade_no", params.OutTradeNo).
 		Set("notify_url", mng.Config.NotifyURL).
 		SetBodyMap("amount", func(bm gopay.BodyMap) {
-			bm.Set("total", params.TotalAmount).
+			bm.Set("total", totalFee).
 				Set("currency", "CNY")
 		}).
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
