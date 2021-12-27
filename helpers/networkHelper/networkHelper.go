@@ -651,8 +651,6 @@ func BuildParams(ctx iris.Context, params networkStruct.ParamsInterface, content
 	if err != nil {
 		return
 	}
-	log.Println("params", params)
-
 
 	//【3】验证参数
 	err = validatorMng.GetError(params)
@@ -738,6 +736,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		kind := field.Tag.Get("kind")       // 值类型，例如between、like
 
 		defaultValue := field.Tag.Get("default")
+
 		if jsonTag == "" && urlTag == "" {
 			// 没有jsonTag，视为内部填充，则跳过
 			continue
@@ -757,6 +756,10 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
 		if currentValue.Interface() == reflect.Zero(fileType).Interface(){
 			if defaultValue != "" {
+				log.Println("defaultValue",defaultValue)
+				log.Println("field.Type",field.Type)
+				log.Println("field.Type.String()",field.Type.String())
+
 				formattedDefaultValue := getFormattedValue(field.Type.String(), defaultValue)
 				currentValue = reflect.ValueOf(formattedDefaultValue)
 				structValues.Elem().Field(i).Set(currentValue) // 记得填充回结构体
