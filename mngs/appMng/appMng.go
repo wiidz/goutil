@@ -231,7 +231,7 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 		No:      GetValueFromRow(rows, "app", "no", "", "",false),
 		Name:    GetValueFromRow(rows, "app", "name", "", "",false),
 		Host:    GetValueFromRow(rows, "app", "host", "", "",false),
-		Debug:   GetValueFromRow(rows, "app", "debug", "", "",false) == "0", // 0=生产，1=调试
+		Debug:   GetValueFromRow(rows, "app", "debug", "", "",false) == "1", // 0=生产，1=调试
 		Version: GetValueFromRow(rows, "app", "version", "", "",false),
 	}
 }
