@@ -753,16 +753,24 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
-		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
-		if fieldType.Kind() == reflect.Struct || fieldType.Kind() == reflect.Slice {
-			continue // 结构体类型和切片类型 默认不予填充和计算
-		}
-		if currentValue.Interface() == reflect.Zero(fieldType).Interface(){
-			if defaultValue != "" {
-				log.Println("defaultValue",defaultValue)
-				log.Println("field.Type",field.Type)
-				log.Println("field.Type.String()",field.Type.String())
 
+		log.Println("fieldName",fieldName)
+		log.Println("type",fieldType,fieldType.String())
+		log.Println("currentValue",currentValue,currentValue.Interface())
+
+		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
+		if fieldType.Kind() == reflect.Struct{
+			log.Println("Struct")
+			log.Println(reflect.Zero(fieldType).Interface())
+		} else if fieldType.Kind() == reflect.Slice {
+			log.Println("slice")
+			if len(currentValue.Interface().([]interface{})) == 0 {
+				log.Println("Slice zero")
+			}
+			log.Println(reflect.Zero(fieldType).Interface())
+			continue // 结构体类型和切片类型 默认不予填充和计算
+		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface(){
+			if defaultValue != "" {
 				formattedDefaultValue := getFormattedValue(field.Type.String(), defaultValue)
 				currentValue = reflect.ValueOf(formattedDefaultValue)
 				structValues.Elem().Field(i).Set(currentValue) // 记得填充回结构体
@@ -774,9 +782,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		}
 
 		formattedValue := getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
-		log.Println("fieldName",fieldName)
-		log.Println("type",fieldType,fieldType.String())
 		log.Println("formattedValue",formattedValue)
+
 		//【4】按照belong进行填充
 		switch belong {
 		case "condition":
