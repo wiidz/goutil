@@ -172,7 +172,7 @@ func getWechatPayConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatPay
 		CertSerialNo:    GetValueFromRow(rows, "wechat", "pay", "cert_serial_no", "",debug),
 		NotifyURL:       GetValueFromRow(rows, "wechat", "pay", "notify_url", "",debug),
 		RefundNotifyURL: GetValueFromRow(rows, "wechat", "pay", "refund_notify_url", "",debug),
-		Debug:          GetValueFromRow(rows, "wechat", "pay", "is_prod", "0",debug) == "1", // 0=生产，1=调试
+		Debug:          GetValueFromRow(rows, "wechat", "pay", "debug", "0",debug) == "1", // 0=生产，1=调试
 	}
 }
 
@@ -181,7 +181,7 @@ func getAliPayConfig(rows []*DbSettingRow,debug bool) *configStruct.AliPayConfig
 		AppID:      GetValueFromRow(rows, "ali", "pay", "app_id", "",debug),
 		PrivateKey: GetValueFromRow(rows, "ali", "pay", "private_key", "",debug),
 		NotifyURL:  GetValueFromRow(rows, "ali", "pay", "notify_url", "",debug),
-		Debug:     GetValueFromRow(rows, "ali", "pay", "is_prod", "false",debug) == "1",  // 0=生产，1=调试
+		Debug:     GetValueFromRow(rows, "ali", "pay", "debug", "0",debug) == "1",  // 0=生产，1=调试
 	}
 }
 
