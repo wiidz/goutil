@@ -103,13 +103,13 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 				Set("currency", "CNY")
 		}).
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-			bm.Set("payer_client_ip", params.IP)
-			//Set("h5_info", func(bm gopay.BodyMap) {
-			//	bm.Set("type","Wap")
-			//})
+			bm.Set("payer_client_ip", params.IP).
+				SetBodyMap("h5_info", func(bm gopay.BodyMap) {
+					bm.Set("type", "Wap")
+				})
 		})
 
-	log.Println("bm",bm)
+	log.Println("bm", bm)
 
 	//【2】获取签名
 	var res *wechat.H5Rsp
@@ -119,10 +119,10 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 	}
 	if res.Code != 0 {
 		// 出错
-		return "",errors.New(res.Error)
+		return "", errors.New(res.Error)
 	}
 
-	return res.Response.H5Url,err
+	return res.Response.H5Url, err
 }
 
 // Refund 退款
