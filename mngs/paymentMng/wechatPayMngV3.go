@@ -96,11 +96,11 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		Set("mchid", mng.Config.MchID).
 		Set("description", params.Title).
 		Set("out_trade_no", params.OutTradeNo).
-		Set("notify_url", mng.Config.NotifyURL)
-		//SetBodyMap("amount", func(bm gopay.BodyMap) {
-		//	bm.Set("total", params.TotalAmount).
-		//		Set("currency", "CNY")
-		//}).
+		Set("notify_url", mng.Config.NotifyURL).
+		SetBodyMap("amount", func(bm gopay.BodyMap) {
+			bm.Set("total", params.TotalAmount).
+				Set("currency", "CNY")
+		})
 		//SetBodyMap("scene_info", func(bm gopay.BodyMap) {
 		//	bm.Set("payer_client_ip", params.IP).
 		//	Set("h5_info", func(bm gopay.BodyMap) {
@@ -109,12 +109,17 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		//})
 
 	//【2】获取签名
-	var jsapi *wechat.H5Rsp
-	jsapi, err = mng.Client.V3TransactionH5(bm)
+	var res *wechat.H5Rsp
+	res, err = mng.Client.V3TransactionH5(bm)
 	if err != nil {
 		return
 	}
-	return jsapi.Response.H5Url,err
+	if res.Code != 0 {
+		// 出错
+		return "",errors.New(res.Error)
+	}
+
+	return res.Response.H5Url,err
 }
 
 // Refund 退款
@@ -162,7 +167,7 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 		return
 	}
 
-	if len(prepayRsp.Error) != 0 {
+	if prepayRsp.Code != 0 {
 		err = errors.New(prepayRsp.Error)
 		return
 	}
