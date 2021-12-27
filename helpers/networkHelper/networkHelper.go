@@ -754,11 +754,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
-		log.Println("currentValue.Interface()",currentValue.Interface())
-		log.Println("fileType",fileType.Kind().String())
 		if fileType.Kind() == reflect.Struct || fileType.Kind() == reflect.Slice {
-			// 结构体类型和切片类型 默认不予填充和计算
-			continue
+			continue // 结构体类型和切片类型 默认不予填充和计算
 		}
 		if currentValue.Interface() == reflect.Zero(fileType).Interface(){
 			if defaultValue != "" {

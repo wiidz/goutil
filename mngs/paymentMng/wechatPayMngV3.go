@@ -96,17 +96,17 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		Set("mchid", mng.Config.MchID).
 		Set("description", params.Title).
 		Set("out_trade_no", params.OutTradeNo).
-		Set("notify_url", mng.Config.NotifyURL).
-		SetBodyMap("amount", func(bm gopay.BodyMap) {
-			bm.Set("total", params.TotalAmount).
-				Set("currency", "CNY")
-		}).
-		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-			bm.Set("payer_client_ip", params.IP).
-			Set("h5_info", func(bm gopay.BodyMap) {
-				bm.Set("type","Wap")
-			})
-		})
+		Set("notify_url", mng.Config.NotifyURL)
+		//SetBodyMap("amount", func(bm gopay.BodyMap) {
+		//	bm.Set("total", params.TotalAmount).
+		//		Set("currency", "CNY")
+		//}).
+		//SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+		//	bm.Set("payer_client_ip", params.IP).
+		//	Set("h5_info", func(bm gopay.BodyMap) {
+		//		bm.Set("type","Wap")
+		//	})
+		//})
 
 	//【2】获取签名
 	var jsapi *wechat.H5Rsp
@@ -171,41 +171,41 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 }
 
 // h5PlaceOrder H5下单
-func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.H5Rsp, err error) {
-
-	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
-	totalFee := params.TotalAmount * 100 // 分为单位
-
-	// 初始化 BodyMap
-	bm := make(gopay.BodyMap)
-	bm.Set("appid", "appid").
-		Set("mchid", "mchid").
-		Set("sub_mchid", "sub_mchid").
-		Set("description", params.Title).
-		Set("out_trade_no", params.OutTradeNo).
-		Set("time_expire", expire).
-		Set("notify_url", mng.Config.NotifyURL).
-		SetBodyMap("amount", func(bm gopay.BodyMap) {
-			bm.Set("total", totalFee).
-				Set("currency", "CNY")
-		}).
-		SetBodyMap("payer", func(bm gopay.BodyMap) {
-			bm.Set("openid", openID)
-		})
-
-	prepayRsp, err = mng.Client.V3TransactionH5(bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-
-	if len(prepayRsp.Error) != 0 {
-		err = errors.New(prepayRsp.Error)
-		return
-	}
-
-	return
-}
+//func (mng *WechatPayMngV3) h5PlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.H5Rsp, err error) {
+//
+//	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
+//	totalFee := params.TotalAmount * 100 // 分为单位
+//
+//	// 初始化 BodyMap
+//	bm := make(gopay.BodyMap)
+//	bm.Set("appid", "appid").
+//		Set("mchid", "mchid").
+//		Set("sub_mchid", "sub_mchid").
+//		Set("description", params.Title).
+//		Set("out_trade_no", params.OutTradeNo).
+//		Set("time_expire", expire).
+//		Set("notify_url", mng.Config.NotifyURL).
+//		SetBodyMap("amount", func(bm gopay.BodyMap) {
+//			bm.Set("total", totalFee).
+//				Set("currency", "CNY")
+//		}).
+//		SetBodyMap("payer", func(bm gopay.BodyMap) {
+//			bm.Set("openid", openID)
+//		})
+//
+//	prepayRsp, err = mng.Client.V3TransactionH5(bm)
+//	if err != nil {
+//		xlog.Error(err)
+//		return
+//	}
+//
+//	if len(prepayRsp.Error) != 0 {
+//		err = errors.New(prepayRsp.Error)
+//		return
+//	}
+//
+//	return
+//}
 
 // NotifyPayment 一般支付回调
 func (mng *WechatPayMngV3) NotifyPayment(req *http.Request) (res *wechat.V3DecryptResult, err error) {
