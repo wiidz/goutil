@@ -821,13 +821,13 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	params.SetEtc(etc)
 
 	// Tips：特别注意这里必须要set，外部的pageNow等字段，嵌入本结构体，外部的pageSize有值，但是取的GetPageSize还是内部的，注意
-	if pageNow, ok := etc["page_now"].(string); ok {
-		params.SetPageNow(typeHelper.Str2Int(pageNow))
+	if pageNow, ok := etc["page_now"].(int); ok {
+		params.SetPageNow(pageNow)
 	} else {
 		params.SetPageNow(0)
 	}
-	if pageSize, ok := etc["page_size"].(string); ok {
-		params.SetPageSize(typeHelper.Str2Int(pageSize))
+	if pageSize, ok := etc["page_size"].(int); ok {
+		params.SetPageSize(pageSize)
 	} else {
 		params.SetPageSize(10)
 	}
