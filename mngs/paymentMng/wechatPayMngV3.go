@@ -6,6 +6,7 @@ import (
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"net/http"
 	"time"
 )
@@ -100,13 +101,15 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		SetBodyMap("amount", func(bm gopay.BodyMap) {
 			bm.Set("total", params.TotalAmount).
 				Set("currency", "CNY")
+		}).
+		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+			bm.Set("payer_client_ip", params.IP).
+			Set("h5_info", func(bm gopay.BodyMap) {
+				bm.Set("type","Wap")
+			})
 		})
-		//SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-		//	bm.Set("payer_client_ip", params.IP).
-		//	Set("h5_info", func(bm gopay.BodyMap) {
-		//		bm.Set("type","Wap")
-		//	})
-		//})
+
+	log.Println("bm",bm)
 
 	//【2】获取签名
 	var res *wechat.H5Rsp
