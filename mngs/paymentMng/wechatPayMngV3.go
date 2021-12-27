@@ -99,8 +99,8 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		Set("out_trade_no", params.OutTradeNo).
 		Set("notify_url", mng.Config.NotifyURL).
 		SetBodyMap("amount", func(bm gopay.BodyMap) {
-			bm.Set("total", params.TotalAmount).
-				Set("currency", "CNY")
+			bm.Set("total", params.TotalAmount)
+				//Set("currency", "CNY")
 		}).
 		SetBodyMap("payer", func(bm gopay.BodyMap) {
 			bm.Set("openid", openID)
@@ -112,7 +112,6 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 				})
 		})
 
-	log.Println("bm", bm)
 	log.Println("bm", bm)
 
 	//【2】获取签名
