@@ -844,7 +844,24 @@ func IndexOf(needle interface{}, scopeSlice interface{}) int {
 				return index
 			}
 		}
-
+	case uint64:
+		for index, item := range scopeSlice.([]uint64) {
+			if key == item {
+				return index
+			}
+		}
+	case int8:
+		for index, item := range scopeSlice.([]int8) {
+			if key == item {
+				return index
+			}
+		}
+	case uint:
+		for index, item := range scopeSlice.([]uint) {
+			if key == item {
+				return index
+			}
+		}
 	default:
 		return -1
 	}
