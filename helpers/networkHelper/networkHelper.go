@@ -852,6 +852,12 @@ func getFormattedValue(t string, value interface{}) interface{} {
 		return typeHelper.ForceFloat64(value)
 	case "[]int":
 		return typeHelper.ForceIntSlice(value)
+	case "[]int8":
+		return typeHelper.ForceInt8Slice(value)
+	case "[]uint64":
+		return typeHelper.ForceUint64Slice(value)
+	case "[]float64":
+		return typeHelper.ForceFloat64Slice(value)
 	case "[]string":
 		return typeHelper.ForceStrSlice(value)
 	default:
