@@ -125,15 +125,16 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 
 // Refund 退款
 func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, err error) {
-	totalFee := int(param.RefundAmount * 100)
+	refundFee := int(param.RefundAmount * 100)
+	totalFee := int(param.TotalAmount * 100)
 	bm := make(gopay.BodyMap)
 	bm.Set("out_trade_no", param.OutTradeNo).
 		Set("out_refund_no", param.OrderRefundNo).
 		Set("reason", param.Reason).
 		Set("notify_url", mng.Config.RefundNotifyURL).
 		SetBodyMap("amount", func(bm gopay.BodyMap) {
-			bm.Set("refund", totalFee).
-				Set("total", param.TotalAmount).
+			bm.Set("refund", refundFee).
+				Set("total", totalFee).
 				Set("currency", "CNY")
 		})
 
