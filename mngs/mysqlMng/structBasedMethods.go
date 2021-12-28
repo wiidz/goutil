@@ -2,9 +2,7 @@ package mysqlMng
 
 import (
 	"errors"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"gorm.io/gorm"
-	"log"
 )
 
 /**
@@ -78,10 +76,12 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 	//【1】初始化参数
 	condition := update.GetCondition()
 	value := update.GetValue()
-	log.Println("【condition】", typeHelper.GetType(condition), condition)
-	log.Println("【value】", typeHelper.GetType(value), value)
-	tableName := update.GetTableName()
+	//tableName := update.GetTableName()
 	thisConn := mysql.GetConn()
+	model := update.GetRow()
+	if model == nil {
+		return errors.New("")
+	}
 
 	//【2】拼接
 	if len(condition) == 0 {
@@ -93,7 +93,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 
 	//【3】修改
 	cons, vals, _ := WhereBuild(condition)
-	thisConn = thisConn.Table(tableName).Where(cons, vals...).Updates(value)
+	thisConn = thisConn.Model(&model).Where(cons, vals...).Updates(value)
 
 	//【4】提取结果
 	err := thisConn.Error

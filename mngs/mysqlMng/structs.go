@@ -198,10 +198,12 @@ type UpdateInterface interface {
 	GetTableName() string
 	GetCondition() map[string]interface{}
 	GetValue() map[string]interface{}
+	GetRow() interface{}
 	//Setter
 	SetTableName(string)
 	SetCondition(map[string]interface{})
 	SetValue(map[string]interface{})
+	SetRow(interface{})
 }
 
 // Update 修改操作的基本结构体
