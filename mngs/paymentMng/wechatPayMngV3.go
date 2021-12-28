@@ -139,6 +139,12 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 		})
 
 	wxRsp, err = mng.Client.V3Refund(bm)
+	if err != nil {
+		return
+	}
+	if wxRsp.Code != 0 {
+		err = errors.New(wxRsp.Error)
+	}
 	return
 }
 
