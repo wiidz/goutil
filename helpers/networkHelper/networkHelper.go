@@ -754,10 +754,6 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
 
-		log.Println("fieldName",fieldName)
-		log.Println("type",fieldType,fieldType.String())
-		log.Println("currentValue",currentValue,currentValue.Interface())
-
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
 		if fieldType.Kind() == reflect.Struct{
 			//log.Println("Struct")
@@ -782,7 +778,6 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		}
 
 		formattedValue := getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
-		log.Println("formattedValue",formattedValue)
 
 		//【4】按照belong进行填充
 		switch belong {
