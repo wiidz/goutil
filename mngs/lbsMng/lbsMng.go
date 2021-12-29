@@ -5,6 +5,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
+	"log"
 )
 
 const ReGeoURL = "https://regeo.market.alicloudapi.com/v3/geocode/regeo"
@@ -34,6 +35,8 @@ func (mng *LbsMng) ReGeo(longitude, latitude string) (data *ReGeoData, err error
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
 	})
+
+	log.Println("【tempStr】",tempStr)
 
 	temp := ReGeoRes{}
 	err = typeHelper.JsonDecodeWithStruct(tempStr, &temp)

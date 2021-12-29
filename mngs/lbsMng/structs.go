@@ -25,7 +25,7 @@ type AddressComponent struct {
 	AdCode        string       `json:"adcode"`   // 邮政编码：110105
 	Township      string       `json:"township"` // 乡镇：望京街道
 	TownCode      string       `json:"towncode"` // 乡镇编号：110105026000
-	Neighborhood  *MetaPlace   `json:"neighborhood"`
+	Neighborhood  *[]MetaPlace   `json:"neighborhood"`
 	Building      *MetaPlace   `json:"building"`
 	StreetNumber  *Street      `json:"streetNumber"`
 	BusinessAreas []*MetaPlace `json:"businessAreas"`
