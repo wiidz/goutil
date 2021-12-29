@@ -19,10 +19,14 @@ type RedisMng struct {
 func Init(redisC *configStruct.RedisConfig) (err error) {
 
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
-	redisURL := redisC.Host + ":" + redisC.Port
-	if redisC.Username != "" && redisC.Password != ""{
-		redisURL = redisC.Username + ":" + redisC.Password + "@" + redisURL
+	redisURL := "redis://"
+	if redisC.Username != "" {
+		redisURL = redisC.Username + ":"
 	}
+	if redisC.Password != "" {
+		redisURL += redisC.Password + "@"
+	}
+	redisURL += redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
 
 	pool = redis.Pool{
