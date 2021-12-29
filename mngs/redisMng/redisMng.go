@@ -19,14 +19,7 @@ type RedisMng struct {
 func Init(redisC *configStruct.RedisConfig) (err error) {
 
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
-	redisURL := "redis://"
-	if redisC.Username != "" {
-		redisURL += redisC.Username + ":"
-	}
-	if redisC.Password != "" {
-		redisURL += redisC.Password + "@"
-	}
-	redisURL += redisC.Host + ":" + redisC.Port
+	redisURL := redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
 
 	pool = redis.Pool{
@@ -34,7 +27,7 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.Dial("tcp", redisURL)
+			conn, err = redis.Dial("tcp", redisURL,redis.DialUsername(redisC.Username),redis.DialPassword(redisC.Password))
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
 			}
