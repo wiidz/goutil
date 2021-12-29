@@ -13,7 +13,7 @@ import (
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Read(list ReadInterface) {
+func (mysql *MysqlMng) Read(list ReadInterface,isSingle,doCount bool) {
 
 	//【1】初始化参数
 	offset := list.GetOffset()
@@ -21,7 +21,11 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 	limit := list.GetLimit()
 	order := list.GetOrder()
 	preloads := list.GetPreloads()
-	rows := list.GetRows()
+
+	var model = list.GetRows()
+	if isSingle {
+		model = list.GetRow()
+	}
 
 	thisConn := mysql.GetConn()
 
@@ -41,22 +45,26 @@ func (mysql *MysqlMng) Read(list ReadInterface) {
 
 	//【3】查询rows
 	var err error
-	if list.GetPageSize() == 1 {
-		err = thisConn.First(rows).Error
+	if isSingle {
+		err = thisConn.First(model).Error 		// 查单条
 	} else {
-		count := int64(0)
-		// rows
-		err = thisConn.Offset(offset).Limit(limit).Find(rows).Error
-		if err == nil {
-			// count
-			thisConn = thisConn.Session(&gorm.Session{NewDB: true})
-			if len(condition) > 0 {
-				cons, vals, _ := WhereBuild(condition)
-				thisConn = thisConn.Where(cons, vals...)
-			}
-			err = thisConn.Model(rows).Count(&count).Error
-			list.SetCount(count)
+		err = thisConn.Offset(offset).Limit(limit).Find(model).Error 		// 查若干
+	}
+	if err == nil {
+		list.SetError(err)
+		return
+	}
+
+	//【4】查count
+	if doCount {
+		var count int64
+		thisConn = thisConn.Session(&gorm.Session{NewDB: true})
+		if len(condition) > 0 {
+			cons, vals, _ := WhereBuild(condition)
+			thisConn = thisConn.Where(cons, vals...)
 		}
+		err = thisConn.Model(model).Count(&count).Error
+		list.SetCount(count)
 	}
 
 	//【4】返回
@@ -183,7 +191,7 @@ func (mysql *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID i
 	//【3】查询
 	mysql.LogRead(read, userID, authID)
 	if read.GetError() != nil {
-		return read.GetError().Error(), nil, 404
+		return read.GetError().Error(), nil, 400
 	}
 
 	//【4】返回
@@ -199,7 +207,7 @@ func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, auth
 	//【2】查询
 	mysql.LogRead(params, userID, authID)
 	if params.GetError() != nil {
-		return params.GetError().Error(), nil, 404
+		return params.GetError().Error(), nil, 400
 	}
 
 	//【3】返回
@@ -209,114 +217,86 @@ func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, auth
 // SimpleUpdate 简单修改
 func (mysql *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
-	//【2】修改
+	//【1】修改
 	err := mysql.Update(params)
 	if err != nil {
-		return err.Error(), nil, 404
+		return err.Error(), nil, 400
 	}
 
+	//【2】返回
 	return "ok", params.GetRowsAffected(), 201
 }
 
-/**
- * @func  :【Put】批量修改新闻状态启动/禁用
- * @params: [mysql] mysqlMng*MysqlMng 数据库连接
- *          [condition] map[string]interface{}
- * @return: [msg] string 信息
- *          [data] interface{} 错误
- *          [statusCode] 状态码
- */
+// SimpleUpdateMany 简单修改多条
 func (mysql *MysqlMng) SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
 	err := mysql.Update(params)
 	if err != nil {
-		return err.Error(), nil, 404
+		return err.Error(), nil, 400
 	}
 
 	return "ok", params.GetRowsAffected(), 201
 }
 
-/**
- * @func  : 添加一条新闻
- * @params: [params] *paramStruct.NewsCreate 数据体
- * @return: [msg] string消息体
- *          [data] interface{}错误
- *          [statusCode] int 状态码
- */
+// SimpleCreateOne 简单插入
 func (mysql *MysqlMng) SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
 
-	//【2】写入数据库
+	//【1】写入数据库
 	mysql.CreateOne(params)
 	if err := params.GetError(); err != nil {
-		return err.Error(), nil, 404
+		return err.Error(), nil, 400
 	}
 
-	//【3】返回
+	//【2】返回
 	return "ok", params.GetNewID(), 201
 }
 
-/**
- * @func  : 删除某一条新闻
- * @params: [newsID] int 新闻ID
- * @return: [msg] string 信息
- *          [data] interface{} 错误
- *          [statusCode] 状态码
- */
+// SimpleDelete 简单删除
 func (mysql *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
-	mysql.Delete(params)
+	_ = mysql.Delete(params)
 	if err := params.GetError(); err != nil {
-		return err.Error(), nil, 404
+		return err.Error(), nil, 400
 	}
 
 	//【3】返回
-	return "ok", params.GetRowsAffected(), 204
+	return "ok", params.GetRowsAffected(), 200
 }
 
-/**
- * @func  : 获取新闻列表
- * @author: Wiidz
- * @date  : 2020-10-15
- * @params: [pageNow] int 当前页码
- *			[pageSize] int 页长
- * @return: [msg] string 消息体
- * 			[data] interface{} 数据
- * 			[statusCode] 状态码
- */
-func (mysql *MysqlMng) SimpleGetList(read ReadInterface) (msg string, data interface{}, statusCode int) {
+// SimpleGetList 简单获取列表
+func (mysql *MysqlMng) SimpleGetList(read ReadInterface,isSingle,doCount bool) (msg string, data interface{}, statusCode int) {
 
-	//【3】查询
-	mysql.Read(read)
+	//【1】查询
+	mysql.Read(read,isSingle,doCount)
 	if read.GetError() != nil {
-		return read.GetError().Error(), nil, 404
+		return read.GetError().Error(), nil, 400
 	}
 
-	//【4】返回
-	return "ok", map[string]interface{}{
-		"rows":  read.GetRows(),
-		"count": read.GetCount(),
-	}, 200
+	//【2】组装数据
+	if doCount {
+		data = map[string]interface{}{
+			"rows":  read.GetRows(),
+			"count": read.GetCount(),
+		}
+	} else {
+		data = read.GetRows()
+	}
+
+	//【3】返回
+	return "ok", data, 200
 }
 
-/**
- * @func  : 获取新闻详情
- * @author: Wiidz
- * @date  : 2020-04-15
- * @params: [newsID] int 新闻ID
- * @return: [msg] string 消息体
- * 			[data] interface{} 数据
- * 			[statusCode] 状态码
- */
+// SimpleGetDetail 简单获取详情
 func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
 
-	//【2】查询
-	mysql.Read(params)
+	//【1】查询
+	mysql.Read(params,true,false)
 	if params.GetError() != nil {
-		return params.GetError().Error(), nil, 404
+		return params.GetError().Error(), nil, 400
 	}
 
-	//【3】返回
+	//【2】返回
 	return "ok", params.GetRows(), 200
 }

@@ -41,10 +41,12 @@ type ReadInterface interface {
 	GetOffset() int
 	GetPageSize() int
 	GetPageNow() int
+	GetRow() interface{}
 	GetRows() interface{}
 	GetCount() int64
 	GetLimit() int
 	//Setter
+	SetRow(interface{})
 	SetRows(interface{})
 	SetCount(int64)
 	SetCondition(map[string]interface{})
