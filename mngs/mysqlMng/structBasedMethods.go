@@ -298,5 +298,5 @@ func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data i
 	}
 
 	//【2】返回
-	return "ok", params.GetRows(), 200
+	return "ok", params.GetRow(), 200
 }
