@@ -25,18 +25,25 @@ type AddressComponent struct {
 	AdCode        string       `json:"adcode"`   // 邮政编码：110105
 	Township      string       `json:"township"` // 乡镇：望京街道
 	TownCode      string       `json:"towncode"` // 乡镇编号：110105026000
-	Neighborhood  *MetaPlace   `json:"neighborhood"`
+	Neighborhood  *Neighborhood   `json:"neighborhood"`
 	Building      *MetaPlace   `json:"building"`
 	StreetNumber  *Street      `json:"streetNumber"`
-	BusinessAreas *MetaPlace `json:"businessAreas"`
+	BusinessAreas []*MetaPlace `json:"businessAreas"`
 }
 
 type MetaPlace struct {
 	ID       string `json:"id"`
-	Name     []string `json:"name"`     // 名称：方恒国际中心
-	Type     []string `json:"type"`     // 类型：商务住宅;楼宇;商务写字楼
+	Name     string `json:"name"`     // 名称：方恒国际中心
 	Location string `json:"location"` // 经纬度：（经度，纬度）
 }
+
+type Neighborhood struct {
+	//ID       string `json:"id"`
+	Name     []string `json:"name"`     // 名称：方恒国际中心
+	Type     []string `json:"type"`     // 类型：商务住宅;楼宇;商务写字楼
+	//Location string `json:"location"` // 经纬度：（经度，纬度）
+}
+
 
 type Street struct {
 	Street    string `json:"street"`    // 街道名：阜通东大街
