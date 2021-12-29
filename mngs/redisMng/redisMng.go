@@ -18,25 +18,20 @@ type RedisMng struct {
 // Init 初始化
 func Init(redisC *configStruct.RedisConfig) (err error) {
 
+	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	redisURL := redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
 
-	//dialOptions := []redis.DialOption{}
-	//if redisC.Username != "" {
-	//	dialOptions = append(dialOptions,redis.DialUsername(redisC.Username))
-	//}
-	//if redisC.Password != "" {
-	//	dialOptions = append(dialOptions,redis.DialUsername(redisC.Password))
-	//}
-
-	//if
+	if redisC.Username != "" && redisC.Password != ""{
+		redisURL = redisC.Username + ":" + redisC.Password + redisURL + "@"
+	}
 
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.Dial("tcp", redisURL,redis.DialUsername(redisC.Username),redis.DialUsername(redisC.Password))
+			conn, err = redis.Dial("tcp", redisURL)
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
 			}
