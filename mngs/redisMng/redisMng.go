@@ -23,7 +23,7 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	log.Println("【redis-dsn】", redisURL)
 
 	if redisC.Username != "" && redisC.Password != ""{
-		redisURL = redisC.Username + ":" + redisC.Password + redisURL + "@"
+		redisURL = redisC.Username + ":" + redisC.Password + "@" + redisURL
 	}
 
 	pool = redis.Pool{
