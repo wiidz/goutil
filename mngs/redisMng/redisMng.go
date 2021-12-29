@@ -20,11 +20,10 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	redisURL := redisC.Host + ":" + redisC.Port
-	log.Println("【redis-dsn】", redisURL)
-
 	if redisC.Username != "" && redisC.Password != ""{
 		redisURL = redisC.Username + ":" + redisC.Password + "@" + redisURL
 	}
+	log.Println("【redis-dsn】", redisURL)
 
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,

@@ -189,6 +189,7 @@ func getRedisConfig(rows []*DbSettingRow,debug bool) *configStruct.RedisConfig {
 	return &configStruct.RedisConfig{
 		Host:        GetValueFromRow(rows, "redis", "host", "", "127.0.0.1",debug),
 		Port:        GetValueFromRow(rows, "redis", "port", "", "6379",debug),
+		Username:    GetValueFromRow(rows, "redis", "username", "", "",debug),
 		Password:    GetValueFromRow(rows, "redis", "password", "", "",debug),
 		IdleTimeout: typeHelper.Str2Int(GetValueFromRow(rows, "redis", "idle_timeout", "", "60",debug)),
 		Database:    typeHelper.Str2Int(GetValueFromRow(rows, "redis", "database", "", "",debug)),
