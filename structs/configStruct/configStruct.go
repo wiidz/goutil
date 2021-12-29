@@ -4,7 +4,9 @@ import "time"
 
 // AppProfile App资料
 type AppProfile struct {
-	Host    string // host地址
+	Domain  string // 外部域名地址
+	Host    string // 本地host地址
+	Port    string // 本地的端口号
 	Debug   bool   // 是否调试模式
 	No      string
 	Name    string
