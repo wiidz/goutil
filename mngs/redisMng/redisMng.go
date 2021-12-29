@@ -21,23 +21,24 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	redisURL := redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
 
+	dialOptions := []redis.DialOption{}
+	if redisC.Username != "" {
+		dialOptions = append(dialOptions,redis.DialUsername(redisC.Username))
+	}
+	if redisC.Password != "" {
+		dialOptions = append(dialOptions,redis.DialUsername(redisC.Password))
+	}
+
+	//if
+
 	pool = redis.Pool{
 		MaxActive:   redisC.MaxActive,
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.Dial("tcp", redisURL)
+			conn, err = redis.Dial("tcp", redisURL,dialOptions...)
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
-				return
-			}
-
-			if redisC.Password != "" {
-				if _, err = conn.Do("AUTH", redisC.Password); err != nil {
-					fmt.Println("【redis-auth-err】", err)
-					_ = conn.Close()
-					return
-				}
 			}
 			return
 		},

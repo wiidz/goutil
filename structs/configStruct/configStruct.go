@@ -70,6 +70,7 @@ type EsConfig struct {
 type RedisConfig struct {
 	Host        string `json:"host"`
 	Port        string `json:"port"`
+	Username string `json:"username"`
 	Password    string `json:"password"`
 	IdleTimeout int    `json:"idle_timeout"` // 默认60
 	Database    int    `json:"datebase"`     // 默认0
