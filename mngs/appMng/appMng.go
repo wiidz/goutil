@@ -68,7 +68,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 	}
 
 	//【7】项目配置
-	err = mng.ProjectConfig.Build()
+	err = mng.ProjectConfig.Build(mng.BaseConfig.Profile.Debug)
 	if err != nil {
 		return
 	}
