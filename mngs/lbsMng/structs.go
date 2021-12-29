@@ -28,7 +28,7 @@ type AddressComponent struct {
 	Neighborhood  *MetaPlace   `json:"neighborhood"`
 	Building      *MetaPlace   `json:"building"`
 	StreetNumber  *Street      `json:"streetNumber"`
-	BusinessAreas []*MetaPlace `json:"businessAreas"`
+	BusinessAreas *MetaPlace `json:"businessAreas"`
 }
 
 type MetaPlace struct {
