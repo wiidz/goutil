@@ -83,3 +83,8 @@ type UnifiedOrderParam struct {
 	IP          string  // 下单人的IP
 	AppName     string  // 我们的项目名称
 }
+
+type WechatError struct {
+	Code string `json:"code"`
+	Message string `json:"message"`
+}

@@ -5,6 +5,7 @@ import (
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat/v3"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"net/http"
 	"time"
@@ -110,17 +111,22 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 		})
 
 	//【2】获取签名
-	var res *wechat.H5Rsp
-	res, err = mng.Client.V3TransactionH5(bm)
+	var wxRsp *wechat.H5Rsp
+	wxRsp, err = mng.Client.V3TransactionH5(bm)
 	if err != nil {
 		return
 	}
-	if res.Code != 0 {
-		// 出错
-		return "", errors.New(res.Error)
+	if wxRsp.Code != 0 {
+		wechatErr := WechatError{}
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		if err != nil {
+			err = errors.New(wechatErr.Message)
+		} else {
+			err = errors.New(wxRsp.Error)
+		}
 	}
 
-	return res.Response.H5Url, err
+	return wxRsp.Response.H5Url, err
 }
 
 // Refund 退款
@@ -143,13 +149,19 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 		return
 	}
 	if wxRsp.Code != 0 {
-		err = errors.New(wxRsp.Error)
+		wechatErr := WechatError{}
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		if err != nil {
+			err = errors.New(wechatErr.Message)
+		} else {
+			err = errors.New(wxRsp.Error)
+		}
 	}
 	return
 }
 
 // jsApiPlaceOrder JSAPI/小程序下单API totalFee 是分为单位
-func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (prepayRsp *wechat.PrepayRsp, err error) {
+func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (wxRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	totalFee := params.TotalAmount * 100 // 分为单位
@@ -170,15 +182,21 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 			bm.Set("openid", openID)
 		})
 
-	prepayRsp, err = mng.Client.V3TransactionJsapi(bm)
+	wxRsp, err = mng.Client.V3TransactionJsapi(bm)
+
 	if err != nil {
 		xlog.Error(err)
 		return
 	}
 
-	if prepayRsp.Code != 0 {
-		err = errors.New(prepayRsp.Error)
-		return
+	if wxRsp.Code != 0 {
+		wechatErr := WechatError{}
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		if err != nil {
+			err = errors.New(wechatErr.Message)
+		} else {
+			err = errors.New(wxRsp.Error)
+		}
 	}
 
 	return

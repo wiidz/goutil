@@ -499,9 +499,8 @@ func JsonDecodeIntSlice(jsonStr string) []int {
 // JsonDecodeWithStruct 带结构体的json解码
 // 	temp := ReGeoRes{}
 //	typeHelper.JsonDecodeWithStruct(tempStr,&temp)
-func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) {
-	_ = json.Unmarshal([]byte(jsonStr), &iStruct)
-	return
+func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) error {
+	return json.Unmarshal([]byte(jsonStr), &iStruct)
 }
 
 

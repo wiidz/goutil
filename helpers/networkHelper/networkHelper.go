@@ -767,7 +767,11 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			//continue // 结构体类型和切片类型 默认不予填充和计算
 		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface(){
 			if defaultValue != "" {
-				formattedDefaultValue := getFormattedValue(field.Type.String(), defaultValue)
+				var formattedDefaultValue interface{}
+				formattedDefaultValue,err = getFormattedValue(field.Type.String(), defaultValue)
+				if err != nil {
+					return
+				}
 				currentValue = reflect.ValueOf(formattedDefaultValue)
 				structValues.Elem().Field(i).Set(currentValue) // 记得填充回结构体
 			} else if _ , ok := rawMap[fieldName]; !ok {
@@ -777,7 +781,11 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			// 给的就是零值，继续
 		}
 
-		formattedValue := getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
+		var formattedValue interface{}
+		formattedValue,err = getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
+		if err != nil {
+			return
+		}
 
 		//【4】按照belong进行填充
 		switch belong {
@@ -836,34 +844,35 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 }
 
 // getFormattedValue 获取指定格式的数值
-func getFormattedValue(t string, value interface{}) interface{} {
+func getFormattedValue(t string, value interface{}) (data interface{},err error) {
 	switch t {
 	case "string":
-		return typeHelper.ForceString(value)
+		data = typeHelper.ForceString(value)
 	case "int":
-		return typeHelper.ForceInt(value)
+		data = typeHelper.ForceInt(value)
 	case "int8":
-		return typeHelper.ForceInt8(value)
+		data = typeHelper.ForceInt8(value)
 	//case "int64":
 	//	return typeHelper.ForceInt64(value)
 	case "uint64":
-		return typeHelper.ForceUint64(value)
+		data = typeHelper.ForceUint64(value)
 	case "float64":
-		return typeHelper.ForceFloat64(value)
+		data = typeHelper.ForceFloat64(value)
 	case "[]int":
-		return typeHelper.ForceIntSlice(value)
+		data = typeHelper.ForceIntSlice(value)
 	case "[]int8":
-		return typeHelper.ForceInt8Slice(value)
+		data = typeHelper.ForceInt8Slice(value)
 	case "[]uint64":
-		return typeHelper.ForceUint64Slice(value)
+		data = typeHelper.ForceUint64Slice(value)
 	case "[]float64":
-		return typeHelper.ForceFloat64Slice(value)
+		data = typeHelper.ForceFloat64Slice(value)
 	case "[]string":
-		return typeHelper.ForceStrSlice(value)
+		data = typeHelper.ForceStrSlice(value)
 	default:
 		// 其他情况默认是结构体
-		temp, _ := typeHelper.JsonEncode(value)
-		typeHelper.JsonDecodeWithStruct(temp, value)
-		return value
+		//temp, _ := typeHelper.JsonEncode(value)
+		err = typeHelper.JsonDecodeWithStruct(t, value)
+		data = value
 	}
+	return
 }
