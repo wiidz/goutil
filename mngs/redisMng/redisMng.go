@@ -1,14 +1,18 @@
 package redisMng
 
 import (
-	"fmt"
-	"github.com/gomodule/redigo/redis"
+	"context"
+	"github.com/go-redis/redis/v8"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
 	"time"
 )
 
-var pool redis.Pool
+var ctx = context.Background()
+
+//var pool redis.PoolStats
+
+var client *redis.Client
 
 type RedisMng struct {
 	//config configStruct.Redis
@@ -21,21 +25,15 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	redisURL := redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
-
-	pool = redis.Pool{
-		MaxActive:   redisC.MaxActive,
-		MaxIdle:     redisC.MaxIdle,
-		IdleTimeout: time.Duration(redisC.IdleTimeout),
-		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.Dial("tcp", redisURL,redis.DialUsername(redisC.Username),redis.DialPassword(redisC.Password))
-			if err != nil {
-				fmt.Println("【redis-dial-err】", err)
-			}
-			return
-		},
-	}
-
-	_, err = pool.Dial()
+	client = redis.NewClient(&redis.Options{
+		Addr:         redisURL,
+		Username:     redisC.Username,
+		Password:     redisC.Password,
+		DB:           0,
+		DialTimeout:  time.Duration(redisC.IdleTimeout),
+		MinIdleConns: redisC.MaxIdle,
+		PoolSize:     redisC.MaxActive,
+	})
 	return
 }
 
@@ -46,140 +44,63 @@ func NewRedisMng() *RedisMng {
 }
 
 // GetString 读取指定键的字符串值
-func (mng *RedisMng) GetString(key string) (string, error) {
-
-	//【1】取出一条连接
-	rc := pool.Get()
-	defer rc.Close()
-
-	//【2】读取值
-	res, err := redis.String(rc.Do("GET", key))
-	if err != nil && err.Error() == "redigo: nil returned" {
-		return "", nil
-	}
-
-	//【3】返回
-	return res, err
-}
-
-// Get 读取指定键的值
-func (mng *RedisMng) Get(key string) (interface{}, error) {
-
-	//【1】取出一条连接
-	rc := pool.Get()
-	defer rc.Close()
-
-	//【2】读取值
-	res, err := rc.Do("GET", key)
-	if err != nil && err.Error() == "redigo: nil returned" {
-		return "", nil
-	}
-
-	//【3】返回
-	return res, err
+func (mng *RedisMng) GetString(key string) (val string, err error) {
+	return client.Get(ctx, key).Result()
+	//  err == redis.Nil 不存在
 }
 
 // Set 设置键值
-func (mng *RedisMng) Set(key string, value interface{}, expire int) error {
-
-	//【1】取出一条连接
-	rc := pool.Get()
-	defer rc.Close()
-
-	//【2】获取redis连接
-	_, err := rc.Do("SET", key, value)
-
-	//【3】判断结果
-	if err != nil {
-		return err
-	}
-
-	//【4】设置过期时间
-	if expire != 0 {
-		_, err = rc.Do("EXPIRE", key, expire)
-		if err != nil {
-			return err
-		}
-	}
-
-	//【5】返回
-	return nil
-
+func (mng *RedisMng) Set(key string, value interface{}, expire time.Duration) (err error) {
+	return client.Set(ctx, key, value, expire).Err()
 }
 
 // -------BEGIN------哈希相关的操作-----BEGIN--------
 
-// HGet 设置key
-func (mng *RedisMng) HGet(keyName, field string) (interface{}, error) {
-
-	rc := pool.Get()
-	defer rc.Close()
-
-	result, err := redis.String(rc.Do("hget", keyName, field))
-	return result, err
+// HGetString 集合获取
+func (mng *RedisMng) HGetString(key, field string) (string, error) {
+	return client.HGet(ctx, key, field).Result()
 }
 
-// HSet 设置key
-func (mng *RedisMng) HSet(keyName, field string, value interface{}) (interface{}, error) {
+// HSet 设置Hash
+func (mng *RedisMng) HSet(key string, value interface{}) (int64, error) {
 
-	rc := pool.Get()
-	defer rc.Close()
+	return client.HSet(ctx, key, value).Result()
+}
 
-	result, err := rc.Do("hset", keyName, field, value)
-	return result, err
+// HSetNX 设置Hash一个file
+func (mng *RedisMng) HSetNX(key, field string, value interface{}) (bool, error) {
+
+	return client.HSetNX(ctx, key, field, value).Result()
 }
 
 // HDel 删除hash里的key
-func (mng *RedisMng) HDel(keyName string, fields ...string) (interface{}, error) {
+func (mng *RedisMng) HDel(key string, fields []string) (int64, error) {
 
-	rc := pool.Get()
-	defer rc.Close()
-
-	result, err := rc.Do("hdel", keyName, fields)
-	return result, err
+	return client.HDel(ctx, key, fields...).Result()
 
 }
 
-// HExists 判断hashkey中有没有这个字段
-func (mng *RedisMng) HExists(keyName, field_name string) (interface{}, error) {
-	rc := pool.Get()
-	defer rc.Close()
 
-	result, err := rc.Do("hexists", keyName, field_name)
-	return result, err
+// HExists 判断hash中有没有这个field
+func (mng *RedisMng) HExists(key, field string) (bool, error) {
+	return client.HExists(ctx, key, field).Result()
+
 }
 
 // HKeys 获取hash中所有的field
-func (mng *RedisMng) HKeys(keyName string) (interface{}, error) {
-
-	rc := pool.Get()
-	defer rc.Close()
-
-	result, err := redis.Strings(rc.Do("hkeys", keyName))
-	return result, err
-
+func (mng *RedisMng) HKeys(key string) ([]string, error) {
+	return client.HKeys(ctx, key).Result()
 }
 
 // HIncrBy 增加hash中的字段的值  返回的是字段被修改过后的值
-func (mng *RedisMng) HIncrBy(keyName, field_name, incr_by_number interface{}) (res interface{}, err error) {
-
-	rc := pool.Get()
-	defer rc.Close()
-
-	result, err := rc.Do("hincrby", keyName, field_name, incr_by_number)
-
-	return result, err
-
+func (mng *RedisMng) HIncrBy(key, field string, increase int64) (int64, error) {
+	return client.HIncrBy(ctx, key, field, increase).Result()
 }
 
 // HLen  hash 中 一个key下的数量
-func (mng *RedisMng) HLen(keyName string) (res interface{}, err error) {
+func (mng *RedisMng) HLen(key string) (int64, error) {
 
-	rc := pool.Get()
-	defer rc.Close()
-
-	result, err := redis.String(rc.Do("hlen", keyName))
-	return result, err
+	return client.HLen(ctx, key).Result()
 
 }
 

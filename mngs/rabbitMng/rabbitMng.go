@@ -22,10 +22,10 @@ type RabbitMQ struct {
 
 type ExchangeType string
 
-const Fanout ExchangeType = "fanout" // 【fanout】类型的Exchange路由会把所有发送到该Exchange的消息路由到所有与它绑定的Queue中。
-const Direct ExchangeType = "direct" // 【direct】类型的Exchange路由会把消息路由到那些binding key与routing key完全匹配的queue中。
-const Topic ExchangeType = "topic"   // 【topic】类型的Exchange路由会把消息路由到binding key与routing key相匹配的Queue中。
-const XDelayedMessage ExchangeType = "x-delayed-message"   // 【XDelayedMessage】延迟插件rabbitMq-dsn
+const Fanout ExchangeType = "fanout"                     // 【fanout】类型的Exchange路由会把所有发送到该Exchange的消息路由到所有与它绑定的Queue中。
+const Direct ExchangeType = "direct"                     // 【direct】类型的Exchange路由会把消息路由到那些binding key与routing key完全匹配的queue中。
+const Topic ExchangeType = "topic"                       // 【topic】类型的Exchange路由会把消息路由到binding key与routing key相匹配的Queue中。
+const XDelayedMessage ExchangeType = "x-delayed-message" // 【XDelayedMessage】延迟插件rabbitMq-dsn
 
 func Init(config *configStruct.RabbitMQConfig) (err error) {
 
@@ -69,7 +69,7 @@ func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType) (mng *Rabb
 	}
 
 	err = mng.SetExchange(amqp.Table{
-		"x-delayed-type":string(Direct),
+		"x-delayed-type": string(Direct),
 	})
 	return
 }
@@ -95,10 +95,10 @@ func (mng *RabbitMQ) SetExchange(arguments amqp.Table) (err error) {
 }
 
 // BindQueue 申明并绑定队列到当前channel和exchange上 ttl 是毫秒,-1表示不设置
-func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindQueue(queueName, bindingKey string, ttl int32) (queue amqp.Queue, err error) {
 
 	//【3】申明队列
-	var args  = amqp.Table{}
+	var args = amqp.Table{}
 	if ttl != -1 {
 		args["x-message-ttl"] = ttl
 	}
@@ -125,9 +125,9 @@ func (mng *RabbitMQ) BindQueue(queueName,bindingKey string,ttl int32) (queue amq
 // BindDelayQueue 申明并绑定延迟队列到当前的channel信道的exchange上
 // queueName 绑定到当前信道的bindingKey上
 // 过期后的信息会被推送到targetExchangeName，路由是routingKey
-func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string,ttl int32) (queue amqp.Queue, err error) {
+func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, targetExchangeRoutingKey string, ttl int32) (queue amqp.Queue, err error) {
 
-	var args  = amqp.Table{
+	var args = amqp.Table{
 		"x-dead-letter-exchange":    targetExchangeName,       // 将过期消息发送到执行的exchange中
 		"x-dead-letter-routing-key": targetExchangeRoutingKey, // 将过期消息发送到指定的路由中
 	}
@@ -142,7 +142,7 @@ func (mng *RabbitMQ) BindDelayQueue(queueName, bindingKey, targetExchangeName, t
 		false,     // delete when unused
 		false,     // exclusive
 		false,     // no-wait
-		args, // arguments
+		args,      // arguments
 	)
 	if err != nil {
 		return

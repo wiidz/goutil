@@ -99,28 +99,28 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.Profile = getAppProfile(rows)
 
 	// 数据源
-	config.RedisConfig = getRedisConfig(rows,config.Profile.Debug)
-	config.EsConfig = getEsConfig(rows,config.Profile.Debug)
-	config.RabbitMQConfig = getRabbitMQConfig(rows,config.Profile.Debug)
+	config.RedisConfig = getRedisConfig(rows, config.Profile.Debug)
+	config.EsConfig = getEsConfig(rows, config.Profile.Debug)
+	config.RabbitMQConfig = getRabbitMQConfig(rows, config.Profile.Debug)
 
 	// 腾讯系
-	config.WechatMiniConfig = getWechatMiniConfig(rows,config.Profile.Debug)
-	config.WechatOaConfig = getWechatOaConfig(rows,config.Profile.Debug)
-	config.WechatOpenConfig = getWechatOpenConfig(rows,config.Profile.Debug)
-	config.WechatPayConfig = getWechatPayConfig(rows,config.Profile.Debug)
+	config.WechatMiniConfig = getWechatMiniConfig(rows, config.Profile.Debug)
+	config.WechatOaConfig = getWechatOaConfig(rows, config.Profile.Debug)
+	config.WechatOpenConfig = getWechatOpenConfig(rows, config.Profile.Debug)
+	config.WechatPayConfig = getWechatPayConfig(rows, config.Profile.Debug)
 
 	// 阿里系
-	config.OssConfig = getOssConfig(rows,config.Profile.Debug)
-	config.AliPayConfig = getAliPayConfig(rows,config.Profile.Debug)
-	config.AliApiConfig = getAliApiConfig(rows,config.Profile.Debug)
-	config.AliSmsConfig = getAliSmsConfig(rows,config.Profile.Debug)
+	config.OssConfig = getOssConfig(rows, config.Profile.Debug)
+	config.AliPayConfig = getAliPayConfig(rows, config.Profile.Debug)
+	config.AliApiConfig = getAliApiConfig(rows, config.Profile.Debug)
+	config.AliSmsConfig = getAliSmsConfig(rows, config.Profile.Debug)
 
 	return
 }
 
 // getLocationConfig : 获取时区设置
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error) {
-	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai",false)
+	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai", false)
 	location, err = time.LoadLocation(timeZone)
 	if err != nil {
 		location = time.FixedZone("CST-8", 8*3600)
@@ -138,124 +138,124 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error
 //}
 
 // getWechatMiniConfig : 获取微信小程序设置
-func getWechatMiniConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatMiniConfig {
+func getWechatMiniConfig(rows []*DbSettingRow, debug bool) *configStruct.WechatMiniConfig {
 	return &configStruct.WechatMiniConfig{
-		AppID:     GetValueFromRow(rows, "wechat", "mini", "app_id", "",debug),
-		AppSecret: GetValueFromRow(rows, "wechat", "mini", "app_secret", "",debug),
+		AppID:     GetValueFromRow(rows, "wechat", "mini", "app_id", "", debug),
+		AppSecret: GetValueFromRow(rows, "wechat", "mini", "app_secret", "", debug),
 	}
 }
 
-func getWechatOaConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatOaConfig {
+func getWechatOaConfig(rows []*DbSettingRow, debug bool) *configStruct.WechatOaConfig {
 	return &configStruct.WechatOaConfig{
-		AppID:     GetValueFromRow(rows, "wechat", "oa", "app_id", "",debug),
-		AppSecret: GetValueFromRow(rows, "wechat", "oa", "app_secret", "",debug),
-		Token: GetValueFromRow(rows, "wechat", "oa", "token", "",debug),
-		EncodingAESKey: GetValueFromRow(rows, "wechat", "oa", "encoding_aes_key", "",debug),
+		AppID:          GetValueFromRow(rows, "wechat", "oa", "app_id", "", debug),
+		AppSecret:      GetValueFromRow(rows, "wechat", "oa", "app_secret", "", debug),
+		Token:          GetValueFromRow(rows, "wechat", "oa", "token", "", debug),
+		EncodingAESKey: GetValueFromRow(rows, "wechat", "oa", "encoding_aes_key", "", debug),
 	}
 }
 
-func getWechatOpenConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatOpenConfig {
+func getWechatOpenConfig(rows []*DbSettingRow, debug bool) *configStruct.WechatOpenConfig {
 	return &configStruct.WechatOpenConfig{
-		AppID:     GetValueFromRow(rows, "wechat", "open", "app_id", "",debug),
-		AppSecret: GetValueFromRow(rows, "wechat", "open", "app_secret", "",debug),
+		AppID:     GetValueFromRow(rows, "wechat", "open", "app_id", "", debug),
+		AppSecret: GetValueFromRow(rows, "wechat", "open", "app_secret", "", debug),
 	}
 }
-func getWechatPayConfig(rows []*DbSettingRow,debug bool) *configStruct.WechatPayConfig {
+func getWechatPayConfig(rows []*DbSettingRow, debug bool) *configStruct.WechatPayConfig {
 	return &configStruct.WechatPayConfig{
-		AppID:           GetValueFromRow(rows, "wechat", "pay", "app_id", "",debug),
-		ApiKey:          GetValueFromRow(rows, "wechat", "pay", "api_key", "",debug),
-		ApiKeyV3:        GetValueFromRow(rows, "wechat", "pay", "api_key_v3", "",debug),
-		MchID:           GetValueFromRow(rows, "wechat", "pay", "mch_id", "",debug),
-		CertURI:         GetValueFromRow(rows, "wechat", "pay", "cert_uri", "",debug),
-		KeyURI:          GetValueFromRow(rows, "wechat", "pay", "key_uri", "",debug),
-		CertContent:     GetValueFromRow(rows, "wechat", "pay", "cert_content", "",debug),
-		CertSerialNo:    GetValueFromRow(rows, "wechat", "pay", "cert_serial_no", "",debug),
-		NotifyURL:       GetValueFromRow(rows, "wechat", "pay", "notify_url", "",debug),
-		RefundNotifyURL: GetValueFromRow(rows, "wechat", "pay", "refund_notify_url", "",debug),
-		Debug:          GetValueFromRow(rows, "wechat", "pay", "debug", "0",debug) == "1", // 0=生产，1=调试
+		AppID:           GetValueFromRow(rows, "wechat", "pay", "app_id", "", debug),
+		ApiKey:          GetValueFromRow(rows, "wechat", "pay", "api_key", "", debug),
+		ApiKeyV3:        GetValueFromRow(rows, "wechat", "pay", "api_key_v3", "", debug),
+		MchID:           GetValueFromRow(rows, "wechat", "pay", "mch_id", "", debug),
+		CertURI:         GetValueFromRow(rows, "wechat", "pay", "cert_uri", "", debug),
+		KeyURI:          GetValueFromRow(rows, "wechat", "pay", "key_uri", "", debug),
+		CertContent:     GetValueFromRow(rows, "wechat", "pay", "cert_content", "", debug),
+		CertSerialNo:    GetValueFromRow(rows, "wechat", "pay", "cert_serial_no", "", debug),
+		NotifyURL:       GetValueFromRow(rows, "wechat", "pay", "notify_url", "", debug),
+		RefundNotifyURL: GetValueFromRow(rows, "wechat", "pay", "refund_notify_url", "", debug),
+		Debug:           GetValueFromRow(rows, "wechat", "pay", "debug", "0", debug) == "1", // 0=生产，1=调试
 	}
 }
 
-func getAliPayConfig(rows []*DbSettingRow,debug bool) *configStruct.AliPayConfig {
+func getAliPayConfig(rows []*DbSettingRow, debug bool) *configStruct.AliPayConfig {
 	return &configStruct.AliPayConfig{
-		AppID:      GetValueFromRow(rows, "ali", "pay", "app_id", "",debug),
-		PrivateKey: GetValueFromRow(rows, "ali", "pay", "private_key", "",debug),
-		NotifyURL:  GetValueFromRow(rows, "ali", "pay", "notify_url", "",debug),
-		Debug:     GetValueFromRow(rows, "ali", "pay", "debug", "0",debug) == "1",  // 0=生产，1=调试
+		AppID:      GetValueFromRow(rows, "ali", "pay", "app_id", "", debug),
+		PrivateKey: GetValueFromRow(rows, "ali", "pay", "private_key", "", debug),
+		NotifyURL:  GetValueFromRow(rows, "ali", "pay", "notify_url", "", debug),
+		Debug:      GetValueFromRow(rows, "ali", "pay", "debug", "0", debug) == "1", // 0=生产，1=调试
 	}
 }
 
-func getRedisConfig(rows []*DbSettingRow,debug bool) *configStruct.RedisConfig {
+func getRedisConfig(rows []*DbSettingRow, debug bool) *configStruct.RedisConfig {
 	return &configStruct.RedisConfig{
-		Host:        GetValueFromRow(rows, "redis", "host", "", "127.0.0.1",debug),
-		Port:        GetValueFromRow(rows, "redis", "port", "", "6379",debug),
-		Username:    GetValueFromRow(rows, "redis", "username", "", "",debug),
-		Password:    GetValueFromRow(rows, "redis", "password", "", "",debug),
-		IdleTimeout: typeHelper.Str2Int(GetValueFromRow(rows, "redis", "idle_timeout", "", "60",debug)),
-		Database:    typeHelper.Str2Int(GetValueFromRow(rows, "redis", "database", "", "",debug)),
-		MaxActive:   typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_active", "", "10",debug)),
-		MaxIdle:     typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_idle", "", "10",debug)),
+		Host:        GetValueFromRow(rows, "redis", "host", "", "127.0.0.1", debug),
+		Port:        GetValueFromRow(rows, "redis", "port", "", "6379", debug),
+		Username:    GetValueFromRow(rows, "redis", "username", "", "", debug),
+		Password:    GetValueFromRow(rows, "redis", "password", "", "", debug),
+		IdleTimeout: typeHelper.Str2Int(GetValueFromRow(rows, "redis", "idle_timeout", "", "60", debug)),
+		Database:    typeHelper.Str2Int(GetValueFromRow(rows, "redis", "database", "", "", debug)),
+		MaxActive:   typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_active", "", "10", debug)),
+		MaxIdle:     typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_idle", "", "10", debug)),
 	}
 }
 
-func getEsConfig(rows []*DbSettingRow,debug bool) *configStruct.EsConfig {
+func getEsConfig(rows []*DbSettingRow, debug bool) *configStruct.EsConfig {
 	return &configStruct.EsConfig{
-		Host:     GetValueFromRow(rows, "es", "host", "", "http://127.0.0.1",debug),
-		Port:     GetValueFromRow(rows, "es", "port", "", "9200",debug),
-		Password: GetValueFromRow(rows, "es", "password", "", "123456",debug),
-		Username: GetValueFromRow(rows, "es", "username", "", "es",debug),
+		Host:     GetValueFromRow(rows, "es", "host", "", "http://127.0.0.1", debug),
+		Port:     GetValueFromRow(rows, "es", "port", "", "9200", debug),
+		Password: GetValueFromRow(rows, "es", "password", "", "123456", debug),
+		Username: GetValueFromRow(rows, "es", "username", "", "es", debug),
 	}
 }
 
-func getRabbitMQConfig(rows []*DbSettingRow,debug bool) *configStruct.RabbitMQConfig {
+func getRabbitMQConfig(rows []*DbSettingRow, debug bool) *configStruct.RabbitMQConfig {
 	return &configStruct.RabbitMQConfig{
-		Host:     GetValueFromRow(rows, "rabbit_mq", "host", "", "http://127.0.0.1",debug),
-		Password: GetValueFromRow(rows, "rabbit_mq", "password", "", "123456",debug),
-		Username: GetValueFromRow(rows, "rabbit_mq", "username", "", "root",debug),
+		Host:     GetValueFromRow(rows, "rabbit_mq", "host", "", "http://127.0.0.1", debug),
+		Password: GetValueFromRow(rows, "rabbit_mq", "password", "", "123456", debug),
+		Username: GetValueFromRow(rows, "rabbit_mq", "username", "", "root", debug),
 	}
 }
 
-func getOssConfig(rows []*DbSettingRow,debug bool) *configStruct.OssConfig {
+func getOssConfig(rows []*DbSettingRow, debug bool) *configStruct.OssConfig {
 	return &configStruct.OssConfig{
-		AccessKeyID:     GetValueFromRow(rows, "ali", "oss", "access_key_id", "",debug),
-		AccessKeySecret: GetValueFromRow(rows, "ali", "oss", "access_key_secret", "",debug),
-		Host:            GetValueFromRow(rows, "ali", "oss", "host", "",debug),
-		EndPoint:        GetValueFromRow(rows, "ali", "oss", "end_point", "",debug),
-		BucketName:      GetValueFromRow(rows, "ali", "oss", "bucket_name", "",debug),
-		ExpireTime:      typeHelper.Str2Int64(GetValueFromRow(rows, "ali", "oss", "expire_time", "30",debug)),
+		AccessKeyID:     GetValueFromRow(rows, "ali", "oss", "access_key_id", "", debug),
+		AccessKeySecret: GetValueFromRow(rows, "ali", "oss", "access_key_secret", "", debug),
+		Host:            GetValueFromRow(rows, "ali", "oss", "host", "", debug),
+		EndPoint:        GetValueFromRow(rows, "ali", "oss", "end_point", "", debug),
+		BucketName:      GetValueFromRow(rows, "ali", "oss", "bucket_name", "", debug),
+		ExpireTime:      typeHelper.Str2Int64(GetValueFromRow(rows, "ali", "oss", "expire_time", "30", debug)),
 	}
 }
 
 // getAppProfile 项目基础信息
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
-		No:      GetValueFromRow(rows, "app", "no", "", "",false),
-		Name:    GetValueFromRow(rows, "app", "name", "", "",false),
-		Host:    GetValueFromRow(rows, "app", "host", "", "",false),
-		Debug:   GetValueFromRow(rows, "app", "debug", "", "",false) == "1", // 0=生产，1=调试
-		Version: GetValueFromRow(rows, "app", "version", "", "",false),
+		No:      GetValueFromRow(rows, "app", "no", "", "", false),
+		Name:    GetValueFromRow(rows, "app", "name", "", "", false),
+		Host:    GetValueFromRow(rows, "app", "host", "", "", false),
+		Debug:   GetValueFromRow(rows, "app", "debug", "", "", false) == "1", // 0=生产，1=调试
+		Version: GetValueFromRow(rows, "app", "version", "", "", false),
 	}
 }
 
 // getAliApiConfig 阿里云云市场API服务
-func getAliApiConfig(rows []*DbSettingRow,debug bool) *configStruct.AliApiConfig {
+func getAliApiConfig(rows []*DbSettingRow, debug bool) *configStruct.AliApiConfig {
 	return &configStruct.AliApiConfig{
-		AppKey:    GetValueFromRow(rows, "ali", "api", "app_key", "",debug),
-		AppSecret: GetValueFromRow(rows, "ali", "api", "app_secret", "",debug),
-		AppCode:   GetValueFromRow(rows, "ali", "api", "app_code", "",debug),
+		AppKey:    GetValueFromRow(rows, "ali", "api", "app_key", "", debug),
+		AppSecret: GetValueFromRow(rows, "ali", "api", "app_secret", "", debug),
+		AppCode:   GetValueFromRow(rows, "ali", "api", "app_code", "", debug),
 	}
 }
 
 // getAliSmsConfig 阿里云短信服务
-func getAliSmsConfig(rows []*DbSettingRow,debug bool) *configStruct.AliSmsConfig {
+func getAliSmsConfig(rows []*DbSettingRow, debug bool) *configStruct.AliSmsConfig {
 	return &configStruct.AliSmsConfig{
-		AccessKeySecret: GetValueFromRow(rows, "ali", "sms", "access_key_secret", "",debug),
-		AccessKeyID:     GetValueFromRow(rows, "ali", "sms", "access_key_id", "",debug),
+		AccessKeySecret: GetValueFromRow(rows, "ali", "sms", "access_key_secret", "", debug),
+		AccessKeyID:     GetValueFromRow(rows, "ali", "sms", "access_key_id", "", debug),
 	}
 }
 
 // GetValueFromRow : 从rows中提取row
-func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2 string, defaultValue string,debug bool) (value string) {
+func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2 string, defaultValue string, debug bool) (value string) {
 
 	var row = &DbSettingRow{}
 

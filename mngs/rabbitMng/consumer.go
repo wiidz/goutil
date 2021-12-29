@@ -15,7 +15,7 @@ type Consumer struct {
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName string, exchangeType ExchangeType,isDelay bool) (consumer *Consumer, err error) {
+func NewConsumer(exchangeName string, exchangeType ExchangeType, isDelay bool) (consumer *Consumer, err error) {
 
 	//【1】创建mq
 	var rabbitM *RabbitMQ
@@ -30,8 +30,8 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType,isDelay bool) (c
 
 	//【3】构建消费者
 	consumer = &Consumer{
-		RabbitMQ:   rabbitM,
-		done:       make(chan error),
+		RabbitMQ: rabbitM,
+		done:     make(chan error),
 		//HandleFunc:  handleFunc,
 	}
 
@@ -45,7 +45,7 @@ func NewConsumer(exchangeName string, exchangeType ExchangeType,isDelay bool) (c
 
 // Start 开始消费
 // Tips：记得在外部先绑定队列
-func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(delivery amqp.Delivery) error ) (err error) {
+func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(delivery amqp.Delivery) error) (err error) {
 
 	//【1】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)

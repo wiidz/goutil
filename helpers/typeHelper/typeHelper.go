@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-
 type Kind string
 
 const (
@@ -44,7 +43,6 @@ const (
 	Struct        Kind = ""
 	UnsafePointer Kind = ""
 )
-
 
 /**
  * @func: Implode 将slice转换成字符串
@@ -335,7 +333,6 @@ func IsType(needle interface{}, type_name string) bool {
 	return false
 }
 
-
 /**
  * @func: ToString 将任何参数转换为字符串
  * @author Wiidz
@@ -367,7 +364,6 @@ func ToString(data interface{}) string {
 		return ""
 	}
 }
-
 
 /**
  * @func: Str2Int64 将字符串转为int64
@@ -453,7 +449,6 @@ func JsonEncode(data interface{}) (string, error) {
 	return string(res), err
 }
 
-
 func JsonDecode(jsonStr string) (parsedData interface{}) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
@@ -502,7 +497,6 @@ func JsonDecodeIntSlice(jsonStr string) []int {
 func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) error {
 	return json.Unmarshal([]byte(jsonStr), &iStruct)
 }
-
 
 /**
  * @func: Float64SliceToInt float64 slice转换成 int slice

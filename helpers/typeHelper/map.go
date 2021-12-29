@@ -2,7 +2,7 @@ package typeHelper
 
 // Map2InterfaceSlice 将map转换成interface slice
 func Map2InterfaceSlice(data map[string]interface{}) []interface{} {
-	iSlice := make([]interface{},0)
+	iSlice := make([]interface{}, 0)
 	for _, v := range data {
 		iSlice = append(iSlice, v)
 	}
@@ -26,4 +26,3 @@ func InterfaceMapToStr(data map[string]interface{}) map[string]string {
 	}
 	return res
 }
-

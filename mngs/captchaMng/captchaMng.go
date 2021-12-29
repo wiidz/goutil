@@ -66,7 +66,7 @@ func (mng *CaptchaMng) GetNumberCaptcha(identify string) (id, captchaStr string,
 }
 
 // VerifyNumberCaptcha 验证数字验证码
-func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey,id, captchaStr string) (err error) {
+func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey, id, captchaStr string) (err error) {
 
 	keyName := identifyKey + id
 	captchaCache, err := mng.GetCache(keyName)
@@ -87,11 +87,11 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey,id, captchaStr string) (e
 }
 
 // SetCache 记录缓存
-func (mng *CaptchaMng) SetCache(keyName, value string, expire int) (err error) {
+func (mng *CaptchaMng) SetCache(keyName, value string, expire time.Duration) (err error) {
 	if mng.DataSource == dataSourceStruct.Redis {
 		err = mng.RedisMng.Set(keyName, value, expire)
 	} else if mng.DataSource == dataSourceStruct.Memory {
-		mng.MemoryMng.Set(keyName, value, time.Duration(expire)*time.Second)
+		mng.MemoryMng.Set(keyName, value, expire)
 	}
 	return err
 }

@@ -118,7 +118,7 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 	}
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
-		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
 		if err != nil {
 			err = errors.New(wechatErr.Message)
 		} else {
@@ -150,7 +150,7 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 	}
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
-		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
 		if err != nil {
 			err = errors.New(wechatErr.Message)
 		} else {
@@ -191,7 +191,7 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
-		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error,&wechatErr)
+		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
 		if err != nil {
 			err = errors.New(wechatErr.Message)
 		} else {

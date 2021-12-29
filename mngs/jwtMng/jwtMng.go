@@ -169,25 +169,24 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 }
 
 // SetCache StorageJWT 存储kwt至redis中
-func (mng *JwtMng) SetCache(appID, userID uint64, token string) (int64, error) {
+func (mng *JwtMng) SetCache(appID, userID uint64, token string) (bool, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HSet(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID), token)
-
-	return res.(int64), err
+	res, err := redis.HSetNX(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID), token)
+	return res, err
 }
 
 // GetCache GetJwtCache 从缓存中读取jwt
 func (mng *JwtMng) GetCache(appID, userID uint64) (string, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HGet(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID))
-	return res.(string), err
+	res, err := redis.HGetString(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID))
+	return res, err
 }
 
 // DeleteCache 从缓存中删除jwt
 func (mng *JwtMng) DeleteCache(appID, userID uint64) (int64, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HDel(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID))
-	return res.(int64), err
+	res, err := redis.HDel(typeHelper.Uint64ToStr(appID)+"-jwt", []string{typeHelper.Uint64ToStr(userID)})
+	return res, err
 }
 
 // CompareJwtCache 判断jwtToken

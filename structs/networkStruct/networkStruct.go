@@ -42,7 +42,6 @@ func (p Method) String() string {
 	}
 }
 
-
 // ParamsInterface 参数接口
 type ParamsInterface interface {
 
@@ -63,7 +62,7 @@ type ParamsInterface interface {
 	SetPreloads([]string)
 
 	// [read、update、post、delete] - 原始数据
-	GetRawMap()map[string]interface{}
+	GetRawMap() map[string]interface{}
 	SetRawMap(map[string]interface{})
 
 	// [read、update、delete] - condition 条件
@@ -91,11 +90,11 @@ type ParamsInterface interface {
 	SetRowsAffected(int64)
 
 	// [update、insert] - value 数据
-	GetValue()map[string]interface{}
+	GetValue() map[string]interface{}
 	SetValue(map[string]interface{})
 
 	// [update、delete] - 表名
-	GetTableName()string
+	GetTableName() string
 	SetTableName(string)
 
 	// [insert] - 新的主键
@@ -111,28 +110,28 @@ type ParamsInterface interface {
 type Params struct {
 
 	// 前端参数
-	PageNow   int    `json:"page_now" belong:"etc" default:"1"` // [read]
-	PageSize  int    `json:"page_size" belong:"etc" default:"10"` // [read]
-	Order     string `json:"order" belong:"etc" default:"ids asc"` // [read]
+	PageNow  int    `json:"page_now" belong:"etc" default:"1"`    // [read]
+	PageSize int    `json:"page_size" belong:"etc" default:"10"`  // [read]
+	Order    string `json:"order" belong:"etc" default:"ids asc"` // [read]
 
 	// 根据前端参数处理后的数据
 	Condition map[string]interface{} // [read、update、delete] 条件
-	Value      map[string]interface{} // [update、insert] - 数据
-	Etc  map[string]interface{} // 其他
-	RawMap map[string]interface{}
+	Value     map[string]interface{} // [update、insert] - 数据
+	Etc       map[string]interface{} // 其他
+	RawMap    map[string]interface{}
 
 	// 内部补充参数
-	Single    bool // [read] - 附加条件
+	Single    bool     // [read] - 附加条件
 	Preloads  []string // [read] - 附加
-	TableName  string // [update、delete] - 指定表名
+	TableName string   // [update、delete] - 指定表名
 
 	// 操作结果
-	NewID uint64 // [insert] - 新主键
-	Rows      interface{} // [read] - 结构切片
-	Row      interface{} // [read、update、delete、insert] - 结构
-	Count     int64 // [read] - 统计行数
-	RowsAffected int64 // [update、delete] - 影响行数
-	Error        error // 错误
+	NewID        uint64      // [insert] - 新主键
+	Rows         interface{} // [read] - 结构切片
+	Row          interface{} // [read、update、delete、insert] - 结构
+	Count        int64       // [read] - 统计行数
+	RowsAffected int64       // [update、delete] - 影响行数
+	Error        error       // 错误
 }
 
 // TableName 表名
@@ -193,12 +192,11 @@ func (params *Params) SetRawMap(RawMap map[string]interface{}) {
 	params.RawMap = RawMap
 }
 
-
 // Count 结果数目
 func (params *Params) SetCount(count int64) {
 	params.Count = count
 }
-func (params *Params) GetCount() int64{
+func (params *Params) GetCount() int64 {
 	return params.Count
 }
 
@@ -210,7 +208,6 @@ func (params *Params) SetRowsAffected(rowsAffected int64) {
 	params.RowsAffected = rowsAffected
 }
 
-
 // Error 错误
 func (params *Params) GetError() error {
 	return params.Error
@@ -220,18 +217,18 @@ func (params *Params) SetError(err error) {
 }
 
 // Rows 查询结果
-func (params *Params)  SetRows(rows interface{}) {
+func (params *Params) SetRows(rows interface{}) {
 	params.Rows = rows
 }
-func (params *Params)GetRows() interface{} {
+func (params *Params) GetRows() interface{} {
 	return params.Rows
 }
 
 // Row 查询结果
-func (params *Params)  SetRow(rows interface{}) {
+func (params *Params) SetRow(rows interface{}) {
 	params.Row = rows
 }
-func (params *Params)GetRow() interface{} {
+func (params *Params) GetRow() interface{} {
 	return params.Row
 }
 
@@ -247,7 +244,7 @@ func (params *Params) SetOrder(order string) {
 func (params *Params) GetPreloads() []string {
 	return params.Preloads
 }
-func (params *Params) SetPreloads(preloads []string)  {
+func (params *Params) SetPreloads(preloads []string) {
 	params.Preloads = preloads
 }
 

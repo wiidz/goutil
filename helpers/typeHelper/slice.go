@@ -4,7 +4,6 @@ import (
 	"reflect"
 )
 
-
 // ForceIntSlice 强制转换成int64切片
 func ForceIntSlice(value interface{}) []int {
 	valueType := reflect.TypeOf(value).String()
@@ -22,7 +21,7 @@ func ForceIntSlice(value interface{}) []int {
 		return StrSlice2Int(value.([]string))
 	case "[]int8":
 		return Int8Slice2Int(value.([]int8))
-	default :
+	default:
 		return []int{}
 	}
 }
@@ -43,7 +42,7 @@ func ForceUint64Slice(value interface{}) []uint64 {
 		return StrSlice2Uint64(value.([]string))
 	case "[]int8":
 		return Int8Slice2Uint64(value.([]int8))
-	default :
+	default:
 		return []uint64{}
 	}
 }
@@ -64,7 +63,7 @@ func ForceFloat64Slice(value interface{}) []float64 {
 		return StrSlice2Float64(value.([]string))
 	case "[]int8":
 		return Int8Slice2Float64(value.([]int8))
-	default :
+	default:
 		return []float64{}
 	}
 }
@@ -85,7 +84,7 @@ func ForceStrSlice(value interface{}) []string {
 		return value.([]string)
 	case "[]int8":
 		return Int8Slice2Str(value.([]int8))
-	default :
+	default:
 		return []string{}
 	}
 }
@@ -106,17 +105,10 @@ func ForceInt8Slice(value interface{}) []int8 {
 		return StrSlice2Int8(value.([]string))
 	case "[]int8":
 		return value.([]int8)
-	default :
+	default:
 		return []int8{}
 	}
 }
-
-
-
-
-
-
-
 
 // Int
 
@@ -128,6 +120,7 @@ func IntSlice2Int8(data []int) []int8 {
 	}
 	return tmp
 }
+
 // IntSlice2Float64  Int切片转float64切片
 func IntSlice2Float64(data []int) []float64 {
 	tmp := make([]float64, 0)
@@ -136,6 +129,7 @@ func IntSlice2Float64(data []int) []float64 {
 	}
 	return tmp
 }
+
 // IntSlice2Str  Int切片转str切片
 func IntSlice2Str(data []int) []string {
 	tmp := make([]string, 0)
@@ -144,6 +138,7 @@ func IntSlice2Str(data []int) []string {
 	}
 	return tmp
 }
+
 // IntSlice2Uint64  Int切片转uint64切片
 func IntSlice2Uint64(data []int) []uint64 {
 	tmp := make([]uint64, 0)
@@ -152,7 +147,6 @@ func IntSlice2Uint64(data []int) []uint64 {
 	}
 	return tmp
 }
-
 
 // Int8
 
@@ -164,6 +158,7 @@ func Int8Slice2Int(data []int8) []int {
 	}
 	return tmp
 }
+
 // Int8Slice2Float64  Int8切片转float64切片
 func Int8Slice2Float64(data []int8) []float64 {
 	tmp := make([]float64, 0)
@@ -172,6 +167,7 @@ func Int8Slice2Float64(data []int8) []float64 {
 	}
 	return tmp
 }
+
 // Int8Slice2Str  Int8切片转str切片
 func Int8Slice2Str(data []int8) []string {
 	tmp := make([]string, 0)
@@ -180,6 +176,7 @@ func Int8Slice2Str(data []int8) []string {
 	}
 	return tmp
 }
+
 // Int8Slice2Uint64  Int8切片转uint64切片
 func Int8Slice2Uint64(data []int8) []uint64 {
 	tmp := make([]uint64, 0)
@@ -188,7 +185,6 @@ func Int8Slice2Uint64(data []int8) []uint64 {
 	}
 	return tmp
 }
-
 
 // Float64
 
@@ -200,6 +196,7 @@ func Float64Slice2Int(data []float64) []int {
 	}
 	return tmp
 }
+
 // Float64Slice2Int8  Float64切片转int8切片
 func Float64Slice2Int8(data []float64) []int8 {
 	tmp := make([]int8, 0)
@@ -208,6 +205,7 @@ func Float64Slice2Int8(data []float64) []int8 {
 	}
 	return tmp
 }
+
 // Float64Slice2Uint64  Float64切片转uint64切片
 func Float64Slice2Uint64(data []float64) []uint64 {
 	tmp := make([]uint64, 0)
@@ -216,6 +214,7 @@ func Float64Slice2Uint64(data []float64) []uint64 {
 	}
 	return tmp
 }
+
 // Float64Slice2Str  Float64切片转str切片
 func Float64Slice2Str(data []float64) []string {
 	tmp := make([]string, 0)
@@ -224,7 +223,6 @@ func Float64Slice2Str(data []float64) []string {
 	}
 	return tmp
 }
-
 
 // Uint64
 
@@ -236,6 +234,7 @@ func Uint64Slice2Int(data []uint64) []int {
 	}
 	return tmp
 }
+
 // Uint64Slice2Int8  Uint64切片转int8切片
 func Uint64Slice2Int8(data []uint64) []int8 {
 	tmp := make([]int8, 0)
@@ -244,6 +243,7 @@ func Uint64Slice2Int8(data []uint64) []int8 {
 	}
 	return tmp
 }
+
 // Uint64Slice2Float64  Uint64切片转float64切片
 func Uint64Slice2Float64(data []uint64) []float64 {
 	tmp := make([]float64, 0)
@@ -252,6 +252,7 @@ func Uint64Slice2Float64(data []uint64) []float64 {
 	}
 	return tmp
 }
+
 // Uint64Slice2Str  Uint64切片转str切片
 func Uint64Slice2Str(data []uint64) []string {
 	tmp := make([]string, 0)
@@ -260,7 +261,6 @@ func Uint64Slice2Str(data []uint64) []string {
 	}
 	return tmp
 }
-
 
 // Str
 
@@ -272,6 +272,7 @@ func StrSlice2Int(data []string) []int {
 	}
 	return tmp
 }
+
 // StrSlice2Int8  Str切片转int8切片
 func StrSlice2Int8(data []string) []int8 {
 	tmp := make([]int8, 0)
@@ -280,6 +281,7 @@ func StrSlice2Int8(data []string) []int8 {
 	}
 	return tmp
 }
+
 // StrSlice2Float64  Str切片转float64切片
 func StrSlice2Float64(data []string) []float64 {
 	tmp := make([]float64, 0)
@@ -288,6 +290,7 @@ func StrSlice2Float64(data []string) []float64 {
 	}
 	return tmp
 }
+
 // StrSlice2Uint64  Str切片转uint64切片
 func StrSlice2Uint64(data []string) []uint64 {
 	tmp := make([]uint64, 0)
@@ -296,10 +299,6 @@ func StrSlice2Uint64(data []string) []uint64 {
 	}
 	return tmp
 }
-
-
-
-
 
 /**
  * @func: StrSlice2InterfaceSlice 字符串slice转interface slice
@@ -313,7 +312,6 @@ func StrSlice2InterfaceSlice(data []string) []interface{} {
 	}
 	return tmp
 }
-
 
 // InterfaceSlice2MapSlice
 func InterfaceSlice2MapSlice(inter []interface{}) []map[string]interface{} {

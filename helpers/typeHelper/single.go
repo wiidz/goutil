@@ -6,7 +6,6 @@ import (
 	"unsafe"
 )
 
-
 // ForceUint64 强制转换为Uint64
 func ForceUint64(value interface{}) uint64 {
 	valueType := reflect.TypeOf(value).String()

@@ -27,7 +27,7 @@ func GetLbsMng(config *configStruct.AliApiConfig) *LbsMng {
 }
 
 // ReGeo : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
-func (mng *LbsMng) ReGeo(longitude, latitude string) (data *ReGeoData,err error) {
+func (mng *LbsMng) ReGeo(longitude, latitude string) (data *ReGeoData, err error) {
 
 	tempStr, _, _, err := networkHelper.RequestRaw(networkStruct.Get, ReGeoURL, map[string]interface{}{
 		"location": longitude + "," + latitude,

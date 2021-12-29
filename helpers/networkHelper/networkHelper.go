@@ -726,14 +726,14 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 
 		//【1】获取标签
 		field := structType.Elem().Field(i)
-		fieldType := field.Type              // 字段的类型
+		fieldType := field.Type // 字段的类型
 
-		jsonTag := field.Tag.Get("json") // body体中使用
-		urlTag := field.Tag.Get("url") // query中使用
+		jsonTag := field.Tag.Get("json")    // body体中使用
+		urlTag := field.Tag.Get("url")      // query中使用
 		fieldName := field.Tag.Get("field") // 字段写入condition、value的名称
 
-		belong := field.Tag.Get("belong")   // 值的归属，例如value、condition、etc
-		kind := field.Tag.Get("kind")       // 值类型，例如between、like
+		belong := field.Tag.Get("belong") // 值的归属，例如value、condition、etc
+		kind := field.Tag.Get("kind")     // 值类型，例如between、like
 
 		defaultValue := field.Tag.Get("default")
 
@@ -755,7 +755,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
 
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
-		if fieldType.Kind() == reflect.Struct{
+		if fieldType.Kind() == reflect.Struct {
 			//log.Println("Struct")
 			//log.Println(reflect.Zero(fieldType).Interface())
 		} else if fieldType.Kind() == reflect.Slice {
@@ -765,16 +765,16 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			//}
 			//log.Println(reflect.Zero(fieldType).Interface())
 			//continue // 结构体类型和切片类型 默认不予填充和计算
-		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface(){
+		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface() {
 			if defaultValue != "" {
 				var formattedDefaultValue interface{}
-				formattedDefaultValue,err = getFormattedValue(field.Type.String(), defaultValue)
+				formattedDefaultValue, err = getFormattedValue(field.Type.String(), defaultValue)
 				if err != nil {
 					return
 				}
 				currentValue = reflect.ValueOf(formattedDefaultValue)
 				structValues.Elem().Field(i).Set(currentValue) // 记得填充回结构体
-			} else if _ , ok := rawMap[fieldName]; !ok {
+			} else if _, ok := rawMap[fieldName]; !ok {
 				// 判断rawMap里面有没有值
 				continue
 			}
@@ -782,7 +782,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		}
 
 		var formattedValue interface{}
-		formattedValue,err = getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
+		formattedValue, err = getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
 		if err != nil {
 			return
 		}
@@ -795,7 +795,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 				condition[fieldName] = []interface{}{"like", "%" + formattedValue.(string) + "%"}
 			case "between":
 				tempSlice := typeHelper.Explode(formattedValue.(string), ",")
-				if len(tempSlice) == 2{
+				if len(tempSlice) == 2 {
 					condition[fieldName] = []interface{}{"between", tempSlice[0], tempSlice[1]}
 				}
 			case "in":
@@ -844,7 +844,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 }
 
 // getFormattedValue 获取指定格式的数值
-func getFormattedValue(t string, value interface{}) (data interface{},err error) {
+func getFormattedValue(t string, value interface{}) (data interface{}, err error) {
 	switch t {
 	case "string":
 		data = typeHelper.ForceString(value)

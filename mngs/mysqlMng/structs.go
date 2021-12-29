@@ -154,8 +154,8 @@ type InsertInterface interface {
 // Insert 插入操作的基本结构体
 type Insert struct {
 	BaseStruct
-	NewID      uint64 // 没有实际意义，无法实现，只为了区分interface
-	Row        interface{}
+	NewID  uint64 // 没有实际意义，无法实现，只为了区分interface
+	Row    interface{}
 	RawMap map[string]interface{}
 }
 
@@ -209,10 +209,10 @@ type UpdateInterface interface {
 // Update 修改操作的基本结构体
 type Update struct {
 	BaseStruct
-	TableName  string
-	Condition  map[string]interface{}
-	Value      map[string]interface{}
-	RawMap map[string]interface{}
+	TableName string
+	Condition map[string]interface{}
+	Value     map[string]interface{}
+	RawMap    map[string]interface{}
 }
 
 func (update *Update) GetRawMap() map[string]interface{} {
@@ -267,9 +267,9 @@ type DeleteInterface interface {
 // Delete 删除操作的基本结构体
 type Delete struct {
 	BaseStruct
-	Condition  map[string]interface{}
-	Row        interface{}
-	RawMap map[string]interface{}
+	Condition map[string]interface{}
+	Row       interface{}
+	RawMap    map[string]interface{}
 }
 
 func (delete *Delete) GetRawMap() map[string]interface{} {

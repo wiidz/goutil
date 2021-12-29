@@ -11,7 +11,7 @@ type Producer struct {
 }
 
 // NewProducer 构建一个生产者
-func NewProducer(exchangeName string, exchangeType ExchangeType,isDelay bool) (producer *Producer, err error) {
+func NewProducer(exchangeName string, exchangeType ExchangeType, isDelay bool) (producer *Producer, err error) {
 
 	var rabbitM *RabbitMQ
 	if isDelay {
@@ -31,7 +31,7 @@ func NewProducer(exchangeName string, exchangeType ExchangeType,isDelay bool) (p
 }
 
 // Publish 发布任务
-func (producer *Producer) Publish(routingKey string,body, expiration string, reliable bool) error {
+func (producer *Producer) Publish(routingKey string, body, expiration string, reliable bool) error {
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
@@ -48,7 +48,7 @@ func (producer *Producer) Publish(routingKey string,body, expiration string, rel
 
 	if err := producer.Channel.Publish(
 		producer.ExchangeName, // publish to an exchange
-		routingKey,   // routing to 0 or more queues
+		routingKey,            // routing to 0 or more queues
 		false,                 // mandatory
 		false,                 // immediate
 		amqp.Publishing{
@@ -57,8 +57,8 @@ func (producer *Producer) Publish(routingKey string,body, expiration string, rel
 			ContentEncoding: "",
 			Body:            []byte(body),
 			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
-			Priority:        0,              // 0-9
-			Expiration:      expiration,     // 设置2小时7200000  测试五秒
+			Priority:        0,               // 0-9
+			Expiration:      expiration,      // 设置2小时7200000  测试五秒
 			// a bunch of application/implementation-specific fields
 		},
 	); err != nil {
@@ -84,7 +84,7 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 
 // PublishDelay 发布延时任务,注意千万不能绑定队列，不然会直接推到队列里去
 // 这个插件的作用是发挥在exchange上的，到时间了，分发到队列里去
-func (producer *Producer) PublishDelay(routingKey,body string, expiration int64, reliable bool) error {
+func (producer *Producer) PublishDelay(routingKey, body string, expiration int64, reliable bool) error {
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
@@ -102,14 +102,14 @@ func (producer *Producer) PublishDelay(routingKey,body string, expiration int64,
 	err := producer.Channel.Publish(
 		producer.ExchangeName,
 		routingKey, // routing to 0 or more queues
-		false,               // mandatory
-		false,               // immediate
+		false,      // mandatory
+		false,      // immediate
 		amqp.Publishing{
 			Headers: amqp.Table{
-				"x-delay" : expiration,
+				"x-delay": expiration,
 			},
-			ContentType:     "text/plain",
-			Body:            []byte(body),
+			ContentType: "text/plain",
+			Body:        []byte(body),
 			//Expiration:      expiration,     // ms，设置2小时7200000  测试五秒
 		},
 	)
