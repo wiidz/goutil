@@ -8,6 +8,7 @@ import (
 	"github.com/wiidz/goutil/mngs/rabbitMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"time"
 )
 
@@ -41,6 +42,12 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 			return
 		}
 		mng.BaseConfig.MysqlConfig = mysqlConfig
+	}
+
+	if mng.BaseConfig.Profile.Debug {
+		log.Println("【" + mng.BaseConfig.Profile.Name + "】启动-调试模式")
+	} else {
+		log.Println("【" + mng.BaseConfig.Profile.Name + "】启动-生产模式")
 	}
 
 	//【4】初始化redis
