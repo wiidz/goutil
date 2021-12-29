@@ -21,13 +21,13 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	redisURL := redisC.Host + ":" + redisC.Port
 	log.Println("【redis-dsn】", redisURL)
 
-	dialOptions := []redis.DialOption{}
-	if redisC.Username != "" {
-		dialOptions = append(dialOptions,redis.DialUsername(redisC.Username))
-	}
-	if redisC.Password != "" {
-		dialOptions = append(dialOptions,redis.DialUsername(redisC.Password))
-	}
+	//dialOptions := []redis.DialOption{}
+	//if redisC.Username != "" {
+	//	dialOptions = append(dialOptions,redis.DialUsername(redisC.Username))
+	//}
+	//if redisC.Password != "" {
+	//	dialOptions = append(dialOptions,redis.DialUsername(redisC.Password))
+	//}
 
 	//if
 
@@ -36,7 +36,7 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 		MaxIdle:     redisC.MaxIdle,
 		IdleTimeout: time.Duration(redisC.IdleTimeout),
 		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.Dial("tcp", redisURL,dialOptions...)
+			conn, err = redis.Dial("tcp", redisURL,redis.DialUsername(redisC.Username),redis.DialUsername(redisC.Password))
 			if err != nil {
 				fmt.Println("【redis-dial-err】", err)
 			}
