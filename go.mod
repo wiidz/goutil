@@ -12,7 +12,7 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/go-pay/gopay v1.5.55
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/gomodule/redigo v1.8.6
+	github.com/gomodule/redigo v1.8.5
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.10
