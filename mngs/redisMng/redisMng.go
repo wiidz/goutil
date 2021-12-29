@@ -21,7 +21,7 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	redisURL := "redis://"
 	if redisC.Username != "" {
-		redisURL = redisC.Username + ":"
+		redisURL += redisC.Username + ":"
 	}
 	if redisC.Password != "" {
 		redisURL += redisC.Password + "@"
