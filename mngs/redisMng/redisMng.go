@@ -32,12 +32,13 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 				return
 			}
 
-			if _, err = conn.Do("AUTH", redisC.Password); err != nil {
-				fmt.Println("【redis-auth-err】", err)
-				_ = conn.Close()
-				return
+			if redisC.Password != "" {
+				if _, err = conn.Do("AUTH", redisC.Password); err != nil {
+					fmt.Println("【redis-auth-err】", err)
+					_ = conn.Close()
+					return
+				}
 			}
-
 			return
 		},
 	}
