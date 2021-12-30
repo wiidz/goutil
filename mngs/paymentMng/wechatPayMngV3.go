@@ -7,6 +7,7 @@ import (
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"math"
 	"net/http"
 	"time"
 )
@@ -92,7 +93,7 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url string, err error) {
 
 	//【1】构建结构体
-	totalFee := int(params.TotalAmount * 100)
+	totalFee := int(math.Round(params.TotalAmount * 100)) // 分为单位，注意这里的近似
 	bm := gopay.BodyMap{}
 	bm.Set("appid", mng.Config.AppID).
 		Set("mchid", mng.Config.MchID).
@@ -164,7 +165,8 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (wxRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
-	totalFee := int(params.TotalAmount * 100) // 分为单位
+	//totalFee := int(params.TotalAmount * 100) // 分为单位
+	totalFee := int(math.Round(params.TotalAmount * 100)) // 分为单位，注意这里的近似
 
 	// 初始化 BodyMap
 	bm := make(gopay.BodyMap)
