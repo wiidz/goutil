@@ -50,7 +50,7 @@ func (mysql *MysqlMng) Read(list ReadInterface,isSingle,doCount bool) {
 	} else {
 		err = thisConn.Offset(offset).Limit(limit).Find(model).Error 		// 查若干
 	}
-	if err == nil {
+	if err != nil {
 		list.SetError(err)
 		return
 	}
