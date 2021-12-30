@@ -101,7 +101,7 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
 
 	//【3】修改
 	cons, vals, _ := WhereBuild(condition)
-	thisConn = thisConn.Model(&model).Where(cons, vals...).Updates(value)
+	thisConn = thisConn.Model(model).Where(cons, vals...).Updates(value)
 
 	//【4】提取结果
 	err := thisConn.Error
