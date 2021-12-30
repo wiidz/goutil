@@ -164,7 +164,7 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (wxRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
-	totalFee := params.TotalAmount * 100 // 分为单位
+	totalFee := int(params.TotalAmount * 100) // 分为单位
 
 	// 初始化 BodyMap
 	bm := make(gopay.BodyMap)
