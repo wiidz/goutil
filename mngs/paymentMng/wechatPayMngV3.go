@@ -233,3 +233,44 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 	res, err = notifyReq.DecryptRefundCipherText(mng.Config.ApiKeyV3)
 	return
 }
+
+
+// PayToUser 支付给用户
+func (mng *WechatPayMngV3) PayToUser(params *TransferUserParam,transferList []*TransferUserDetailList)(res *wechat.TransferRsp,err error){
+
+
+	// 【1】为名称加密
+	for k := range transferList {
+		if transferList[k].UserName == "" {
+			continue
+		}
+		transferList[k].UserName,err = wechat.V3EncryptText(transferList[k].UserName,[]byte(mng.Config.CertContent))
+		if err != nil {
+			return
+		}
+	}
+
+	// 初始化参数结构体
+	bm := make(gopay.BodyMap)
+	bm.Set("appid", mng.Config.AppID). // 直连商户的appid，申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid）
+		Set("out_batch_no", params.OutBatchNo).
+		Set("batch_name", params.BatchName).
+		Set("batch_remark", params.BatchRemark).
+		Set("total_amount", params.TotalAmount).
+		Set("total_num", params.TotalNum).
+		Set("transfer_detail_list",transferList)
+
+	// 企业向微信用户个人付款（不支持沙箱环境）
+	//    body：参数Body
+	res, err = mng.Client.V3Transfer(bm)
+	xlog.Debug("Response：", res)
+	xlog.Debug("err：", err)
+
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+
+	return
+}
