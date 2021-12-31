@@ -235,8 +235,8 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 }
 
 
-// PayToUser 支付给用户
-func (mng *WechatPayMngV3) PayToUser(params *TransferUserParam,transferList []*TransferUserDetailList)(res *wechat.TransferRsp,err error){
+// BatchPayUser 批量付款给用户（用户的真实姓名要么都填，要么都不填，大于2000必填）
+func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam,transferList []*TransferUserDetailList)(res *wechat.TransferRsp,err error){
 
 
 	// 【1】为名称加密
