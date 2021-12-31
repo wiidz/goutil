@@ -26,7 +26,7 @@ type AddressComponent struct {
 	Township      string       `json:"township"` // 乡镇：望京街道
 	TownCode      string       `json:"towncode"` // 乡镇编号：110105026000
 	Neighborhood  *Neighborhood   `json:"neighborhood"`
-	Building      *MetaPlace   `json:"building"`
+	Building      *Neighborhood   `json:"building"`
 	StreetNumber  *Street      `json:"streetNumber"`
 	BusinessAreas []*MetaPlace `json:"businessAreas"`
 }
