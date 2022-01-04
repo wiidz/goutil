@@ -25,4 +25,5 @@ type PolicyToken struct {
 	Signature   string `json:"signature"`
 	Policy      string `json:"policy"`
 	Dir         string `json:"dir"`
+	BucketName string `json:"bucket_name"`
 }

@@ -88,6 +88,7 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (PolicyToken, error) {
 	policyToken.Signature = string(signedStr)
 	policyToken.Dir = remotePath
 	policyToken.Policy = string(debyte)
+	policyToken.BucketName = ossMng.Config.BucketName
 
 	return policyToken, nil
 }
