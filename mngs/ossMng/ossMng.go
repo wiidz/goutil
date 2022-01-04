@@ -85,10 +85,12 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (PolicyToken, error) {
 	policyToken.AccessKeyId = ossMng.Config.AccessKeyID
 	policyToken.Host = ossMng.Config.Host
 	policyToken.Expire = expireEnd
-	policyToken.Signature = string(signedStr)
+	policyToken.Signature = signedStr
 	policyToken.Dir = remotePath
-	policyToken.Policy = string(debyte)
+	policyToken.Policy = debyte
+	log.Println("ossMng.Config.BucketName",ossMng.Config.BucketName)
 	policyToken.BucketName = ossMng.Config.BucketName
+	log.Println("policyToken",policyToken)
 
 	return policyToken, nil
 }
