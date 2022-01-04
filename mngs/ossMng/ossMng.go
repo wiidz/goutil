@@ -48,8 +48,8 @@ func NewOssMng(config *configStruct.OssConfig) (*OssMng, error) {
 }
 
 // getPolicyToken 获取token
-func (ossMng *OssMng) getPolicyToken(remotePath string) (PolicyToken, error) {
-	policyToken := PolicyToken{}
+func (ossMng *OssMng) getPolicyToken(remotePath string) (policyToken PolicyToken,err error) {
+
 
 	//【1】拼接目标目录名称
 	//tm := time.Unix(now, 0)
@@ -73,7 +73,7 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (PolicyToken, error) {
 	//【4】计算签名
 	result, err := policyConfig.MarshalJSON()
 	if err != nil {
-		return policyToken, err
+		return
 	}
 
 	debyte := base64.StdEncoding.EncodeToString(result)
@@ -82,17 +82,16 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (PolicyToken, error) {
 	signedStr := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 	//【5】填充属性
-	policyToken.AccessKeyId = ossMng.Config.AccessKeyID
-	policyToken.Host = ossMng.Config.Host
-	policyToken.Expire = expireEnd
-	policyToken.Signature = signedStr
-	policyToken.Dir = remotePath
-	policyToken.Policy = debyte
-	log.Println("ossMng.Config.BucketName",ossMng.Config.BucketName)
-	policyToken.BucketName = ossMng.Config.BucketName
-	log.Println("policyToken",policyToken)
-
-	return policyToken, nil
+	policyToken = PolicyToken{
+		BucketName: ossMng.Config.BucketName,
+		AccessKeyId: ossMng.Config.AccessKeyID,
+		Host:ossMng.Config.Host,
+		Expire: expireEnd,
+		Signature: signedStr,
+		Dir:remotePath,
+		Policy:debyte,
+	}
+	return
 }
 
 // GetHost 获取域名
@@ -102,8 +101,7 @@ func (ossMng *OssMng) GetHost() string {
 
 // GetSign 获取签名
 func (ossMng *OssMng) GetSign(object string) (PolicyToken, error) {
-	response, err := ossMng.getPolicyToken(object)
-	return response, err
+	return ossMng.getPolicyToken(object)
 }
 
 // Upload 上传
