@@ -18,7 +18,6 @@ require (
 	github.com/json-iterator/go v1.1.10
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/mailru/easyjson v0.7.7
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/olivere/elastic/v7 v7.0.29

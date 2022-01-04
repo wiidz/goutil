@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/wiidz/goutil/helpers/timeHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"hash"
 	"io"
@@ -71,12 +72,12 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (policyToken PolicyToken
 	policyConfig.Conditions = append(policyConfig.Conditions, condition)
 
 	//【4】计算签名
-	result, err := policyConfig.MarshalJSON()
+	result, err := typeHelper.JsonEncode(policyConfig)
 	if err != nil {
 		return
 	}
 
-	debyte := base64.StdEncoding.EncodeToString(result)
+	debyte := base64.StdEncoding.EncodeToString([]byte(result))
 	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(ossMng.Config.AccessKeySecret))
 	io.WriteString(h, debyte)
 	signedStr := base64.StdEncoding.EncodeToString(h.Sum(nil))
