@@ -68,10 +68,10 @@ func (es *EsMng) Truncate(index string) (res *elastic.IndicesDeleteResponse, err
 }
 
 // LikeQuery 多字段模糊查询
-func (es *EsMng) LikeQuery(index string, page, pageSize int, searchStr string, searchFields ...string) (data []map[string]interface{}, err error) {
+func (es *EsMng) LikeQuery(searchType SearchType,index string, page, pageSize int, searchStr string, searchFields ...string) (data []map[string]interface{}, err error) {
 
 	//【1】拼接字符串
-	matchPhraseQuery := elastic.NewMultiMatchQuery(searchStr, searchFields...)
+	matchPhraseQuery := elastic.NewMultiMatchQuery(searchStr, searchFields...).Type(string(searchType))
 
 	//【2】查询
 	var res *elastic.SearchResult
