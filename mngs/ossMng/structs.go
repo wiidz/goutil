@@ -19,11 +19,11 @@ type PolicyConfig struct {
 
 // easyjson:json
 type PolicyToken struct {
+	BucketName  string `json:"bucket_name"`
 	AccessKeyId string `json:"accessid"`
 	Host        string `json:"host"`
 	Expire      int64  `json:"expire"`
 	Signature   string `json:"signature"`
 	Policy      string `json:"policy"`
 	Dir         string `json:"dir"`
-	BucketName string `json:"bucket_name"`
 }
