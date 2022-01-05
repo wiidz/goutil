@@ -163,4 +163,5 @@ type AliIotConfig struct {
 	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
 	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
 	EndPoint        string `gorm:"end_point;type:varchar(128)" json:"end_point"`                                // 公网终端节点（Endpoint）
+	RegionID        string `gorm:"region_id;type:varchar(128)" json:"region_id"`                                // 阿里云服务地域代码,华东2 = cn-shanghai  https://help.aliyun.com/document_detail/40654.htm?spm=a2c4g.11186623.0.0.72a72860LhLa4y#concept-2459516
 }

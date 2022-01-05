@@ -270,6 +270,7 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfi
 		AccessKeySecret: GetValueFromRow(rows, "ali", "iot", "access_key_secret", "", debug),
 		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
 		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
+		RegionID:      GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
 	}
 }
 
