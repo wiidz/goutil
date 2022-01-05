@@ -40,7 +40,8 @@ type BaseConfig struct {
 	AliPayConfig     *AliPayConfig     // 支付宝设定
 
 	AliApiConfig *AliApiConfig // 阿里云APi市场设定
-	AliSmsConfig *AliSmsConfig // 阿里云APi市场设定
+	AliSmsConfig *AliSmsConfig // 阿里云短信服务设定
+	AliIotConfig *AliSmsConfig // 阿里云物联网市场设定
 }
 
 // MysqlConfig mysql数据库参数
@@ -155,4 +156,11 @@ type AliApiConfig struct {
 type AliSmsConfig struct {
 	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
 	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
+}
+
+// AliIotConfig 阿里云物联网的基本配置
+type AliIotConfig struct {
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
+	EndPoint        string `gorm:"end_point;type:varchar(128)" json:"end_point"`                                // 公网终端节点（Endpoint）
 }

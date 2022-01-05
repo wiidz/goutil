@@ -121,6 +121,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.AliPayConfig = getAliPayConfig(rows, config.Profile.Debug)
 	config.AliApiConfig = getAliApiConfig(rows, config.Profile.Debug)
 	config.AliSmsConfig = getAliSmsConfig(rows, config.Profile.Debug)
+	config.AliIotConfig = getAliIotConfig(rows, config.Profile.Debug)
 
 	return
 }
@@ -260,6 +261,15 @@ func getAliSmsConfig(rows []*DbSettingRow, debug bool) *configStruct.AliSmsConfi
 	return &configStruct.AliSmsConfig{
 		AccessKeySecret: GetValueFromRow(rows, "ali", "sms", "access_key_secret", "", debug),
 		AccessKeyID:     GetValueFromRow(rows, "ali", "sms", "access_key_id", "", debug),
+	}
+}
+
+// getAliIotConfig 阿里云物联网服务
+func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfig {
+	return &configStruct.AliIotConfig{
+		AccessKeySecret: GetValueFromRow(rows, "ali", "iot", "access_key_secret", "", debug),
+		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
+		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
 	}
 }
 
