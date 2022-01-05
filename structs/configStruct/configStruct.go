@@ -41,7 +41,7 @@ type BaseConfig struct {
 
 	AliApiConfig *AliApiConfig // 阿里云APi市场设定
 	AliSmsConfig *AliSmsConfig // 阿里云短信服务设定
-	AliIotConfig *AliSmsConfig // 阿里云物联网市场设定
+	AliIotConfig *AliIotConfig // 阿里云物联网市场设定
 }
 
 // MysqlConfig mysql数据库参数
