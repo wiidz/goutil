@@ -3,62 +3,63 @@ package aliIotMng
 import (
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	iot "github.com/alibabacloud-go/iot-20180120/v2/client"
-	"github.com/alibabacloud-go/tea/tea"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
+// AliIotMng 这是一个实例的管理器
 type AliIotMng struct {
-	Client *iot.Client
-	Config *configStruct.AliIotConfig
+	IotInstanceID string // 实例ID
+	Client        *iot.Client
+	ApiConfig     *configStruct.AliIotConfig
 }
 
-// NewAliIotMng 返回一个api实例
-func NewAliIotMng(config *configStruct.AliIotConfig) (mng *AliIotMng, err error) {
+// NewAliIotMng 返回一个物联网实例管理器
+func NewAliIotMng(config *configStruct.AliIotConfig, iotInstanceID string) (mng *AliIotMng, err error) {
 	mng = &AliIotMng{
-		Config: config,
+		IotInstanceID: iotInstanceID,
+		ApiConfig:     config,
 	}
 	mng.Client, err = mng.createClient(&config.AccessKeyID, &config.AccessKeySecret, &config.EndPoint)
 	return
 }
 
 // CreateClient 创建客户端
-func (mng *AliIotMng)  createClient(accessKeyId, accessKeySecret, endPoint *string) (result *iot.Client, err error) {
+func (mng *AliIotMng) createClient(accessKeyId, accessKeySecret, endPoint *string) (result *iot.Client, err error) {
+
 	config := &openapi.Config{
 		AccessKeyId:     accessKeyId,     // 您的AccessKey ID
 		AccessKeySecret: accessKeySecret, // 您的AccessKey Secret
 		Endpoint:        endPoint,        // 访问的域名
 	}
-	result = &iot.Client{}
-	result, err = iot.NewClient(config)
-	return result, err
+
+	return iot.NewClient(config)
 }
 
 // GetAttributes 获取设备属性
-func (mng *AliIotMng) GetAttributes(iotInstanceID,productKey, deviceName string) (res *iot.QueryDevicePropertyStatusResponse,err error){
+func (mng *AliIotMng) GetAttributes(productKey, deviceName string) (res *iot.QueryDevicePropertyStatusResponse, err error) {
+
 	queryDevicePropertyStatusRequest := &iot.QueryDevicePropertyStatusRequest{
-		IotInstanceId: tea.String(iotInstanceID),
-		ProductKey: tea.String(productKey),
-		DeviceName: tea.String(deviceName),
+		IotInstanceId: &mng.IotInstanceID,
+		ProductKey:    &productKey,
+		DeviceName:    &deviceName,
 	}
-	// 复制代码运行请自行打印 API 的返回值
+
 	res, err = mng.Client.QueryDevicePropertyStatus(queryDevicePropertyStatusRequest)
 	return
 }
 
 // SetAttributes 设置设备属性
-func (mng *AliIotMng) SetAttributes(iotInstanceID,productKey, deviceName string, items map[string]interface{}) (res *iot.SetDevicePropertyResponse,err error){
+func (mng *AliIotMng) SetAttributes(productKey, deviceName string, items map[string]interface{}) (res *iot.SetDevicePropertyResponse, err error) {
 
-	temp,_  := typeHelper.JsonEncode(items)
+	temp, _ := typeHelper.JsonEncode(items)
 	setDevicePropertyRequest := &iot.SetDevicePropertyRequest{
-		IotInstanceId: tea.String(iotInstanceID),
-		ProductKey:    tea.String(productKey),
-		DeviceName:    tea.String(deviceName),
-		IotId:         nil,
-		Items:          tea.String(temp),
+		IotInstanceId: &mng.IotInstanceID,
+		ProductKey:    &productKey,
+		DeviceName:    &deviceName,
+		Items:         &temp,
 	}
 
-	// 复制代码运行请自行打印 API 的返回值
 	res, err = mng.Client.SetDeviceProperty(setDevicePropertyRequest)
 	return
 }
