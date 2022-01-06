@@ -14,6 +14,7 @@ github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
 github.com/ajg/form v1.5.1/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
 github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.2 h1:/c6fLTlYKFd44Bx36A/cNuKekFzMqEPRc0QCLOC2Nok=
 github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.2/go.mod h1:sCavSAvdzOjul4cEqeVtvlSaSScfNsTQ+46HwlTL1hc=
+github.com/alibabacloud-go/darabonba-openapi v0.1.4/go.mod h1:j03z4XUkIC9aBj/w5Bt7H0cygmPNt5sug8NXle68+Og=
 github.com/alibabacloud-go/darabonba-openapi v0.1.11/go.mod h1:MPJMxv7HYrFm5m9uOZWkDYsAWyZztEgnBRfk9Fg0eIU=
 github.com/alibabacloud-go/darabonba-openapi v0.1.12 h1:AB5v5lh7JlD4dhIlvln1gW04sDagAvTS129BVsPrl9k=
 github.com/alibabacloud-go/darabonba-openapi v0.1.12/go.mod h1:sTAjsFJmVsmcVeklL9d9uDBlFsgl43wZ6jhI6BHqHqU=
@@ -24,6 +25,9 @@ github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8 h1:KXMiCg99Jx7B6V+DlRFbWw
 github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8/go.mod h1:8aL6tSyQIWJygF7W/Vqxdf/QDbN2S+u57k36bEA8hD8=
 github.com/alibabacloud-go/endpoint-util v1.1.0 h1:r/4D3VSw888XGaeNpP994zDUaxdgTSHBbVfZlzf6b5Q=
 github.com/alibabacloud-go/endpoint-util v1.1.0/go.mod h1:O5FuCALmCKs2Ff7JFJMudHs0I5EBgecXXxZRyswlEjE=
+github.com/alibabacloud-go/iot-20180120/v2 v2.1.1 h1:nvezleO4uug7zfeewGZD4EMJZtZYGTBvBM6x4J3+q7w=
+github.com/alibabacloud-go/iot-20180120/v2 v2.1.1/go.mod h1:qli5fNIAkbYnPIJaEdHmOgpMEfW66Y0m11+ALFJOsIs=
+github.com/alibabacloud-go/openapi-util v0.0.7/go.mod h1:sQuElr4ywwFRlCCberQwKRFhRzIyG4QTP/P4y1CJ6Ws=
 github.com/alibabacloud-go/openapi-util v0.0.9 h1:Z0DP4LFzkM/rW2nxOMiiLoQVZSeE3jVc5jrZ9Fd/UX0=
 github.com/alibabacloud-go/openapi-util v0.0.9/go.mod h1:sQuElr4ywwFRlCCberQwKRFhRzIyG4QTP/P4y1CJ6Ws=
 github.com/alibabacloud-go/tea v1.1.0/go.mod h1:IkGyUSX4Ba1V+k4pCtJUc6jDpZLFph9QMy2VUPTwukg=

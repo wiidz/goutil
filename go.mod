@@ -6,6 +6,7 @@ require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alibabacloud-go/darabonba-openapi v0.1.12
 	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8
+	github.com/alibabacloud-go/iot-20180120/v2 v2.1.1
 	github.com/alibabacloud-go/tea v1.1.17
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
