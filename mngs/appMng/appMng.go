@@ -29,7 +29,19 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		ProjectConfig: configStruct,
 	}
 
-	//【2】初始化mysql
+	err =  mng.SetConfigCache(mysqlConfig,checkStart)
+	return
+}
+
+// CleanConfigCache : 清除缓存的配置信息
+func (mng *AppMng) CleanConfigCache(){
+	cacheM.Set("app-" + typeHelper.Uint64ToStr(mng.ID) + "-config",nil,-1)
+}
+
+// SetConfigCache : 设置缓存配置信息
+func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkStart *configStruct.CheckStart)(err error){
+
+	//【1】初始化mysql
 	if checkStart.Mysql {
 		//【2-1】基础配置
 		err = mysqlMng.Init(mysqlConfig)
@@ -44,13 +56,14 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		mng.BaseConfig.MysqlConfig = mysqlConfig
 	}
 
+	//【2】判断当前生产环境
 	if mng.BaseConfig.Profile.Debug {
 		log.Println("【" + mng.BaseConfig.Profile.Name + "】启动-调试模式")
 	} else {
 		log.Println("【" + mng.BaseConfig.Profile.Name + "】启动-生产模式")
 	}
 
-	//【4】初始化redis
+	//【3】初始化redis
 	if checkStart.Redis {
 		err = redisMng.Init(mng.BaseConfig.RedisConfig)
 		if err != nil {
@@ -58,7 +71,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-	//【5】初始化es
+	//【4】初始化es
 	if checkStart.Es {
 		err = esMng.Init(mng.BaseConfig.EsConfig)
 		if err != nil {
@@ -66,7 +79,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-	//【6】初始化mq
+	//【5】初始化mq
 	if checkStart.RabbitMQ {
 		err = rabbitMng.Init(mng.BaseConfig.RabbitMQConfig)
 		if err != nil {
@@ -74,16 +87,15 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		}
 	}
 
-	//【7】项目配置
+	//【6】项目配置
 	err = mng.ProjectConfig.Build(mng.BaseConfig.Profile.Debug)
 	if err != nil {
 		return
 	}
 
-	//【8】写入缓存
-	cacheM.Set("app-"+typeHelper.Uint64ToStr(appID)+"-config", mng, time.Minute*30)
+	//【7】写入缓存
+	cacheM.Set("app-"+typeHelper.Uint64ToStr(mng.ID)+"-config", mng, time.Minute*30)
 
-	//【9】返回
 	return
 }
 
