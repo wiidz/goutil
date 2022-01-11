@@ -191,7 +191,7 @@ func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumn
 func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err error){
 
 	nowStr := timeHelper.MyJsonTime(time.Now()).GetPureNumberStr()
-	ymdStr = nowStr[0:7] // 年月日的数字，方便按目录分割
+	ymdStr = nowStr[0:8] // 年月日的数字，方便按目录分割
 
 	fileName = nowStr + "-" + strHelper.GetRandomString(4) + ".xlsx"
 	filePath := dirPath + "/" + ymdStr + "/" + fileName
