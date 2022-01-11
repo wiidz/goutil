@@ -699,7 +699,9 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		//params.SetParamFields(sendFields)
 
 		//【2-2】写入到结构体
+		log.Println("string(buf)",string(buf))
 		jsonObj := typeHelper.JsonDecodeMap(string(buf))
+		log.Println("jsonObj",jsonObj)
 		params.SetRawMap(jsonObj)
 
 		break
