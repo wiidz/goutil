@@ -7,6 +7,7 @@ import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/validatorMng"
@@ -611,16 +612,12 @@ func ReturnError(ctx iris.Context, msg string) {
 	return
 }
 
-/**
- * @func: ReturnResult json格式返回
- * @author Wiidz
- * @date   2019-11-16
- */
+// ParamsInvalid json格式返回参数错误
 func ParamsInvalid(ctx iris.Context, err error) {
 
 	ctx.StatusCode(404)
 
-	ctx.JSON(iris.Map{
+	_,_ = ctx.JSON(iris.Map{
 		"msg":  "参数无效",
 		"data": err.Error(),
 	})
@@ -695,6 +692,13 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		//【2】获取RawMap
 		body := ctx.Request().Body
 		buf, _ := ioutil.ReadAll(body)
+
+		////【2-1】写入到map[string]interface{},主要是看下前端发了哪些字段过来，保证0值不会被刷掉
+		//tempMap := typeHelper.JsonDecodeMap(string(buf))
+		//sendFields := mapHelper.GetKeys(tempMap)
+		//params.SetParamFields(sendFields)
+
+		//【2-2】写入到结构体
 		jsonObj := typeHelper.JsonDecodeMap(string(buf))
 		params.SetRawMap(jsonObj)
 
@@ -714,6 +718,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	structType := reflect.TypeOf(params)
 	structValues := reflect.ValueOf(params)
 	rawMap := params.GetRawMap()
+
+	log.Println("rawMap",rawMap)
 
 	//【2】初始化变量
 	//RawMap := map[string]interface{}{}
@@ -777,8 +783,10 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			} else if _, ok := rawMap[fieldName]; !ok {
 				// 判断rawMap里面有没有值
 				continue
+			} else if sliceHelper.Exist(fieldName,params.GetParamFields()){
+				fmt.Println(fieldName,"cunzai")
+				// 给的就是零值，继续
 			}
-			// 给的就是零值，继续
 		}
 
 		var formattedValue interface{}
