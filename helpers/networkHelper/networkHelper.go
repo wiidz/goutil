@@ -687,10 +687,14 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 		body := ctx.Request().Body
 		buf, _ := ioutil.ReadAll(body)
-
+		jsonObj := typeHelper.JsonDecodeMap(string(buf))
+		log.Println("string(buf)",string(buf))
+		log.Println("jsonObj",jsonObj)
+		log.Println("params",params)
 
 		err = ctx.ReadJSON(params)
 		if err != nil {
+			log.Println("err",err,params)
 			return
 		}
 
@@ -704,10 +708,9 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		//params.SetParamFields(sendFields)
 
 		//【2-2】写入到结构体
-		log.Println("string(buf)",string(buf))
-		jsonObj := typeHelper.JsonDecodeMap(string(buf))
-		log.Println("jsonObj",jsonObj)
-		log.Println("params",params)
+
+
+
 		params.SetRawMap(jsonObj)
 
 		break
