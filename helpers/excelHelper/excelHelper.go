@@ -88,60 +88,7 @@ func GetLetter(index int) string {
 	}
 }
 
-// SetSingleCell 设置一个单元格的值
-func (helper *ExcelHelper) SetSingleCell(rowNo int, columnNum int,value string,cellStyle int)(err error) {
-	columnLetter := GetLetter(columnNum)
-	err = helper.ExcelFile.SetCellValue(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), value)
-	if err != nil {
-		return
-	}
-
-	err = helper.ExcelFile.SetCellStyle(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), columnLetter+typeHelper.Int2Str(rowNo), cellStyle)
-	return
-}
-
-// SetMultiCell 设置一个占多个单元格的值（例如标题）
-func (helper *ExcelHelper) SetMultiCell(rowNo int, fromColumnNum,endColumnNum int,value string,cellStyle int) (err error) {
-
-	//【1】确定开始和结束的列
-	startLetter := GetLetter(fromColumnNum)
-	endLetter := GetLetter(endColumnNum)
-
-	//【2】合并单元格
-	err = helper.ExcelFile.MergeCell(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo))
-	if err != nil {
-		return
-	}
-
-	//【3】设置单元格格式
-	err = helper.ExcelFile.SetCellStyle(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), startLetter+typeHelper.Int2Str(rowNo), cellStyle)
-	if err != nil {
-		return
-	}
-
-	//【3】设置值
-	err = helper.ExcelFile.SetCellValue(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), value)
-	return
-}
-
-// SetTableTitle 设置表头的列名（ID、姓名、手机...）
-func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice, headerStyle int) (err error) {
-
-	for _, v := range slice {
-		err = helper.ExcelFile.SetColWidth(helper.SheetName, v.ColumnLetter, v.ColumnLetter, v.Width)
-		if err != nil {
-			return
-		}
-
-		err  = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
-		if err != nil {
-			return
-		}
-	}
-
-	err  = helper.ExcelFile.SetCellStyle(helper.SheetName, "A"+typeHelper.Int2Str(rowNo), GetLetter(len(slice)-1)+typeHelper.Int2Str(rowNo), headerStyle)
-	return
-}
+/********* Style 样式相关  *************/
 
 // SetRowHeight 设置行高
 func (helper *ExcelHelper) SetRowHeight(rowNo int,rowHeight float64) error {
@@ -167,6 +114,41 @@ func (helper *ExcelHelper) SetCellStyle(rowNo int,fromColumnNum,endColumnNum int
 	return
 }
 
+
+
+
+/********* Style & Value 同时设置了样式和值  *************/
+
+// SetTableTitle 设置表头的列名（ID、姓名、手机...）
+func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice) (err error) {
+
+	for _, v := range slice {
+		err = helper.ExcelFile.SetColWidth(helper.SheetName, v.ColumnLetter, v.ColumnLetter, v.Width)
+		if err != nil {
+			return
+		}
+
+		err  = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+
+
+
+/********* Value 值相关  *************/
+
+// SetCellValue 设置一个单元格的值
+func (helper *ExcelHelper) SetCellValue(rowNo int, columnNum int,value string)(err error) {
+	columnLetter := GetLetter(columnNum)
+	err = helper.ExcelFile.SetCellValue(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), value)
+	return
+}
+
 // SetCellValues 批量设置数据（每个单元格占一行）
 func (helper *ExcelHelper) SetCellValues(rowNo int,valueSlice []string) (err error) {
 
@@ -179,5 +161,23 @@ func (helper *ExcelHelper) SetCellValues(rowNo int,valueSlice []string) (err err
 		}
 	}
 
+	return
+}
+
+// SetMergedCellValue 设置一个占多个单元格的值（例如标题）
+func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumnNum int,value string) (err error) {
+
+	//【1】确定开始和结束的列
+	startLetter := GetLetter(fromColumnNum)
+	endLetter := GetLetter(endColumnNum)
+
+	//【2】合并单元格
+	err = helper.ExcelFile.MergeCell(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo))
+	if err != nil {
+		return
+	}
+
+	//【3】设置值
+	err = helper.ExcelFile.SetCellValue(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), value)
 	return
 }
