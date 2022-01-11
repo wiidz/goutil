@@ -189,7 +189,7 @@ func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumn
 // SaveLocal 保存到本地
 // dirPath：绝对路径，末尾不要接/，例子："/home/go_project/space-api/excel"
 // 主意这个文件夹要777
-func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err error){
+func (helper *ExcelHelper) SaveLocal(dirPath string) (filePath,fileName,ymdStr string,err error){
 
 	//【1】提取时间
 	nowStr := timeHelper.MyJsonTime(time.Now()).GetPureNumberStr()
@@ -204,7 +204,7 @@ func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err
 
 	//【3】保存
 	fileName = nowStr + "-" + strHelper.GetRandomString(4) + ".xlsx"
-	filePath := dirPath + "/" + fileName
+	filePath = dirPath + "/" + fileName
 	err = helper.ExcelFile.SaveAs(filePath)
 
 	return
