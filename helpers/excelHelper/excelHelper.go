@@ -6,6 +6,7 @@ import (
 	"github.com/wiidz/goutil/helpers/timeHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/xuri/excelize/v2"
+	"log"
 	"math"
 	"time"
 )
@@ -64,6 +65,7 @@ func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellSty
 	}
 
 	if styleObj.IsMoneyField {
+		log.Println("IsMoneyField")
 		style.NumFmt = 193 //NumFmt
 	}
 
@@ -74,6 +76,8 @@ func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellSty
 			Color:   []string{styleObj.BgColor}, //  这里的color有#号
 		}
 	}
+
+	log.Println("NumFmt",style.NumFmt)
 
 	cellStyle, err = helper.ExcelFile.NewStyle(style)
 	return
