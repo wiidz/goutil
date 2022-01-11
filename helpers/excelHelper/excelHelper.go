@@ -127,13 +127,16 @@ func (helper *ExcelHelper) SetCellStyle(rowNo int, fromColumnNum, endColumnNum i
 // SetTableTitle 设置表头的列名（ID、姓名、手机...）
 func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice) (err error) {
 
-	for _, v := range slice {
-		err = helper.ExcelFile.SetColWidth(helper.SheetName, v.ColumnLetter, v.ColumnLetter, v.Width)
+	for index, v := range slice {
+
+		columnLetter := GetLetter(index)
+
+		err = helper.ExcelFile.SetColWidth(helper.SheetName, columnLetter, columnLetter, v.Width)
 		if err != nil {
 			return
 		}
 
-		err = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
+		err = helper.ExcelFile.SetCellValue(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), v.Label)
 		if err != nil {
 			return
 		}

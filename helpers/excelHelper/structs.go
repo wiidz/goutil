@@ -11,7 +11,6 @@ type ExcelHelper struct {
 type HeaderSlice struct {
 	Label        string
 	Width        float64
-	ColumnLetter string
 }
 
 // SimpleCellStyle 简单单元格格式
