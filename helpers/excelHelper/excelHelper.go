@@ -65,7 +65,6 @@ func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellSty
 	}
 
 	if styleObj.IsMoneyField {
-		log.Println("IsMoneyField")
 		style.NumFmt = 193 //NumFmt
 	}
 
@@ -76,8 +75,6 @@ func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellSty
 			Color:   []string{styleObj.BgColor}, //  这里的color有#号
 		}
 	}
-
-	log.Println("NumFmt",style.NumFmt)
 
 	cellStyle, err = helper.ExcelFile.NewStyle(style)
 	return
@@ -116,6 +113,9 @@ func (helper *ExcelHelper) SetCellStyle(rowNo int,fromColumnNum,endColumnNum int
 	//【2】确定开始和结束的列
 	startLetter := GetLetter(fromColumnNum)
 	endLetter := GetLetter(endColumnNum)
+
+	log.Println("start:",startLetter+typeHelper.Int2Str(rowNo))
+	log.Println("endLetter:",endLetter+typeHelper.Int2Str(rowNo))
 
 	//【3】设置
 	err = helper.ExcelFile.SetCellStyle(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo), cellStyle)
