@@ -194,6 +194,7 @@ func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err
 	//【1】提取时间
 	nowStr := timeHelper.MyJsonTime(time.Now()).GetPureNumberStr()
 	ymdStr = nowStr[0:8] // 年月日的数字，方便按目录分割
+	dirPath += "/" + ymdStr
 
 	//【2】判断目录是否存在
 	err = osHelper.CreateIfNotExist(dirPath,777)
@@ -203,7 +204,7 @@ func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err
 
 	//【3】保存
 	fileName = nowStr + "-" + strHelper.GetRandomString(4) + ".xlsx"
-	filePath := dirPath + "/" + ymdStr + "/" + fileName
+	filePath := dirPath + "/" + fileName
 	err = helper.ExcelFile.SaveAs(filePath)
 
 	return
