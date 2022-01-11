@@ -93,10 +93,6 @@ type ParamsInterface interface {
 	GetValue() map[string]interface{}
 	SetValue(map[string]interface{})
 
-	// [update、insert] - paramFields 前端传递来的字段名
-	GetParamFields() []string
-	SetParamFields([]string)
-
 	// [update、delete] - 表名
 	GetTableName() string
 	SetTableName(string)
@@ -119,7 +115,6 @@ type Params struct {
 	Order    string `json:"order" belong:"etc" default:"ids asc"` // [read]
 
 	// 根据前端参数处理后的数据
-	ParamFields []string // 前端发送的所有字段名（用来保证0值、空值不被过滤）
 	Condition map[string]interface{} // [read、update、delete] 条件
 	Value     map[string]interface{} // [update、insert] - 数据
 	Etc       map[string]interface{} // 其他
@@ -145,14 +140,6 @@ func (params *Params) GetTableName() string {
 }
 func (params *Params) SetTableName(tableName string) {
 	params.TableName = tableName
-}
-
-// ParamFields 参数字段名
-func (params *Params) GetParamFields() []string {
-	return params.ParamFields
-}
-func (params *Params) SetParamFields(fields []string) {
-	params.ParamFields = fields
 }
 
 // Condition 条件

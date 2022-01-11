@@ -7,7 +7,6 @@ import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/validatorMng"
@@ -687,12 +686,11 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 		body := ctx.Request().Body
 		buf, _ := ioutil.ReadAll(body)
-		jsonObj := typeHelper.JsonDecodeMap(string(buf))
-		log.Println("string(buf)",string(buf))
-		log.Println("jsonObj",jsonObj)
-		log.Println("params",params)
+		jsonStr := string(buf)
+		jsonMap := typeHelper.JsonDecodeMap(jsonStr) // 映射到map
+		params.SetRawMap(jsonMap)
 
-		err = ctx.ReadJSON(params)
+		err = typeHelper.JsonDecodeWithStruct(jsonStr,params) // 映射到结构体
 		if err != nil {
 			log.Println("err",err,params)
 			return
@@ -711,7 +709,7 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 
 
-		params.SetRawMap(jsonObj)
+
 
 		break
 	case networkStruct.BodyForm:
@@ -794,10 +792,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			} else if _, ok := rawMap[fieldName]; !ok {
 				// 判断rawMap里面有没有值
 				continue
-			} else if sliceHelper.Exist(fieldName,params.GetParamFields()){
-				fmt.Println(fieldName,"cunzai")
-				// 给的就是零值，继续
 			}
+			// 给的就是零值，继续
 		}
 
 		var formattedValue interface{}
