@@ -1,9 +1,12 @@
 package excelHelper
 
 import (
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/timeHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/xuri/excelize/v2"
 	"math"
+	"time"
 )
 
 // NewExcelHelper 创建一个单页Excel助手
@@ -179,5 +182,20 @@ func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumn
 
 	//【3】设置值
 	err = helper.ExcelFile.SetCellValue(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), value)
+	return
+}
+
+// SaveLocal 保存到本地
+// dirPath：绝对路径，末尾不要接/，例子："/home/go_project/space-api/excel"
+// 主意这个文件夹要777
+func (helper *ExcelHelper) SaveLocal(dirPath string) (fileName,ymdStr string,err error){
+
+	nowStr := timeHelper.MyJsonTime(time.Now()).GetPureNumberStr()
+	ymdStr = nowStr[0:7] // 年月日的数字，方便按目录分割
+
+	fileName = nowStr + "-" + strHelper.GetRandomString(4) + ".xlsx"
+	filePath := dirPath + "/" + ymdStr + "/" + fileName
+	err = helper.ExcelFile.SaveAs(filePath)
+
 	return
 }

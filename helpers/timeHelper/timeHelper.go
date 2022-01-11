@@ -12,6 +12,7 @@ const (
 	HyphenDateStr  = "2006-01-02"
 	SlashDateStr   = "2006/01/02"
 	ISO8601TimeStr = "2006-01-02T15:04:05Z"
+	PureNumber = "20060102150405"
 )
 
 var weekdayCn = [][]string{
@@ -119,6 +120,15 @@ func (tm MyJsonTime) GetHyphenTimeStr() string {
 	}
 	return time.Time(tm).Format(HyphenTimeStr)
 }
+
+// GetPureNumberStr 获取 纯数字 年月日时分秒
+func (tm MyJsonTime) GetPureNumberStr() string {
+	if tm.IsNull() {
+		return ""
+	}
+	return time.Time(tm).Format(PureNumber)
+}
+
 
 // GetTimePoint 获取时间指针类型
 func (tm MyJsonTime) GetTimePoint() *time.Time {
