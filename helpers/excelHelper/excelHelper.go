@@ -12,7 +12,7 @@ import (
 )
 
 // NewExcelHelper 创建一个单页Excel助手
-func NewExcelHelper(sheetName string) (helper *ExcelHelper){
+func NewExcelHelper(sheetName string) (helper *ExcelHelper) {
 	f := excelize.NewFile()
 	_ = f.NewSheet(sheetName)
 
@@ -25,7 +25,7 @@ func NewExcelHelper(sheetName string) (helper *ExcelHelper){
 }
 
 // GetSimpleCellStyle 获取简单单元格样式
-func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellStyle int, err error) {
+func (helper *ExcelHelper) GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellStyle int, err error) {
 
 	//【1】填充默认值
 	if styleObj.FontSize == 0 {
@@ -96,16 +96,16 @@ func GetLetter(index int) string {
 /********* Style 样式相关  *************/
 
 // SetRowHeight 设置行高
-func (helper *ExcelHelper) SetRowHeight(rowNo int,rowHeight float64) error {
+func (helper *ExcelHelper) SetRowHeight(rowNo int, rowHeight float64) error {
 	return helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, rowHeight)
 }
 
 // SetCellStyle 直接设置单元格格式
-func (helper *ExcelHelper) SetCellStyle(rowNo int,fromColumnNum,endColumnNum int,styleObj *SimpleCellStyle) (err error){
+func (helper *ExcelHelper) SetCellStyle(rowNo int, fromColumnNum, endColumnNum int, styleObj *SimpleCellStyle) (err error) {
 
 	//【1】获取样式
 	var cellStyle int
-	cellStyle,err = helper.GetSimpleCellStyle(styleObj)
+	cellStyle, err = helper.GetSimpleCellStyle(styleObj)
 	if err != nil {
 		return
 	}
@@ -114,16 +114,13 @@ func (helper *ExcelHelper) SetCellStyle(rowNo int,fromColumnNum,endColumnNum int
 	startLetter := GetLetter(fromColumnNum)
 	endLetter := GetLetter(endColumnNum)
 
-	log.Println("start:",startLetter+typeHelper.Int2Str(rowNo))
-	log.Println("endLetter:",endLetter+typeHelper.Int2Str(rowNo))
+	log.Println("start:", startLetter+typeHelper.Int2Str(rowNo))
+	log.Println("endLetter:", endLetter+typeHelper.Int2Str(rowNo))
 
 	//【3】设置
 	err = helper.ExcelFile.SetCellStyle(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo), cellStyle)
 	return
 }
-
-
-
 
 /********* Style & Value 同时设置了样式和值  *************/
 
@@ -136,7 +133,7 @@ func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice) (err er
 			return
 		}
 
-		err  = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
+		err = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
 		if err != nil {
 			return
 		}
@@ -145,23 +142,20 @@ func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice) (err er
 	return
 }
 
-
-
-
 /********* Value 值相关  *************/
 
 // SetCellValue 设置一个单元格的值
-func (helper *ExcelHelper) SetCellValue(rowNo int, columnNum int,value string)(err error) {
+func (helper *ExcelHelper) SetCellValue(rowNo int, columnNum int, value interface{}) (err error) {
 	columnLetter := GetLetter(columnNum)
 	err = helper.ExcelFile.SetCellValue(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), value)
 	return
 }
 
 // SetCellValues 批量设置数据（每个单元格占一行）
-func (helper *ExcelHelper) SetCellValues(rowNo int,valueSlice []string) (err error) {
+func (helper *ExcelHelper) SetCellValues(rowNo int, valueSlice []interface{}) (err error) {
 
 	var letter string
-	for index,value := range valueSlice {
+	for index, value := range valueSlice {
 		letter = GetLetter(index)
 		err = helper.ExcelFile.SetCellValue(helper.SheetName, letter+typeHelper.Int2Str(rowNo), value)
 		if err != nil {
@@ -173,7 +167,7 @@ func (helper *ExcelHelper) SetCellValues(rowNo int,valueSlice []string) (err err
 }
 
 // SetMergedCellValue 设置一个占多个单元格的值（例如标题）
-func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumnNum int,value string) (err error) {
+func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum, endColumnNum int, value interface{}) (err error) {
 
 	//【1】确定开始和结束的列
 	startLetter := GetLetter(fromColumnNum)
@@ -193,7 +187,7 @@ func (helper *ExcelHelper) SetMergedCellValue(rowNo int, fromColumnNum,endColumn
 // SaveLocal 保存到本地
 // dirPath：绝对路径，末尾不要接/，例子："/home/go_project/space-api/excel"
 // 主意这个文件夹要777
-func (helper *ExcelHelper) SaveLocal(dirPath string) (filePath,fileName,ymdStr string,err error){
+func (helper *ExcelHelper) SaveLocal(dirPath string) (filePath, fileName, ymdStr string, err error) {
 
 	//【1】提取时间
 	nowStr := timeHelper.MyJsonTime(time.Now()).GetPureNumberStr()
@@ -201,7 +195,7 @@ func (helper *ExcelHelper) SaveLocal(dirPath string) (filePath,fileName,ymdStr s
 	dirPath += "/" + ymdStr
 
 	//【2】判断目录是否存在
-	err = osHelper.CreateIfNotExist(dirPath,777)
+	err = osHelper.CreateIfNotExist(dirPath, 777)
 	if err != nil {
 		return
 	}
