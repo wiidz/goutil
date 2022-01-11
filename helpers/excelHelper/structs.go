@@ -1,5 +1,13 @@
 package excelHelper
 
+import "github.com/xuri/excelize/v2"
+
+// ExcelHelper Excel助手
+type ExcelHelper struct {
+	ExcelFile *excelize.File // Excel文件
+	SheetName string // 左下角页面名
+}
+
 type HeaderSlice struct {
 	Label        string
 	Width        float64

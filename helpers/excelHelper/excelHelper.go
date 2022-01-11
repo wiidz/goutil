@@ -6,8 +6,19 @@ import (
 	"math"
 )
 
+// NewExcelHelper 创建一个单页Excel助手
+func NewExcelHelper(sheetName string) *ExcelHelper{
+	f := excelize.NewFile()
+	_ = f.NewSheet(sheetName)
+
+	return &ExcelHelper{
+		ExcelFile: f,
+		SheetName: sheetName,
+	}
+}
+
 // GetSimpleCellStyle 获取简单单元格样式
-func GetSimpleCellStyle(f *excelize.File, styleObj *SimpleCellStyle) (cellStyle int, err error) {
+func (helper *ExcelHelper)GetSimpleCellStyle(styleObj *SimpleCellStyle) (cellStyle int, err error) {
 
 	//【1】填充默认值
 	if styleObj.FontSize == 0 {
@@ -58,7 +69,7 @@ func GetSimpleCellStyle(f *excelize.File, styleObj *SimpleCellStyle) (cellStyle 
 		}
 	}
 
-	cellStyle, err = f.NewStyle(style)
+	cellStyle, err = helper.ExcelFile.NewStyle(style)
 	return
 }
 
@@ -76,38 +87,38 @@ func GetLetter(index int) string {
 }
 
 // SetSingleCell 设置一个单元格的值
-func SetSingleCell(f *excelize.File, sheetName string, rowNo int, columnNum int,value string,cellStyle int) {
+func (helper *ExcelHelper) SetSingleCell(rowNo int, columnNum int,value string,cellStyle int) {
 	columnLetter := GetLetter(columnNum)
-	_ = f.SetCellValue(sheetName, columnLetter+typeHelper.Int2Str(rowNo), value)
-	_ = f.SetCellStyle(sheetName, columnLetter+typeHelper.Int2Str(rowNo), columnLetter+typeHelper.Int2Str(rowNo), cellStyle)
+	_ = helper.ExcelFile.SetCellValue(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), value)
+	_ = helper.ExcelFile.SetCellStyle(helper.SheetName, columnLetter+typeHelper.Int2Str(rowNo), columnLetter+typeHelper.Int2Str(rowNo), cellStyle)
 }
 
 // SetMultiCell 设置一个占多个单元格的值（例如标题）
-func SetMultiCell(f *excelize.File, sheetName string, rowNo int, fromColumnNum,endColumnNum int,value string,cellStyle int) {
+func (helper *ExcelHelper) SetMultiCell(rowNo int, fromColumnNum,endColumnNum int,value string,cellStyle int) {
 
 	//【1】大标题
 
 	startLetter := GetLetter(fromColumnNum)
 	endLetter := GetLetter(endColumnNum)
 
-	_ = f.MergeCell(sheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo))
-	_ = f.SetCellValue(sheetName, startLetter+typeHelper.Int2Str(rowNo), value)
+	_ = helper.ExcelFile.MergeCell(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo))
+	_ = helper.ExcelFile.SetCellValue(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), value)
 
-	_ = f.SetCellStyle(sheetName, startLetter+typeHelper.Int2Str(rowNo), startLetter+typeHelper.Int2Str(rowNo), cellStyle)
-	_ = f.SetRowHeight(sheetName, rowNo, 30)
+	_ = helper.ExcelFile.SetCellStyle(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), startLetter+typeHelper.Int2Str(rowNo), cellStyle)
+	_ = helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, 30)
 
 }
 
 // SetTableTitle 设置表头的列名（ID、姓名、手机...）
-func SetTableTitle(f *excelize.File, sheetName string, rowNo int, slice []HeaderSlice, headerStyle int, rowHeight float64)  {
+func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice, headerStyle int, rowHeight float64)  {
 
 	for _, v := range slice {
-		_ = f.SetColWidth(sheetName, v.ColumnLetter, v.ColumnLetter, v.Width)
-		_ = f.SetCellValue(sheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
+		_ = helper.ExcelFile.SetColWidth(helper.SheetName, v.ColumnLetter, v.ColumnLetter, v.Width)
+		_ = helper.ExcelFile.SetCellValue(helper.SheetName, v.ColumnLetter+typeHelper.Int2Str(rowNo), v.Label)
 	}
 
-	_ = f.SetCellStyle(sheetName, "A"+typeHelper.Int2Str(rowNo), GetLetter(len(slice)-1)+typeHelper.Int2Str(rowNo), headerStyle)
-	_ = f.SetRowHeight(sheetName, rowNo, rowHeight)
+	_ = helper.ExcelFile.SetCellStyle(helper.SheetName, "A"+typeHelper.Int2Str(rowNo), GetLetter(len(slice)-1)+typeHelper.Int2Str(rowNo), headerStyle)
+	_ = helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, rowHeight)
 
 	return
 }
