@@ -147,3 +147,37 @@ func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice, headerS
 func (helper *ExcelHelper) SetRowHeight(rowNo int,rowHeight float64) error {
 	return helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, rowHeight)
 }
+
+// SetCellStyle 直接设置单元格格式
+func (helper *ExcelHelper) SetCellStyle(rowNo int,fromColumnNum,endColumnNum int,styleObj *SimpleCellStyle) (err error){
+
+	//【1】获取样式
+	var cellStyle int
+	cellStyle,err = helper.GetSimpleCellStyle(styleObj)
+	if err != nil {
+		return
+	}
+
+	//【2】确定开始和结束的列
+	startLetter := GetLetter(fromColumnNum)
+	endLetter := GetLetter(endColumnNum)
+
+	//【3】设置
+	err = helper.ExcelFile.SetCellStyle(helper.SheetName, startLetter+typeHelper.Int2Str(rowNo), endLetter+typeHelper.Int2Str(rowNo), cellStyle)
+	return
+}
+
+// SetCellValues 批量设置数据（每个单元格占一行）
+func (helper *ExcelHelper) SetCellValues(rowNo int,valueSlice []string) (err error) {
+
+	var letter string
+	for index,value := range valueSlice {
+		letter = GetLetter(index)
+		err = helper.ExcelFile.SetCellValue(helper.SheetName, letter+typeHelper.Int2Str(rowNo), value)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
