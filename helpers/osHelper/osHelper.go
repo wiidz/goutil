@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"file"
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/shamsher31/goimgtype"
