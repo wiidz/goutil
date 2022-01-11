@@ -684,14 +684,19 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 	case networkStruct.BodyJson:
 
 		//【1】写入结构体
+
+		body := ctx.Request().Body
+		buf, _ := ioutil.ReadAll(body)
+
+
 		err = ctx.ReadJSON(params)
 		if err != nil {
 			return
 		}
 
 		//【2】获取RawMap
-		body := ctx.Request().Body
-		buf, _ := ioutil.ReadAll(body)
+		//body := ctx.Request().Body
+		//buf, _ := ioutil.ReadAll(body)
 
 		////【2-1】写入到map[string]interface{},主要是看下前端发了哪些字段过来，保证0值不会被刷掉
 		//tempMap := typeHelper.JsonDecodeMap(string(buf))
@@ -702,6 +707,7 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		log.Println("string(buf)",string(buf))
 		jsonObj := typeHelper.JsonDecodeMap(string(buf))
 		log.Println("jsonObj",jsonObj)
+		log.Println("params",params)
 		params.SetRawMap(jsonObj)
 
 		break
