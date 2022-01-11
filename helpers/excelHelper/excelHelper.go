@@ -118,7 +118,12 @@ func (helper *ExcelHelper) SetTableTitle(rowNo int, slice []HeaderSlice, headerS
 	}
 
 	_ = helper.ExcelFile.SetCellStyle(helper.SheetName, "A"+typeHelper.Int2Str(rowNo), GetLetter(len(slice)-1)+typeHelper.Int2Str(rowNo), headerStyle)
-	_ = helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, rowHeight)
+
 
 	return
+}
+
+// SetRowHeight 设置行高
+func (helper *ExcelHelper) SetRowHeight(rowNo int,rowHeight float64) error {
+	return helper.ExcelFile.SetRowHeight(helper.SheetName, rowNo, rowHeight)
 }
