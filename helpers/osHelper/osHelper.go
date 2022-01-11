@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"file"
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/shamsher31/goimgtype"
@@ -208,4 +209,31 @@ func DownloadFileFromContext(ctx iris.Context, fieldName, targetPath string) (fi
 	io.Copy(out, file)
 
 	return
+}
+
+
+// IsDirExist 判断目录是否存在
+// dirPath 绝对路径，不要以/结尾
+func IsDirExist(dirPath string) bool {
+	s,err:=os.Stat(dirPath)
+	if err != nil{
+		return false
+	}
+	return s.IsDir()
+}
+
+// CreateDir 创建文件夹
+// perm：755,777
+func CreateDir(dirName string,perm os.FileMode) error {
+	return os.Mkdir(dirName,perm)
+}
+
+// CreateIfNotExist 如果目录不存在，则创建
+func CreateIfNotExist(dirName string,perm os.FileMode) (err error) {
+	exist := IsDirExist(dirName)
+	if exist {
+		return
+	}
+
+	return CreateDir(dirName,perm)
 }
