@@ -1,6 +1,7 @@
 package smsMng
 
 import (
+	"errors"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	dysmsapi "github.com/alibabacloud-go/dysmsapi-20170525/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
@@ -36,7 +37,7 @@ func NewSmsMng(params *configStruct.AliSmsConfig) (smsM *SmsMng, err error) {
 }
 
 // SendOne 发送一条短信
-func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber, paramsJson string) (res *dysmsapi.SendSmsResponse, err error) {
+func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber, paramsJson string) ( err error) {
 
 	sendSmsRequest := &dysmsapi.SendSmsRequest{
 		SignName:      &signName,
@@ -46,7 +47,17 @@ func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber, paramsJson strin
 	}
 
 	// 复制代码运行请自行打印 API 的返回值
-	return mng.Client.SendSms(sendSmsRequest)
+	var res *dysmsapi.SendSmsResponse
+	res,err = mng.Client.SendSms(sendSmsRequest)
+
+	if err != nil {
+		return
+	}
+	if *(res.Body.Code) != "ok" {
+		err = errors.New(*(res.Body.Message))
+	}
+
+	return
 }
 
 // SendMany 发送多条短信
