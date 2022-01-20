@@ -10,6 +10,7 @@ import (
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/dataSourceStruct"
 	"image/color"
+	"log"
 	"strings"
 	"time"
 )
@@ -93,15 +94,23 @@ func (mng *CaptchaMng) SetCache(keyName, value string, expire time.Duration) (er
 	} else if mng.DataSource == dataSourceStruct.Memory {
 		mng.MemoryMng.Set(keyName, value, expire)
 	}
+
+	log.Println("keyName",keyName)
+	log.Println("value",value)
+
 	return err
 }
 
 // GetCache 读取缓存
 func (mng *CaptchaMng) GetCache(keyName string) (string, error) {
+	log.Println("keyName",keyName)
 	if mng.DataSource == dataSourceStruct.Redis {
 		return mng.RedisMng.GetString(keyName)
 	} else if mng.DataSource == dataSourceStruct.Memory {
-		value, _ := mng.MemoryMng.GetString(keyName)
+		value, exist := mng.MemoryMng.GetString(keyName)
+		if exist == false {
+			return "",errors.New("指定的keyName不存在")
+		}
 		return value, nil
 	}
 	return "", errors.New("未知数据源")
