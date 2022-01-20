@@ -53,7 +53,7 @@ func (mng *SmsMng) SendOne(signName, templateCode, phoneNumber, paramsJson strin
 	if err != nil {
 		return
 	}
-	if *(res.Body.Code) != "ok" {
+	if *(res.Body.Code) != "OK" {
 		err = errors.New(*(res.Body.Message))
 	}
 
