@@ -62,7 +62,7 @@ func (mng *CaptchaMng) GetNumberCaptcha(identify string) (id, captchaStr string,
 	captchaStr = typeHelper.Int2Str(captcha)
 	id = strHelper.GetRandomString(10)
 
-	_ = mng.SetCache(identify+id, captchaStr, 300) // 300秒有效
+	_ = mng.SetCache(identify+id, captchaStr, time.Second*300) // 300秒有效
 	return
 }
 
