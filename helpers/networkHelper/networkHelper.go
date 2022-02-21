@@ -687,12 +687,12 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		body := ctx.Request().Body
 		buf, _ := ioutil.ReadAll(body)
 		jsonStr := string(buf)
-		log.Println("【jsonStr】",jsonStr)
+		//log.Println("【jsonStr】",jsonStr)
 		jsonMap := typeHelper.JsonDecodeMap(jsonStr) // 映射到map
 		params.SetRawMap(jsonMap)
 
 		err = typeHelper.JsonDecodeWithStruct(jsonStr,params) // 映射到结构体
-		log.Println("【params-beforeHandle】",params)
+		//log.Println("【params-beforeHandle】",params)
 		if err != nil {
 			log.Println("err",err,params)
 			return
@@ -725,8 +725,6 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	structType := reflect.TypeOf(params)
 	structValues := reflect.ValueOf(params)
 	rawMap := params.GetRawMap()
-
-	log.Println("【rawMap】",rawMap)
 
 	//【2】初始化变量
 	//RawMap := map[string]interface{}{}
@@ -766,22 +764,19 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
-		log.Println("currentValue",currentValue)
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
 		if fieldType.Kind() == reflect.Struct {
-			log.Println("Struct")
-			log.Println(reflect.Zero(fieldType).Interface())
+			//log.Println("Struct")
+			//log.Println(reflect.Zero(fieldType).Interface())
 		} else if fieldType.Kind() == reflect.Slice {
-			log.Println("Slice")
-			log.Println(reflect.Zero(fieldType).Interface())
+			//log.Println("Slice")
+			//log.Println(reflect.Zero(fieldType).Interface())
 			//log.Println("slice")
 			//if len(currentValue.Interface()) == 0 {
 			//	log.Println("Slice zero")
 			//}
 			//continue // 结构体类型和切片类型 默认不予填充和计算
 		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface() {
-			log.Println("Other")
-			log.Println(reflect.Zero(fieldType).Interface())
 			if defaultValue != "" {
 				var formattedDefaultValue interface{}
 				formattedDefaultValue, err = getFormattedValue(field.Type.String(), defaultValue)
@@ -804,12 +799,9 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			return
 		}
 
-		log.Println("formattedValue",formattedValue)
-
 		//【4】按照belong进行填充
 		switch belong {
 		case "condition":
-			log.Println("condition")
 			switch kind {
 			case "like":
 				condition[fieldName] = []interface{}{"like", "%" + formattedValue.(string) + "%"}
@@ -831,10 +823,8 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 				condition[fieldName] = formattedValue
 			}
 		case "value":
-			log.Println("value")
 			value[fieldName] = formattedValue
 		case "etc":
-			log.Println("etc")
 			etc[fieldName] = formattedValue
 		}
 
@@ -861,7 +851,6 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	} else {
 		params.SetOrder("id asc")
 	}
-	log.Println("【params-afterHandle】",params)
 	return
 }
 
@@ -893,13 +882,8 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 	default:
 		// 其他情况默认是结构体，还有 结构体 slice的情况
 		//temp, _ := typeHelper.JsonEncode(value)
-		log.Println("t",t)
-		typeHelper.GetType(value)
-		log.Println("value",value)
 		//err = typeHelper.JsonDecodeWithStruct(t, value)
-
 		data = value
-		log.Println("data",data)
 	}
 	return
 }
