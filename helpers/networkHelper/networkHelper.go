@@ -889,8 +889,10 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 	case "[]string":
 		data = typeHelper.ForceStrSlice(value)
 	default:
-		// 其他情况默认是结构体
+		// 其他情况默认是结构体，还有 结构体 slice的情况
 		//temp, _ := typeHelper.JsonEncode(value)
+		log.Println("t",t)
+		log.Println("value",typeHelper.GetType(value),value)
 		err = typeHelper.JsonDecodeWithStruct(t, value)
 		data = value
 	}
