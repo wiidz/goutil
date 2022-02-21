@@ -804,9 +804,12 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			return
 		}
 
+		log.Println("formattedValue",formattedValue)
+
 		//【4】按照belong进行填充
 		switch belong {
 		case "condition":
+			log.Println("condition")
 			switch kind {
 			case "like":
 				condition[fieldName] = []interface{}{"like", "%" + formattedValue.(string) + "%"}
@@ -828,8 +831,10 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 				condition[fieldName] = formattedValue
 			}
 		case "value":
+			log.Println("value")
 			value[fieldName] = formattedValue
 		case "etc":
+			log.Println("etc")
 			etc[fieldName] = formattedValue
 		}
 
@@ -889,7 +894,8 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 		// 其他情况默认是结构体，还有 结构体 slice的情况
 		//temp, _ := typeHelper.JsonEncode(value)
 		log.Println("t",t)
-		log.Println("value",typeHelper.GetType(value),value)
+		typeHelper.GetType(value)
+		log.Println("value",value)
 		//err = typeHelper.JsonDecodeWithStruct(t, value)
 
 		data = value
