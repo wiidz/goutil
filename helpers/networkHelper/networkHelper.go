@@ -800,6 +800,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		var formattedValue interface{}
 		formattedValue, err = getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
 		if err != nil {
+			log.Println("field.Type.String()",field.Type.String(),err)
 			return
 		}
 
@@ -892,6 +893,7 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 		//err = typeHelper.JsonDecodeWithStruct(t, value)
 
 		data = value
+		log.Println("data",data)
 	}
 	return
 }
