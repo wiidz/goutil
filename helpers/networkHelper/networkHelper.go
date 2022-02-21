@@ -692,6 +692,7 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		params.SetRawMap(jsonMap)
 
 		err = typeHelper.JsonDecodeWithStruct(jsonStr,params) // 映射到结构体
+		log.Println("【params-beforeHandle】",params)
 		if err != nil {
 			log.Println("err",err,params)
 			return
@@ -729,7 +730,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	structValues := reflect.ValueOf(params)
 	rawMap := params.GetRawMap()
 
-	log.Println("rawMap",rawMap)
+	log.Println("【rawMap】",rawMap)
 
 	//【2】初始化变量
 	//RawMap := map[string]interface{}{}
@@ -855,7 +856,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 	} else {
 		params.SetOrder("id asc")
 	}
-
+	log.Println("【params-afterHandle】",params)
 	return
 }
 
