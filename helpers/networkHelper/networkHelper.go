@@ -709,10 +709,6 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 		//【2-2】写入到结构体
 
-
-
-
-
 		break
 	case networkStruct.BodyForm:
 		break
@@ -893,7 +889,8 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 		//temp, _ := typeHelper.JsonEncode(value)
 		log.Println("t",t)
 		log.Println("value",typeHelper.GetType(value),value)
-		err = typeHelper.JsonDecodeWithStruct(t, value)
+		//err = typeHelper.JsonDecodeWithStruct(t, value)
+
 		data = value
 	}
 	return
