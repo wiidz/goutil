@@ -770,19 +770,22 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 
 		//【3】填充默认值
 		currentValue := reflect.Indirect(structValues).FieldByName(field.Name) // 当前结构体设置的值 reflect.Value 类型
-
+		log.Println("currentValue",currentValue)
 		// 注意这里判断不要用 reflect.Value == reflect.Value，会一直false
 		if fieldType.Kind() == reflect.Struct {
-			//log.Println("Struct")
-			//log.Println(reflect.Zero(fieldType).Interface())
+			log.Println("Struct")
+			log.Println(reflect.Zero(fieldType).Interface())
 		} else if fieldType.Kind() == reflect.Slice {
+			log.Println("Slice")
+			log.Println(reflect.Zero(fieldType).Interface())
 			//log.Println("slice")
 			//if len(currentValue.Interface()) == 0 {
 			//	log.Println("Slice zero")
 			//}
-			//log.Println(reflect.Zero(fieldType).Interface())
 			//continue // 结构体类型和切片类型 默认不予填充和计算
 		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface() {
+			log.Println("Other")
+			log.Println(reflect.Zero(fieldType).Interface())
 			if defaultValue != "" {
 				var formattedDefaultValue interface{}
 				formattedDefaultValue, err = getFormattedValue(field.Type.String(), defaultValue)
