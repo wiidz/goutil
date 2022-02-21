@@ -687,6 +687,7 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		body := ctx.Request().Body
 		buf, _ := ioutil.ReadAll(body)
 		jsonStr := string(buf)
+		log.Println("【jsonStr】",jsonStr)
 		jsonMap := typeHelper.JsonDecodeMap(jsonStr) // 映射到map
 		params.SetRawMap(jsonMap)
 
