@@ -111,7 +111,7 @@ func PostRequest(apiURL string, params map[string]interface{}) (map[string]inter
 	param := url.Values{}
 	for key, value := range params {
 		k := typeHelper.ToString(key)
-		v := typeHelper.ToString(value)【es-dsn】
+		v := typeHelper.ToString(value)
 		param.Set(k, v)
 	}
 	log.Println("networkHelper.PostRequest:", apiURL)
@@ -616,7 +616,7 @@ func ParamsInvalid(ctx iris.Context, err error) {
 
 	ctx.StatusCode(404)
 
-	_,_ = ctx.JSON(iris.Map{
+	_, _ = ctx.JSON(iris.Map{
 		"msg":  "参数无效",
 		"data": err.Error(),
 	})
@@ -691,10 +691,10 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		jsonMap := typeHelper.JsonDecodeMap(jsonStr) // 映射到map
 		params.SetRawMap(jsonMap)
 
-		err = typeHelper.JsonDecodeWithStruct(jsonStr,params) // 映射到结构体
+		err = typeHelper.JsonDecodeWithStruct(jsonStr, params) // 映射到结构体
 		//log.Println("【params-beforeHandle】",params)
 		if err != nil {
-			log.Println("err",err,params)
+			log.Println("err", err, params)
 			return
 		}
 
@@ -795,7 +795,7 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 		var formattedValue interface{}
 		formattedValue, err = getFormattedValue(field.Type.String(), currentValue.Interface()) // 格式化后的当前值
 		if err != nil {
-			log.Println("field.Type.String()",field.Type.String(),err)
+			log.Println("field.Type.String()", field.Type.String(), err)
 			return
 		}
 
