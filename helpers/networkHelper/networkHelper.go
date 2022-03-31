@@ -111,7 +111,7 @@ func PostRequest(apiURL string, params map[string]interface{}) (map[string]inter
 	param := url.Values{}
 	for key, value := range params {
 		k := typeHelper.ToString(key)
-		v := typeHelper.ToString(value)
+		v := typeHelper.ToString(value)【es-dsn】
 		param.Set(k, v)
 	}
 	log.Println("networkHelper.PostRequest:", apiURL)
