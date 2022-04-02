@@ -134,7 +134,7 @@ type Params struct {
 	Error        error       // 错误
 }
 
-// TableName 表名
+// GetTableName 表名
 func (params *Params) GetTableName() string {
 	return params.TableName
 }
@@ -142,7 +142,7 @@ func (params *Params) SetTableName(tableName string) {
 	params.TableName = tableName
 }
 
-// Condition 条件
+// GetCondition 条件
 func (params *Params) GetCondition() map[string]interface{} {
 	return params.Condition
 }
@@ -150,7 +150,7 @@ func (params *Params) SetCondition(condition map[string]interface{}) {
 	params.Condition = condition
 }
 
-// Value 操作值
+// GetValue Value 操作值
 func (params *Params) GetValue() map[string]interface{} {
 	return params.Value
 }
@@ -158,7 +158,7 @@ func (params *Params) SetValue(value map[string]interface{}) {
 	params.Value = value
 }
 
-// Page 页码
+// GetPageNow 页码
 func (params *Params) GetPageNow() int {
 	return params.PageNow
 }

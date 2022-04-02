@@ -1,4 +1,4 @@
-package gormStruct
+package mysqlStruct
 
 import (
 	"github.com/wiidz/goutil/helpers/timeHelper"
