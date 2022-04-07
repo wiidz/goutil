@@ -100,6 +100,10 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		//【】取出ID
 		immutable := reflect.ValueOf(mng.TokenStruct)
 		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+		log.Println(mng.IdentifyKey)
+		log.Println(id)
+		log.Println(id == 0)
+		log.Println(id == uint64(0))
 		if id == 0 {
 			networkHelper.ReturnError(ctx, "登陆主体为空")
 			return
