@@ -43,11 +43,11 @@ func GetJwtMngMixed(appID uint64, isSingletonMode bool, identifyKeys []string, s
 	return &JwtMng{
 		AppID:           appID,
 		IsSingletonMode: isSingletonMode,
-		RouterKey:       0,
-		IdentifyKey:     "", // 例如 user_id、staff_id等
-		IdentifyKeys:    identifyKeys,
-		SaltKey:         []byte(saltKey),
-		TokenStruct:     tokenStruct,
+		//RouterKey:       0,
+		IdentifyKey:  "", // 例如 user_id、staff_id等
+		IdentifyKeys: identifyKeys,
+		SaltKey:      []byte(saltKey),
+		TokenStruct:  tokenStruct,
 	}
 }
 
