@@ -909,9 +909,9 @@ func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRo
 		routerKey := ctx.Values().Get("router_key")
 		if routerFlag == requestRouterFlag && routerKey != requestRouterKey {
 			ReturnError(ctx, "越界操作")
-		} else {
-			ctx.Next()
+			return
 		}
+		ctx.Next()
 
 	})
 }

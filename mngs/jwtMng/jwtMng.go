@@ -153,22 +153,17 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 		return
 	}
 
-	//【】取出ID
+	//【3】取出ID
 	immutable := reflect.ValueOf(mng.TokenStruct)
 	existFlag := false
 	var id uint64
 
-	log.Println("mng.IdentifyKeys", mng.IdentifyKeys)
-
 	for k, v := range mng.IdentifyKeys {
-		log.Println("k", k)
-		log.Println("v", v)
 		id = immutable.Elem().FieldByName(v).Interface().(uint64)
 		if id != 0 {
 			existFlag = true
 			//mng.RouterKey = int8(k) // 这一步没有意义
 			ctx.Values().Set("router_key", k+1) // 在router里面判断
-			log.Println("router_key", k+1)
 			break
 		}
 	}
