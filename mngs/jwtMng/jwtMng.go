@@ -18,19 +18,34 @@ import (
 const TokenKeyName = "token_data"
 
 type JwtMng struct {
-	AppID           uint64     `json:"app_id"`       // app_id 主要用来区别登陆
-	IdentifyKey     string     `json:"identify_key"` // 身份标识键名，这个key必须存在于tokenStruct里
+	AppID uint64 `json:"app_id"` // app_id 主要用来区别登陆
+	//RouterKey       int8       `json:"router_key"`    // 表示进入哪个端（一般用于前后端api合体在一个进程里的情况，自行定义，例如0=client,1=console）
+	IdentifyKey     string     `json:"identify_key"`  // 身份标识键名，这个key必须存在于tokenStruct里
+	IdentifyKeys    []string   `json:"identify_keys"` // 身份标识键名，这个key必须存在于tokenStruct里，和router_key对应排列
 	TokenStruct     jwt.Claims `json:"token_struct"`
 	SaltKey         []byte     `json:"salt_key"`          // 盐值
 	IsSingletonMode bool       `json:"is_singleton_mode"` // 是否单例登陆模式
 }
 
-// GetJwtMng 获取jwt管理器
+// GetJwtMng 获取jwt管理器（单体）
 func GetJwtMng(appID uint64, isSingletonMode bool, identifyKey, saltKey string, tokenStruct jwt.Claims) *JwtMng {
 	return &JwtMng{
 		AppID:           appID,
 		IsSingletonMode: isSingletonMode,
 		IdentifyKey:     identifyKey, // 例如 user_id、staff_id等
+		SaltKey:         []byte(saltKey),
+		TokenStruct:     tokenStruct,
+	}
+}
+
+// GetJwtMngMixed 获取jwt管理器（混合体，例如client和console的api共用一个进程的项目）
+func GetJwtMngMixed(appID uint64, isSingletonMode bool, identifyKeys []string, saltKey string, tokenStruct jwt.Claims) *JwtMng {
+	return &JwtMng{
+		AppID:           appID,
+		IsSingletonMode: isSingletonMode,
+		RouterKey:       0,
+		IdentifyKey:     "", // 例如 user_id、staff_id等
+		IdentifyKeys:    identifyKeys,
 		SaltKey:         []byte(saltKey),
 		TokenStruct:     tokenStruct,
 	}
@@ -95,20 +110,67 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		return
 	}
 
+	//【】取出ID
+	immutable := reflect.ValueOf(mng.TokenStruct)
+	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+	if id == 0 {
+		networkHelper.ReturnError(ctx, "登陆主体为空")
+		return
+	}
+
 	//【3】判断和缓存中的数据
 	if mng.IsSingletonMode {
-		//【】取出ID
-		immutable := reflect.ValueOf(mng.TokenStruct)
-		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
-		log.Println(mng.IdentifyKey)
-		log.Println(id)
-		log.Println(id == 0)
-		log.Println(id == uint64(0))
-		if id == 0 {
-			networkHelper.ReturnError(ctx, "登陆主体为空")
+
+		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
+		if err != nil {
+			networkHelper.ReturnError(ctx, err.Error())
 			return
 		}
+	}
 
+	//【4】写入value
+	ctx.Values().Set(TokenKeyName, mng.TokenStruct)
+
+	//【5】继续下一步处理
+	ctx.Next()
+}
+
+// ServeMixed 注入服务（混合体）
+func (mng *JwtMng) ServeMixed(ctx iris.Context) {
+
+	//【1】从头部获取jwt
+	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
+	if err != nil {
+		networkHelper.ReturnError(ctx, err.Error())
+		return
+	}
+
+	//【2】尝试解密
+	if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
+		networkHelper.ReturnError(ctx, err.Error())
+		return
+	}
+
+	//【】取出ID
+	immutable := reflect.ValueOf(mng.TokenStruct)
+	existFlag := false
+	var id uint64
+	for k, v := range mng.IdentifyKeys {
+		id = immutable.Elem().FieldByName(v).Interface().(uint64)
+		if id != 0 {
+			existFlag = true
+			//mng.RouterKey = int8(k) // 这一步没有意义
+			ctx.Values().Set("router_key", int8(k)) // 在router里面判断
+			break
+		}
+	}
+	if !existFlag {
+		networkHelper.ReturnError(ctx, "登陆主体为空")
+		return
+	}
+
+	//【3】判断和缓存中的数据
+	if mng.IsSingletonMode {
 		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
@@ -132,7 +194,8 @@ func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 	// TODO: Make this a bit more robust, parsing-wise
 	authHeaderParts := strings.Split(authHeader, " ")
 	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-		return "", fmt.Errorf("Authorization header format must be Bearer {token}")
+		//return "", fmt.Errorf("Authorization header format must be Bearer {token}")
+		return "", fmt.Errorf("token格式错误")
 	}
 
 	return authHeaderParts[1], nil
@@ -174,7 +237,6 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 
 	networkHelper.ReturnError(ctx, err.Error())
 	return
-
 }
 
 // SetCache StorageJWT 存储kwt至redis中
