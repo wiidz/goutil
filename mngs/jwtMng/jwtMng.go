@@ -90,7 +90,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	}
 
 	//【2】尝试解密
-	if err := mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
+	if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
 		networkHelper.ReturnError(ctx, err.Error())
 		return
 	}
@@ -100,6 +100,11 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 		//【】取出ID
 		immutable := reflect.ValueOf(mng.TokenStruct)
 		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+		if id == 0 {
+			networkHelper.ReturnError(ctx, "登陆主体为空")
+			return
+		}
+
 		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
