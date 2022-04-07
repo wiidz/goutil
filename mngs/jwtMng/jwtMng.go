@@ -136,6 +136,8 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 }
 
 // ServeMixed 注入服务（混合体）
+// SetRouterKey 也在这一步，SetRouterFlag请在networkHelper中另外调用
+// 注意这里的key是比数组下标大1的数值
 func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 
 	//【1】从头部获取jwt
@@ -160,7 +162,7 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 		if id != 0 {
 			existFlag = true
 			//mng.RouterKey = int8(k) // 这一步没有意义
-			ctx.Values().Set("router_key", int8(k)) // 在router里面判断
+			ctx.Values().Set("router_key", k+1) // 在router里面判断
 			break
 		}
 	}

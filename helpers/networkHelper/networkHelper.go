@@ -19,6 +19,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -886,4 +887,29 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 		data = value
 	}
 	return
+}
+
+// SetRouterFlag 根据第一个斜线内的自符，记录模块（例如 v1,v2）
+// router_flag 和 router_key 来共同判断路由是否合法
+func SetRouterFlag(app *iris.Application) {
+	app.Use(func(ctx iris.Context) {
+		requestURL := ctx.Request().RequestURI
+		reg := regexp.MustCompile(`/([a-z][0-9]*)/`)
+		result := reg.FindAllStringSubmatch(requestURL, -1)
+		//log.Println("result", result[0][1])
+		ctx.Values().Set("router_flag", result[0][1])
+		ctx.Next()
+	})
+}
+
+// CheckMixedRouter 检查混合项目的路由准入
+func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRouterKey int8) {
+	app.Use(func(ctx iris.Context) {
+		routerFlag := ctx.Values().Get("router_flag")
+		routerKey := ctx.Values().Get("router_key")
+		if routerFlag == requestRouterFlag && routerKey != requestRouterKey {
+			ReturnError(ctx, "越界操作")
+		}
+		ctx.Next()
+	})
 }
