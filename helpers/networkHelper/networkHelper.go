@@ -903,7 +903,7 @@ func SetRouterFlag(app *iris.Application) {
 }
 
 // CheckMixedRouter 检查混合项目的路由准入
-func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRouterKey int8) {
+func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRouterKey int) {
 	app.Use(func(ctx iris.Context) {
 		routerFlag := ctx.Values().Get("router_flag")
 		routerKey := ctx.Values().Get("router_key")
