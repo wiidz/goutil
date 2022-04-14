@@ -52,15 +52,17 @@ func (mng *WechatOaMng) Login(code string) (*oauth.ResAccessToken, error) {
 }
 
 // Notify 微信公众号登陆
-func (mng *WechatOaMng) Notify(rw http.ResponseWriter, req *http.Request) {
+func (mng *WechatOaMng) Notify(rw http.ResponseWriter, req *http.Request, msgHandler func(msg *message.MixMessage) *message.Reply) {
 	oaServer := mng.Client.GetServer(req, rw)
 	//设置接收消息的处理方法
-	oaServer.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
-		//TODO
-		//回复消息：演示回复用户发送的消息
-		text := message.NewText(msg.Content)
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: text}
-	})
+	//oaServer.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
+	//	//TODO
+	//	//回复消息：演示回复用户发送的消息
+	//
+	//	text := message.NewText(msg.Content)
+	//	return &message.Reply{MsgType: message.MsgTypeText, MsgData: text}
+	//})
+	oaServer.SetMessageHandler(msgHandler)
 
 	//处理消息接收以及回复
 	err := oaServer.Serve()
