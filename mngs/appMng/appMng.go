@@ -29,17 +29,17 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, con
 		ProjectConfig: configStruct,
 	}
 
-	err =  mng.SetConfigCache(mysqlConfig,checkStart)
+	err = mng.SetConfigCache(mysqlConfig, checkStart)
 	return
 }
 
 // CleanConfigCache : 清除缓存的配置信息
-func (mng *AppMng) CleanConfigCache(){
-	cacheM.Set("app-" + typeHelper.Uint64ToStr(mng.ID) + "-config",nil,-1)
+func (mng *AppMng) CleanConfigCache() {
+	cacheM.Set("app-"+typeHelper.Uint64ToStr(mng.ID)+"-config", nil, -1)
 }
 
 // SetConfigCache : 设置缓存配置信息
-func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkStart *configStruct.CheckStart)(err error){
+func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkStart *configStruct.CheckStart) (err error) {
 
 	//【1】初始化mysql
 	if checkStart.Mysql {
@@ -88,7 +88,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 	}
 
 	//【6】项目配置
-	err = mng.ProjectConfig.Build(mng.BaseConfig.Profile.Debug)
+	err = mng.ProjectConfig.Build(mng.BaseConfig)
 	if err != nil {
 		return
 	}
@@ -282,7 +282,7 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfi
 		AccessKeySecret: GetValueFromRow(rows, "ali", "iot", "access_key_secret", "", debug),
 		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
 		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
-		RegionID:      GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
+		RegionID:        GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
 	}
 }
 
