@@ -3,6 +3,7 @@ package appMng
 import (
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
+	"time"
 )
 
 type CustomerConfig struct {
@@ -10,7 +11,7 @@ type CustomerConfig struct {
 }
 
 // Build : 这个方法完成设置的初始化
-func (config *CustomerConfig) Build(debug bool) error {
+func (config *CustomerConfig) Build(debug bool, location *time.Location) error {
 	config.TestConfig = &TestConfig{
 		Number: 2,
 	}
