@@ -1,11 +1,11 @@
 package wechatMng
 
 import (
-	"fmt"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/officialaccount"
 	offConfig "github.com/silenceper/wechat/v2/officialaccount/config"
+	"github.com/silenceper/wechat/v2/officialaccount/menu"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 	"github.com/silenceper/wechat/v2/officialaccount/oauth"
 	"github.com/wiidz/goutil/structs/configStruct"
@@ -17,10 +17,11 @@ type WechatOaMng struct {
 	Config *configStruct.WechatOaConfig
 	//AccessToken string
 	Client *officialaccount.OfficialAccount
+	Menu   []*menu.Button
 }
 
 // NewWechatOaMng 获取公众号管理器
-func NewWechatOaMng(config *configStruct.WechatOaConfig) *WechatOaMng {
+func NewWechatOaMng(config *configStruct.WechatOaConfig, menu []*menu.Button) *WechatOaMng {
 
 	//【1】使用redis缓存accessToken
 	memory := cache.NewMemory() // accessToken存在内存中
@@ -40,6 +41,7 @@ func NewWechatOaMng(config *configStruct.WechatOaConfig) *WechatOaMng {
 	var wechatMng = WechatOaMng{
 		Config: config,
 		Client: off,
+		Menu:   menu,
 	}
 	return &wechatMng
 }
@@ -52,7 +54,7 @@ func (mng *WechatOaMng) Login(code string) (*oauth.ResAccessToken, error) {
 }
 
 // Notify 微信公众号登陆
-func (mng *WechatOaMng) Notify(rw http.ResponseWriter, req *http.Request, msgHandler func(msg *message.MixMessage) *message.Reply) {
+func (mng *WechatOaMng) Notify(rw http.ResponseWriter, req *http.Request, msgHandler func(msg *message.MixMessage) *message.Reply) (err error) {
 	oaServer := mng.Client.GetServer(req, rw)
 	//设置接收消息的处理方法
 	//oaServer.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
@@ -64,12 +66,18 @@ func (mng *WechatOaMng) Notify(rw http.ResponseWriter, req *http.Request, msgHan
 	//})
 	oaServer.SetMessageHandler(msgHandler)
 
+	if len(mng.Menu) > 0 {
+		err = mng.Client.GetMenu().SetMenu(mng.Menu)
+		if err != nil {
+			return
+		}
+	}
+
 	//处理消息接收以及回复
-	err := oaServer.Serve()
+	err = oaServer.Serve()
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	//发送回复的消息
-	_ = oaServer.Send()
+	return oaServer.Send()
 }
