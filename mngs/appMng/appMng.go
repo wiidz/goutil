@@ -88,7 +88,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 	}
 
 	//【6】项目配置
-	err = mng.ProjectConfig.Build(mng.BaseConfig)
+	err = mng.ProjectConfig.Build(mng.BaseConfig.Profile.Debug, mng.BaseConfig.Location)
 	if err != nil {
 		return
 	}
