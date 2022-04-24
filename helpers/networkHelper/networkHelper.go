@@ -7,6 +7,7 @@ import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"
+	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/validatorMng"
@@ -906,12 +907,24 @@ func SetRouterFlag(app *iris.Application) {
 func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRouterKey int) {
 	app.Use(func(ctx iris.Context) {
 		routerFlag := ctx.Values().Get("router_flag")
-		routerKey := ctx.Values().Get("router_key")
-		if routerFlag == requestRouterFlag && routerKey != requestRouterKey {
-			ReturnError(ctx, "越界操作")
+		routerKeys := ctx.Values().Get("router_keys") // 注意 这里已经改成了slice
+		routerKeySlice, flag := routerKeys.([]int)
+		if !flag {
+			ReturnError(ctx, "登陆体结构有误")
 			return
 		}
-		ctx.Next()
+		if len(routerKeySlice) == 0 {
+			ReturnError(ctx, "登陆主体为空")
+			return
+		}
 
+		if routerFlag == requestRouterFlag {
+			// 查找slice里面有没有requestRouterKey
+			if !sliceHelper.Exist(requestRouterKey, routerKeySlice) {
+				ReturnError(ctx, "越界操作")
+				return
+			}
+		}
+		ctx.Next()
 	})
 }

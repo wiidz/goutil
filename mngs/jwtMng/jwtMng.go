@@ -19,9 +19,9 @@ const TokenKeyName = "token_data"
 
 type JwtMng struct {
 	AppID uint64 `json:"app_id"` // app_id 主要用来区别登陆
-	//RouterKey       int8       `json:"router_key"`    // 表示进入哪个端（一般用于前后端api合体在一个进程里的情况，自行定义，例如0=client,1=console）
+	//RouterKey       int8       `json:"router_keys"`    // 表示进入哪个端（一般用于前后端api合体在一个进程里的情况，自行定义，例如0=client,1=console）
 	IdentifyKey     string     `json:"identify_key"`  // 身份标识键名，这个key必须存在于tokenStruct里
-	IdentifyKeys    []string   `json:"identify_keys"` // 身份标识键名，这个key必须存在于tokenStruct里，和router_key对应排列
+	IdentifyKeys    []string   `json:"identify_keys"` // 身份标识键名，这个key必须存在于tokenStruct里，和router_keys对应排列
 	TokenStruct     jwt.Claims `json:"token_struct"`
 	SaltKey         []byte     `json:"salt_key"`          // 盐值
 	IsSingletonMode bool       `json:"is_singleton_mode"` // 是否单例登陆模式
@@ -121,7 +121,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	//【3】判断和缓存中的数据
 	if mng.IsSingletonMode {
 
-		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
+		err = mng.CompareJwtCache(mng.AppID, typeHelper.Uint64ToStr(id), tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
 			return
@@ -155,26 +155,30 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 
 	//【3】取出ID
 	immutable := reflect.ValueOf(mng.TokenStruct)
-	existFlag := false
-	var id uint64
 
+	// 注意有些项目是混合在一起，有多个router_keys的情况
+	// 例如客户端包含了推介员功能
+	// 那么userID和promoterID都不为空
+	// 所以这里的router_keys采用数组的形式
+	routerKeySlice := []int{}
 	for k, v := range mng.IdentifyKeys {
-		id = immutable.Elem().FieldByName(v).Interface().(uint64)
+		id := immutable.Elem().FieldByName(v).Interface().(uint64)
 		if id != 0 {
-			existFlag = true
 			//mng.RouterKey = int8(k) // 这一步没有意义
-			ctx.Values().Set("router_key", k+1) // 在router里面判断
-			break
+			routerKeySlice = append(routerKeySlice, k+1)
 		}
 	}
-	if !existFlag {
+	ctx.Values().Set("router_keys", routerKeySlice)
+
+	if len(routerKeySlice) == 0 {
 		networkHelper.ReturnError(ctx, "登陆主体为空")
 		return
 	}
 
 	//【3】判断和缓存中的数据
 	if mng.IsSingletonMode {
-		err = mng.CompareJwtCache(mng.AppID, id, tokenStr)
+		cacheKeyName := typeHelper.ImplodeInt(routerKeySlice, "-")
+		err = mng.CompareJwtCache(mng.AppID, cacheKeyName, tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
 			return
@@ -243,16 +247,16 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 }
 
 // SetCache StorageJWT 存储kwt至redis中
-func (mng *JwtMng) SetCache(appID, userID uint64, token string) (bool, error) {
+func (mng *JwtMng) SetCache(appID uint64, routerKeyName, token string) (bool, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HSetNX(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID), token)
+	res, err := redis.HSetNX(typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName, token)
 	return res, err
 }
 
 // GetCache GetJwtCache 从缓存中读取jwt
-func (mng *JwtMng) GetCache(appID, userID uint64) (string, error) {
+func (mng *JwtMng) GetCache(appID uint64, routerKeyName string) (string, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HGetString(typeHelper.Uint64ToStr(appID)+"-jwt", typeHelper.Uint64ToStr(userID))
+	res, err := redis.HGetString(typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName)
 	return res, err
 }
 
@@ -264,9 +268,9 @@ func (mng *JwtMng) DeleteCache(appID, userID uint64) (int64, error) {
 }
 
 // CompareJwtCache 判断jwtToken
-func (mng *JwtMng) CompareJwtCache(appID, userID uint64, token string) error {
+func (mng *JwtMng) CompareJwtCache(appID uint64, routerKeyName, token string) error {
 	//【1】从缓存中读取jwt
-	cacheToken, err := mng.GetCache(appID, userID)
+	cacheToken, err := mng.GetCache(appID, routerKeyName)
 	if err != nil {
 		return err
 	}
