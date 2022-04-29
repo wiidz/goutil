@@ -41,18 +41,26 @@ func Base64Decode(str string) (data []byte) {
 	return
 }
 
-/**
- * @func: GetRandomString  获取指定位数的随机字符串
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetRandomString 获取指定位数的随机字符串
 func GetRandomString(l int) string {
 	str := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	bytes := []byte(str)
+	tempBytes := []byte(str)
 	result := []byte{}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < l; i++ {
-		result = append(result, bytes[r.Intn(len(bytes))])
+		result = append(result, tempBytes[r.Intn(len(tempBytes))])
+	}
+	return string(result)
+}
+
+// GetRandomNumbers 获取指定位数的随机字符串
+func GetRandomNumbers(l int) string {
+	str := "0123456789"
+	tempBytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, tempBytes[r.Intn(len(tempBytes))])
 	}
 	return string(result)
 }
