@@ -52,7 +52,7 @@ require (
 	github.com/goccy/go-json v0.9.7-0.20220412154129-171d97575378 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/gomodule/redigo v1.8.5 // indirect
+	github.com/gomodule/redigo v1.8.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/iris-contrib/jade v1.1.4 // indirect
