@@ -168,3 +168,21 @@ func Exist(targetStr, needleStr string) bool {
 		return true
 	}
 }
+
+// EncryptCenter 用符号替换中间字符，保留首位
+func EncryptCenter(source string) string {
+	totalLen := len(source)
+	if totalLen <= 2 {
+		return source
+	}
+
+	bt := []rune(source)
+	handledStr := string(bt[0])
+
+	for k := 1; k < totalLen-1; k++ {
+		handledStr += "*"
+	}
+
+	handledStr += string(bt[totalLen-1])
+	return handledStr
+}
