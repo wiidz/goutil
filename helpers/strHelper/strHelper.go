@@ -3,12 +3,14 @@ package strHelper
 import (
 	"bytes"
 	"encoding/base64"
+	"log"
 	"math"
 	"math/rand"
 	"regexp"
 	"strings"
 	"time"
 	"unicode"
+	"unicode/utf8"
 )
 
 const (
@@ -171,7 +173,7 @@ func Exist(targetStr, needleStr string) bool {
 
 // EncryptCenter 用符号替换中间字符，保留首位
 func EncryptCenter(source string) string {
-	totalLen := len(source)
+	totalLen := utf8.RuneCountInString(source)
 	if totalLen <= 2 {
 		return source
 	}
@@ -182,6 +184,9 @@ func EncryptCenter(source string) string {
 	for k := 1; k < totalLen-1; k++ {
 		handledStr += "*"
 	}
+
+	log.Println("source", source)
+	log.Println("totalLen", totalLen)
 
 	handledStr += string(bt[totalLen-1])
 	return handledStr
