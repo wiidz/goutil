@@ -3,7 +3,6 @@ package strHelper
 import (
 	"bytes"
 	"encoding/base64"
-	"log"
 	"math"
 	"math/rand"
 	"regexp"
@@ -184,9 +183,6 @@ func EncryptCenter(source string) string {
 	for k := 1; k < totalLen-1; k++ {
 		handledStr += "*"
 	}
-
-	log.Println("source", source)
-	log.Println("totalLen", totalLen)
 
 	handledStr += string(bt[totalLen-1])
 	return handledStr
