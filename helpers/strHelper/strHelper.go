@@ -191,3 +191,24 @@ func EncryptCenter(source string) string {
 	handledStr += string(bt[totalLen-1])
 	return handledStr
 }
+
+// EncryptStr 用特定符号加密字符串
+// prefixAmount 前缀加密长度
+// suffixAmount 后缀加密长度
+func EncryptStr(source string, prefixAmount, suffixAmount int, symbol string) string {
+
+	totalLen := utf8.RuneCountInString(source)
+	if totalLen <= prefixAmount+suffixAmount {
+		return source
+	}
+
+	bt := []rune(source)
+	handledStr := string(bt[0:prefixAmount])
+
+	for k := prefixAmount; k < totalLen-suffixAmount; k++ {
+		handledStr += symbol
+	}
+
+	handledStr += string(bt[totalLen-1-suffixAmount : totalLen-1])
+	return handledStr
+}
