@@ -285,14 +285,14 @@ func (tm MyJsonTime) Format2Time() time.Time {
 	return time.Time(tm)
 }
 
-// SubDaysInt 获取与目标时间相差的整数天
-func (tm MyJsonTime) SubDaysInt(targetTime time.Time) int {
+// SubIntDays 获取与目标时间相差的整数天
+func (tm MyJsonTime) SubIntDays(targetTime time.Time) int {
 	days := int(tm.Format2Time().Sub(targetTime).Hours() / 24)
 	return days
 }
 
-// SubDaysIntNow 获取与今天相差的整数天
-func (tm MyJsonTime) SubDaysIntNow() int {
+// SubNowIntDays 获取与今天相差的整数天
+func (tm MyJsonTime) SubNowIntDays() int {
 	targetTime := time.Now()
 	days := int(tm.Format2Time().Sub(targetTime).Hours() / 24)
 	return days
