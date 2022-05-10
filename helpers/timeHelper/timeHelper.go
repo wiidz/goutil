@@ -12,7 +12,7 @@ const (
 	HyphenDateStr  = "2006-01-02"
 	SlashDateStr   = "2006/01/02"
 	ISO8601TimeStr = "2006-01-02T15:04:05Z"
-	PureNumber = "20060102150405"
+	PureNumber     = "20060102150405"
 )
 
 var weekdayCn = [][]string{
@@ -128,7 +128,6 @@ func (tm MyJsonTime) GetPureNumberStr() string {
 	}
 	return time.Time(tm).Format(PureNumber)
 }
-
 
 // GetTimePoint 获取时间指针类型
 func (tm MyJsonTime) GetTimePoint() *time.Time {
@@ -284,6 +283,19 @@ func (tm MyJsonTime) GetLastTime() MyJsonTime {
 
 func (tm MyJsonTime) Format2Time() time.Time {
 	return time.Time(tm)
+}
+
+// SubDaysInt 获取与目标时间相差的整数天
+func (tm MyJsonTime) SubDaysInt(targetTime time.Time) int {
+	days := int(tm.Format2Time().Sub(targetTime).Hours() / 24)
+	return days
+}
+
+// SubDaysIntNow 获取与今天相差的整数天
+func (tm MyJsonTime) SubDaysIntNow() int {
+	targetTime := time.Now()
+	days := int(tm.Format2Time().Sub(targetTime).Hours() / 24)
+	return days
 }
 
 // GetCST8Now 获取东八区现在的时间
