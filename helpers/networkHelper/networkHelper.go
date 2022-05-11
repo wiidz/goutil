@@ -512,7 +512,7 @@ func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, pa
 	//【7】读取body
 	resStr, err := ioutil.ReadAll(resp.Body)
 
-	log.Println("【resStr】", resStr)
+	log.Println("【resStr】", string(resStr))
 
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	err = json2.Unmarshal(resStr, iStruct)
