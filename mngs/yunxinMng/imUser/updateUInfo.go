@@ -20,6 +20,6 @@ type UpdateUInfoParam struct {
 // 这些字段里mobile，email，birth，gender等字段属于非必填、可能涉及隐私的信息，如果您的业务下，
 // 这些信息为敏感信息，建议在通过扩展字段ex填写相关资料并事先加密。
 func (api *Api) UpdateUInfo(param *UpdateUInfoParam) (*imClient.CommonResp, error) {
-	res, err := api.Client.Post("/user/updateUinfo.action", param, &imClient.CommonResp{})
+	res, err := api.Client.Post("/user/getUinfos.action", param, &imClient.CommonResp{})
 	return res.(*imClient.CommonResp), err
 }
