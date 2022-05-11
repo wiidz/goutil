@@ -58,8 +58,7 @@ func (mng *MiniMng) Login(code string) (*auth.ResCode2Session, error) {
 // GetUserInfo 获取微信资料
 func (mng *MiniMng) GetUserInfo(sessionKey, encryptedData, iv string) (*encryptor.PlainData, error) {
 	encryptorClient := mng.Client.GetEncryptor()
-	res, err := encryptorClient.Decrypt(sessionKey, encryptedData, iv)
-	return res, err
+	return encryptorClient.Decrypt(sessionKey, encryptedData, iv)
 }
 
 // GetPhone 获取微信手机号
