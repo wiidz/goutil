@@ -52,8 +52,7 @@ type UserCreateParam struct {
 }
 
 type UserCreateResp struct {
-	Code int    `json:"code"`
-	Desc string `json:"desc"`
+	*CommonResp
 	Info struct {
 		Token string `json:"token"`
 		Accid string `json:"accid"`

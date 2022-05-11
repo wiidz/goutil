@@ -15,9 +15,26 @@ type YunxinMng struct {
 	Config *configStruct.YunxinConfig
 }
 
-type CommonResponse struct {
+type CommonResp struct {
 	Code int         `json:"code"`
+	Desc string      `json:"desc"`
 	Info interface{} `json:"info"`
+}
+
+func (resp *CommonResp) GetCode() int {
+	return resp.Code
+}
+func (resp *CommonResp) GetDesc() string {
+	return resp.Desc
+}
+func (resp *CommonResp) GetInfo() interface{} {
+	return resp.Info
+}
+
+type RespInterface interface {
+	GetCode() int
+	GetDesc() string
+	GetInfo() interface{}
 }
 
 func NewYunxinMng(config *configStruct.YunxinConfig) *YunxinMng {
@@ -32,7 +49,7 @@ func (mng *YunxinMng) getCheckSum(nonce, timestampStr string) string {
 }
 
 // Post 发送post请求
-func (mng *YunxinMng) Post(url string, params interface{}, iStruct interface{}) (data interface{}, err error) {
+func (mng *YunxinMng) Post(url string, params interface{}, iStruct RespInterface) (data interface{}, err error) {
 
 	//【1】构建参数
 	paramStr, _ := typeHelper.JsonEncode(params)
@@ -61,6 +78,8 @@ func (mng *YunxinMng) Post(url string, params interface{}, iStruct interface{}) 
 		return
 	} else if statusCode != 200 {
 		err = errors.New("请求失败")
+	} else if iStruct.GetCode() != 200 {
+		err = errors.New(iStruct.GetDesc())
 	}
 
 	//【5】返回
