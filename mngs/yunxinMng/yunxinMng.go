@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type YunXinMng struct {
+type YunxinMng struct {
 	Config *configStruct.YunxinConfig
 }
 
@@ -20,17 +20,19 @@ type CommonResponse struct {
 	Info interface{} `json:"info"`
 }
 
-func NewYunXinMng() *YunXinMng {
-	return &YunXinMng{}
+func NewYunxinMng(config *configStruct.YunxinConfig) *YunxinMng {
+	return &YunxinMng{
+		Config: config,
+	}
 }
 
 // getCheckSum 获取令牌
-func (mng *YunXinMng) getCheckSum(nonce, timestampStr string) string {
+func (mng *YunxinMng) getCheckSum(nonce, timestampStr string) string {
 	return cryptorHelper.SHA1Encrypt(mng.Config.AppSecret + nonce + timestampStr)
 }
 
 // Post 发送post请求
-func (mng *YunXinMng) Post(url string, params interface{}, iStruct interface{}) (data interface{}, err error) {
+func (mng *YunxinMng) Post(url string, params interface{}, iStruct interface{}) (data interface{}, err error) {
 
 	//【1】构建参数
 	paramStr, _ := typeHelper.JsonEncode(params)
