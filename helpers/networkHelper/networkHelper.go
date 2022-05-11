@@ -483,8 +483,8 @@ func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, pa
 		body = strings.NewReader(param.Encode())
 	}
 
-	log.Println("parsedURL.String()", parsedURL.String())
-	log.Println("body", body)
+	log.Println("【parsedURL】", parsedURL.String())
+	log.Println("【body】", body)
 
 	//【4】创建请求
 	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
@@ -512,6 +512,7 @@ func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, pa
 	//【7】读取body
 	resStr, err := ioutil.ReadAll(resp.Body)
 
+	log.Println("【StatusCode】", resp.StatusCode)
 	log.Println("【resStr】", string(resStr))
 
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
