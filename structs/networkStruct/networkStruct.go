@@ -6,7 +6,21 @@ const (
 	Query    ContentType = 1
 	BodyJson ContentType = 2
 	BodyForm ContentType = 3
+	BodyXML  ContentType = 4
 )
+
+func (contentType ContentType) GetContentTypeStr() string {
+	switch contentType {
+	case Query:
+		return ""
+	case BodyJson:
+		return "application/json;charset=utf-8"
+	case BodyForm:
+		return "application/x-www-form-urlencoded;charset=utf-8"
+	default:
+		return ""
+	}
+}
 
 // ReadCommonStruct 读取列表公用的参数
 type ReadCommonStruct struct {
