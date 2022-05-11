@@ -26,12 +26,12 @@ type CreateResp struct {
 	} `json:"info"`
 }
 
-// UserCreate 创建网易云信IM账号
+// Create 创建网易云信IM账号
 // doc: https://doc.yunxin.163.com/docs/TM5MzM5Njk/Dc2NTM1NzI?platformId=60353
 // 1.第三方帐号导入到网易云信平台。注册成功后务必在自身的应用服务器上维护好accid与token。
 // 2.注意 IM accid，name 长度以及考虑管理 IM token。
 // 3.云信应用内的accid若涉及字母，请一律为小写，并确保服务端与所有客户端均保持小写。
-func (api *Api) UserCreate(param *CreateParam) (*CreateResp, error) {
+func (api *Api) Create(param *CreateParam) (*CreateResp, error) {
 	res, err := api.Client.Post("/user/create.action", param, &CreateResp{})
 	return res.(*CreateResp), err
 }
