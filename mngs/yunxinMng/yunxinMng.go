@@ -45,7 +45,7 @@ func (mng *YunxinMng) Post(url string, params interface{}, iStruct interface{}) 
 
 	//【3】发送请求
 	var statusCode int
-	data, _, statusCode, err = networkHelper.RequestJsonWithStruct(networkStruct.Post, url, paramMap, map[string]string{
+	data, _, statusCode, err = networkHelper.RequestJsonWithStructTest(networkStruct.Post, url, paramMap, map[string]string{
 		"AppKey":    mng.Config.AppKey, // 开发者平台分配的 appkey（具体获取方式请参考登录鉴权）
 		"AppSecret": mng.Config.AppSecret,
 		"Nonce":     nonce,        // 随机数（最大长度128个字符）

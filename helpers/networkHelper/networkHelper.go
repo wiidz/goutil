@@ -449,6 +449,78 @@ func RequestJsonWithStruct(method networkStruct.Method, targetURL string, params
 	return iStruct, &resp.Header, resp.StatusCode, err
 }
 
+func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
+
+	log.Println("【method】", method.String())
+	log.Println("【targetURL】", targetURL)
+	log.Println("【params】", params)
+	log.Println("【headers】", headers)
+	log.Println("【iStruct】", iStruct)
+
+	//【1】解析URL
+	var parsedURL *url.URL
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return nil, nil, 0, err
+	}
+
+	//【2】创建client
+	client := &http.Client{}
+
+	//【3】构造参数
+	param := url.Values{}
+	for key, value := range params {
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+
+	var body io.Reader
+	if method == networkStruct.Get {
+		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+	} else {
+		body = strings.NewReader(param.Encode())
+	}
+
+	log.Println("parsedURL.String()", parsedURL.String())
+	log.Println("body", body)
+
+	//【4】创建请求
+	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
+	if err != nil {
+		panic(err)
+	}
+
+	//【5】增加header选项
+	if len(headers) > 0 {
+		for k, v := range headers {
+			request.Header.Add(k, v)
+		}
+	}
+
+	//【5-1】增加content-Length
+	if method != 1 {
+		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
+		request.Header.Add("Content-type", "application/json;charset=utf-8")
+	}
+
+	//【6】发送请求
+	resp, _ := client.Do(request)
+	defer resp.Body.Close()
+
+	//【7】读取body
+	resStr, err := ioutil.ReadAll(resp.Body)
+
+	log.Println("【resStr】", resStr)
+
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	err = json2.Unmarshal(resStr, iStruct)
+
+	//【8】返回
+	return iStruct, &resp.Header, resp.StatusCode, err
+}
+
 func RequestRawTest(method networkStruct.Method, targetURL string, params map[string]interface{}, headers map[string]string) (string, *http.Header, int, error) {
 
 	//【1】解析URL
