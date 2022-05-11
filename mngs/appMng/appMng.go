@@ -135,6 +135,9 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.AliSmsConfig = getAliSmsConfig(rows, config.Profile.Debug)
 	config.AliIotConfig = getAliIotConfig(rows, config.Profile.Debug)
 
+	// 网易系
+	config.YunxinConfig = getYunXinConfig(rows, config.Profile.Debug)
+
 	return
 }
 
@@ -283,6 +286,14 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfi
 		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
 		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
 		RegionID:        GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
+	}
+}
+
+// getYunXinConfig 网易云信IM服务
+func getYunXinConfig(rows []*DbSettingRow, debug bool) *configStruct.YunxinConfig {
+	return &configStruct.YunxinConfig{
+		AppKey:    GetValueFromRow(rows, "netease", "yunxin", "app_key", "", debug),
+		AppSecret: GetValueFromRow(rows, "netease", "yunxin", "app_secret", "", debug),
 	}
 }
 
