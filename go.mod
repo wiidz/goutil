@@ -9,6 +9,7 @@ require (
 	github.com/alibabacloud-go/tea v1.1.17
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/forgoer/openssl v1.2.1
 	github.com/go-pay/gopay v1.5.55
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/json-iterator/go v1.1.12
