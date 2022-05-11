@@ -30,6 +30,6 @@ type UInfos struct {
 // 获取用户名片，可批量
 
 func (api *Api) GetUInfo(param *GetUInfoParam) (*GetUInfoResp, error) {
-	res, err := api.Client.Post("/user/updateUinfo.action", param, &GetUInfoResp{})
+	res, err := api.Client.Post("/user/getUinfos.action", param, &GetUInfoResp{})
 	return res.(*GetUInfoResp), err
 }
