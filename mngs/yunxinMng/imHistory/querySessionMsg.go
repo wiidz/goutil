@@ -1,8 +1,8 @@
 package imHistory
 
 import (
-	"github.com/wiidz/goutil/mngs/yunxinMng"
 	"github.com/wiidz/goutil/mngs/yunxinMng/imClient"
+	"github.com/wiidz/goutil/mngs/yunxinMng/imStructs"
 )
 
 type QuerySessionMsgParam struct {
@@ -28,5 +28,5 @@ type HistoryMsg struct {
 	Type           int                    `json:"type"`           // 消息类型，对应去看yunxinMng.MsgType
 	FromClientType int                    `json:"fromclienttype"` // //1：android、2:iOS、4：PC、16:WEB、32:REST、64:MAC
 	MsgIDClient    string                 `json:"msgidclient"`
-	Body           yunxinMng.MsgInterface `json:"boy"`
+	Body           imStructs.MsgInterface `json:"boy"`
 }

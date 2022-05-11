@@ -1,4 +1,4 @@
-package yunxinMng
+package imStructs
 
 type MsgType int
 
