@@ -13,7 +13,7 @@ type UpdateTeamNickParam struct {
 // UpdateTeamNickParam 修改群昵称（群名片）
 // https://doc.yunxin.163.com/docs/TM5MzM5Njk/jc2NDgzMTg?platformId=60353#修改群昵称
 // 修改指定账号在群内的昵称
-func (api *Api) UpdateTeamNickParam(param *KickParam) (*imClient.CommonResp, error) {
+func (api *Api) UpdateTeamNickParam(param *UpdateTeamNickParam) (*imClient.CommonResp, error) {
 	res, err := api.Client.Post(SubDomain+"updateTeamNick.action", param, &imClient.CommonResp{})
 	return res.(*imClient.CommonResp), err
 }

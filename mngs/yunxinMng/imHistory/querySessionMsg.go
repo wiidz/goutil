@@ -30,3 +30,14 @@ type HistoryMsg struct {
 	MsgIDClient    string                `json:"msgidclient"`
 	Body           imStruct.MsgInterface `json:"boy"`
 }
+
+// QuerySessionMsg 单聊云端历史消息查询
+// https://doc.yunxin.163.com/docs/TM5MzM5Njk/DE0MTk0OTY?platformId=60353#单聊云端历史消息查询
+// 查询存储在网易云信服务器中的单人聊天历史消息，只能查询在保存时间范围内的消息
+// 1. 根据时间段查询点对点消息，每次最多返回100条；
+// 2. 不提供分页支持，第三方需要根据时间段来查询。
+// 3. begintime需要早于endtime，否则会返回{"desc": "bad time", "code": 414}。
+func (api *Api) QuerySessionMsg(param *QuerySessionMsgParam) (*QuerySessionMsgResp, error) {
+	res, err := api.Client.Post(SubDomain+"querySessionMsg.action", param, &QuerySessionMsgResp{})
+	return res.(*QuerySessionMsgResp), err
+}

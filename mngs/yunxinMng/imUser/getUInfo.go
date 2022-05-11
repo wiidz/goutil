@@ -29,7 +29,7 @@ type UInfos struct {
 // https://doc.yunxin.163.com/docs/TM5MzM5Njk/zI0NzYyMDQ?platformId=60353
 // 获取用户名片，可批量
 
-func (api *Api) GetUInfo(param *UpdateUInfoParam) (*GetUInfoResp, error) {
+func (api *Api) GetUInfo(param *GetUInfoParam) (*GetUInfoResp, error) {
 	res, err := api.Client.Post("/user/updateUinfo.action", param, &GetUInfoResp{})
 	return res.(*GetUInfoResp), err
 }
