@@ -1,4 +1,4 @@
-package imStructs
+package imStruct
 
 type MsgType int
 
