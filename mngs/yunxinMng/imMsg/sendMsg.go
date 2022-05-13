@@ -13,7 +13,7 @@ type SendMsgParam struct {
 	MsgDesc            string `json:"msgdesc,omitempty"`            // 消息描述文本，针对非Text、Tip类型的消息有效，最大长度500字符。该描述信息可用于云端历史消息关键词检索。
 	Antispam           string `json:"antispam,omitempty"`           // 对于对接了易盾反垃圾功能的应用，本消息是否需要指定经由易盾检测的内容（antispamCustom）。true或false, 默认false。 只对消息类型为：100 自定义消息类型 的消息生效。
 	AntispamCustom     string `json:"antispamCustom,omitempty"`     // 在antispam参数为true时生效。 自定义的反垃圾检测内容, JSON格式，长度限制同body字段，不能超过5000字符，要求antispamCustom格式如下： {"type":1,"data":"custom content"} 字段说明： 1. type: 1：文本，2：图片。 2. data: 文本内容or图片地址。
-	Option             int    `json:"option"`                       // 发消息时特殊指定的行为选项,JSON格式，可用于指定消息的漫游，存云端历史，发送方多端同步，推送，消息抄送等特殊行为;option中字段不填时表示默认值 ，option示例: {"push":false,"roam":true,"history":false,"sendersync":true,"route":false,"badge":false,"needPushNick":true}
+	Option             int    `json:"option,omitempty"`             // 发消息时特殊指定的行为选项,JSON格式，可用于指定消息的漫游，存云端历史，发送方多端同步，推送，消息抄送等特殊行为;option中字段不填时表示默认值 ，option示例: {"push":false,"roam":true,"history":false,"sendersync":true,"route":false,"badge":false,"needPushNick":true}
 	PushContent        string `json:"pushcontent,omitempty"`        // 推送文案,最长500个字符。具体参见 推送配置参数详解。
 	Payload            string `json:"payload,omitempty"`            // 必须是JSON,不能超过2k字符。该参数与APNs推送的payload含义不同。具体参见 推送配置参数详解。
 	Ext                string `json:"ext,omitempty"`                //  开发者扩展字段，长度限制1024字符
