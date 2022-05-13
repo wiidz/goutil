@@ -280,7 +280,18 @@ func (tm MyJsonTime) Between(from, to MyJsonTime) bool {
 	toTemp := time.Time(to)
 	return temp.After(fromTemp) && temp.Before(toTemp)
 }
-func (tm MyJsonTime) BetweenOrEqual(from, to time.Time) bool {
+func (tm MyJsonTime) BetweenTime(from, to time.Time) bool {
+	temp := time.Time(tm)
+	return temp.After(from) && temp.Before(to)
+}
+func (tm MyJsonTime) BetweenOrEqual(from, to MyJsonTime) bool {
+	temp := time.Time(tm)
+	fromTemp := time.Time(from)
+	toTemp := time.Time(to)
+	return (temp.After(fromTemp) || temp.Equal(fromTemp)) && (temp.Before(toTemp) || temp.Equal(toTemp))
+}
+
+func (tm MyJsonTime) BetweenOrEqualTime(from, to time.Time) bool {
 	temp := time.Time(tm)
 	return (temp.After(from) || temp.Equal(from)) && (temp.Before(to) || temp.Equal(to))
 }
