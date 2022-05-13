@@ -1,4 +1,4 @@
-package expressMng
+package expressApi
 
 // DetailRes 物流信息
 type DetailRes struct {
