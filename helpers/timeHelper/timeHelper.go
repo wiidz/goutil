@@ -222,24 +222,67 @@ func (tm MyJsonTime) WeekdayInt() int {
 	return int(temp.Weekday())
 }
 
-func (tm MyJsonTime) After(target time.Time) bool {
+// After 在目标时间之后
+func (tm MyJsonTime) After(target MyJsonTime) bool {
+	temp := time.Time(tm)
+	targetTemp := time.Time(target)
+	return temp.After(targetTemp)
+}
+func (tm MyJsonTime) AfterTime(target time.Time) bool {
 	temp := time.Time(tm)
 	return temp.After(target)
 }
-func (tm MyJsonTime) Before(target time.Time) bool {
+func (tm MyJsonTime) AfterOrEqual(target MyJsonTime) bool {
+	temp := time.Time(tm)
+	targetTemp := time.Time(target)
+	return temp.After(targetTemp) || temp.Equal(targetTemp)
+}
+func (tm MyJsonTime) AfterOrEqualTime(target time.Time) bool {
+	temp := time.Time(tm)
+	return temp.After(target) || temp.Equal(target)
+}
+
+// Before 在目标时间之前
+func (tm MyJsonTime) Before(target MyJsonTime) bool {
+	temp := time.Time(tm)
+	targetTemp := time.Time(target)
+	return temp.Before(targetTemp)
+}
+func (tm MyJsonTime) BeforeTime(target time.Time) bool {
 	temp := time.Time(tm)
 	return temp.Before(target)
 }
+func (tm MyJsonTime) BeforeOrEqual(target MyJsonTime) bool {
+	temp := time.Time(tm)
+	targetTemp := time.Time(target)
+	return temp.Before(targetTemp) || temp.Equal(targetTemp)
+}
+func (tm MyJsonTime) BeforeOrEqualTime(target time.Time) bool {
+	temp := time.Time(tm)
+	return temp.Before(target) || temp.Equal(target)
+}
 
+// Equal 与目标时间相同
 func (tm MyJsonTime) Equal(target MyJsonTime) bool {
 	temp := time.Time(tm)
 	targetTemp := time.Time(target)
 	return temp.Equal(targetTemp)
 }
-
 func (tm MyJsonTime) EqualTime(target time.Time) bool {
 	temp := time.Time(tm)
 	return temp.Equal(target)
+}
+
+// Between 在两个时间中间，注意前面那个一定要小一点
+func (tm MyJsonTime) Between(from, to MyJsonTime) bool {
+	temp := time.Time(tm)
+	fromTemp := time.Time(from)
+	toTemp := time.Time(to)
+	return temp.After(fromTemp) && temp.Before(toTemp)
+}
+func (tm MyJsonTime) BetweenOrEqual(from, to time.Time) bool {
+	temp := time.Time(tm)
+	return (temp.After(from) || temp.Equal(from)) && (temp.Before(to) || temp.Equal(to))
 }
 
 func (tm MyJsonTime) Unix() int64 {
