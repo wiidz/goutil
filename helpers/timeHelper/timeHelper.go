@@ -91,18 +91,60 @@ func GetISO8601(date int64) string {
 
 type MyJsonTime time.Time
 
-// ParseFromDateStr 从DateStr 转成 MyJsonTime
-func ParseFromDateStr(dateStr string) MyJsonTime {
+// ParseFromHyphenDateStr 从DateStr 转成 MyJsonTime "2006-01-02"
+func ParseFromHyphenDateStr(hyphenDateStr string) MyJsonTime {
 	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(HyphenDateStr, dateStr, local)
+	temp, _ := time.ParseInLocation(HyphenDateStr, hyphenDateStr, local)
 	return MyJsonTime(temp)
 }
 
-// ParseFromTimeStr 从DateStr 转成 MyJsonTime
-func ParseFromTimeStr(dateStr string) MyJsonTime {
+// ParseFromHyphenTimeStr 从DateStr 转成 MyJsonTime "2006-01-02 15:04:05"
+func ParseFromHyphenTimeStr(hyphenTimeStr string) MyJsonTime {
 	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(HyphenTimeStr, dateStr, local)
+	temp, _ := time.ParseInLocation(HyphenTimeStr, hyphenTimeStr, local)
 	return MyJsonTime(temp)
+}
+
+// ParseFromSlashDateStr 从DateStr 转成 MyJsonTime "2006/01/02"
+func ParseFromSlashDateStr(slashDateStr string) MyJsonTime {
+	local, _ := time.LoadLocation("Local")
+	temp, _ := time.ParseInLocation(SlashDateStr, slashDateStr, local)
+	return MyJsonTime(temp)
+}
+
+// ParseFromSlashTimeStr 从DateTimeStr 转成 MyJsonTime "2006/01/02 15:04:05"
+func ParseFromSlashTimeStr(slashTimeStr string) MyJsonTime {
+	local, _ := time.LoadLocation("Local")
+	temp, _ := time.ParseInLocation(SlashTimeStr, slashTimeStr, local)
+	return MyJsonTime(temp)
+}
+
+// ParseFromHyphenDateStrWithLocation 从DateStr 转成 MyJsonTime "2006-01-02"
+func ParseFromHyphenDateStrWithLocation(hyphenDateStr string, location *time.Location) (jsonTime MyJsonTime, err error) {
+	temp, err := time.ParseInLocation(HyphenDateStr, hyphenDateStr, location)
+	jsonTime = MyJsonTime(temp)
+	return
+}
+
+// ParseFromHyphenTimeStrWithLocation 从DateStr 转成 MyJsonTime "2006-01-02 15:04:05"
+func ParseFromHyphenTimeStrWithLocation(hyphenTimeStr string, location *time.Location) (jsonTime MyJsonTime, err error) {
+	temp, err := time.ParseInLocation(HyphenTimeStr, hyphenTimeStr, location)
+	jsonTime = MyJsonTime(temp)
+	return
+}
+
+// ParseFromSlashDateStrWithLocation 从DateStr 转成 MyJsonTime "2006/01/02"
+func ParseFromSlashDateStrWithLocation(slashDateStr string, location *time.Location) (jsonTime MyJsonTime, err error) {
+	temp, err := time.ParseInLocation(SlashDateStr, slashDateStr, location)
+	jsonTime = MyJsonTime(temp)
+	return
+}
+
+// ParseFromSlashTimeStrWithLocation 从DateTimeStr 转成 MyJsonTime "2006/01/02 15:04:05"
+func ParseFromSlashTimeStrWithLocation(slashTimeStr string, location *time.Location) (jsonTime MyJsonTime, err error) {
+	temp, err := time.ParseInLocation(SlashTimeStr, slashTimeStr, location)
+	jsonTime = MyJsonTime(temp)
+	return
 }
 
 // GetHyphenDateStr 获取 短横线 日期 字符串
