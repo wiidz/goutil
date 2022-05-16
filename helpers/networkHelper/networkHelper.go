@@ -1058,6 +1058,8 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	//}
 	log.Println("【request.Header】", request.Header)
 	log.Println("【request.Body】", request.Body)
+	outBodyStr, _ := ioutil.ReadAll(request.Body)
+	log.Println("【outBodyStr】", outBodyStr)
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
