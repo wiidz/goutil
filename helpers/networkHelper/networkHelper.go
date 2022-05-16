@@ -1056,7 +1056,7 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
-	log.Println("【headers】", headers)
+	log.Println("【request.Header】", request.Header)
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
