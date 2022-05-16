@@ -34,10 +34,10 @@ type SendMsgParam struct {
 type SendMsgResp struct {
 	*imClient.CommonResp
 	Data struct {
-		MsgID    uint64 `json:"msgid"`
-		TimeTag  uint64 `json:"timetag"`
-		Antispam bool   `json:"antispam"`
-	} `json:"info"`
+		MsgID    int64 `json:"msgid"`
+		TimeTag  int64 `json:"timetag"`
+		Antispam bool  `json:"antispam"`
+	} `json:"data"`
 }
 
 // SendMsg 发送普通消息
