@@ -34,9 +34,9 @@ type SendMsgParam struct {
 type SendMsgResp struct {
 	*imClient.CommonResp
 	Data struct {
-		MsgID    int64 `json:"msgid"`
-		TimeTag  int64 `json:"timetag"`
-		Antispam bool  `json:"antispam"`
+		MsgID    string `json:"msgid"`
+		TimeTag  string `json:"timetag"`
+		Antispam bool   `json:"antispam"`
 	} `json:"info"`
 }
 
