@@ -461,6 +461,12 @@ func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
 	return
 }
 
+func JsonDecodeMapStr(jsonStr string) (parsedData map[string]string) {
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
+	return
+}
+
 // JsonDecodeInt64Slice json解码至int64切片
 func JsonDecodeInt64Slice(jsonStr string) []int64 {
 
