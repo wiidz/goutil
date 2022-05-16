@@ -1031,7 +1031,10 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 
 	var body io.Reader
 	if method == networkStruct.Get {
-		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+		parsedURL.RawQuery = param.Encode() // 如果参数中有中文参数,这个方法会进行URLEncode
+	} else if contentType == networkStruct.BodyJson {
+		jsonByte, _ := json.Marshal(params)
+		body = bytes.NewReader(jsonByte)
 	} else {
 		body = strings.NewReader(param.Encode())
 	}
@@ -1046,12 +1049,14 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	}
 
 	//【5】增加header选项
+	log.Println("len(headers)", len(headers))
 	if len(headers) > 0 {
 		for k, v := range headers {
 			request.Header.Add(k, v)
 		}
 	}
-	request.Header.Set("Content-type", contentType.GetContentTypeStr())
+	request.Header.Set("Content-Type", contentType.GetContentTypeStr())
+	//request.Header.Set("Content-Type", "application/json")
 
 	//【5-1】增加content-Length
 	//if method != networkStruct.Get {
@@ -1071,6 +1076,73 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 
 	log.Println("【StatusCode】", resp.StatusCode)
 	log.Println("【resStr】", string(resStr))
+
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	err = json2.Unmarshal(resStr, iStruct)
+
+	//【8】返回
+	return iStruct, &resp.Header, resp.StatusCode, err
+}
+
+func RequestWithStruct(method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
+
+	//【1】解析URL
+	var parsedURL *url.URL
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
+		fmt.Printf("解析url错误:\r\n%v", err)
+		return nil, nil, 0, err
+	}
+
+	//【2】创建client
+	client := &http.Client{}
+
+	//【3】构造参数
+	param := url.Values{}
+	for key, value := range params {
+		k := typeHelper.ToString(key)
+		v := typeHelper.ToString(value)
+		param.Set(k, v)
+	}
+
+	var body io.Reader
+	if method == networkStruct.Get {
+		parsedURL.RawQuery = param.Encode() // 如果参数中有中文参数,这个方法会进行URLEncode
+	} else if contentType == networkStruct.BodyJson {
+		jsonByte, _ := json.Marshal(params)
+		body = bytes.NewReader(jsonByte)
+	} else {
+		body = strings.NewReader(param.Encode())
+	}
+
+	//【4】创建请求
+	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
+	if err != nil {
+		panic(err)
+	}
+
+	//【5】增加header选项
+	if len(headers) > 0 {
+		for k, v := range headers {
+			request.Header.Add(k, v)
+		}
+	}
+	request.Header.Set("Content-Type", contentType.GetContentTypeStr())
+	//request.Header.Set("Content-Type", "application/json")
+
+	//【5-1】增加content-Length
+	//if method != networkStruct.Get {
+	//	request.Header.Add("Content-Length", strconv.Itoa(len(param)))
+	//}
+	//outBodyStr, _ := ioutil.ReadAll(request.Body)
+	//log.Println("【outBodyStr】", string(outBodyStr))
+
+	//【6】发送请求
+	resp, _ := client.Do(request)
+	defer resp.Body.Close()
+
+	//【7】读取body
+	resStr, err := ioutil.ReadAll(resp.Body)
 
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	err = json2.Unmarshal(resStr, iStruct)
