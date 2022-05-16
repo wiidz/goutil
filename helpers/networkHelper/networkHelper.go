@@ -1051,12 +1051,12 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 			request.Header.Add(k, v)
 		}
 	}
-
+	request.Header.Add("Content-type", contentType.GetContentTypeStr())
 	//【5-1】增加content-Length
 	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
-		request.Header.Add("Content-type", contentType.GetContentTypeStr())
 	}
+	log.Println("【headers】", headers)
 
 	//【6】发送请求
 	resp, _ := client.Do(request)
