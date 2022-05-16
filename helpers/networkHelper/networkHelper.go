@@ -304,7 +304,7 @@ func RequestRaw(method networkStruct.Method, targetURL string, params map[string
 		}
 	}
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
@@ -362,7 +362,7 @@ func RequestJson(method networkStruct.Method, targetURL string, params map[strin
 	}
 
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
@@ -430,7 +430,7 @@ func RequestJsonWithStruct(method networkStruct.Method, targetURL string, params
 	}
 
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 		request.Header.Add("Content-type", "application/json;charset=utf-8")
 	}
@@ -500,7 +500,7 @@ func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, pa
 	}
 
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 		request.Header.Add("Content-type", "application/json;charset=utf-8")
 	}
@@ -564,7 +564,7 @@ func RequestRawTest(method networkStruct.Method, targetURL string, params map[st
 		}
 	}
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 	}
 
@@ -628,8 +628,8 @@ func RequestJsonTest(method networkStruct.Method, targetURL string, params map[s
 		}
 	}
 	//【5-1】增加content-Length
-	if method != 1 {
-		if method != 1 {
+	if method != networkStruct.Get {
+		if method != networkStruct.Get {
 			request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 		}
 	}
@@ -1053,7 +1053,7 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	}
 
 	//【5-1】增加content-Length
-	if method != 1 {
+	if method != networkStruct.Get {
 		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
 		request.Header.Add("Content-type", contentType.GetContentTypeStr())
 	}
