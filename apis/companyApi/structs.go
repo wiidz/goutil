@@ -67,46 +67,48 @@ type QueryDetailParam struct {
 
 type QueryDetailResp struct {
 	*CommonResp
-	Data struct {
-		StartDate       string `json:"startDate"`
-		RegisterCapital string `json:"registerCapital"`
-		Name            string `json:"name"`
-		RegisterData    struct {
-			Status        string `json:"status"`
-			CreditNo      string `json:"creditNo"`
-			OrgNo         string `json:"orgNo"`
-			BusinessTerm  string `json:"businessTerm"`
-			BelongOrg     string `json:"belongOrg"`
-			RegType       string `json:"regType"`
-			RegisterNo    string `json:"registerNo"`
-			Address       string `json:"address"`
-			BusinessScope string `json:"businessScope"`
-		} `json:"registerData"`
-		PartnerData struct {
-			List []struct {
-				TotalRealCapital   string `json:"totalRealCapital"`
-				PartnerType        string `json:"partnerType"`
-				TotalShouldCapital string `json:"totalShouldCapital"`
-				PartnerName        string `json:"partnerName"`
-			} `json:"list"`
-			Total int `json:"total"`
-		} `json:"partnerData"`
-		ChangeRecordData struct {
-			List []struct {
-				Date   string `json:"date"`
-				Item   string `json:"item"`
-				After  string `json:"after"`
-				Before string `json:"before"`
-			} `json:"list"`
-			HasMore bool `json:"hasMore"`
-		} `json:"changeRecordData"`
-		EmployeeData struct {
-			List []struct {
-				Name  string `json:"name"`
-				Title string `json:"title"`
-			} `json:"list"`
-			Total int `json:"total"`
-		} `json:"employeeData"`
-		LegalPersonName string `json:"legalPersonName"`
-	} `json:"data"`
+	Data *QueryDetailData `json:"data"`
+}
+
+type QueryDetailData struct {
+	StartDate       string `json:"startDate"`
+	RegisterCapital string `json:"registerCapital"`
+	Name            string `json:"name"`
+	RegisterData    struct {
+		Status        string `json:"status"`
+		CreditNo      string `json:"creditNo"`
+		OrgNo         string `json:"orgNo"`
+		BusinessTerm  string `json:"businessTerm"`
+		BelongOrg     string `json:"belongOrg"`
+		RegType       string `json:"regType"`
+		RegisterNo    string `json:"registerNo"`
+		Address       string `json:"address"`
+		BusinessScope string `json:"businessScope"`
+	} `json:"registerData"`
+	PartnerData struct {
+		List []struct {
+			TotalRealCapital   string `json:"totalRealCapital"`
+			PartnerType        string `json:"partnerType"`
+			TotalShouldCapital string `json:"totalShouldCapital"`
+			PartnerName        string `json:"partnerName"`
+		} `json:"list"`
+		Total int `json:"total"`
+	} `json:"partnerData"`
+	ChangeRecordData struct {
+		List []struct {
+			Date   string `json:"date"`
+			Item   string `json:"item"`
+			After  string `json:"after"`
+			Before string `json:"before"`
+		} `json:"list"`
+		HasMore bool `json:"hasMore"`
+	} `json:"changeRecordData"`
+	EmployeeData struct {
+		List []struct {
+			Name  string `json:"name"`
+			Title string `json:"title"`
+		} `json:"list"`
+		Total int `json:"total"`
+	} `json:"employeeData"`
+	LegalPersonName string `json:"legalPersonName"`
 }

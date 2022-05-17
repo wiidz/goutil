@@ -91,11 +91,17 @@ func (api *CompanyApi) request2(method networkStruct.Method, path string, params
 // FuzzyQuery 企业工商数据模糊查询
 func (api *CompanyApi) FuzzyQuery(params *FuzzyQueryParam) (*FuzzyQueryData, error) {
 	res, err := api.request(networkStruct.Get, "fuzzyQueryCompanyInfo/"+params.Name+"/", params, &FuzzyQueryResp{})
+	if err != nil {
+		return nil, err
+	}
 	return res.(*FuzzyQueryResp).Data, err
 }
 
 // QueryDetail 企业工商数据精准查询
-func (api *CompanyApi) QueryDetail(params *QueryDetailParam) (resp *QueryDetailResp, err error) {
+func (api *CompanyApi) QueryDetail(params *QueryDetailParam) (*QueryDetailData, error) {
 	res, err := api.request(networkStruct.Get, "getCompanyBaseInfo/"+params.CompanyNameOrCreditNo+"/", params, &QueryDetailResp{})
-	return res.(*QueryDetailResp), err
+	if err != nil {
+		return nil, err
+	}
+	return res.(*QueryDetailResp).Data, err
 }
