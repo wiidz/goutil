@@ -6,7 +6,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
-	"log"
 )
 
 const Domain = "https://api.81api.com/"
@@ -50,17 +49,13 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 		return
 	}
 
-	log.Println("GetStatus", iStruct.GetStatus())
-	log.Println("GetErrorCode", iStruct.GetErrorCode())
-	log.Println("GetErrorMessage", iStruct.GetErrorMessage())
-
 	if boolStatus, ok := iStruct.GetStatus().(bool); ok {
 		if !boolStatus {
-			err = errors.New(iStruct.GetMessage())
+			err = errors.New(iStruct.GetErrorMessage())
 		}
 	} else if strStatus, ok := iStruct.GetStatus().(string); ok {
 		if strStatus != "200" {
-			err = errors.New(iStruct.GetMessage())
+			err = errors.New(iStruct.GetErrorMessage())
 		}
 	}
 
@@ -87,7 +82,7 @@ func (api *CompanyApi) request2(method networkStruct.Method, path string, params
 	} else if statusCode != 200 {
 		err = errors.New("请求失败")
 	} else if iStruct.GetStatus() != true {
-		err = errors.New(iStruct.GetMessage())
+		err = errors.New(iStruct.GetErrorMessage())
 	}
 
 	return
