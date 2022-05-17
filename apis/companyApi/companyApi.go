@@ -6,6 +6,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
+	"log"
 )
 
 const Domain = "https://api.81api.com/"
@@ -48,6 +49,10 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 		err = errors.New("请求失败")
 		return
 	}
+
+	log.Println("GetStatus", iStruct.GetStatus())
+	log.Println("GetErrorCode", iStruct.GetErrorCode())
+	log.Println("GetErrorMessage", iStruct.GetErrorMessage())
 
 	if boolStatus, ok := iStruct.GetStatus().(bool); ok {
 		if !boolStatus {
