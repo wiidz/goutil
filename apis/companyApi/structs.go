@@ -46,11 +46,12 @@ type FuzzyQueryParam struct {
 }
 type FuzzyQueryResp struct {
 	*CommonResp
-	Data struct {
-		Total int            `json:"total"`
-		Num   int            `json:"num"`
-		List  []FuzzyCompany `json:"list"`
-	} `json:"data"`
+	Data *FuzzyQueryData `json:"data"`
+}
+type FuzzyQueryData struct {
+	Total int             `json:"total"`
+	Num   int             `json:"num"`
+	List  []*FuzzyCompany `json:"list"`
 }
 type FuzzyCompany struct {
 	Name            string `json:"name"`

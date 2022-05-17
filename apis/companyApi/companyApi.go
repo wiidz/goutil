@@ -89,9 +89,9 @@ func (api *CompanyApi) request2(method networkStruct.Method, path string, params
 }
 
 // FuzzyQuery 企业工商数据模糊查询
-func (api *CompanyApi) FuzzyQuery(params *FuzzyQueryParam) (*FuzzyQueryResp, error) {
+func (api *CompanyApi) FuzzyQuery(params *FuzzyQueryParam) (*FuzzyQueryData, error) {
 	res, err := api.request(networkStruct.Get, "fuzzyQueryCompanyInfo/"+params.Name+"/", params, &FuzzyQueryResp{})
-	return res.(*FuzzyQueryResp), err
+	return res.(*FuzzyQueryResp).Data, err
 }
 
 // QueryDetail 企业工商数据精准查询
