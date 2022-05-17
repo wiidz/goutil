@@ -3,12 +3,14 @@ package cryptorHelper
 import (
 	"bytes"
 	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
+	"log"
 	"strings"
 )
 
@@ -227,4 +229,45 @@ func (r *RsaHelper) Pkcs1ToPkcs8(key []byte) []byte {
 	info.PrivateKey = key
 	k, _ := asn1.Marshal(info)
 	return k
+}
+
+// MarshalPKCS8PrivateKey 使用golang的rsa包生成的私钥默认是pkcs1的.如果将pkcs1转化为pkcs8格式的
+func MarshalPKCS8PrivateKey(key *rsa.PrivateKey) []byte {
+	info := struct {
+		Version             int
+		PrivateKeyAlgorithm []asn1.ObjectIdentifier
+		PrivateKey          []byte
+	}{}
+	info.Version = 0
+	info.PrivateKeyAlgorithm = make([]asn1.ObjectIdentifier, 1)
+	info.PrivateKeyAlgorithm[0] = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 1}
+	info.PrivateKey = x509.MarshalPKCS1PrivateKey(key)
+
+	k, err := asn1.Marshal(info)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	return k
+}
+
+// DERToPrivateKey 一个工具函数，把DER转化成一个private key：
+func DERToPrivateKey(der []byte) (key interface{}, err error) {
+	if key, err = x509.ParsePKCS1PrivateKey(der); err == nil {
+		return key, nil
+	}
+
+	if key, err = x509.ParsePKCS8PrivateKey(der); err == nil {
+		switch key.(type) {
+		case *rsa.PrivateKey, *ecdsa.PrivateKey:
+			return
+		default:
+			return nil, errors.New("Found unknown private key type in PKCS#8 wrapping")
+		}
+	}
+
+	if key, err = x509.ParseECPrivateKey(der); err == nil {
+		return
+	}
+
+	return nil, errors.New("Invalid key type. The DER must contain an rsa.PrivateKey or ecdsa.PrivateKey")
 }
