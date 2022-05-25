@@ -20,7 +20,7 @@ const base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr2345601
 var coder = base64.NewEncoding(base64Table)
 
 // NewOssMngSingle 创建单例ossMng
-func NewOssMngSingle(ossC *configStruct.OssConfig) (*OssMng, error) {
+func NewOssMngSingle(ossC *configStruct.AliOssConfig) (*OssMng, error) {
 
 	ossMng := OssMng{}
 	client, err := oss.New(ossC.EndPoint, ossC.AccessKeyID, ossC.AccessKeySecret)
@@ -34,7 +34,7 @@ func NewOssMngSingle(ossC *configStruct.OssConfig) (*OssMng, error) {
 }
 
 // NewOssMng 创建ossMng
-func NewOssMng(config *configStruct.OssConfig) (*OssMng, error) {
+func NewOssMng(config *configStruct.AliOssConfig) (*OssMng, error) {
 	ossMng := OssMng{
 		Config: config,
 	}
@@ -49,8 +49,7 @@ func NewOssMng(config *configStruct.OssConfig) (*OssMng, error) {
 }
 
 // getPolicyToken 获取token
-func (ossMng *OssMng) getPolicyToken(remotePath string) (policyToken PolicyToken,err error) {
-
+func (ossMng *OssMng) getPolicyToken(remotePath string) (policyToken PolicyToken, err error) {
 
 	//【1】拼接目标目录名称
 	//tm := time.Unix(now, 0)
@@ -84,13 +83,13 @@ func (ossMng *OssMng) getPolicyToken(remotePath string) (policyToken PolicyToken
 
 	//【5】填充属性
 	policyToken = PolicyToken{
-		BucketName: ossMng.Config.BucketName,
+		BucketName:  ossMng.Config.BucketName,
 		AccessKeyId: ossMng.Config.AccessKeyID,
-		Host:ossMng.Config.Host,
-		Expire: expireEnd,
-		Signature: signedStr,
-		Dir:remotePath,
-		Policy:debyte,
+		Host:        ossMng.Config.Host,
+		Expire:      expireEnd,
+		Signature:   signedStr,
+		Dir:         remotePath,
+		Policy:      debyte,
 	}
 	return
 }

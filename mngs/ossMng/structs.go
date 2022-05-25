@@ -7,7 +7,7 @@ import (
 
 // easyjson:skip
 type OssMng struct {
-	Config *configStruct.OssConfig
+	Config *configStruct.AliOssConfig
 	Client *oss.Client //一个db连接
 }
 
