@@ -27,9 +27,9 @@ type BaseConfig struct {
 
 	Location *time.Location `gorm:"-" json:"-"` // 时区
 
-	MysqlConfig    *MysqlConfig    // 数据库设定
-	RedisConfig    *RedisConfig    // redis设定
-	OssConfig      *OssConfig      // oss对象存储设定
+	MysqlConfig *MysqlConfig // 数据库设定
+	RedisConfig *RedisConfig // redis设定
+
 	EsConfig       *EsConfig       // es设定
 	RabbitMQConfig *RabbitMQConfig // es设定
 
@@ -42,6 +42,7 @@ type BaseConfig struct {
 	AliApiConfig *AliApiConfig // 阿里云APi市场设定
 	AliSmsConfig *AliSmsConfig // 阿里云短信服务设定
 	AliIotConfig *AliIotConfig // 阿里云物联网市场设定
+	AliOssConfig *AliOssConfig // 阿里云oss对象存储设定
 
 	YunxinConfig *YunxinConfig // 网易云信设定
 }
@@ -88,16 +89,6 @@ type RabbitMQConfig struct {
 	Host     string `json:"host"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-// OssConfig oss参数
-type OssConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
-	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
-	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
-	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
-	ExpireTime      int64  // 上传策略Policy的失效时间，单位为秒。默认30
 }
 
 // WechatMiniConfig 微信小程序参数
@@ -152,6 +143,16 @@ type AliApiConfig struct {
 	AppCode   string // 一般有这个就够用了
 	AppKey    string
 	AppSecret string
+}
+
+// AliOssConfig oss参数
+type AliOssConfig struct {
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
+	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
+	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
+	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
+	ExpireTime      int64  // 上传策略Policy的失效时间，单位为秒。默认30
 }
 
 // AliSmsConfig 阿里云短信服务的配置

@@ -129,7 +129,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.WechatPayConfig = getWechatPayConfig(rows, config.Profile.Debug)
 
 	// 阿里系
-	config.OssConfig = getOssConfig(rows, config.Profile.Debug)
+	config.AliOssConfig = getAliOssConfig(rows, config.Profile.Debug)
 	config.AliPayConfig = getAliPayConfig(rows, config.Profile.Debug)
 	config.AliApiConfig = getAliApiConfig(rows, config.Profile.Debug)
 	config.AliSmsConfig = getAliSmsConfig(rows, config.Profile.Debug)
@@ -238,8 +238,8 @@ func getRabbitMQConfig(rows []*DbSettingRow, debug bool) *configStruct.RabbitMQC
 	}
 }
 
-func getOssConfig(rows []*DbSettingRow, debug bool) *configStruct.OssConfig {
-	return &configStruct.OssConfig{
+func getAliOssConfig(rows []*DbSettingRow, debug bool) *configStruct.AliOssConfig {
+	return &configStruct.AliOssConfig{
 		AccessKeyID:     GetValueFromRow(rows, "ali", "oss", "access_key_id", "", debug),
 		AccessKeySecret: GetValueFromRow(rows, "ali", "oss", "access_key_secret", "", debug),
 		Host:            GetValueFromRow(rows, "ali", "oss", "host", "", debug),
