@@ -3,13 +3,15 @@ module github.com/wiidz/goutil
 go 1.18
 
 require (
-	github.com/alibabacloud-go/darabonba-openapi v0.1.12
+	github.com/alibabacloud-go/darabonba-openapi v0.1.16
 	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8
+	github.com/alibabacloud-go/facebody-20200910/v2 v2.0.0
 	github.com/alibabacloud-go/iot-20180120/v2 v2.1.1
+	github.com/alibabacloud-go/ocr-20191230/v2 v2.0.8
 	github.com/alibabacloud-go/tea v1.1.17
+	github.com/alibabacloud-go/tea-utils v1.4.3
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/forgoer/openssl v1.2.1
 	github.com/go-pay/gopay v1.5.55
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/json-iterator/go v1.1.12
@@ -32,11 +34,17 @@ require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.1.0 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20210630161223-536fa16abd6f // indirect
-	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.2 // indirect
+	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.4 // indirect
 	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
-	github.com/alibabacloud-go/openapi-util v0.0.9 // indirect
-	github.com/alibabacloud-go/tea-utils v1.3.9 // indirect
+	github.com/alibabacloud-go/openapi-util v0.0.11 // indirect
+	github.com/alibabacloud-go/openplatform-20191219 v1.1.7 // indirect
+	github.com/alibabacloud-go/tea-fileform v1.1.1 // indirect
+	github.com/alibabacloud-go/tea-oss-sdk v1.1.3 // indirect
+	github.com/alibabacloud-go/tea-oss-utils v1.1.0 // indirect
+	github.com/alibabacloud-go/tea-rpc v1.1.8 // indirect
+	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
+	github.com/alibabacloud-go/tea-xml v1.1.1 // indirect
 	github.com/aliyun/credentials-go v1.1.2 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect

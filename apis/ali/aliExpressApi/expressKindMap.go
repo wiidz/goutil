@@ -1,4 +1,4 @@
-package expressApi
+package aliExpressApi
 
 type ExpressKind string
 

@@ -1,4 +1,4 @@
-package expressApi
+package aliExpressApi
 
 import (
 	"github.com/wiidz/goutil/helpers/networkHelper"

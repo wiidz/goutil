@@ -161,6 +161,12 @@ type AliSmsConfig struct {
 	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
 }
 
+// AliRamConfig 阿里云RAM访问控制的账号和密码
+type AliRamConfig struct {
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id"`         // 【OSS】密钥ID
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret"` // 【OSS】密钥
+}
+
 // AliIotConfig 阿里云物联网的基本配置（每个实例单独放）
 // 因为一个项目用的服务器基本上是一个区域，一个账户，所以以下属性是公用的
 type AliIotConfig struct {
