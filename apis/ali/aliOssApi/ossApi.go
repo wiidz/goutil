@@ -11,7 +11,6 @@ import (
 	"github.com/wiidz/goutil/structs/configStruct"
 	"hash"
 	"io"
-	"log"
 	"os"
 	"time"
 )
@@ -103,90 +102,7 @@ func (ossApi *OssApi) getPolicyToken(remotePath string) (policyToken PolicyToken
 	return
 }
 
-// GetHost 获取域名
-func (ossApi *OssApi) GetHost() string {
-	return ossApi.Config.Host
-}
-
-// GetSign 获取签名
-func (ossApi *OssApi) GetSign(object string) (PolicyToken, error) {
-	return ossApi.getPolicyToken(object)
-}
-
-// Upload 上传
-func (ossApi *OssApi) Upload(filePath, objectName string) (string, error) {
-	//response, err := ossApi.getPolicyToken(object)
-
-	// 获取存储空间。
-	bucket, err := ossApi.Client.Bucket(ossApi.Config.BucketName)
-	if err != nil {
-		return "", err
-	}
-
-	// 读取本地文件。
-	fd, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer fd.Close()
-
-	// 上传文件流。
-	err = bucket.PutObject(objectName, fd)
-	if err != nil {
-		return "", err
-	}
-	ossPath := ossApi.GetHost() + "/" + objectName
-	return ossPath, nil
-}
-
-// GetBucketInfo 获取Bucket信息
-func (ossApi *OssApi) GetBucketInfo() {
-	//response, err := ossApi.getPolicyToken(object)
-
-	// 获取存储空间。
-	bucket, _ := ossApi.Client.Bucket(ossApi.Config.BucketName)
-	log.Println("bucket", bucket)
-	//log.Println("bucket",bucket.Get)
-
-}
-
-// SimpleGetOssSign 简单获取签名
-func SimpleGetOssSign(ossApi *OssApi, object string) (msg string, data interface{}, statusCode int) {
-
-	remotePath := GetRemotePath(object)
-
-	res, err := ossApi.GetSign(remotePath)
-
-	if err != nil {
-		return "获取签名失败", "", 400
-	}
-
-	return "ok", res, 200
-}
-
-// GetRemotePath 组合远程文件夹路径（目录+时间+用户名+随机数）
-func GetRemotePath(object string) (remotePath string) {
-	now := time.Now().Unix()
-	dateStamp := time.Unix(now, 0).Format("20060102")
-	remotePath = object + "/" + dateStamp + "/"
-	return
-}
-
-// GetPrivateObjectURL 获取私密文件的url
-func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err error) {
-
-	//【1】重启一下服务器（可能token过期了）
-	err = ossApi.refreshClient()
-	if err != nil {
-		return
-	}
-
-	//【2】组合url
-	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
-	//url = ossApi.GetHost() + "/" + object + "?Expires=" + ossApi.STSData.Expiration + "&OSSAccessKeyId=" + ossApi.STSData.AccessKeyId + "&Signature=" + ossApi.STSData.SecurityToken
-	return
-}
-
+// getSTSData 获取临时身份数据
 func (ossApi *OssApi) getSTSData() (err error) {
 
 	stsApi, err := aliSTSApi.NewAliSTSApi(&configStruct.AliRamConfig{
@@ -225,5 +141,59 @@ func (ossApi *OssApi) refreshSTSData() (isNewStsData bool, err error) {
 		}
 	}
 
+	return
+}
+
+// GetHost 获取域名
+func (ossApi *OssApi) GetHost() string {
+	return ossApi.Config.Host
+}
+
+// GetSign 获取签名
+func (ossApi *OssApi) GetSign(object string) (PolicyToken, error) {
+	return ossApi.getPolicyToken(object)
+}
+
+// Upload 上传本地文件
+func (ossApi *OssApi) Upload(filePath, objectName string) (string, error) {
+
+	// 获取存储空间。
+
+	// 读取本地文件。
+	fd, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer fd.Close()
+
+	// 上传文件流。
+	err = ossApi.Bucket.PutObject(objectName, fd)
+	if err != nil {
+		return "", err
+	}
+	ossPath := ossApi.GetHost() + "/" + objectName
+	return ossPath, nil
+}
+
+// GetRemotePath 组合远程文件夹路径（目录+时间+用户名+随机数）
+func (ossApi *OssApi) GetRemotePath(object string) (remotePath string) {
+	now := time.Now().Unix()
+	dateStamp := time.Unix(now, 0).Format("20060102")
+	remotePath = object + "/" + dateStamp + "/"
+	return
+}
+
+// GetPrivateObjectURL 获取私密文件的url
+func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err error) {
+
+	//【1】重启一下服务器（可能token过期了）
+	err = ossApi.refreshClient()
+	if err != nil {
+		return
+	}
+
+	//【2】组合url
+	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
+	//url = ossApi.GetHost() + "/" + object + "?Expires=" + ossApi.STSData.Expiration + "&OSSAccessKeyId=" + ossApi.STSData.AccessKeyId + "&Signature=" + ossApi.STSData.SecurityToken
 	return
 }
