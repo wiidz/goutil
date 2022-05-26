@@ -9,7 +9,8 @@ import (
 // easyjson:skip
 type OssApi struct {
 	Config  *configStruct.AliOssConfig
-	Client  *oss.Client //一个db连接
+	Client  *oss.Client // 链接
+	Bucket  *oss.Bucket // bucket实例
 	STSData *sts.Credentials
 }
 

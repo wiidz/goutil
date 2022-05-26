@@ -152,7 +152,6 @@ type AliOssConfig struct {
 	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host"`                           // 【OSS】域名
 	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point"`                 // 【OSS】端
 	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name"`             // 【OSS】bucket名称
-	SecurityToken   string `gorm:"security_token;type:varchar(128)" json:"security_token"`                      // 【OSS】密钥（私密读写oss使用）
 	ARN             string `gorm:"arn" json:"arn"`                                                              // 【OSS】https://help.aliyun.com/document_detail/39744.htm?spm=a2c4g.11186623.0.0.7596397e6qkBNp#section-qbw-mhy-173
 	ExpireTime      int64  // 上传策略Policy的失效时间，单位为秒。默认30
 }

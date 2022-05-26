@@ -20,35 +20,42 @@ const base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr2345601
 
 var coder = base64.NewEncoding(base64Table)
 
-// NewOssApiSingle 创建单例ossApi
-func NewOssApiSingle(ossC *configStruct.AliOssConfig) (*OssApi, error) {
-
-	ossApi := OssApi{}
-
-	// 获取STS临时凭证后，您可以通过其中的安全令牌（SecurityToken）和临时访问密钥（AccessKeyId和AccessKeySecret）生成OSSClient。
-	client, err := oss.New(ossC.EndPoint, ossC.AccessKeyID, ossC.AccessKeySecret, oss.SecurityToken(ossC.SecurityToken))
-
-	if err != nil {
-		return &ossApi, err
-	}
-
-	ossApi.Client = client
-	return &ossApi, nil
-}
-
 // NewOssApi 创建ossApi
 func NewOssApi(config *configStruct.AliOssConfig) (*OssApi, error) {
 	ossApi := OssApi{
 		Config: config,
 	}
-	client, err := oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret)
 
-	if err != nil {
-		return &ossApi, err
+	err := ossApi.iniClient()
+	return &ossApi, err
+}
+
+func (ossApi *OssApi) iniClient() (err error) {
+
+	//【1】获取配置
+	config := ossApi.Config
+	securityToken := ""
+
+	//【2】填充sts数据
+	if ossApi.STSData != nil && typeHelper.Str2Int64(ossApi.STSData.Expiration) < time.Now().Unix() {
+		err = ossApi.getSTSData()
+		if err != nil {
+			return
+		}
+	} else {
+		securityToken = ossApi.STSData.SecurityToken
 	}
 
-	ossApi.Client = client
-	return &ossApi, nil
+	//【3】获取客户端链接，获取STS临时凭证后，您可以通过其中的安全令牌（SecurityToken）和临时访问密钥（AccessKeyId和AccessKeySecret）生成OSSClient。
+	ossApi.Client, err = oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret, oss.SecurityToken(securityToken))
+	if err != nil {
+		return
+	}
+
+	//【4】实例化bucket
+	ossApi.Bucket, err = ossApi.Client.Bucket(ossApi.Config.BucketName)
+
+	return
 }
 
 // getPolicyToken 获取token
@@ -79,9 +86,9 @@ func (ossApi *OssApi) getPolicyToken(remotePath string) (policyToken PolicyToken
 		return
 	}
 
-	debyte := base64.StdEncoding.EncodeToString([]byte(result))
+	deByte := base64.StdEncoding.EncodeToString([]byte(result))
 	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(ossApi.Config.AccessKeySecret))
-	io.WriteString(h, debyte)
+	_, _ = io.WriteString(h, deByte)
 	signedStr := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 	//【5】填充属性
@@ -92,7 +99,7 @@ func (ossApi *OssApi) getPolicyToken(remotePath string) (policyToken PolicyToken
 		Expire:      expireEnd,
 		Signature:   signedStr,
 		Dir:         remotePath,
-		Policy:      debyte,
+		Policy:      deByte,
 	}
 	return
 }
@@ -167,7 +174,7 @@ func GetRemotePath(object string) (remotePath string) {
 }
 
 // GetPrivateObjectURL 获取私密文件的url
-func (ossApi *OssApi) GetPrivateObjectURL(object string) (url string, err error) {
+func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err error) {
 
 	//【1】拉取访问权限
 	if ossApi.STSData == nil {
@@ -178,7 +185,8 @@ func (ossApi *OssApi) GetPrivateObjectURL(object string) (url string, err error)
 	}
 
 	//【2】组合url
-	url = ossApi.GetHost() + "/" + object + "?Expires=" + ossApi.STSData.Expiration + "&OSSAccessKeyId=" + ossApi.STSData.AccessKeyId + "&Signature=" + ossApi.STSData.SecurityToken
+	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
+	//url = ossApi.GetHost() + "/" + object + "?Expires=" + ossApi.STSData.Expiration + "&OSSAccessKeyId=" + ossApi.STSData.AccessKeyId + "&Signature=" + ossApi.STSData.SecurityToken
 	return
 }
 
