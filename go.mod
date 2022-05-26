@@ -10,6 +10,7 @@ require (
 	github.com/alibabacloud-go/ocr-20191230/v2 v2.0.8
 	github.com/alibabacloud-go/tea v1.1.17
 	github.com/alibabacloud-go/tea-utils v1.4.3
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/go-pay/gopay v1.5.55
@@ -68,6 +69,7 @@ require (
 	github.com/iris-contrib/schema v0.0.6 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/blocks v0.0.5 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
@@ -79,7 +81,7 @@ require (
 	github.com/mailgun/raymond/v2 v2.0.46 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

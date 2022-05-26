@@ -1,14 +1,16 @@
-package ossMng
+package aliOssApi
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 // easyjson:skip
-type OssMng struct {
-	Config *configStruct.AliOssConfig
-	Client *oss.Client //一个db连接
+type OssApi struct {
+	Config  *configStruct.AliOssConfig
+	Client  *oss.Client //一个db连接
+	STSData *sts.Credentials
 }
 
 // easyjson:json

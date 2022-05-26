@@ -246,6 +246,8 @@ func getAliOssConfig(rows []*DbSettingRow, debug bool) *configStruct.AliOssConfi
 		EndPoint:        GetValueFromRow(rows, "ali", "oss", "end_point", "", debug),
 		BucketName:      GetValueFromRow(rows, "ali", "oss", "bucket_name", "", debug),
 		ExpireTime:      typeHelper.Str2Int64(GetValueFromRow(rows, "ali", "oss", "expire_time", "30", debug)),
+		SecurityToken:   GetValueFromRow(rows, "ali", "oss", "security_token", "", debug),
+		ARN:             GetValueFromRow(rows, "ali", "oss", "arn", "", debug),
 	}
 }
 
