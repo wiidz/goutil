@@ -35,14 +35,17 @@ func (ossApi *OssApi) refreshClient() (err error) {
 
 	//【1】获取配置
 	config := ossApi.Config
-	securityToken, flag, err := ossApi.getSecurityToken()
+	flag, err := ossApi.refreshSTSData()
 	if err != nil {
 		return
 	}
+	stsData := ossApi.STSData
 
 	//【2】获取客户端链接，获取STS临时凭证后，您可以通过其中的安全令牌（SecurityToken）和临时访问密钥（AccessKeyId和AccessKeySecret）生成OSSClient。
-	if ossApi.Client == nil || flag {
-		ossApi.Client, err = oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret, oss.SecurityToken(securityToken))
+	if flag || ossApi.Client == nil {
+		//ossApi.Client, err = oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret, oss.SecurityToken(ossApi.STSData.SecurityToken))
+		// 我们现在统一使用临时身份去实例化client，而不是系统账户了
+		ossApi.Client, err = oss.New(config.EndPoint, stsData.AccessKeyId, stsData.AccessKeySecret, oss.SecurityToken(stsData.SecurityToken))
 		if err != nil {
 			return
 		}
@@ -203,8 +206,8 @@ func (ossApi *OssApi) getSTSData() (err error) {
 	return
 }
 
-// getSecurityToken 获取SecurityToken
-func (ossApi *OssApi) getSecurityToken() (securityToken string, isNewStsData bool, err error) {
+// refreshSTSData 刷新临时身份数据
+func (ossApi *OssApi) refreshSTSData() (isNewStsData bool, err error) {
 
 	if ossApi.STSData == nil {
 		isNewStsData = true
@@ -222,6 +225,5 @@ func (ossApi *OssApi) getSecurityToken() (securityToken string, isNewStsData boo
 		}
 	}
 
-	securityToken = ossApi.STSData.SecurityToken
 	return
 }
