@@ -26,34 +26,30 @@ func NewOssApi(config *configStruct.AliOssConfig) (*OssApi, error) {
 		Config: config,
 	}
 
-	err := ossApi.iniClient()
+	err := ossApi.refreshClient()
 	return &ossApi, err
 }
 
-func (ossApi *OssApi) iniClient() (err error) {
+// iniClient 在sts没过期的时候直接返回，否则重启
+func (ossApi *OssApi) refreshClient() (err error) {
 
 	//【1】获取配置
 	config := ossApi.Config
-	securityToken := ""
-
-	//【2】填充sts数据
-	if ossApi.STSData != nil && typeHelper.Str2Int64(ossApi.STSData.Expiration) < time.Now().Unix() {
-		err = ossApi.getSTSData()
-		if err != nil {
-			return
-		}
-	} else {
-		securityToken = ossApi.STSData.SecurityToken
-	}
-
-	//【3】获取客户端链接，获取STS临时凭证后，您可以通过其中的安全令牌（SecurityToken）和临时访问密钥（AccessKeyId和AccessKeySecret）生成OSSClient。
-	ossApi.Client, err = oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret, oss.SecurityToken(securityToken))
+	securityToken, flag, err := ossApi.getSecurityToken()
 	if err != nil {
 		return
 	}
 
-	//【4】实例化bucket
-	ossApi.Bucket, err = ossApi.Client.Bucket(ossApi.Config.BucketName)
+	//【2】获取客户端链接，获取STS临时凭证后，您可以通过其中的安全令牌（SecurityToken）和临时访问密钥（AccessKeyId和AccessKeySecret）生成OSSClient。
+	if ossApi.Client == nil || flag {
+		ossApi.Client, err = oss.New(config.EndPoint, config.AccessKeyID, config.AccessKeySecret, oss.SecurityToken(securityToken))
+		if err != nil {
+			return
+		}
+
+		//【3】实例化bucket
+		ossApi.Bucket, err = ossApi.Client.Bucket(ossApi.Config.BucketName)
+	}
 
 	return
 }
@@ -176,12 +172,10 @@ func GetRemotePath(object string) (remotePath string) {
 // GetPrivateObjectURL 获取私密文件的url
 func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err error) {
 
-	//【1】拉取访问权限
-	if ossApi.STSData == nil {
-		err = ossApi.getSTSData()
-		if err != nil {
-			return
-		}
+	//【1】重启一下服务器（可能token过期了）
+	err = ossApi.refreshClient()
+	if err != nil {
+		return
 	}
 
 	//【2】组合url
@@ -206,5 +200,28 @@ func (ossApi *OssApi) getSTSData() (err error) {
 	}
 
 	ossApi.STSData = &res.Credentials
+	return
+}
+
+// getSecurityToken 获取SecurityToken
+func (ossApi *OssApi) getSecurityToken() (securityToken string, isNewStsData bool, err error) {
+
+	if ossApi.STSData == nil {
+		isNewStsData = true
+		// 为空
+		err = ossApi.getSTSData()
+		if err != nil {
+			return
+		}
+	} else if typeHelper.Str2Int64(ossApi.STSData.Expiration) < time.Now().Unix() {
+		isNewStsData = true
+		// 过期
+		err = ossApi.getSTSData()
+		if err != nil {
+			return
+		}
+	}
+
+	securityToken = ossApi.STSData.SecurityToken
 	return
 }
