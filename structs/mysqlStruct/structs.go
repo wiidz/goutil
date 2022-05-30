@@ -61,3 +61,7 @@ type IDCreatedAtList struct {
 type Sum struct {
 	SumFloat64 float64 `gorm:"column:sum_float64"`
 }
+
+type ModelWithTableName interface {
+	TableName() string
+}

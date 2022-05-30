@@ -29,7 +29,7 @@ func NewOssApi(config *configStruct.AliOssConfig) (*OssApi, error) {
 	return &ossApi, err
 }
 
-// iniClient 在sts没过期的时候直接返回，否则重启
+// refreshClient 在sts没过期的时候直接返回，否则重启
 func (ossApi *OssApi) refreshClient() (err error) {
 
 	//【1】获取配置
