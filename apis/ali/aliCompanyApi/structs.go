@@ -14,6 +14,11 @@ type RespInterface interface {
 	GetMessage() string
 }
 
+type NoDataResp struct {
+	Statue bool   `json:"bool"`
+	Data   string `json:"data"`
+}
+
 type CommonResp struct {
 	//Status       T           `json:"status"` // 大部分都是true、false，但是模糊查询是200和201（没查到）,false
 	Status       interface{} `json:"status"` // 大部分都是true、false，但是模糊查询是200和201（没查到）,false

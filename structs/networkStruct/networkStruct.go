@@ -1,5 +1,9 @@
 package networkStruct
 
+import (
+	"net/http"
+)
+
 type ContentType int8
 
 const (
@@ -276,4 +280,25 @@ func (params *Params) GetEtc() map[string]interface{} {
 }
 func (params *Params) SetEtc(data map[string]interface{}) {
 	params.Etc = data
+}
+
+// MyRequestParams 自己定义的请求体
+// method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}
+type MyRequestParams struct {
+	Method      Method // 请求方法
+	URL         string // 请求地址
+	ContentType ContentType
+	Headers     map[string]string      // 请求头参数
+	Params      map[string]interface{} // 请求参数
+	ResStruct   interface{}            // 要被解析成的结构体
+}
+
+// MyRequestResp 自己定义的请求返回
+// interface{}, *http.Header, int, error
+type MyRequestResp struct {
+	StatusCode      int
+	Headers         http.Header // 返回的请求头
+	ResStruct       interface{} // 解析后的结构体
+	IsParsedSuccess bool        // 是否解析成功
+	ResStr          string      // 返回数据字符串化
 }

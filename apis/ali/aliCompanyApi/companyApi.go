@@ -2,6 +2,7 @@ package aliCompanyApi
 
 import (
 	"errors"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
@@ -36,17 +37,32 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 	paramMap := typeHelper.JsonDecodeMap(paramStr)
 
 	//【3】发送请求
-	var statusCode int
-	data, _, statusCode, err = networkHelper.RequestWithStructTest(method, networkStruct.BodyForm, Domain+path, paramMap, map[string]string{
-		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, iStruct)
+	res, err := networkHelper.MyRequest(&networkStruct.MyRequestParams{
+		Method:      method,
+		URL:         Domain + path,
+		ContentType: networkStruct.BodyForm,
+		Headers: map[string]string{
+			"Authorization": "APPCODE " + api.Config.AppCode,
+		},
+		Params:    paramMap,
+		ResStruct: iStruct,
+	})
 
 	//【4】判断结果
 	if err != nil {
 		return
-	} else if statusCode != 200 {
+	} else if res.StatusCode != 200 {
 		err = errors.New("请求失败")
 		return
+	} else if !res.IsParsedSuccess {
+		// 解析失败
+		var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+		temp := NoDataResp{}
+		err = json2.Unmarshal([]byte(res.ResStr), &temp)
+		if err != nil {
+			return
+		}
+		err = errors.New(temp.Data)
 	}
 
 	if boolStatus, ok := iStruct.GetStatus().(bool); ok {
@@ -126,7 +142,7 @@ func (api *CompanyApi) LawsuitInfo(companyName string) ([]*LawsuitInfoData, erro
 
 // CourtInfo 企业法院公告信息
 func (api *CompanyApi) CourtInfo(companyName string) ([]*CourtInfoData, error) {
-	res, err := api.request(networkStruct.Get, "getCompanyLawsuitInfo/"+companyName+"/", nil, &CourtInfoResp{})
+	res, err := api.request(networkStruct.Get, "getCompanyCourtInfo/"+companyName+"/", nil, &CourtInfoResp{})
 	if err != nil {
 		return nil, err
 	}
