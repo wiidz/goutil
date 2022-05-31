@@ -1,4 +1,4 @@
-package companyApi
+package aliCompanyApi
 
 import (
 	"errors"
@@ -104,4 +104,31 @@ func (api *CompanyApi) QueryDetail(params *QueryDetailParam) (*QueryDetailData, 
 		return nil, err
 	}
 	return res.(*QueryDetailResp).Data, err
+}
+
+// AbnormalInfo 企业经营异常信息
+func (api *CompanyApi) AbnormalInfo(companyName string) (*AbnormalInfoData, error) {
+	res, err := api.request(networkStruct.Get, "getCompanyAbnormalInfo/"+companyName+"/", nil, &AbnormalInfoResp{})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*AbnormalInfoResp).Data, err
+}
+
+// LawsuitInfo 企业法律诉讼信息
+func (api *CompanyApi) LawsuitInfo(companyName string) ([]*LawsuitInfoData, error) {
+	res, err := api.request(networkStruct.Get, "getCompanyLawsuitInfo/"+companyName+"/", nil, &LawsuitInfoResp{})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*LawsuitInfoResp).Data, err
+}
+
+// CourtInfo 企业法院公告信息
+func (api *CompanyApi) CourtInfo(companyName string) ([]*CourtInfoData, error) {
+	res, err := api.request(networkStruct.Get, "getCompanyLawsuitInfo/"+companyName+"/", nil, &CourtInfoResp{})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*CourtInfoResp).Data, err
 }
