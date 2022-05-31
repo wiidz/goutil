@@ -83,6 +83,7 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 		}
 	}
 
+	data = res.ResStruct
 	return
 }
 
