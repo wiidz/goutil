@@ -185,7 +185,7 @@ func (ossApi *OssApi) GetRemotePath(object string) (remotePath string) {
 }
 
 // GetPrivateObjectURL 获取私密文件的url
-func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err error) {
+func (ossApi *OssApi) GetPrivateObjectURL(object string, expireSec int64) (signedURL string, err error) {
 
 	//【1】重启一下服务器（可能token过期了）
 	err = ossApi.refreshClient()
@@ -194,7 +194,7 @@ func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err 
 	}
 
 	//【2】组合url
-	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
+	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, expireSec) // 使用签名URL将OSS文件下载到流。
 	//url = ossApi.GetHost() + "/" + object + "?Expires=" + ossApi.STSData.Expiration + "&OSSAccessKeyId=" + ossApi.STSData.AccessKeyId + "&Signature=" + ossApi.STSData.SecurityToken
 	return
 }
@@ -202,7 +202,8 @@ func (ossApi *OssApi) GetPrivateObjectURL(object string) (signedURL string, err 
 // SignPrivateURL 给不带签名的私密链接，加上签名，使其可以访问
 // 例如url = http://21bcn-private.oss-cn-shanghai.aliyuncs.com/private/20220531/1653982464704.jpg
 // domainSuffix = com 或者 cn 这样
-func (ossApi *OssApi) SignPrivateURL(url, domainSuffix string) (signedURL string, err error) {
+// expireSec = 60
+func (ossApi *OssApi) SignPrivateURL(url, domainSuffix string, expireSec int64) (signedURL string, err error) {
 	//【1】重启一下服务器（可能token过期了）
 	err = ossApi.refreshClient()
 	if err != nil {
@@ -215,6 +216,6 @@ func (ossApi *OssApi) SignPrivateURL(url, domainSuffix string) (signedURL string
 		return
 	}
 	object := temp[1]
-	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
+	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, expireSec) // 使用签名URL将OSS文件下载到流。
 	return
 }
