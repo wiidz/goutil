@@ -209,9 +209,10 @@ func (ossApi *OssApi) SignPrivateURL(url, domainSuffix string) (signedURL string
 		return
 	}
 	//【2】组合url
-	temp := typeHelper.ExplodeStr(url, "."+domainSuffix)
+	temp := typeHelper.ExplodeStr(url, "."+domainSuffix+"/")
 	if len(temp) < 2 {
 		err = errors.New("解析url时失败，无法定位object")
+		return
 	}
 	object := temp[1]
 	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, 60) // 使用签名URL将OSS文件下载到流。
