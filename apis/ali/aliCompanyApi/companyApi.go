@@ -7,6 +7,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
+	"log"
 )
 
 const Domain = "https://api.81api.com/"
@@ -48,6 +49,10 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 		ResStruct: iStruct,
 	})
 
+	log.Println("res", res)
+	log.Println("err", err)
+	log.Println("IsParsedSuccess", res.IsParsedSuccess)
+
 	//【4】判断结果
 	if err != nil {
 		return
@@ -55,6 +60,7 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 		err = errors.New("请求失败")
 		return
 	} else if !res.IsParsedSuccess {
+		log.Println("ionin")
 		// 解析失败
 		var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 		temp := NoDataResp{}
