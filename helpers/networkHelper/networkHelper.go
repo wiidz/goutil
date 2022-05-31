@@ -1217,6 +1217,7 @@ func MyRequest(params *networkStruct.MyRequestParams) (resData *networkStruct.My
 	if err != nil {
 		err = nil // 解析失败不报错
 	} else {
+
 		resData.IsParsedSuccess = true
 	}
 
