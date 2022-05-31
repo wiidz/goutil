@@ -143,15 +143,18 @@ type LawsuitInfoInfoParam struct {
 
 type LawsuitInfoResp struct {
 	*CommonResp
-	Data []*LawsuitInfoData `json:"data"`
+	Data *LawsuitInfoData `json:"data"`
 }
 
 type LawsuitInfoData struct {
-	CaseContent string `json:"caseContent"` // 原告:廖振芳 被告:北京拜克洛克科技有限公司:720901373
-	CaseReason  string `json:"caseReason"`  // 生命权、健康权、身体权纠纷
-	PulishDate  string `json:"pulishDate"`  // 2020-09-30
-	CaseName    string `json:"caseName"`    // 廖振芳与北京拜克洛克科技有限公司生命权、健康权、身体权纠纷一审民事裁定书
-	CaseNo      string `json:"caseNo"`      // （2020）津0104民初6377号
+	Total int `json:"total"`
+	List  []struct {
+		CaseContent string `json:"caseContent"` // 原告:廖振芳 被告:北京拜克洛克科技有限公司:720901373
+		CaseReason  string `json:"caseReason"`  // 生命权、健康权、身体权纠纷
+		PulishDate  string `json:"pulishDate"`  // 2020-09-30
+		CaseName    string `json:"caseName"`    // 廖振芳与北京拜克洛克科技有限公司生命权、健康权、身体权纠纷一审民事裁定书
+		CaseNo      string `json:"caseNo"`      // （2020）津0104民初6377号
+	} `json:"list"`
 }
 
 type CourtInfoResp struct {
