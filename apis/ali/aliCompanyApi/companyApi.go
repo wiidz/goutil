@@ -63,6 +63,7 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 			return
 		}
 		err = errors.New(temp.Data)
+		return
 	}
 
 	if boolStatus, ok := iStruct.GetStatus().(bool); ok {
