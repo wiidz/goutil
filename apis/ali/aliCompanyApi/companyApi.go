@@ -139,7 +139,7 @@ func (api *CompanyApi) AbnormalInfo(companyName string) (*AbnormalInfoData, erro
 }
 
 // LawsuitInfo 企业法律诉讼信息
-func (api *CompanyApi) LawsuitInfo(companyName string) ([]*LawsuitInfoData, error) {
+func (api *CompanyApi) LawsuitInfo(companyName string) (*LawsuitInfoData, error) {
 	res, err := api.request(networkStruct.Get, "getCompanyLawsuitInfo/"+companyName+"/", nil, &LawsuitInfoResp{})
 	if err != nil {
 		return nil, err
