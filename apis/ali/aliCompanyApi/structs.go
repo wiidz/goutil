@@ -159,7 +159,7 @@ type LawsuitInfoData struct {
 
 type CourtInfoResp struct {
 	*CommonResp
-	Data []*CourtInfoData `json:"data"`
+	Data *CourtInfoData `json:"data"`
 }
 
 type CourtInfoData struct {
