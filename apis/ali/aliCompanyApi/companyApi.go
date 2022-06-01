@@ -150,7 +150,7 @@ func (api *CompanyApi) LawsuitInfo(companyName string) (*LawsuitInfoData, error)
 }
 
 // CourtInfo 企业法院公告信息
-func (api *CompanyApi) CourtInfo(companyName string) ([]*CourtInfoData, error) {
+func (api *CompanyApi) CourtInfo(companyName string) (*CourtInfoData, error) {
 	res, err := api.request(networkStruct.Get, "getCompanyCourtInfo/"+companyName+"/", nil, &CourtInfoResp{})
 	if err != nil {
 		return nil, err
