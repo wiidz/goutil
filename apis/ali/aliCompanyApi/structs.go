@@ -163,7 +163,12 @@ type CourtInfoResp struct {
 }
 
 type CourtInfoData struct {
-	PulishDate string `json:"pulishDate"` // 2018-05-23 09:00:00
-	CourtName  string `json:"courtName"`  // 上海市徐汇区人民法院第十一法庭
-	CourtNo    string `json:"courtNo"`    // （2018）沪0104民初4092号
+	Total int `json:"total"`
+	List  []struct {
+		CourtType  string `json:"courtType"`
+		Reason     string `json:"reason"`
+		PulishDate string `json:"pulishDate"`
+		CourtOrg   string `json:"courtOrg"`
+		Parties    string `json:"parties"`
+	} `json:"list"`
 }
