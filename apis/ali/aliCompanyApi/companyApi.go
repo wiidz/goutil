@@ -11,7 +11,7 @@ import (
 )
 
 //const Domain = "http://api.81api.com/" // 分支机构不能https
-const Domain = "https://api.81api.com/"
+const Domain = "http://api.81api.com/"
 
 //const FuzzyQueryURL = "https://api.81api.com/fuzzyQueryCompanyInfo/" // "https://api.81api.com/fuzzyQueryCompanyInfo/[CompanyName]/"
 //const QueryDetailURL = "https://api.81api.com/getCompanyBaseInfo/"   // http(s)://api.81api.com/getCompanyBaseInfo/[CompanyNameOrCreditNo]/
