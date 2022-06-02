@@ -52,6 +52,7 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 	log.Println("res", res)
 	log.Println("err", err)
 	log.Println("struct", res.ResStruct)
+	log.Println("struct", res.ResStr)
 	log.Println("IsParsedSuccess", res.IsParsedSuccess)
 
 	//【4】判断结果
