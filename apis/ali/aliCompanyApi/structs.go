@@ -172,3 +172,44 @@ type CourtInfoData struct {
 		Parties    string `json:"parties"`
 	} `json:"list"`
 }
+
+// YearReportInfoResp 年报信息
+type YearReportInfoResp struct {
+	*CommonResp
+	Data *YearReportInfoData `json:"data"`
+}
+
+// YearReportInfoData 年报信息
+type YearReportInfoData struct {
+	Total int `json:"total"`
+	List  []struct {
+		RptDetail struct {
+			Status   string `json:"status"`
+			Name     string `json:"name"`
+			CreditNo string `json:"creditNo"`
+			IsEquity string `json:"isEquity"`
+			StaffNum string `json:"staffNum"`
+			IsInvest string `json:"isInvest"`
+		} `json:"rptDetail"`
+		RptYear string `json:"rptYear"`
+		RptDate string `json:"rptDate"`
+	} `json:"list"`
+}
+
+// BranchInfoRespParam 分支机构信息
+type BranchInfoRespParam struct {
+	Name    string `json:"-"`
+	PageNum int    `json:"pageNum"`
+}
+
+// BranchInfoResp 分支机构信息
+type BranchInfoResp struct {
+	*CommonResp
+	Data *BranchInfoData `json:"data"`
+}
+type BranchInfoData struct {
+	Total int `json:"total"`
+	List  []struct {
+		Name string `json:"name"`
+	} `json:"list"`
+}

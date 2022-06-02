@@ -157,3 +157,23 @@ func (api *CompanyApi) CourtInfo(companyName string) (*CourtInfoData, error) {
 	}
 	return res.(*CourtInfoResp).Data, err
 }
+
+// YearReportInfo 企业年报信息
+func (api *CompanyApi) YearReportInfo(companyName string) (*YearReportInfoData, error) {
+	res, err := api.request(networkStruct.Get, "getCompanyYearReportInfo/"+companyName+"/", nil, &YearReportInfoResp{})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*YearReportInfoResp).Data, err
+}
+
+// BranchInfo 分支机构信息
+func (api *CompanyApi) BranchInfo(param *BranchInfoRespParam) (*BranchInfoData, error) {
+	res, err := api.request(networkStruct.Get, "getCompanyBranchInfo/"+param.Name+"/", map[string]interface{}{
+		"PageNum": param.PageNum,
+	}, &BranchInfoResp{})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*BranchInfoResp).Data, err
+}
