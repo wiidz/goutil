@@ -10,6 +10,7 @@ import (
 	"log"
 )
 
+//const Domain = "http://api.81api.com/" // 分支机构不能https
 const Domain = "https://api.81api.com/"
 
 //const FuzzyQueryURL = "https://api.81api.com/fuzzyQueryCompanyInfo/" // "https://api.81api.com/fuzzyQueryCompanyInfo/[CompanyName]/"
@@ -52,7 +53,7 @@ func (api *CompanyApi) request(method networkStruct.Method, path string, params 
 	log.Println("res", res)
 	log.Println("err", err)
 	log.Println("struct", res.ResStruct)
-	log.Println("struct", res.ResStr)
+	log.Println("ResStr", res.ResStr)
 	log.Println("IsParsedSuccess", res.IsParsedSuccess)
 
 	//【4】判断结果
