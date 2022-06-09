@@ -360,10 +360,17 @@ func (tm MyJsonTime) Location() *time.Location {
 	return time.Time(tm).Location()
 }
 
-// GetFirstDateOfMonth 获取传入的时间所在月份的第一天，即某月第一天的0点。如传入time.Now(), 返回当前月份的第一天0点时间。
-func (tm MyJsonTime) GetFirstDateOfMonth() *MyJsonTime {
+// GetFirstTimeOfMonth 获取传入的时间所在月份的第一天，即某月第一天的0点。如传入time.Now(), 返回当前月份的第一天0点时间。
+func (tm MyJsonTime) GetFirstTimeOfMonth() *MyJsonTime {
 	newTime := tm.AddDate(0, 0, -tm.Day()+1)
 	res := newTime.GetZeroTime()
+	return &res
+}
+
+// GetLastTimeOfMonth 获取传入的时间所在月份的最后天，即某月最后一天的23点59分59秒
+func (tm MyJsonTime) GetLastTimeOfMonth() *MyJsonTime {
+	newTime := tm.AddDate(0, 1, -tm.Day())
+	res := newTime.GetLastTime()
 	return &res
 }
 
