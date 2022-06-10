@@ -406,32 +406,6 @@ func GetCST8Now() time.Time {
 	return time.Now().UTC().Add(8 * time.Hour)
 }
 
-// GetFirstDateOfWeek 获取本周周一的日期
-func (tm MyJsonTime) GetFirstDateOfWeek() (weekStartDate MyJsonTime) {
-
-	temp := tm.Format2Time()
-	offset := int(time.Monday - temp.Weekday())
-	if offset > 0 {
-		offset = -6
-	}
-
-	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset))
-	return
-}
-
-// GetLastDateOfWeek 获取本周周日的日期
-func (tm MyJsonTime) GetLastDateOfWeek() (weekStartDate MyJsonTime) {
-
-	temp := tm.Format2Time()
-	offset := int(time.Saturday - temp.Weekday())
-	if offset > 6 {
-		offset = -1
-	}
-
-	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset))
-	return
-}
-
 // GetMonthDayStr 获得当前月的初始和结束日期
 func GetMonthDayStr(target time.Time) (string, string) {
 
@@ -525,4 +499,30 @@ func GetBetweenDateStrs(startDate, endDate string) []string {
 		}
 	}
 	return d
+}
+
+// GetFirstDateOfWeek 获取本周周一的日期
+func (tm MyJsonTime) GetFirstDateOfWeek() (weekStartDate MyJsonTime) {
+
+	temp := tm.Format2Time()
+	offset := int(time.Monday - temp.Weekday())
+	if offset > 0 {
+		offset = -6
+	}
+
+	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset))
+	return
+}
+
+// GetLastDateOfWeek 获取本周周日的日期
+func (tm MyJsonTime) GetLastDateOfWeek() (weekStartDate MyJsonTime) {
+
+	// 我们国内一周的开始是周一，国外是周日
+	// go里面周日=0，我们改成7
+
+	temp := tm.Format2Time()
+	offset := int(7 - temp.Weekday())
+
+	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 23, 59, 59, 1e9-1, time.Local).AddDate(0, 0, offset))
+	return
 }
