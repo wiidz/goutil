@@ -137,8 +137,8 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 			if v.([]interface{})[0] == "between" {
 				whereSQL += fmt.Sprint(k, " between ? AND ?")
 				vals = append(vals, v.([]interface{})[1], v.([]interface{})[2])
-			} else if v.([]interface{})[0] == "in" {
-				whereSQL += fmt.Sprint(k, " IN (")
+			} else if v.([]interface{})[0] == "in" || v.([]interface{})[0] == "not in" {
+				whereSQL += fmt.Sprint(k, " "+v.([]interface{})[0].(string)+" (")
 				if intSlice, ok := v.([]interface{})[1].([]int); ok {
 					for k := 0; k < len(intSlice); k++ {
 						whereSQL += "?,"
