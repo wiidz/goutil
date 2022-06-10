@@ -521,6 +521,10 @@ func (tm MyJsonTime) GetLastDateOfWeek() (weekStartDate MyJsonTime) {
 	// go里面周日=0，我们改成7
 
 	temp := tm.Format2Time()
+	nowWeekDay := int(temp.Weekday())
+	if nowWeekDay == 0 {
+		nowWeekDay = 7
+	}
 	offset := int(7 - temp.Weekday())
 
 	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 23, 59, 59, 1e9-1, time.Local).AddDate(0, 0, offset))
