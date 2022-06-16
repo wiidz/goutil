@@ -8,6 +8,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
+	"regexp"
 )
 
 // AliFaceBodyApi 阿里云人脸人体识别
@@ -87,15 +88,65 @@ func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL stri
 	log.Println("res", res)
 	log.Println("err", err)
 
-	if err != nil {
+	if err != nil && res == nil {
+		err = api.handleFinanceLevelIdentifyCheckError(err)
 		return
-	}
-
-	if *res.Body.Data.Pass {
+	} else if *res.Body.Data.Pass {
 		valid = true
 		return
+	} else {
+		err = errors.New(*res.Body.Message)
 	}
 
-	err = errors.New(*res.Body.Message)
 	return
+}
+
+// handleFinanceLevelIdentifyCheckError 处理人脸识别错误
+func (api *AliFaceBodyApi) handleFinanceLevelIdentifyCheckError(err error) (newErr error) {
+
+	//【1】提取code
+	var code string
+	tempStr := err.Error()
+	codeReg := regexp.MustCompile(`\sCode: (\S*)\s{1}`)
+	codeFind := codeReg.FindStringSubmatch(tempStr)
+	if len(codeFind) < 2 {
+		return err
+	}
+	code = codeFind[1]
+
+	//【2】翻译错误
+	switch code {
+	case "INVALID_PARAMETER":
+		newErr = errors.New("查询时传入参数不正确。联系接口提供方技术人员排查。例如身份证格式不正确")
+	case "NOT_SAME_PERSON":
+		newErr = errors.New("刷脸认证未通过，识别结果为非本人，请确认是否为本人再发起认证")
+	case "PROCESSING":
+
+		//【2-1】提取zCode
+		var zCode string
+		zCodeReg := regexp.MustCompile(`Z([1-9]*)`)
+		zCodeFind := zCodeReg.FindStringSubmatch(tempStr)
+		if len(zCodeFind) >= 2 {
+			zCode = zCodeFind[1]
+		}
+
+		//【2-2】判断
+		if zCode == "1146" {
+			newErr = errors.New("图片安全检测不通过，请确认图片是否为正常拍摄图片")
+		} else if zCode == "5137" {
+			newErr = errors.New("系统出错了，请您稍后再试，如果多次重试依然报错，请记录好RequestId联系阿里云技术支持工程师")
+		}
+
+	case "UNABLE_GET_IMAGE":
+		newErr = errors.New("比对源不可用。远程公安网没有留底图片，无法比对。暂无解决方案")
+	case "HIGH_RISK":
+		newErr = errors.New("刷脸频次过高或失败次数过多，请您请24小时后再来尝试")
+	case "EXTRACT_FACE_FAIL":
+		newErr = errors.New("图片提取不到人脸特征，请确认图片中是否包含人脸信息")
+	case "SYSTEM_ERROR":
+		newErr = errors.New("查询时发生系统错误。请重试，如果依然报错，请记录好RequestId联系阿里云技术支持工程师")
+
+	}
+
+	return newErr
 }
