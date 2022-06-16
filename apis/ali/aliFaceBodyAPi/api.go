@@ -91,13 +91,9 @@ func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL stri
 	if err != nil {
 		err = api.handleFinanceLevelIdentifyCheckError(err)
 		return
-	} else if res != nil && *res.Body.Data.Pass {
-		valid = true
-		return
-	} else {
-		err = errors.New(*res.Body.Message)
 	}
 
+	valid = *(res.Body.Data.Pass)
 	return
 }
 
