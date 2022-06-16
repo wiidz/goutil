@@ -85,13 +85,13 @@ func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL stri
 	var res *facebody20200910.ExecuteServerSideVerificationResponse
 	res, err = api.Client.ExecuteServerSideVerificationWithOptions(param, headers, runtime)
 
-	log.Println("res", res)
+	log.Println("res", res == nil, res)
 	log.Println("err", err)
 
-	if err != nil && res == nil {
+	if err != nil {
 		err = api.handleFinanceLevelIdentifyCheckError(err)
 		return
-	} else if *res.Body.Data.Pass {
+	} else if res != nil && *res.Body.Data.Pass {
 		valid = true
 		return
 	} else {
