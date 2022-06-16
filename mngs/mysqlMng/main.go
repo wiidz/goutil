@@ -59,6 +59,7 @@ func (mysql *MysqlMng) NewCommonConn() {
 	mysql.Conn = db.Session(&gorm.Session{
 		//WithConditions: true,
 		Logger: db.Logger.LogMode(logger.Info),
+		//Logger: db.Logger.LogMode(logger.Warn),
 	})
 }
 

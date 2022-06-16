@@ -58,7 +58,8 @@ func NewAliOcrApi(config *configStruct.AliRamConfig) (api *AliFaceBodyApi, err e
 // 图像大小：不超过1 MB。
 // 图片分辨率：大于640×480像素，小于2048×2048像素，长宽比小于等于2。
 // URL地址中不能包含中文字符。
-func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL string, imgData []byte) (res *facebody20200910.ExecuteServerSideVerificationResponse, err error) {
+//func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL string, imgData []byte) (res *facebody20200910.ExecuteServerSideVerificationResponse, err error) {
+func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL string, imgData []byte) (valid bool, err error) {
 
 	param := &facebody20200910.ExecuteServerSideVerificationRequest{
 		CertificateName:   &trueName,            // 真实姓名
@@ -79,6 +80,17 @@ func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL stri
 	runtime := &util.RuntimeOptions{}
 	headers := make(map[string]*string)
 
+	var res *facebody20200910.ExecuteServerSideVerificationResponse
 	res, err = api.Client.ExecuteServerSideVerificationWithOptions(param, headers, runtime)
+	if err != nil {
+		return
+	}
+
+	if *res.Body.Data.Pass {
+		valid = true
+		return
+	}
+
+	err = errors.New(*res.Body.Message)
 	return
 }
