@@ -7,6 +7,7 @@ import (
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 )
 
 // AliFaceBodyApi 阿里云人脸人体识别
@@ -82,6 +83,10 @@ func (api *AliFaceBodyApi) FinanceLevelIdentifyCheck(trueName, idNo, imgURL stri
 
 	var res *facebody20200910.ExecuteServerSideVerificationResponse
 	res, err = api.Client.ExecuteServerSideVerificationWithOptions(param, headers, runtime)
+
+	log.Println("res", res)
+	log.Println("err", err)
+
 	if err != nil {
 		return
 	}
