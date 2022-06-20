@@ -2,8 +2,6 @@ package networkStruct
 
 import (
 	"net/http"
-	"strconv"
-	"time"
 )
 
 type ContentType int8
@@ -282,15 +280,6 @@ func (params *Params) GetEtc() map[string]interface{} {
 }
 func (params *Params) SetEtc(data map[string]interface{}) {
 	params.Etc = data
-}
-
-/// implement encoding.JSON.Marshaler interface
-func (params *Params) MarshalJSON() ([]byte, error) {
-	return []byte{}, nil
-}
-
-func (params *Params) UnmarshalJSON(bin []byte) error {
-	return nil
 }
 
 // MyRequestParams 自己定义的请求体
