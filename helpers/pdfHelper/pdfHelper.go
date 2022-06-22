@@ -298,8 +298,20 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
-	helper.PDF.MultiCell(95, 8, "签字盖章：\n\n\n\n", "LBR", gofpdf.AlignLeft, false)
-	helper.PDF.MultiCell(95, 8, "签字盖章：\n\n\n\n", "LBR", gofpdf.AlignLeft, false)
+	helper.PDF.CellFormat(95, 8, "签字盖章：", "LR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "签字盖章：", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+
+	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+
+	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 1, gofpdf.AlignLeft, false, 0, "")
 }
 
 // getSignData 获取签名数据
