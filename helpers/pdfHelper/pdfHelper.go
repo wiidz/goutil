@@ -293,22 +293,17 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
 	//【3】循环填充数据
-	maxIndex := len(leftData) - 1
 	for k := range leftData {
-
-		borderStr := "LR"
-		if k == maxIndex {
-			borderStr = "LBR"
-		}
-
-		helper.PDF.CellFormat(95, 8, leftData[k], borderStr, 0, TextAlignLeft, false, 0, "")
-		helper.PDF.CellFormat(95, 8, rightData[k], borderStr, 1, TextAlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, leftData[k], "LR", 0, TextAlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, TextAlignLeft, false, 0, "")
 	}
 
 	helper.PDF.Ln(-1)
 	helper.PDF.Ln(-1)
 	helper.PDF.Ln(-1)
 	helper.PDF.Ln(-1)
+	helper.PDF.CellFormat(95, 8, "", "LBR", 0, TextAlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "", "LBR", 1, TextAlignLeft, false, 0, "")
 }
 
 // getSignData 获取签名数据
