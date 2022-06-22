@@ -305,10 +305,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 		helper.PDF.CellFormat(95, 8, rightData[k], borderStr, 1, TextAlignLeft, false, 0, "")
 	}
 
-	//helper.PDF.Ln(-1)
-	//helper.PDF.Ln(-1)
-	//helper.PDF.Ln(-1)
-	//helper.PDF.Ln(-1)
+	helper.PDF.Ln(-1)
+	helper.PDF.Ln(-1)
+	helper.PDF.Ln(-1)
+	helper.PDF.Ln(-1)
 }
 
 // getSignData 获取签名数据
@@ -332,7 +332,7 @@ func getSignData(party SignerInterface) (fillData []string) {
 			"法定代表：" + temp.LawPersonName,
 			"电        话：" + temp.OgTel,
 			"传        真：" + temp.OgFax,
-			"（下方签字+盖章）\n\n\n\n",
+			"（下方签字+盖章）",
 		}
 	} else {
 		temp, _ := party.(PersonSigner)
@@ -344,7 +344,7 @@ func getSignData(party SignerInterface) (fillData []string) {
 			"",
 			"",
 			"",
-			"（下方签字）\n\n\n\n",
+			"（下方签字）",
 		}
 	}
 
