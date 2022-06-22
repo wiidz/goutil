@@ -298,8 +298,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
-	helper.PDF.CellFormat(95, 8, "签字盖章：", "LR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "签字盖章：", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "签字盖章：", "LTR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "签字盖章：", "LTR", 1, gofpdf.AlignLeft, false, 0, "")
 
 	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
 	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
