@@ -156,24 +156,29 @@ func (ossApi *OssApi) GetSign(object string) (PolicyToken, error) {
 }
 
 // Upload 上传本地文件
-func (ossApi *OssApi) Upload(filePath, objectName string) (string, error) {
+func (ossApi *OssApi) Upload(filePath, objectName string) (remoteURL string, err error) {
 
-	// 获取存储空间。
+	//【1】重启一下服务器（可能token过期了）
+	err = ossApi.refreshClient()
+	if err != nil {
+		return
+	}
 
 	// 读取本地文件。
 	fd, err := os.Open(filePath)
 	if err != nil {
-		return "", err
+		return
 	}
 	defer fd.Close()
 
 	// 上传文件流。
 	err = ossApi.Bucket.PutObject(objectName, fd)
 	if err != nil {
-		return "", err
+		return
 	}
-	ossPath := ossApi.GetHost() + "/" + objectName
-	return ossPath, nil
+
+	remoteURL = ossApi.GetHost() + "/" + objectName
+	return
 }
 
 // GetRemotePath 组合远程文件夹路径（目录+时间+用户名+随机数）
