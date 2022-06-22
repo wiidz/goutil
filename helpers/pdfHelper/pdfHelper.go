@@ -277,3 +277,69 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 
 	return
 }
+
+// AddSignForm 添加一个签字用的区域
+func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
+
+	//【1】获取两边的数据
+	leftData := getSignData(firstParty)
+	rightData := getSignData(secondParty)
+
+	helper.PDF.Ln(-1)
+	helper.PDF.SetFont(FontName, FontBold, 14)
+	helper.PDF.CellFormat(95, 10, "甲方", "1", 0, TextAlignCenter, false, 0, "")
+	helper.PDF.CellFormat(95, 10, "乙方", "1", 1, TextAlignCenter, false, 0, "")
+
+	helper.PDF.SetFont(FontName, FontRegular, 9)
+
+	//【3】循环填充数据
+	for k := range leftData {
+		helper.PDF.CellFormat(95, 8, leftData[k], "LR", 0, TextAlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, TextAlignLeft, false, 0, "")
+	}
+
+	//helper.PDF.Ln(-1)
+	//helper.PDF.Ln(-1)
+	//helper.PDF.Ln(-1)
+	//helper.PDF.Ln(-1)
+}
+
+// getSignData 获取签名数据
+func getSignData(party SignerInterface) (fillData []string) {
+
+	fillData = make([]string, 8) // 单位最长，有8个字段，所以长度给8
+
+	if party.GetKind() == Company {
+		temp, _ := party.(CompanySigner)
+
+		ogBankName := temp.OgBankName
+		if temp.OgBankNo != "" {
+			ogBankName += "（行号" + temp.OgBankNo + "）"
+		}
+
+		fillData = []string{
+			"单位名称：" + temp.OgName,
+			"税        号：" + temp.OgLicenseNo,
+			"单位地址：" + temp.OgAddress,
+			"开户银行：" + ogBankName,
+			"法定代表：" + temp.LawPersonName,
+			"电        话：" + temp.OgTel,
+			"传        真：" + temp.OgFax,
+			"（下方签字+盖章）\n\n\n\n",
+		}
+	} else {
+		temp, _ := party.(PersonSigner)
+		fillData = []string{
+			"真实姓名：" + temp.TrueName,
+			"身份证号：" + temp.IDNo,
+			"手        机：" + temp.Phone,
+			"住        址：" + temp.Address,
+			"",
+			"",
+			"",
+			"（下方签字）\n\n\n\n",
+		}
+	}
+
+	return
+}

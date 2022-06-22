@@ -65,3 +65,44 @@ type ContentStyle struct {
 	FontSize   float64    // 字体大小
 	Color      *RGBColor
 }
+
+type SignKind int8
+
+const Person SignKind = 1  // 个人
+const Company SignKind = 2 // 单位
+
+type SignerInterface interface {
+	GetKind() SignKind
+}
+
+// CompanySigner 公司签署
+type CompanySigner struct {
+	OgName        string //【单位】单位名称
+	OgLicenseNo   string //【单位】营业执照编号
+	OgBankName    string //【单位】开户行名称
+	OgBankNo      string //【单位】行号
+	OgBankAccount string //【单位】银行账号
+	OgTel         string //【单位】电话
+	OgFax         string //【单位】传真
+	OgAddress     string //【单位】地址
+	LawPersonName string //【单位】法人姓名
+
+	SignerName  string // 签署人真实姓名
+	SignerPhone string // 签署人手机号
+}
+
+func (signer CompanySigner) GetKind() SignKind {
+	return Company
+}
+
+// PersonSigner 个人签署
+type PersonSigner struct {
+	TrueName string // 个人真实姓名
+	Address  string // 地址
+	Phone    string // 手机号
+	IDNo     string // 身份证号
+}
+
+func (signer PersonSigner) GetKind() SignKind {
+	return Person
+}
