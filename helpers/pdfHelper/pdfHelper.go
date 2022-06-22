@@ -7,6 +7,7 @@ import (
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -239,6 +240,19 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	log.Println("pdfFilePath", pdfFilePath)
 	log.Println("exist", osHelper.ExistSameNameFile(pdfFilePath))
 	//defer os.Remove(pdfFilePath) // 完成后删除pdf文件
+
+	if _, e := os.Stat(pdfFilePath); e != nil {
+		log.Println("ErrNoSuchFile")
+		return
+	}
+
+	log.Println("asdasdas")
+
+	_, e := ioutil.ReadFile(pdfFilePath)
+	if e != nil {
+		log.Println("ErrOpenDocument")
+		return
+	}
 
 	//【2】打开pdf文件
 	doc, err := fitz.New(pdfFilePath)
