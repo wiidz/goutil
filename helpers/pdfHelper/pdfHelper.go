@@ -171,7 +171,7 @@ func (helper *PDFHelper) SecondTitle(text string) {
 }
 
 // NormalContent 常规正文内容（前面会有两格缩进）
-func (helper *PDFHelper) NormalContent(text string, opt ...ContentStyle) {
+func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 
 	//【1】默认样式
 	var doIndent = true
