@@ -1,7 +1,13 @@
 package pdfHelper
 
 import (
+	"fmt"
+	"github.com/gen2brain/go-fitz"
 	"github.com/jung-kurt/gofpdf"
+	"image"
+	"image/jpeg"
+	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -163,11 +169,6 @@ func (helper *PDFHelper) FirstTitle(text string) {
 func (helper *PDFHelper) SecondTitle(text string) {
 	helper.PDF.SetFont(FontName, "B", 16) // 设置字体
 	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "1", 2, TextAlignCenter, false, 0, "")
-
-	helper.NormalContent("hee", ContentStyle{
-		DoIntent:  false,
-		TextAlign: "",
-	})
 }
 
 // NormalContent 常规正文内容（前面会有两格缩进）
@@ -210,4 +211,66 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 	helper.PDF.SetFont(FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 	helper.PDF.MultiCell(190, 8, text, "", textAlign, false)
+}
+
+// SaveAsPDF 保存为pdf
+// 这里的dir要以斜杠 / 结尾
+func (helper *PDFHelper) SaveAsPDF(dir, fileName string) (filePath string, err error) {
+	filePath = dir + fileName
+	err = helper.PDF.OutputFileAndClose(filePath)
+	return
+}
+
+// SaveAsImgs 以图片格式保存
+func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string, err error) {
+
+	//【1】先导出为pdf
+	filePath := dir + fileName
+	err = helper.PDF.OutputFileAndClose(filePath)
+	if err != nil {
+		return
+	}
+
+	//【2】打开pdf文件
+	doc, err := fitz.New(filePath)
+	if err != nil {
+		return
+	}
+
+	//【2】提取pdf名称
+	pdfName := fileName[0 : len(fileName)-3] // fileName是 xxx.pdf 所以取后缀名以前的作为图片组的名称
+
+	//【3】循环将每页pdf转换成图片
+	imgFileNames = []string{}
+	for n := 0; n < doc.NumPage(); n++ {
+
+		//【3-1】
+		var img image.Image
+		img, err = doc.Image(n)
+		if err != nil {
+			return
+		}
+
+		//【3-2】创建文件
+		var file *os.File
+		imgFileName := fmt.Sprintf(pdfName+"-%02d.jpg", n)
+		file, err = os.Create(filepath.Join(dir, imgFileName))
+		if err != nil {
+			return
+		}
+
+		//【3-3】写入图片信息
+		err = jpeg.Encode(file, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
+		if err != nil {
+			return
+		}
+
+		//【3-4】将文件名写入数组
+		imgFileNames = append(imgFileNames, imgFileName)
+		file.Close()
+	}
+
+	//【4】删除pdf文件
+	os.Remove(dir + fileName)
+	return
 }

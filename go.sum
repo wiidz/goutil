@@ -112,6 +112,8 @@ github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
 github.com/fsnotify/fsnotify v1.5.1 h1:mZcQUHVQUQWoPXXtuf9yuEXKudkV2sx1E06UadKWpgI=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
+github.com/gen2brain/go-fitz v1.20.0 h1:w8E7yae537dq7JenCUYiAhg/IBNZPO/s6kv22dKvXRo=
+github.com/gen2brain/go-fitz v1.20.0/go.mod h1:UZAxMETTDK4UPpuh80HaRpPzgkSibUihXVzwj2ip5oQ=
 github.com/go-pay/gopay v1.5.55 h1:TuS8UD+x8dRUg9LC5ca2O4ynGNYZt1NNNTKJhFVs3Dc=
 github.com/go-pay/gopay v1.5.55/go.mod h1:8mg6xh6xAMNCgdXjzYUTO+VQvVfE2qwTAq1IJC/YpmU=
 github.com/go-playground/locales v0.13.0 h1:HyWk6mgj5qFqCT5fjGBuRArbVDfE4hi8+e8ceBS/t7Q=
