@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/gen2brain/go-fitz"
 	"github.com/jung-kurt/gofpdf"
-	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -35,6 +33,7 @@ func NewPDFHelper(fontOption *FontOption, headerOption *HeaderOption, footerOpti
 
 	helper.addFonts()    // 添加预设字体
 	helper.PDF.AddPage() // 添加一页
+	// 这里不要忘记了，如果没有addPage，也能输出pdf，但是这个pdf的数据头不一样，就会导致fitz认不到格式
 
 	return
 }
@@ -236,14 +235,10 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	if err != nil {
 		return
 	}
-	log.Println("err", err)
-	log.Println("pdfFilePath", pdfFilePath)
-	log.Println("exist", osHelper.ExistSameNameFile(pdfFilePath))
-	//defer os.Remove(pdfFilePath) // 完成后删除pdf文件
+	defer os.Remove(pdfFilePath) // 完成后删除pdf文件
 
 	//【2】打开pdf文件
 	doc, err := fitz.New(pdfFilePath)
-	log.Println("fitz err", err)
 	if err != nil {
 		return
 	}
