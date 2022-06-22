@@ -22,12 +22,22 @@ import (
 	"time"
 )
 
+// ExistSameNameFile 判断是否已存在同名文件
+func ExistSameNameFile(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		fmt.Println(info)
+		return false
+	}
+	return true
+}
+
 /**
  * @func: ExistFile 判断文件是否已存在
  * @author Wiidz
  * @date   2019-11-16
  */
-func ExistFile(filename string, filesize int64) bool {
+func ExistSameSizeFile(filename string, filesize int64) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		fmt.Println(info)
@@ -71,7 +81,7 @@ func DownloadFile(url string, localPath string, fb func(length, downLen int64)) 
 	if err != nil {
 		fmt.Println(err)
 	}
-	if ExistFile(localPath, fsize) {
+	if ExistSameSizeFile(localPath, fsize) {
 		return err
 	}
 	fmt.Println("fsize", fsize)
@@ -210,12 +220,11 @@ func DownloadFileFromContext(ctx iris.Context, fieldName, targetPath string) (fi
 	return
 }
 
-
 // IsDirExist 判断目录是否存在
 // dirPath 绝对路径，不要以/结尾
 func IsDirExist(dirPath string) bool {
-	s,err:=os.Stat(dirPath)
-	if err != nil{
+	s, err := os.Stat(dirPath)
+	if err != nil {
 		return false
 	}
 	return s.IsDir()
@@ -223,16 +232,16 @@ func IsDirExist(dirPath string) bool {
 
 // CreateDir 创建文件夹
 // perm：755,777
-func CreateDir(dirName string,perm os.FileMode) error {
-	return os.Mkdir(dirName,perm)
+func CreateDir(dirName string, perm os.FileMode) error {
+	return os.Mkdir(dirName, perm)
 }
 
 // CreateIfNotExist 如果目录不存在，则创建
-func CreateIfNotExist(dirName string,perm os.FileMode) (err error) {
+func CreateIfNotExist(dirName string, perm os.FileMode) (err error) {
 	exist := IsDirExist(dirName)
 	if exist {
 		return
 	}
 
-	return CreateDir(dirName,perm)
+	return CreateDir(dirName, perm)
 }

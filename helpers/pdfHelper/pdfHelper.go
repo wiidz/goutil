@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gen2brain/go-fitz"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
 	"log"
@@ -236,6 +237,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	}
 	log.Println("err", err)
 	log.Println("pdfFilePath", pdfFilePath)
+	log.Println("exist", osHelper.ExistSameNameFile(fileName+".pdf"))
 	//defer os.Remove(pdfFilePath) // 完成后删除pdf文件
 
 	//【2】打开pdf文件
