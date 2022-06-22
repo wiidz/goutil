@@ -237,7 +237,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	}
 	log.Println("err", err)
 	log.Println("pdfFilePath", pdfFilePath)
-	log.Println("exist", osHelper.ExistSameNameFile(fileName+".pdf"))
+	log.Println("exist", osHelper.ExistSameNameFile(pdfFilePath))
 	//defer os.Remove(pdfFilePath) // 完成后删除pdf文件
 
 	//【2】打开pdf文件
