@@ -6,6 +6,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"image"
 	"image/jpeg"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -233,6 +234,9 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	if err != nil {
 		return
 	}
+	log.Println("err", err)
+	log.Println("pdfFilePath", pdfFilePath)
+	defer os.Remove(pdfFilePath) // 完成后删除pdf文件
 
 	//【2】打开pdf文件
 	doc, err := fitz.New(pdfFilePath)
@@ -270,7 +274,5 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 		file.Close()
 	}
 
-	//【4】删除pdf文件
-	os.Remove(pdfFilePath)
 	return
 }
