@@ -331,7 +331,7 @@ func getSignData(party SignerInterface) (fillData []string) {
 		temp, _ := party.(PersonSigner)
 		fillData = []string{
 			"真实姓名：" + temp.TrueName,
-			"身份证号：" + temp.IDNo,
+			"身份证号：" + temp.IDCardNo,
 			"手        机：" + temp.Phone,
 			"住        址：" + temp.Address,
 			"",

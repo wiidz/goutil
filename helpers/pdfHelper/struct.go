@@ -100,7 +100,7 @@ type PersonSigner struct {
 	TrueName string // 个人真实姓名
 	Address  string // 地址
 	Phone    string // 手机号
-	IDNo     string // 身份证号
+	IDCardNo string // 身份证号
 }
 
 func (signer PersonSigner) GetKind() SignKind {
