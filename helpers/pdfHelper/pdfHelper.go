@@ -214,31 +214,31 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 }
 
 // SaveAsPDF 保存为pdf
-// 这里的dir要以斜杠 / 结尾
+// dir : 要以斜杠 / 结尾
+// fileName : 不要后缀名
 func (helper *PDFHelper) SaveAsPDF(dir, fileName string) (filePath string, err error) {
-	filePath = dir + fileName
+	filePath = dir + fileName + ".pdf"
 	err = helper.PDF.OutputFileAndClose(filePath)
 	return
 }
 
 // SaveAsImgs 以图片格式保存
+// dir : 要以斜杠 / 结尾
+// fileName : 不要后缀名
 func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string, err error) {
 
 	//【1】先导出为pdf
-	filePath := dir + fileName
-	err = helper.PDF.OutputFileAndClose(filePath)
+	pdfFilePath := dir + fileName + ".pdf"
+	err = helper.PDF.OutputFileAndClose(pdfFilePath)
 	if err != nil {
 		return
 	}
 
 	//【2】打开pdf文件
-	doc, err := fitz.New(filePath)
+	doc, err := fitz.New(pdfFilePath)
 	if err != nil {
 		return
 	}
-
-	//【2】提取pdf名称
-	pdfName := fileName[0 : len(fileName)-3] // fileName是 xxx.pdf 所以取后缀名以前的作为图片组的名称
 
 	//【3】循环将每页pdf转换成图片
 	imgFileNames = []string{}
@@ -253,7 +253,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 
 		//【3-2】创建文件
 		var file *os.File
-		imgFileName := fmt.Sprintf(pdfName+"-%02d.jpg", n)
+		imgFileName := fmt.Sprintf(fileName+"-%02d.jpg", n)
 		file, err = os.Create(filepath.Join(dir, imgFileName))
 		if err != nil {
 			return
@@ -271,6 +271,6 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	}
 
 	//【4】删除pdf文件
-	os.Remove(dir + fileName)
+	os.Remove(pdfFilePath)
 	return
 }
