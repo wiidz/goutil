@@ -57,3 +57,11 @@ type RGBColor struct {
 	G int
 	B int
 }
+
+type ContentStyle struct {
+	DoIntent   bool       // 是否进行首行缩进两格
+	TextAlign  TextAlign  // 水平对齐方式
+	FontWeight FontWeight // 文字粗细
+	FontSize   float64    // 字体大小
+	Color      *RGBColor
+}

@@ -163,18 +163,51 @@ func (helper *PDFHelper) FirstTitle(text string) {
 func (helper *PDFHelper) SecondTitle(text string) {
 	helper.PDF.SetFont(FontName, "B", 16) // 设置字体
 	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "1", 2, TextAlignCenter, false, 0, "")
+
+	helper.NormalContent("hee", ContentStyle{
+		DoIntent:  false,
+		TextAlign: "",
+	})
 }
 
 // NormalContent 常规正文内容（前面会有两格缩进）
-func (helper *PDFHelper) NormalContent(text string, doIndent bool, textAlign TextAlign) {
+func (helper *PDFHelper) NormalContent(text string, opt ...ContentStyle) {
 
-	//【1】首行是否需要缩进两格
+	//【1】默认样式
+	var doIndent = true
+	var fontSize = float64(10)
+	var textAlign = TextAlignLeft
+	var fontWeight = FontRegular
+	var color = &RGBColor{
+		R: 48,
+		G: 49,
+		B: 51,
+	}
+
+	//【2】判断有无设置的样式
+	if len(opt) != 0 {
+		doIndent = opt[0].DoIntent
+		if opt[0].FontSize != 0 {
+			fontSize = opt[0].FontSize
+		}
+		if opt[0].TextAlign != "" {
+			textAlign = string(opt[0].TextAlign)
+		}
+		if opt[0].FontWeight != "" {
+			fontWeight = string(opt[0].FontWeight)
+		}
+		if opt[0].Color != nil {
+			color = opt[0].Color
+		}
+	}
+
+	//【3】处理缩进
 	if doIndent {
 		text = "        " + text
 	}
 
-	//【2】写入
-	helper.PDF.SetFont(FontName, "", 10)
-	helper.PDF.SetTextColor(48, 49, 51)
-	helper.PDF.MultiCell(190, 8, text, "", string(textAlign), false)
+	//【3】写入
+	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetTextColor(color.R, color.G, color.B)
+	helper.PDF.MultiCell(190, 8, text, "", textAlign, false)
 }
