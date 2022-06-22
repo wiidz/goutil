@@ -236,10 +236,11 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	}
 	log.Println("err", err)
 	log.Println("pdfFilePath", pdfFilePath)
-	defer os.Remove(pdfFilePath) // 完成后删除pdf文件
+	//defer os.Remove(pdfFilePath) // 完成后删除pdf文件
 
 	//【2】打开pdf文件
 	doc, err := fitz.New(pdfFilePath)
+	log.Println("fitz err", err)
 	if err != nil {
 		return
 	}
