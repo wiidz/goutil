@@ -144,3 +144,24 @@ func (api *AliOcrApi) CheckLicensePlate(imgURL string) (res *ocr20191230.Recogni
 	res, err = api.Client.RecognizeLicensePlate(params)
 	return
 }
+
+// CheckBusinessLicense 营业执照识别
+//【功能描述】
+// 营业执照识别能力可以识别营业执照关键字段内容，包括：公司地址、营业范围、注册资本、注册日期、公司法人、公司名称、统一社会信用代码、公司类型、公司营业期限日期。同时可以输出营业执照上二维码、印章位置。
+//【前提条件】
+// 请确保您已开通文字识别服务，若未开通服务请立即开通。
+//【输入限制】
+// 图像格式：JPEG、JPG、PNG、BMP、GIF。
+// 图像大小：不超过3 MB。
+// 图像分辨率：不限制图片分辨率，但图片分辨率太高可能会导致API识别超时，超时时间为5秒。
+// 请求格式：JPEG、JPG、PNG、BMP、GIF。
+func (api *AliOcrApi) CheckBusinessLicense(imgURL string) (res *ocr20191230.RecognizeBusinessLicenseResponse, err error) {
+	params := &ocr20191230.RecognizeBusinessLicenseRequest{
+		ImageURL: &imgURL, // 图像URL地址。当前仅支持上海地域的OSS链接，如何生成URL请参见生成URL。
+	}
+
+	//runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
+	//res, err = api.Client.RecognizeLicensePlateWithOptions(params, runtime)
+	res, err = api.Client.RecognizeBusinessLicense(params)
+	return
+}
