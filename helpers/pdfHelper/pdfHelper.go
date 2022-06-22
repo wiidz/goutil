@@ -286,7 +286,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 	rightData := getSignData(secondParty)
 
 	helper.PDF.Ln(-1)
-	helper.PDF.SetFont(FontName, FontBold, 14)
+	helper.PDF.SetFont(FontName, FontBold, 10)
 	helper.PDF.CellFormat(95, 10, "甲方", "1", 0, gofpdf.AlignCenter, false, 0, "")
 	helper.PDF.CellFormat(95, 10, "乙方", "1", 1, gofpdf.AlignCenter, false, 0, "")
 
