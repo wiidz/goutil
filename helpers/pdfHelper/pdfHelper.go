@@ -31,7 +31,9 @@ func NewPDFHelper(fontOption *FontOption, headerOption *HeaderOption, footerOpti
 		WaterMarkOption: waterMarkOption,
 	}
 
-	helper.addFonts()    // 添加预设字体
+	helper.addFonts() // 添加预设字体
+	helper.AddHeader()
+	helper.AddFooter()
 	helper.PDF.AddPage() // 添加一页
 	// 这里不要忘记了，如果没有addPage，也能输出pdf，但是这个pdf的数据头不一样，就会导致fitz认不到格式
 
