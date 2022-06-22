@@ -73,8 +73,8 @@ func (helper *PDFHelper) AddHeader() {
 
 		//【2】合同编号
 		helper.PDF.SetXY(Margin, Margin)
-		helper.PDF.SetTextColor(144, 147, 153)          //设置字体
-		helper.PDF.SetFont(FontName, TextAlignLeft, 12) //设置字体
+		helper.PDF.SetTextColor(144, 147, 153)             //设置字体
+		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 12) //设置字体
 		helper.PDF.CellFormat(helper.getValidWidth(), Margin, helper.HeaderOption.RightText, "", 1, TextAlignRight, false, 0, "")
 		//【3】添加水印
 		if helper.WaterMarkOption != nil {
@@ -99,7 +99,7 @@ func (helper *PDFHelper) AddFooter() {
 		//【1】编号（左）
 		helper.PDF.SetTextColor(96, 98, 102)
 		helper.PDF.SetFont(FontName, FontLight, 10) //设置字体
-		helper.PDF.CellFormat(height[0], Margin, helper.FooterOption.LeftText, "", 0, TextAlignLeft, false, 0, "")
+		helper.PDF.CellFormat(height[0], Margin, helper.FooterOption.LeftText, "", 0, gofpdf.AlignLeft, false, 0, "")
 
 		//【2】页码（中）
 		helper.PDF.SetTextColor(48, 49, 51)
@@ -108,12 +108,12 @@ func (helper *PDFHelper) AddFooter() {
 		pageNow := helper.PDF.PageNo()
 		//pageTotal := pdf.PageCount()
 		//log.Println(pageNow, pageTotal)
-		//pdf.CellFormat(height[1], 10, strconv.Itoa(pageNow)+" / "+strconv.Itoa(pageTotal), "", 0, TextAlignCenter, false, 0, "")
-		helper.PDF.CellFormat(height[1], Margin, "第"+strconv.Itoa(pageNow)+"页", "", 0, TextAlignCenter, false, 0, "")
+		//pdf.CellFormat(height[1], 10, strconv.Itoa(pageNow)+" / "+strconv.Itoa(pageTotal), "", 0, gofpdf.AlignCenter, false, 0, "")
+		helper.PDF.CellFormat(height[1], Margin, "第"+strconv.Itoa(pageNow)+"页", "", 0, gofpdf.AlignCenter, false, 0, "")
 		//pageTotal = 99
 		//【3】编号（右）
 		helper.PDF.SetTextColor(96, 98, 102)
-		helper.PDF.SetFont(FontName, TextAlignLeft, 10) //设置字体
+		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 10) //设置字体
 		helper.PDF.CellFormat(height[2], Margin, helper.FooterOption.RightText, "", 0, TextAlignRight, false, 0, "")
 	})
 }
@@ -133,15 +133,15 @@ func (helper *PDFHelper) AddWaterMark() {
 
 	for i := 0; i < 10; i++ {
 		if i%2 == 0 {
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 1, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, TextAlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 1, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, gofpdf.AlignCenter, false, 0, "")
 		} else {
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 1, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, TextAlignCenter, false, 0, "")
-			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, TextAlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 1, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextCn, "", 0, gofpdf.AlignCenter, false, 0, "")
+			helper.PDF.CellFormat(100, markLineHt, helper.WaterMarkOption.TextEn, "", 0, gofpdf.AlignCenter, false, 0, "")
 		}
 	}
 
@@ -159,20 +159,20 @@ func (helper *PDFHelper) MainTitle(text string) {
 		totalWidth = LandscapeValidWidth
 	}
 
-	helper.PDF.CellFormat(totalWidth, 24, text, "0", 2, TextAlignCenter, false, 0, "")
+	helper.PDF.CellFormat(totalWidth, 24, text, "0", 2, gofpdf.AlignCenter, false, 0, "")
 }
 
 // FirstTitle 一级标题
 func (helper *PDFHelper) FirstTitle(text string) {
 	helper.PDF.SetFont(FontName, "B", 14)
 	helper.PDF.SetTextColor(0, 0, 0)
-	helper.PDF.MultiCell(190, 14, text, "", TextAlignLeft, false)
+	helper.PDF.MultiCell(190, 14, text, "", gofpdf.AlignLeft, false)
 }
 
 // SecondTitle 二级标题
 func (helper *PDFHelper) SecondTitle(text string) {
 	helper.PDF.SetFont(FontName, "B", 16) // 设置字体
-	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "1", 2, TextAlignCenter, false, 0, "")
+	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "1", 2, gofpdf.AlignCenter, false, 0, "")
 }
 
 // NormalContent 常规正文内容（前面会有两格缩进）
@@ -181,7 +181,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 	//【1】默认样式
 	var doIndent = true
 	var fontSize = float64(10)
-	var textAlign = TextAlignLeft
+	var textAlign = gofpdf.AlignLeft
 	var fontWeight = FontRegular
 	var color = &RGBColor{
 		R: 48,
@@ -287,29 +287,25 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, 14)
-	helper.PDF.CellFormat(95, 10, "甲方", "1", 0, TextAlignCenter, false, 0, "")
-	helper.PDF.CellFormat(95, 10, "乙方", "1", 1, TextAlignCenter, false, 0, "")
+	helper.PDF.CellFormat(95, 10, "甲方", "1", 0, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(95, 10, "乙方", "1", 1, gofpdf.AlignCenter, false, 0, "")
 
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
 	//【3】循环填充数据
 	for k := range leftData {
-		helper.PDF.CellFormat(95, 8, leftData[k], "LR", 0, TextAlignLeft, false, 0, "")
-		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, TextAlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, leftData[k], "LR", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
-	helper.PDF.Ln(-1)
-	helper.PDF.Ln(-1)
-	helper.PDF.Ln(-1)
-	helper.PDF.Ln(-1)
-	helper.PDF.CellFormat(95, 8, "", "LBR", 0, TextAlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LBR", 1, TextAlignLeft, false, 0, "")
+	helper.PDF.MultiCell(95, 8, "签字盖章：\n\n\n\n", "LBR", gofpdf.AlignLeft, false)
+	helper.PDF.MultiCell(95, 8, "签字盖章：\n\n\n\n", "LBR", gofpdf.AlignLeft, false)
 }
 
 // getSignData 获取签名数据
 func getSignData(party SignerInterface) (fillData []string) {
 
-	fillData = make([]string, 8) // 单位最长，有8个字段，所以长度给8
+	fillData = make([]string, 7) // 单位最长，有8个字段，所以长度给8
 
 	if party.GetKind() == Company {
 		temp, _ := party.(CompanySigner)
@@ -327,7 +323,6 @@ func getSignData(party SignerInterface) (fillData []string) {
 			"法定代表：" + temp.LawPersonName,
 			"电        话：" + temp.OgTel,
 			"传        真：" + temp.OgFax,
-			"（下方签字+盖章）",
 		}
 	} else {
 		temp, _ := party.(PersonSigner)
@@ -339,7 +334,6 @@ func getSignData(party SignerInterface) (fillData []string) {
 			"",
 			"",
 			"",
-			"（下方签字）",
 		}
 	}
 
