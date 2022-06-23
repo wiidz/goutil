@@ -320,8 +320,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		timeStr[0] += firstParty.GetTime()
 		timeStr[1] += secondParty.GetTime()
 	}
-	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, timeStr[0], "LBR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, timeStr[1], "LBR", 1, gofpdf.AlignLeft, false, 0, "")
 
 }
 
