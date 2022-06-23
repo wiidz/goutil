@@ -117,7 +117,9 @@ func DownloadFile(url string, localPath string, fb func(length, downLen int64)) 
 			break
 		}
 		//没有错误了快使用 callback
-		fb(fsize, written)
+		if fb != nil {
+			fb(fsize, written)
+		}
 	}
 	if err == nil {
 		file.Close()
