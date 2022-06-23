@@ -1,6 +1,7 @@
 package imgHelper
 
 import (
+	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
@@ -48,7 +49,7 @@ func Buff2Image(bytes []byte, filePath string) (err error) {
 }
 
 // MergeLocalImg 拼合本地图片
-func MergeLocalImg(bgImgFilePath, coverImgFilePath string, x, y int, newFilePath string) (err error) {
+func MergeLocalImg(bgImgFilePath, coverImgFilePath string, position *Position, coverSize *Size, newFilePath string) (err error) {
 
 	bgImg, err := OpenImageFile(bgImgFilePath)
 	if err != nil {
@@ -60,8 +61,12 @@ func MergeLocalImg(bgImgFilePath, coverImgFilePath string, x, y int, newFilePath
 		return
 	}
 
+	if coverSize != nil {
+		coverImg = imaging.Resize(coverImg, coverSize.Width, coverSize.Width, imaging.Lanczos)
+	}
+
 	context := gg.NewContextForImage(bgImg)
-	context.DrawImage(coverImg, x, y)
+	context.DrawImage(coverImg, position.X, position.Y)
 	err = context.SavePNG(newFilePath)
 
 	return
@@ -69,7 +74,7 @@ func MergeLocalImg(bgImgFilePath, coverImgFilePath string, x, y int, newFilePath
 
 // MergeNetworkImg 拼合网络图片
 // 这个函数会将图片先下载到项目根目录下的/temp，记得给权限
-func MergeNetworkImg(bgImgURL, coverImgURL string, x, y int, newFilePath string) (err error) {
+func MergeNetworkImg(bgImgURL, coverImgURL string, position *Position, coverSize *Size, newFilePath string) (err error) {
 
 	//【1】下载文件到本地
 	dir, _ := os.Getwd()
@@ -87,6 +92,6 @@ func MergeNetworkImg(bgImgURL, coverImgURL string, x, y int, newFilePath string)
 	}
 	defer osHelper.Delete(coverImgFilePath)
 
-	err = MergeLocalImg(bgImgFilePath, coverImgFilePath, x, y, newFilePath)
+	err = MergeLocalImg(bgImgFilePath, coverImgFilePath, position, coverSize, newFilePath)
 	return
 }
