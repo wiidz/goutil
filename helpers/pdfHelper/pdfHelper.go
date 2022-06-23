@@ -308,8 +308,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
 	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
 	for k := range leftStyle {
-		helper.PDF.CellFormat(95, 8, leftStyle[k].Content, "LR", 0, gofpdf.AlignLeft, leftStyle[k].Fill, 0, "")
-		helper.PDF.CellFormat(95, 8, rightStyle[k].Content, "LR", 1, gofpdf.AlignLeft, rightStyle[k].Fill, 0, "")
+		helper.PDF.CellFormat(95, 8, leftStyle[k].Content, "LR", 0, gofpdf.AlignCenter, leftStyle[k].Fill, 0, "")
+		helper.PDF.CellFormat(95, 8, rightStyle[k].Content, "LR", 1, gofpdf.AlignCenter, rightStyle[k].Fill, 0, "")
 	}
 	helper.PDF.SetTextColor(48, 49, 51) // 把字体颜色改回来
 
@@ -389,9 +389,9 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 		fillData[3].Fill = true
 
 		fillData[1].Content = "请在此处红色区域"
-		fillData[2].Content = "签署\"" + party.GetHintName() + "\""
+		fillData[2].Content = "签署文字\"" + party.GetHintName() + "\""
 		if party.GetKind() == Company {
-			fillData[2].Content += ",并加盖公章"
+			fillData[2].Content += "，并加盖公章"
 		}
 	}
 	return
