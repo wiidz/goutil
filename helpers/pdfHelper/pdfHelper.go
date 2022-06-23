@@ -299,13 +299,15 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	}
 
 	//【4】下方签字盖章区域
-	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
+
+	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 0, gofpdf.AlignLeft, firstParty.GetDoHint(), 0, "")
+	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 1, gofpdf.AlignLeft, secondParty.GetDoHint(), 0, "")
 
 	//【5】获取两边的数据
 	leftStyle := getSignData(firstParty)
 	rightStyle := getSignData(secondParty)
-	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
+
 	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
 	for k := range leftStyle {
 		helper.PDF.CellFormat(95, 8, leftStyle[k].Content, "LR", 0, gofpdf.AlignCenter, leftStyle[k].Fill, 0, "")
@@ -388,10 +390,10 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 		fillData[2].Fill = true
 		fillData[3].Fill = true
 
-		fillData[1].Content = "请在此处红色区域"
-		fillData[2].Content = "签署文字\"" + party.GetHintName() + "\""
+		fillData[0].Content = "请在此处红色区域"
+		fillData[1].Content = "签署文字\"" + party.GetHintName() + "\""
 		if party.GetKind() == Company {
-			fillData[2].Content += "，并加盖公章"
+			fillData[2].Content = "并加盖本公司/单位公章"
 		}
 	}
 	return
