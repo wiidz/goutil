@@ -279,7 +279,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 }
 
 // AddSignForm 添加一个签字用的区域
-func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
+func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) {
 
 	//【1】获取两边的数据
 	leftData := getSignData(firstParty)
@@ -310,8 +310,19 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface) {
 	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
 	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
 
+	if fillIP {
+		helper.PDF.CellFormat(95, 8, "IP："+firstParty.GetIP(), "LR", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, "IP："+secondParty.GetIP(), "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	}
+
+	var timeStr = [2]string{"签署日期：", "签署日期："}
+	if fillTime {
+		timeStr[0] += firstParty.GetTime()
+		timeStr[1] += secondParty.GetTime()
+	}
 	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 0, gofpdf.AlignLeft, false, 0, "")
 	helper.PDF.CellFormat(95, 8, "签署日期：", "LBR", 1, gofpdf.AlignLeft, false, 0, "")
+
 }
 
 // getSignData 获取签名数据

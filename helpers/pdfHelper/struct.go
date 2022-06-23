@@ -73,6 +73,8 @@ const Company SignKind = 2 // 单位
 
 type SignerInterface interface {
 	GetKind() SignKind
+	GetTime() string
+	GetIP() string
 }
 
 // CompanySigner 公司签署
@@ -89,10 +91,19 @@ type CompanySigner struct {
 
 	SignerName  string // 签署人真实姓名
 	SignerPhone string // 签署人手机号
+
+	Time string // 签署日期
+	IP   string // 签署IP
 }
 
 func (signer CompanySigner) GetKind() SignKind {
 	return Company
+}
+func (signer CompanySigner) GetIP() string {
+	return signer.IP
+}
+func (signer CompanySigner) GetTime() string {
+	return signer.Time
 }
 
 // PersonSigner 个人签署
@@ -101,8 +112,18 @@ type PersonSigner struct {
 	Address  string // 地址
 	Phone    string // 手机号
 	IDCardNo string // 身份证号
+
+	Time string // 签署日期
+	IP   string // 签署IP
 }
 
 func (signer PersonSigner) GetKind() SignKind {
 	return Person
+}
+
+func (signer PersonSigner) GetIP() string {
+	return signer.IP
+}
+func (signer PersonSigner) GetTime() string {
+	return signer.Time
 }
