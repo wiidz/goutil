@@ -75,6 +75,8 @@ type SignerInterface interface {
 	GetKind() SignKind
 	GetTime() string
 	GetIP() string
+	GetDoHint() bool     // 是否需要高亮提示签署范围
+	GetHintName() string // 提示签字的姓名
 }
 
 // CompanySigner 公司签署
@@ -92,8 +94,9 @@ type CompanySigner struct {
 	SignerName  string // 签署人真实姓名
 	SignerPhone string // 签署人手机号
 
-	Time string // 签署日期
-	IP   string // 签署IP
+	DoHint bool   // 是否需要提示签署位置
+	Time   string // 签署日期
+	IP     string // 签署IP
 }
 
 func (signer CompanySigner) GetKind() SignKind {
@@ -105,6 +108,12 @@ func (signer CompanySigner) GetIP() string {
 func (signer CompanySigner) GetTime() string {
 	return signer.Time
 }
+func (signer CompanySigner) GetDoHint() bool {
+	return signer.DoHint
+}
+func (signer CompanySigner) GetHintName() string {
+	return signer.SignerName
+}
 
 // PersonSigner 个人签署
 type PersonSigner struct {
@@ -113,8 +122,9 @@ type PersonSigner struct {
 	Phone    string // 手机号
 	IDCardNo string // 身份证号
 
-	Time string // 签署日期
-	IP   string // 签署IP
+	DoHint bool   // 是否需要提示签署位置
+	Time   string // 签署日期
+	IP     string // 签署IP
 }
 
 func (signer PersonSigner) GetKind() SignKind {
@@ -126,4 +136,16 @@ func (signer PersonSigner) GetIP() string {
 }
 func (signer PersonSigner) GetTime() string {
 	return signer.Time
+}
+
+func (signer PersonSigner) GetDoHint() bool {
+	return signer.DoHint
+}
+func (signer PersonSigner) GetHintName() string {
+	return signer.TrueName
+}
+
+type SignFormCellStyle struct {
+	Content string
+	Fill    bool
 }

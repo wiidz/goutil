@@ -282,8 +282,8 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) {
 
 	//【1】获取两边的数据
-	leftData := getSignData(firstParty)
-	rightData := getSignData(secondParty)
+	leftData := getPartyInfo(firstParty)
+	rightData := getPartyInfo(secondParty)
 
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, 10)
@@ -298,18 +298,22 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		helper.PDF.CellFormat(95, 8, rightData[k], "LR", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
-	helper.PDF.CellFormat(95, 8, "签字盖章：", "LTR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "签字盖章：", "LTR", 1, gofpdf.AlignLeft, false, 0, "")
+	//【4】下方签字盖章区域
+	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 1, gofpdf.AlignLeft, false, 0, "")
 
-	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(95, 8, "", "LR", 1, gofpdf.AlignLeft, false, 0, "")
+	//【5】获取两边的数据
+	leftStyle := getSignData(firstParty)
+	rightStyle := getSignData(secondParty)
+	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
+	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
+	for k := range leftStyle {
+		helper.PDF.CellFormat(95, 8, leftStyle[k].Content, "LR", 0, gofpdf.AlignLeft, leftStyle[k].Fill, 0, "")
+		helper.PDF.CellFormat(95, 8, rightStyle[k].Content, "LR", 1, gofpdf.AlignLeft, rightStyle[k].Fill, 0, "")
+	}
+	helper.PDF.SetTextColor(48, 49, 51) // 把字体颜色改回来
 
+	//【6】填充IP、时间
 	if fillIP {
 		helper.PDF.CellFormat(95, 8, "IP："+firstParty.GetIP(), "LR", 0, gofpdf.AlignLeft, false, 0, "")
 		helper.PDF.CellFormat(95, 8, "IP："+secondParty.GetIP(), "LR", 1, gofpdf.AlignLeft, false, 0, "")
@@ -325,10 +329,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 }
 
-// getSignData 获取签名数据
-func getSignData(party SignerInterface) (fillData []string) {
-
-	fillData = make([]string, 7) // 单位最长，有8个字段，所以长度给8
+// getPartyInfo 获取甲方/乙方信息数据
+func getPartyInfo(party SignerInterface) (fillData [7]string) {
 
 	if party.GetKind() == Company {
 		temp, _ := party.(CompanySigner)
@@ -338,7 +340,7 @@ func getSignData(party SignerInterface) (fillData []string) {
 			ogBankName += "（行号" + temp.OgBankNo + "）"
 		}
 
-		fillData = []string{
+		fillData = [7]string{
 			"单位名称：" + temp.OgName,
 			"税        号：" + temp.OgLicenseNo,
 			"单位地址：" + temp.OgAddress,
@@ -349,7 +351,7 @@ func getSignData(party SignerInterface) (fillData []string) {
 		}
 	} else {
 		temp, _ := party.(PersonSigner)
-		fillData = []string{
+		fillData = [7]string{
 			"姓        名：" + temp.TrueName,
 			"身份证号：" + temp.IDCardNo,
 			"手        机：" + temp.Phone,
@@ -360,5 +362,37 @@ func getSignData(party SignerInterface) (fillData []string) {
 		}
 	}
 
+	return
+}
+
+// getSignData 获取签署区域的数据
+func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
+
+	fillData = [4]*SignFormCellStyle{{
+		Content: "",
+		Fill:    false,
+	}, {
+		Content: "",
+		Fill:    false,
+	}, {
+		Content: "",
+		Fill:    false,
+	}, {
+		Content: "",
+		Fill:    false,
+	}}
+	if party.GetDoHint() {
+
+		fillData[0].Fill = true
+		fillData[1].Fill = true
+		fillData[2].Fill = true
+		fillData[3].Fill = true
+
+		fillData[1].Content = "请在此处红色区域"
+		fillData[2].Content = "签署\"" + party.GetHintName() + "\""
+		if party.GetKind() == Company {
+			fillData[2].Content += ",并加盖公章"
+		}
+	}
 	return
 }
