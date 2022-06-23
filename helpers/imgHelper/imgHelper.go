@@ -49,49 +49,83 @@ func Buff2Image(bytes []byte, filePath string) (err error) {
 }
 
 // MergeLocalImg 拼合本地图片
-func MergeLocalImg(bgImgFilePath, coverImgFilePath string, position *Position, coverSize *Size, newFilePath string) (err error) {
+func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...CoverImgInterface) (err error) {
 
-	bgImg, err := OpenImageFile(bgImgFilePath)
+	//【1】打开背景图
+	var bgImg image.Image
+	bgImg, err = OpenImageFile(bgImgFilePath)
 	if err != nil {
 		return
 	}
 
-	coverImg, err := OpenImageFile(coverImgFilePath)
-	if err != nil {
-		return
-	}
-
-	if coverSize != nil {
-		coverImg = imaging.Resize(coverImg, coverSize.Width, coverSize.Width, imaging.Lanczos)
-	}
-
+	//【2】循环插入图片
 	context := gg.NewContextForImage(bgImg)
-	context.DrawImage(coverImg, position.X, position.Y)
-	err = context.SavePNG(newFilePath)
+	for k := range coverImgSlice {
 
+		//【2-1】提取所需数据
+		var size = coverImgSlice[k].GetSize()
+		var position = coverImgSlice[k].GetPosition()
+		var localFilePath = coverImgSlice[k].GetLocalFilePath()
+
+		//【2-2】打开cover图片
+		var temp image.Image
+		temp, err = OpenImageFile(localFilePath)
+		if err != nil {
+			return
+		}
+
+		//【2-3】判断是否需要缩放
+		if size != nil {
+			temp = imaging.Resize(temp, size.Width, size.Width, imaging.Lanczos)
+		}
+
+		//【2-4】插入图片
+		context.DrawImage(temp, position.X, position.Y)
+	}
+
+	//【3】输出新图片
+	err = context.SavePNG(newFilePath)
 	return
 }
 
 // MergeNetworkImg 拼合网络图片
 // 这个函数会将图片先下载到项目根目录下的/temp，记得给权限
-func MergeNetworkImg(bgImgURL, coverImgURL string, position *Position, coverSize *Size, newFilePath string) (err error) {
+func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice ...NetworkCoverImg) (err error) {
 
 	//【1】下载文件到本地
 	dir, _ := os.Getwd()
 	bgImgFilePath := dir + "/temp/" + strHelper.GetRandomString(8)
-	coverImgFilePath := dir + "/temp/" + strHelper.GetRandomString(8)
+
 	err = osHelper.DownloadFile(bgImgURL, bgImgFilePath, nil)
 	if err != nil {
 		return
 	}
 	defer osHelper.Delete(bgImgFilePath)
 
-	err = osHelper.DownloadFile(coverImgURL, coverImgFilePath, nil)
-	if err != nil {
-		return
-	}
-	defer osHelper.Delete(coverImgFilePath)
+	localFilePaths := []string{bgImgFilePath}
 
-	err = MergeLocalImg(bgImgFilePath, coverImgFilePath, position, coverSize, newFilePath)
+	interfaceSlice := []CoverImgInterface{}
+
+	for k := range coverImgSlice {
+		networkURL := coverImgSlice[k].NetworkURL
+		localFilePath := dir + "/temp/" + strHelper.GetRandomString(8)
+		err = osHelper.DownloadFile(networkURL, localFilePath, nil)
+		if err != nil {
+			return
+		}
+
+		coverImgSlice[k].LocalFilePath = localFilePath
+		interfaceSlice = append(interfaceSlice, &coverImgSlice[k])
+
+		localFilePaths = append(localFilePaths, networkURL)
+	}
+
+	err = MergeLocalImg(bgImgFilePath, newFilePath, interfaceSlice...)
+
+	go func() {
+		for _, v := range localFilePaths {
+			osHelper.Delete(v)
+		}
+	}()
 	return
 }
