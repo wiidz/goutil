@@ -1,23 +1,16 @@
 package osHelper
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/kataras/iris/v12"
-	"github.com/shamsher31/goimgtype"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
-	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -135,41 +128,6 @@ func DownloadFile(url string, localPath string, fb func(length, downLen int64)) 
 }
 
 /**
-* @func: OpenImageFile 打开图像文件
-* @author Wiidz
-* @date   2019-11-16
- */
-func OpenImageFile(localUri string) (image.Image, error) {
-	var m image.Image
-	ff, _ := ioutil.ReadFile(localUri) //读取文件 要先下载
-	bbb := bytes.NewBuffer(ff)
-
-	datatype, err := imgtype.Get(localUri)
-
-	if err != nil {
-		fmt.Println(err)
-		return m, err
-	}
-	fmt.Println("【datatype】", datatype)
-
-	switch datatype {
-	case "image/jpeg":
-		m, err = jpeg.Decode(bbb)
-	case "image/png":
-		m, err = png.Decode(bbb)
-	case "image/gif":
-		m, err = gif.Decode(bbb)
-	default:
-		fmt.Println("不支持的格式", reflect.TypeOf(datatype).String())
-	}
-	return m, nil
-}
-
-func Buff2Image(bytes []byte) {
-	_ = ioutil.WriteFile("/tmp/test.jpg", bytes, 0666)
-}
-
-/**
  * @func: ReadJsonFile 读取json格式的文件
  * @author Wiidz
  * @date   2019-11-16
@@ -244,4 +202,9 @@ func CreateIfNotExist(dirName string, perm os.FileMode) (err error) {
 	}
 
 	return CreateDir(dirName, perm)
+}
+
+// Delete 删除指定路径文件夹/文件
+func Delete(filePath string) error {
+	return os.Remove(filePath)
 }

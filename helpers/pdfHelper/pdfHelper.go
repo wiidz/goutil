@@ -339,10 +339,10 @@ func getSignData(party SignerInterface) (fillData []string) {
 	} else {
 		temp, _ := party.(PersonSigner)
 		fillData = []string{
-			"真实姓名：" + temp.TrueName,
+			"姓        名：" + temp.TrueName,
 			"身份证号：" + temp.IDCardNo,
 			"手        机：" + temp.Phone,
-			"住        址：" + temp.Address,
+			"住        所：" + temp.Address,
 			"",
 			"",
 			"",

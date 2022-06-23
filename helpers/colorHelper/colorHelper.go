@@ -3,6 +3,7 @@ package colorHelper
 import (
 	"errors"
 	"fmt"
+	"github.com/wiidz/goutil/helpers/imgHelper"
 	"github.com/wiidz/goutil/helpers/mapHelper"
 	"github.com/wiidz/goutil/helpers/mathHelper"
 	"github.com/wiidz/goutil/helpers/osHelper"
@@ -147,7 +148,7 @@ func GetPixelRgb(img_uri string, dots []map[string]float64) ([]map[string]interf
 		return rgbArr, err
 	}
 	//获取image
-	m, err := osHelper.OpenImageFile(localUri)
+	m, err := imgHelper.OpenImageFile(localUri)
 	if err != nil {
 		fmt.Println(err)
 		return rgbArr, err
