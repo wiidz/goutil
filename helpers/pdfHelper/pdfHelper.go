@@ -390,10 +390,10 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 		fillData[2].Fill = true
 		fillData[3].Fill = true
 
-		fillData[0].Content = "请在此处红色区域"
-		fillData[1].Content = "签署文字\"" + party.GetHintName() + "\""
+		fillData[0].Content = "请在此处红色区域内"
+		fillData[1].Content = "签署本人姓名 \"" + party.GetHintName() + "\"，请勿冒名顶替"
 		if party.GetKind() == Company {
-			fillData[2].Content = "并加盖本公司/单位公章"
+			fillData[2].Content = "并加盖 本公司/单位公章"
 		}
 	}
 	return
