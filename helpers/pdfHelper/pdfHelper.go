@@ -499,6 +499,7 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 // AddTableHeadMulti 添加一个表格头
 func (helper *PDFHelper) AddTableHeadMulti(width float64, startY float64, content string, opt ...*ContentStyle) (startPoint, endPoint *Point) {
 
+	startPoint, endPoint = &Point{}, &Point{}
 	helper.PDF.SetY(startY)
 	startPoint.X, startPoint.Y = helper.PDF.GetXY()
 
@@ -551,6 +552,8 @@ func (helper *PDFHelper) AddTableHeadMulti(width float64, startY float64, conten
 
 // AddTableBodyMulti 添加一个表格体
 func (helper *PDFHelper) AddTableBodyMulti(width float64, startY float64, content string, opt ...*ContentStyle) (startPoint, endPoint *Point) {
+
+	startPoint, endPoint = &Point{}, &Point{}
 
 	helper.PDF.SetY(startY)
 	startPoint.X, startPoint.Y = helper.PDF.GetXY()
