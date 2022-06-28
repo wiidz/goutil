@@ -59,11 +59,13 @@ type RGBColor struct {
 }
 
 type ContentStyle struct {
+	LineHeight float64    // 行高
 	DoIntent   bool       // 是否进行首行缩进两格
 	TextAlign  TextAlign  // 水平对齐方式
 	FontWeight FontWeight // 文字粗细
 	FontSize   float64    // 字体大小
-	Color      *RGBColor
+	Color      *RGBColor  // 文字颜色
+	BgColor    *RGBColor  // 背景色
 }
 
 type SignKind int8
@@ -149,3 +151,13 @@ type SignFormCellStyle struct {
 	Content string
 	Fill    bool
 }
+
+// ln indicates where the current position should go after the call. Possible
+// values are 0 (to the right), 1 (to the beginning of the next line), and 2
+// (below). Putting 1 is equivalent to putting 0 and calling Ln() just after.
+
+type Ln int
+
+const ToTheRight Ln = 0
+const WholeLine Ln = 1
+const Below Ln = 2
