@@ -497,9 +497,9 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 }
 
 // AddTableHeadMulti 添加一个表格头
-func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (endPoint *Point) {
+func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *Point) {
 
-	endPoint = &Point{}
+	thisLineEndPoint, nextLineStartPoint = &Point{}, &Point{}
 	helper.PDF.SetXY(startPoint.X, startPoint.Y)
 	//startPoint.X, startPoint.Y = helper.PDF.GetXY()
 
@@ -546,14 +546,17 @@ func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, con
 
 	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
 	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
-	endPoint.X, endPoint.Y = helper.PDF.GetXY()
+
+	thisLineEndPoint.X = startPoint.X + width
+	thisLineEndPoint.Y = startPoint.Y
+	nextLineStartPoint.X, nextLineStartPoint.Y = helper.PDF.GetXY()
 	return
 }
 
 // AddTableBodyMulti 添加一个表格体
-func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (endPoint *Point) {
+func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *Point) {
 
-	endPoint = &Point{}
+	thisLineEndPoint, nextLineStartPoint = &Point{}, &Point{}
 	helper.PDF.SetXY(startPoint.X, startPoint.Y)
 
 	//【1】默认样式
@@ -599,6 +602,10 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, con
 
 	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
 	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
-	endPoint.X, endPoint.Y = helper.PDF.GetXY()
+
+	thisLineEndPoint.X = startPoint.X + width
+	thisLineEndPoint.Y = startPoint.Y
+
+	nextLineStartPoint.X, nextLineStartPoint.Y = helper.PDF.GetXY()
 	return
 }
