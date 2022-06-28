@@ -435,6 +435,9 @@ func (helper *PDFHelper) AddTableHead(width float64, ln Ln, content string, opt 
 		if opt[0].BgColor != nil {
 			bgColor = opt[0].BgColor
 		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
+		}
 	}
 
 	//【3】设置样式
@@ -480,6 +483,9 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 		}
 		if opt[0].BgColor != nil {
 			bgColor = opt[0].BgColor
+		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
 		}
 	}
 
@@ -531,6 +537,9 @@ func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, con
 		}
 		if opt[0].BgColor != nil {
 			bgColor = opt[0].BgColor
+		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
 		}
 	}
 
@@ -587,6 +596,9 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, con
 		}
 		if opt[0].BgColor != nil {
 			bgColor = opt[0].BgColor
+		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
 		}
 	}
 
