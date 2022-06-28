@@ -621,3 +621,13 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, con
 	nextLineStartPoint.X, nextLineStartPoint.Y = helper.PDF.GetXY()
 	return
 }
+
+// GetTotalHeight 获取多行文字的行高
+func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight FontWeight, fontSize, lineHeight float64) (totalHeight float64) {
+	helper.PDF.SetFont(FontName, string(weight), fontSize)
+
+	lines := helper.PDF.SplitLines([]byte(content), width)
+
+	totalHeight = float64(len(lines)) * lineHeight
+	return
+}
