@@ -404,10 +404,10 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // AddTableHead 添加一个表格头
-func (helper *PDFHelper) AddTableHead(content string, width float64, ln Ln, opt ...*ContentStyle) {
+func (helper *PDFHelper) AddTableHead(width float64, ln Ln, content string, opt ...*ContentStyle) {
 	//【1】默认样式
 	var fontSize = float64(10)
-	var lineHeight = fontSize * 1.5
+	var lineHeight = fontSize * 1
 	var textAlign = gofpdf.AlignCenter
 	var fontWeight = FontBold
 	var color = &RGBColor{
@@ -450,10 +450,10 @@ func (helper *PDFHelper) AddTableHead(content string, width float64, ln Ln, opt 
 }
 
 // AddTableBody 添加一个表格体
-func (helper *PDFHelper) AddTableBody(content string, width float64, ln Ln, opt ...*ContentStyle) {
+func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt ...*ContentStyle) {
 	//【1】默认样式
 	var fontSize = float64(10)
-	var lineHeight = fontSize * 1.5
+	var lineHeight = fontSize * 1
 	var textAlign = gofpdf.AlignCenter
 	var fontWeight = FontRegular
 	var color = &RGBColor{
