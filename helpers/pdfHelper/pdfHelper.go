@@ -6,6 +6,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"image"
 	"image/jpeg"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -627,6 +628,11 @@ func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight Fo
 	helper.PDF.SetFont(FontName, string(weight), fontSize)
 
 	lines := helper.PDF.SplitLines([]byte(content), width)
+
+	log.Println("font:", string(weight), fontSize, lineHeight)
+	for _, v := range lines {
+		log.Println("v", string(v))
+	}
 
 	totalHeight = float64(len(lines)) * lineHeight
 	return
