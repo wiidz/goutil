@@ -201,7 +201,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 			fontSize = opt[0].FontSize
 		}
 		if opt[0].TextAlign != "" {
-			textAlign = string(opt[0].TextAlign)
+			textAlign = opt[0].TextAlign
 		}
 		if opt[0].FontWeight != "" {
 			fontWeight = string(opt[0].FontWeight)
@@ -424,7 +424,7 @@ func (helper *PDFHelper) AddTableHead(width float64, ln Ln, content string, opt 
 			fontSize = opt[0].FontSize
 		}
 		if opt[0].TextAlign != "" {
-			textAlign = string(opt[0].TextAlign)
+			textAlign = opt[0].TextAlign
 		}
 		if opt[0].FontWeight != "" {
 			fontWeight = string(opt[0].FontWeight)
@@ -470,7 +470,7 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 			fontSize = opt[0].FontSize
 		}
 		if opt[0].TextAlign != "" {
-			textAlign = string(opt[0].TextAlign)
+			textAlign = opt[0].TextAlign
 		}
 		if opt[0].FontWeight != "" {
 			fontWeight = string(opt[0].FontWeight)
@@ -494,4 +494,110 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+}
+
+// AddTableHeadMulti 添加一个表格头
+func (helper *PDFHelper) AddTableHeadMulti(width float64, startY float64, content string, opt ...*ContentStyle) (startPoint, endPoint *Point) {
+
+	helper.PDF.SetY(startY)
+	startPoint.X, startPoint.Y = helper.PDF.GetXY()
+
+	//【1】默认样式
+	var fontSize = float64(10)
+	var lineHeight = fontSize * 1
+	var textAlign = gofpdf.AlignCenter
+	var fontWeight = FontBold
+	var color = &RGBColor{
+		R: 48,
+		G: 49,
+		B: 51,
+	}
+	var bgColor *RGBColor
+
+	//【2】判断有无设置的样式
+	if len(opt) != 0 {
+		if opt[0].FontSize != 0 {
+			fontSize = opt[0].FontSize
+		}
+		if opt[0].TextAlign != "" {
+			textAlign = opt[0].TextAlign
+		}
+		if opt[0].FontWeight != "" {
+			fontWeight = string(opt[0].FontWeight)
+		}
+		if opt[0].Color != nil {
+			color = opt[0].Color
+		}
+		if opt[0].BgColor != nil {
+			bgColor = opt[0].BgColor
+		}
+	}
+
+	//【3】设置样式
+	var fill bool
+	if bgColor != nil {
+		fill = true
+		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
+	}
+
+	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetTextColor(color.R, color.G, color.B)
+
+	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
+	endPoint.X, endPoint.Y = helper.PDF.GetXY()
+	return
+}
+
+// AddTableBodyMulti 添加一个表格体
+func (helper *PDFHelper) AddTableBodyMulti(width float64, startY float64, content string, opt ...*ContentStyle) (startPoint, endPoint *Point) {
+
+	helper.PDF.SetY(startY)
+	startPoint.X, startPoint.Y = helper.PDF.GetXY()
+
+	//【1】默认样式
+	var fontSize = float64(10)
+	var lineHeight = fontSize * 1
+	var textAlign = gofpdf.AlignCenter
+	var fontWeight = FontRegular
+	var color = &RGBColor{
+		R: 48,
+		G: 49,
+		B: 51,
+	}
+	var bgColor *RGBColor
+
+	//【2】判断有无设置的样式
+	if len(opt) != 0 {
+		if opt[0].FontSize != 0 {
+			fontSize = opt[0].FontSize
+		}
+		if opt[0].TextAlign != "" {
+			textAlign = opt[0].TextAlign
+		}
+		if opt[0].FontWeight != "" {
+			fontWeight = string(opt[0].FontWeight)
+		}
+		if opt[0].Color != nil {
+			color = opt[0].Color
+		}
+		if opt[0].BgColor != nil {
+			bgColor = opt[0].BgColor
+		}
+	}
+
+	//【3】设置样式
+	var fill bool
+	if bgColor != nil {
+		fill = true
+		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
+	}
+
+	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetTextColor(color.R, color.G, color.B)
+
+	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
+	endPoint.X, endPoint.Y = helper.PDF.GetXY()
+	return
 }

@@ -156,3 +156,8 @@ type Ln int
 const ToTheRight Ln = 0
 const Wrap Ln = 1
 const Below Ln = 2
+
+type Point struct {
+	X float64
+	Y float64
+}
