@@ -627,7 +627,8 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, con
 func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight FontWeight, fontSize, lineHeight float64) (totalHeight float64) {
 	helper.PDF.SetFont(FontName, string(weight), fontSize)
 
-	lines := helper.PDF.SplitLines([]byte(content), width)
+	//lines := helper.PDF.SplitLines([]byte(content), width)
+	lines := helper.PDF.SplitText(content, width)
 
 	log.Println("font:", string(weight), fontSize, lineHeight)
 	for _, v := range lines {
