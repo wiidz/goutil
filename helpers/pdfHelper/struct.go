@@ -19,6 +19,7 @@ type FontOption struct {
 	LightTTFURL   string // 细体字体文件
 	RegularTTFURL string // 常规体字体文件
 	BoldTTFURL    string // 粗体字体文件
+	HeavyTTFURL   string // 超粗体字体文件
 }
 type FooterOption struct {
 	LeftText  string // 左侧文字
@@ -38,18 +39,12 @@ type WaterMarkOption struct {
 	Color    *RGBColor // 颜色
 }
 
-// TextAlign 文字水平对齐方式
-type TextAlign string
-
-const TextAlignLeft = "L"
-const TextAlignRight = "R"
-const TextAlignCenter = "C"
-
 type FontWeight string
 
-const FontBold = "B"
-const FontRegular = ""
 const FontLight = "L"
+const FontRegular = ""
+const FontBold = "B"
+const FontHeavy = "H"
 
 // RGBColor 文字等颜色
 type RGBColor struct {
@@ -61,7 +56,7 @@ type RGBColor struct {
 type ContentStyle struct {
 	LineHeight float64    // 行高
 	DoIntent   bool       // 是否进行首行缩进两格
-	TextAlign  TextAlign  // 水平对齐方式
+	TextAlign  string     // 水平对齐方式  gofpdf.AlignCenter 等
 	FontWeight FontWeight // 文字粗细
 	FontSize   float64    // 字体大小
 	Color      *RGBColor  // 文字颜色
@@ -159,5 +154,5 @@ type SignFormCellStyle struct {
 type Ln int
 
 const ToTheRight Ln = 0
-const WholeLine Ln = 1
+const Wrap Ln = 1
 const Below Ln = 2

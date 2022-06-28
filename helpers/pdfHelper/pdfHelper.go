@@ -42,9 +42,10 @@ func NewPDFHelper(fontOption *FontOption, headerOption *HeaderOption, footerOpti
 
 // addFonts 添加字体
 func (helper *PDFHelper) addFonts() {
+	helper.PDF.AddUTF8Font(FontName, FontLight, helper.FontOption.LightTTFURL)
 	helper.PDF.AddUTF8Font(FontName, FontRegular, helper.FontOption.RegularTTFURL)
 	helper.PDF.AddUTF8Font(FontName, FontBold, helper.FontOption.BoldTTFURL)
-	helper.PDF.AddUTF8Font(FontName, FontLight, helper.FontOption.LightTTFURL)
+	helper.PDF.AddUTF8Font(FontName, FontHeavy, helper.FontOption.HeavyTTFURL)
 }
 
 // getValidWidth 获取当前页有效宽度
@@ -75,7 +76,7 @@ func (helper *PDFHelper) AddHeader() {
 		helper.PDF.SetXY(Margin, Margin)
 		helper.PDF.SetTextColor(144, 147, 153)             //设置字体
 		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 12) //设置字体
-		helper.PDF.CellFormat(helper.getValidWidth(), Margin, helper.HeaderOption.RightText, "", 1, TextAlignRight, false, 0, "")
+		helper.PDF.CellFormat(helper.getValidWidth(), Margin, helper.HeaderOption.RightText, "", 1, gofpdf.AlignRight, false, 0, "")
 		//【3】添加水印
 		if helper.WaterMarkOption != nil {
 			helper.AddWaterMark()
@@ -114,7 +115,7 @@ func (helper *PDFHelper) AddFooter() {
 		//【3】编号（右）
 		helper.PDF.SetTextColor(96, 98, 102)
 		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 10) //设置字体
-		helper.PDF.CellFormat(height[2], Margin, helper.FooterOption.RightText, "", 0, TextAlignRight, false, 0, "")
+		helper.PDF.CellFormat(height[2], Margin, helper.FooterOption.RightText, "", 0, gofpdf.AlignCenter, false, 0, "")
 	})
 }
 
@@ -152,7 +153,7 @@ func (helper *PDFHelper) AddWaterMark() {
 func (helper *PDFHelper) MainTitle(text string) {
 
 	helper.PDF.SetXY(Margin, 15)
-	helper.PDF.SetFont(FontName, FontBold, 24) // 设置字体
+	helper.PDF.SetFont(FontName, FontHeavy, 24) // 设置字体
 
 	totalWidth := PortraitValidWidth
 	if !helper.isPortraitHeader() {
@@ -165,7 +166,7 @@ func (helper *PDFHelper) MainTitle(text string) {
 // FirstTitle 一级标题
 func (helper *PDFHelper) FirstTitle(text string) {
 	//helper.PDF.SetFont(FontName, "B", 14)
-	helper.PDF.SetFontStyle("B")
+	helper.PDF.SetFontStyle(FontBold)
 	helper.PDF.SetFontSize(14)
 
 	helper.PDF.SetTextColor(0, 0, 0)
@@ -174,7 +175,7 @@ func (helper *PDFHelper) FirstTitle(text string) {
 
 // SecondTitle 二级标题
 func (helper *PDFHelper) SecondTitle(text string) {
-	helper.PDF.SetFontStyle("B")
+	helper.PDF.SetFontStyle(FontBold)
 	helper.PDF.SetFontSize(12)
 	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "", 2, gofpdf.AlignCenter, false, 0, "")
 }
