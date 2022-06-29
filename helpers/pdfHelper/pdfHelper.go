@@ -6,7 +6,6 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"image"
 	"image/jpeg"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -194,6 +193,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 		G: 49,
 		B: 51,
 	}
+	var lineHeight = fontSize * 1
 
 	//【2】判断有无设置的样式
 	if len(opt) != 0 {
@@ -210,6 +210,9 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 		if opt[0].Color != nil {
 			color = opt[0].Color
 		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
+		}
 	}
 
 	//【3】处理缩进
@@ -220,7 +223,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 	//【3】写入
 	helper.PDF.SetFont(FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
-	helper.PDF.MultiCell(190, 8, text, "", textAlign, false)
+	helper.PDF.MultiCell(190, lineHeight, text, "", textAlign, false)
 }
 
 // SaveAsPDF 保存为pdf
@@ -630,10 +633,10 @@ func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight Fo
 	//lines := helper.PDF.SplitLines([]byte(content), width)
 	lines := helper.PDF.SplitText(content, width)
 
-	log.Println("font:", string(weight), fontSize, lineHeight)
-	for _, v := range lines {
-		log.Println("v", string(v))
-	}
+	//log.Println("font:", string(weight), fontSize, lineHeight)
+	//for _, v := range lines {
+	//	log.Println("v", string(v))
+	//}
 
 	totalHeight = float64(len(lines)) * lineHeight
 	return
