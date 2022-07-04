@@ -1,6 +1,7 @@
 package pdfHelper
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gen2brain/go-fitz"
 	"github.com/jung-kurt/gofpdf"
@@ -295,7 +296,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 }
 
 // AddSignForm 添加一个签字用的区域
-func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) {
+func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) (err error) {
 
 	//【1】获取两边的数据
 	leftData := getPartyInfo(firstParty)
@@ -324,8 +325,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 	//【4】下方签字盖章区域
 
-	helper.drawSignArea(leftSignData, rightSignData, fillTime, fillIP)
-
+	err = helper.drawSignArea(leftSignData, rightSignData, fillTime, fillIP)
+	return
 }
 
 // getPartyInfo 获取甲方/乙方信息数据
@@ -687,7 +688,7 @@ func (helper *PDFHelper) getSignArea() (leftSignArea, rightSignArea RectArea) {
 }
 
 // drawSignArea 绘制签名区域
-func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fillTime, fillIP bool) {
+func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fillTime, fillIP bool) (err error) {
 
 	//【1】获取签名区域
 	leftSignArea, rightSignArea := helper.getSignArea() // 一定要在写签字/盖章提示之前调用
@@ -706,10 +707,22 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 	helper.PDF.SetTextColor(48, 49, 51) // 把字体颜色改回来
 
 	//【4】填充签名和印章的图片
-	helper.drawSignImg(&leftSignArea, leftSignData.StampImg, leftSignData.OverflowRate, leftSignData.AutoSign)
-	helper.drawSignImg(&leftSignArea, leftSignData.NameImg, leftSignData.OverflowRate, leftSignData.AutoSign)
-	helper.drawSignImg(&rightSignArea, rightSignData.StampImg, rightSignData.OverflowRate, rightSignData.AutoSign)
-	helper.drawSignImg(&rightSignArea, rightSignData.NameImg, rightSignData.OverflowRate, rightSignData.AutoSign)
+	err = helper.drawSignImg(&leftSignArea, leftSignData.StampImg, leftSignData.OverflowRate, leftSignData.AutoSign)
+	if err != nil {
+		return
+	}
+	err = helper.drawSignImg(&leftSignArea, leftSignData.NameImg, leftSignData.OverflowRate, leftSignData.AutoSign)
+	if err != nil {
+		return
+	}
+	err = helper.drawSignImg(&rightSignArea, rightSignData.StampImg, rightSignData.OverflowRate, rightSignData.AutoSign)
+	if err != nil {
+		return
+	}
+	err = helper.drawSignImg(&rightSignArea, rightSignData.NameImg, rightSignData.OverflowRate, rightSignData.AutoSign)
+	if err != nil {
+		return
+	}
 
 	//【5】填充IP
 	if fillIP {
@@ -726,15 +739,19 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[0], "LBR", 0, gofpdf.AlignLeft, false, 0, "")
 	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[1], "LBR", 1, gofpdf.AlignLeft, false, 0, "")
+	return
 }
 
 // drawSignImg 将签名图片按照位置放好
-func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate int, autoSign bool) {
+func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate int, autoSign bool) (err error) {
 	if img == nil {
 		return
 	}
 
 	position := img.Position
+	if img.Size == nil {
+		return errors.New("图片url不为空，但size为空，无法完成签署")
+	}
 	if position == nil {
 		if autoSign == false {
 			return
@@ -744,4 +761,5 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 	}
 
 	helper.PDF.Image(img.URL, position.X, position.Y, img.Size.Width, img.Size.Height, false, "", 0, "") //插图
+	return
 }
