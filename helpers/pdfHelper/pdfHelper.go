@@ -403,7 +403,7 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
-func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate int) (randomCenter *Point) {
+func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point) {
 
 	randomCenter = &Point{
 		X: 0,
@@ -411,16 +411,15 @@ func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate int) 
 	}
 
 	//【1】扩大一下区域
-	overflowRateFloat := float64(overflowRate)
 	if overflowRate != 0 {
-		area.LeftTop.X *= 1 - overflowRateFloat
-		area.LeftTop.Y *= 1 - overflowRateFloat
-		area.RightTop.X *= 1 + overflowRateFloat
-		area.RightTop.Y *= 1 - overflowRateFloat
-		area.LeftBottom.X *= 1 - overflowRateFloat
-		area.LeftBottom.Y *= 1 + overflowRateFloat
-		area.RightBottom.X *= 1 + overflowRateFloat
-		area.RightBottom.Y *= 1 + overflowRateFloat
+		area.LeftTop.X *= 1 - overflowRate
+		area.LeftTop.Y *= 1 - overflowRate
+		area.RightTop.X *= 1 + overflowRate
+		area.RightTop.Y *= 1 - overflowRate
+		area.LeftBottom.X *= 1 - overflowRate
+		area.LeftBottom.Y *= 1 + overflowRate
+		area.RightBottom.X *= 1 + overflowRate
+		area.RightBottom.Y *= 1 + overflowRate
 	}
 
 	//【2】寻找中心点
@@ -750,7 +749,7 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 }
 
 // drawSignImg 将签名图片按照位置放好
-func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate int, autoSign bool) (err error) {
+func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate float64, autoSign bool) (err error) {
 	if img == nil || img.URL == "" {
 		return
 	}

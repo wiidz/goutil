@@ -121,9 +121,9 @@ type SignData struct {
 	AutoSign          bool // 自动签名
 	StampImg          *SignImg
 	NameImg           *SignImg
-	OverflowRate      int    // 签名浮动区域（仅自动签名有效 0 - 100）
-	Time              string // 签署日期
-	IP                string // 签署IP
+	OverflowRate      float64 // 签名浮动区域（仅自动签名有效 0 - 1）
+	Time              string  // 签署日期
+	IP                string  // 签署IP
 	SignFormCellStyle [SignSpaceRowAmount]*SignFormCellStyle
 }
 
