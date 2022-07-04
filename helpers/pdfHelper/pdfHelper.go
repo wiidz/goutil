@@ -27,7 +27,7 @@ const (
 	HalfPortraitValidWidth = 95.0
 
 	SignSpaceRowAmount = 4 // 签字区域的空白行数
-	BlankRowHeight     = 9 // 签字区域单行高度
+	BlankRowHeight     = 8 // 签字区域单行高度
 )
 
 // NewPDFHelper 创建一个pdf助手
@@ -312,8 +312,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, 10)
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "甲方", "1", 0, gofpdf.AlignCenter, false, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "乙方", "1", 1, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "甲方", "LRT", 0, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "乙方", "LRT", 1, gofpdf.AlignCenter, false, 0, "")
 
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
@@ -723,8 +723,8 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 	//【2】第一行提示
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LTR", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LTR", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LR", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LR", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
 
 	//【3】中间内容（空白行和提示行）
 	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
