@@ -684,6 +684,8 @@ func (helper *PDFHelper) getSignArea() (leftSignArea, rightSignArea RectArea) {
 	rightSignArea.RightTop = Point{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: tempY}
 	rightSignArea.RightBottom = Point{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: toY}
 
+	log.Println("leftSignArea", leftSignArea)
+	log.Println("rightSignArea", rightSignArea)
 	//【4】返回
 	return
 }
