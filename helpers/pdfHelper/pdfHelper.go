@@ -699,6 +699,11 @@ func (helper *PDFHelper) getSignArea() (leftSignArea, rightSignArea RectArea) {
 
 	log.Println("leftSignArea", leftSignArea)
 	log.Println("rightSignArea", rightSignArea)
+
+	helper.PDF.SetFillColor(200, 255, 255) // 设置填充颜色
+	helper.PDF.Rect(leftSignArea.LeftTop.X, leftSignArea.LeftTop.Y, leftSignArea.RightTop.X-leftSignArea.LeftTop.X, leftSignArea.LeftBottom.Y-leftSignArea.LeftTop.Y, "F")
+	helper.PDF.Rect(rightSignArea.LeftTop.X, rightSignArea.LeftTop.Y, rightSignArea.RightTop.X-rightSignArea.LeftTop.X, rightSignArea.LeftBottom.Y-rightSignArea.LeftTop.Y, "F")
+
 	//【4】返回
 	return
 }
