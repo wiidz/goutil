@@ -424,7 +424,7 @@ func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float
 
 	//【2】寻找中心点
 	distanceX := area.RightTop.X - area.LeftTop.X - size.Width
-	distanceY := area.RightTop.Y - area.LeftTop.Y - size.Height
+	distanceY := area.LeftTop.Y - area.LeftBottom.Y - size.Height
 
 	randomCenter.X = area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100
 	randomCenter.Y = area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100
