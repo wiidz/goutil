@@ -336,8 +336,9 @@ func getPartyInfo(party SignerInterface) (fillData [7]string) {
 
 	if party.GetKind() == Company {
 		log.Println("company")
-		temp, _ := party.(CompanySigner)
-
+		temp, ok := party.(CompanySigner)
+		log.Println("temp", temp)
+		log.Println("ok", ok)
 		ogBankName := temp.OgBankName
 		if temp.OgBankNo != "" {
 			ogBankName += "（行号" + temp.OgBankNo + "）"
