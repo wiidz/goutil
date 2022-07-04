@@ -312,15 +312,15 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, 10)
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "甲方", "LRT", 0, gofpdf.AlignCenter, false, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "乙方", "LRT", 1, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "甲方", "", 0, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "乙方", "", 1, gofpdf.AlignCenter, false, 0, "")
 
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
 	//【3】循环填充数据
 	for k := range leftData {
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, leftData[k], "LR", 0, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, rightData[k], "LR", 1, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
 	//【4】获取两边的数据
@@ -723,14 +723,14 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 	//【2】第一行提示
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LR", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "LR", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
 
 	//【3】中间内容（空白行和提示行）
 	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
 	for k := 0; k < SignSpaceRowAmount; k++ {
-		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftSignData.SignFormCellStyle[k].Content, "LR", 0, gofpdf.AlignCenter, leftSignData.SignFormCellStyle[k].Fill, 0, "")
-		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightSignData.SignFormCellStyle[k].Content, "LR", 1, gofpdf.AlignCenter, rightSignData.SignFormCellStyle[k].Fill, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftSignData.SignFormCellStyle[k].Content, "", 0, gofpdf.AlignCenter, leftSignData.SignFormCellStyle[k].Fill, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightSignData.SignFormCellStyle[k].Content, "", 1, gofpdf.AlignCenter, rightSignData.SignFormCellStyle[k].Fill, 0, "")
 	}
 	helper.PDF.SetTextColor(48, 49, 51) // 把字体颜色改回来
 
@@ -754,8 +754,8 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 	//【5】填充IP
 	if fillIP {
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "IP："+leftSignData.IP, "LR", 0, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "IP："+rightSignData.IP, "LR", 1, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "IP："+leftSignData.IP, "", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "IP："+rightSignData.IP, "", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
 	//【6】填充时间
@@ -765,8 +765,8 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 		timeStr[1] += rightSignData.Time
 	}
 
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[0], "LBR", 0, gofpdf.AlignLeft, false, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[1], "LBR", 1, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[0], "", 0, gofpdf.AlignLeft, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, timeStr[1], "", 1, gofpdf.AlignLeft, false, 0, "")
 	return
 }
 
