@@ -76,11 +76,11 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 
 		//【2-3】判断是否需要缩放
 		if size != nil {
-			temp = imaging.Resize(temp, size.Width, size.Height, imaging.Lanczos)
+			temp = imaging.Resize(temp, int(size.Width), int(size.Height), imaging.Lanczos)
 		}
 
 		//【2-4】插入图片
-		context.DrawImage(temp, position.X, position.Y)
+		context.DrawImage(temp, int(position.X), int(position.Y))
 	}
 
 	//【3】输出新图片
