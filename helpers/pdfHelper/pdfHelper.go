@@ -745,7 +745,7 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 // drawSignImg 将签名图片按照位置放好
 func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate int, autoSign bool) (err error) {
-	if img == nil {
+	if img == nil || img.URL == "" {
 		return
 	}
 
