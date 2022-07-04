@@ -827,5 +827,6 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 	log.Println("PortraitValidHeight+Margin", PortraitValidHeight+Margin)
 	if nowY+formHeight > PortraitValidHeight+Margin {
 		helper.PDF.AddPage()
+		helper.PDF.SetXY(Margin, Margin)
 	}
 }
