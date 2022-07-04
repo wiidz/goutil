@@ -9,6 +9,7 @@ import (
 	"github.com/wiidz/goutil/helpers/mathHelper"
 	"image"
 	"image/jpeg"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -760,6 +761,9 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 		position = getRandomImgCenter(signArea, img.Size, overflowRate)
 	}
 
+	log.Println("open")
+	log.Println("img.URL", img.URL)
 	helper.PDF.Image(img.URL, position.X, position.Y, img.Size.Width, img.Size.Height, false, "", 0, "") //插图
+	log.Println("opened")
 	return
 }
