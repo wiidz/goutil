@@ -301,7 +301,9 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 	//【1】获取两边的数据
 	leftData := getPartyInfo(firstParty)
+	log.Println("leftData", leftData)
 	rightData := getPartyInfo(secondParty)
+	log.Println("rightData", rightData)
 
 	leftSignData := firstParty.GetSignData()
 	rightSignData := secondParty.GetSignData()
@@ -325,7 +327,6 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	rightSignData.SignFormCellStyle = getSignData(secondParty)
 
 	//【4】下方签字盖章区域
-
 	err = helper.drawSignArea(leftSignData, rightSignData, fillTime, fillIP)
 	return
 }
@@ -334,6 +335,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 func getPartyInfo(party SignerInterface) (fillData [7]string) {
 
 	if party.GetKind() == Company {
+		log.Println("company")
 		temp, _ := party.(CompanySigner)
 
 		ogBankName := temp.OgBankName
@@ -351,6 +353,7 @@ func getPartyInfo(party SignerInterface) (fillData [7]string) {
 			"传        真：" + temp.OgFax,
 		}
 	} else {
+		log.Println("person")
 		temp, _ := party.(PersonSigner)
 		fillData = [7]string{
 			"姓        名：" + temp.TrueName,
