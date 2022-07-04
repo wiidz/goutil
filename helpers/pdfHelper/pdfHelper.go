@@ -10,6 +10,7 @@ import (
 	"image"
 	"image/jpeg"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -403,7 +404,7 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
-func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point) {
+func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point, err error) {
 
 	randomCenter = &Point{
 		X: 0,
@@ -423,8 +424,17 @@ func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float
 	}
 
 	//【2】寻找中心点
-	distanceX := area.RightTop.X - area.LeftTop.X - size.Width
-	distanceY := area.LeftTop.Y - area.LeftBottom.Y - size.Height
+	distanceX := math.Abs(area.RightTop.X-area.LeftTop.X) - size.Width
+	distanceY := math.Abs(area.LeftBottom.Y-area.LeftTop.Y) - size.Height
+
+	log.Println("distanceX", distanceX)
+	log.Println("distanceY", distanceY)
+	//if distanceX < 0 {
+	//	distanceX = 0
+	//}
+	//if distanceY < 0 {
+	//	distanceY = 0
+	//}
 
 	randomCenter.X = area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100
 	randomCenter.Y = area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100
