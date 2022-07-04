@@ -677,14 +677,21 @@ func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight Fo
 }
 
 // getSignArea 获取签名区域
-func (helper *PDFHelper) getSignArea() (leftSignArea, rightSignArea RectArea) {
+func (helper *PDFHelper) getSignArea(fillTime, fillIP bool) (leftSignArea, rightSignArea RectArea) {
 
 	//【1】初始化
 	leftSignArea, rightSignArea = RectArea{}, RectArea{}
 
 	//【2】获取当前坐标
 	tempX, tempY := helper.PDF.GetXY()
-	toY := tempY + SignSpaceRowAmount*BlankRowHeight
+	addRow := float64(1) // 1是 签字/盖章 那一行
+	if fillTime {
+		addRow++
+	}
+	if fillIP {
+		addRow++
+	}
+	toY := tempY + (SignSpaceRowAmount+addRow)*BlankRowHeight
 
 	//【3】构建初步的区域
 	leftSignArea.LeftTop = Point{X: tempX, Y: tempY}
@@ -712,7 +719,7 @@ func (helper *PDFHelper) getSignArea() (leftSignArea, rightSignArea RectArea) {
 func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fillTime, fillIP bool) (err error) {
 
 	//【1】获取签名区域
-	leftSignArea, rightSignArea := helper.getSignArea() // 一定要在写签字/盖章提示之前调用
+	leftSignArea, rightSignArea := helper.getSignArea(fillTime, fillIP) // 一定要在写签字/盖章提示之前调用
 
 	//【2】第一行提示
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
