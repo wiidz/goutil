@@ -74,7 +74,6 @@ const Company SignKind = 2 // 单位
 type SignerInterface interface {
 	GetKind() SignKind
 	GetSignData() SignData
-	GetDoHint() bool     // 是否需要高亮提示签署范围
 	GetHintName() string // 提示签字的姓名
 }
 
@@ -94,8 +93,6 @@ type CompanySigner struct {
 	SignerPhone string // 签署人手机号
 
 	SignData SignData // 签名信息
-
-	DoHint bool // 是否需要提示签署位置
 }
 
 func (signer CompanySigner) GetKind() SignKind {
@@ -104,9 +101,7 @@ func (signer CompanySigner) GetKind() SignKind {
 func (signer CompanySigner) GetSignData() SignData {
 	return signer.SignData
 }
-func (signer CompanySigner) GetDoHint() bool {
-	return signer.DoHint
-}
+
 func (signer CompanySigner) GetHintName() string {
 	return signer.SignerName
 }
@@ -118,23 +113,18 @@ type PersonSigner struct {
 	Phone    string // 手机号
 	IDCardNo string // 身份证号
 
-	DoHint bool // 是否需要提示签署位置
-
 	SignData SignData // 签名信息
 }
 
 type SignData struct {
-	StampImg     *SignImg
-	NameImg      *SignImg
-	OverflowRate int    // 签名浮动区域（仅自动签名有效 0 - 100）
-	Time         string // 签署日期
-	IP           string // 签署IP
-	//StampImgURL      string         // 章图片地址
-	//StampImgSize     imgHelper.Size // 章图片大小
-	//StampImgPosition *Point         // 章定位
-	//NameImgURL       string         // 签名图片地址
-	//NameImgSize      imgHelper.Size // 签名图片大小
-	//NameImgPosition  *Point         // 签名定位
+	DoHint            bool // 是否提示签名区域高亮
+	AutoSign          bool // 自动签名
+	StampImg          *SignImg
+	NameImg           *SignImg
+	OverflowRate      int    // 签名浮动区域（仅自动签名有效 0 - 100）
+	Time              string // 签署日期
+	IP                string // 签署IP
+	SignFormCellStyle [SignSpaceRowAmount]*SignFormCellStyle
 }
 
 func (signer PersonSigner) GetKind() SignKind {
@@ -145,9 +135,6 @@ func (signer PersonSigner) GetSignData() SignData {
 	return signer.SignData
 }
 
-func (signer PersonSigner) GetDoHint() bool {
-	return signer.DoHint
-}
 func (signer PersonSigner) GetHintName() string {
 	return signer.TrueName
 }
