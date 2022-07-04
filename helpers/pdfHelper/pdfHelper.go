@@ -27,6 +27,7 @@ const (
 	HalfPortraitValidWidth = 95.0
 
 	SignSpaceRowAmount      = 4    // 签字区域的空白行数
+	SignerInfoRowAmount     = 7    // 签名人员信息高度（公司7 个人4）
 	BlankRowHeight          = 8    // 签字区域单行高度
 	SignFormPartyLineHeight = 10.0 // 签字区域 甲方乙方的行高
 )
@@ -336,7 +337,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 }
 
 // getPartyInfo 获取甲方/乙方信息数据
-func getPartyInfo(party SignerInterface) (fillData [7]string) {
+func getPartyInfo(party SignerInterface) (fillData [SignerInfoRowAmount]string) {
 
 	if party.GetKind() == Company {
 		log.Println("company")
@@ -348,7 +349,7 @@ func getPartyInfo(party SignerInterface) (fillData [7]string) {
 			ogBankName += "（行号" + temp.OgBankNo + "）"
 		}
 
-		fillData = [7]string{
+		fillData = [SignerInfoRowAmount]string{
 			"单位名称：" + temp.OgName,
 			"税        号：" + temp.OgLicenseNo,
 			"单位地址：" + temp.OgAddress,
@@ -360,7 +361,7 @@ func getPartyInfo(party SignerInterface) (fillData [7]string) {
 	} else {
 		log.Println("person")
 		temp, _ := party.(PersonSigner)
-		fillData = [7]string{
+		fillData = [SignerInfoRowAmount]string{
 			"姓        名：" + temp.TrueName,
 			"身份证号：" + temp.IDCardNo,
 			"手        机：" + temp.Phone,
@@ -806,7 +807,7 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 
 	//【1】计算表单高度
-	formHeight := float64(10) + float64(SignSpaceRowAmount)*BlankRowHeight
+	formHeight := float64(10) + float64(SignerInfoRowAmount)*BlankRowHeight + float64(SignSpaceRowAmount)*BlankRowHeight
 	addRow := float64(1) // 1是 签字/盖章 那一行
 	if fillTime {
 		addRow++
@@ -823,7 +824,7 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 	log.Println("nowY", nowY)
 	log.Println("formHeight", formHeight)
 	log.Println("nowY+formHeight", nowY+formHeight)
-	log.Println("PortraitValidHeight+Margin", nowY+PortraitValidHeight+Margin)
+	log.Println("PortraitValidHeight+Margin", PortraitValidHeight+Margin)
 	if nowY+formHeight > PortraitValidHeight+Margin {
 		helper.PDF.AddPage()
 	}
