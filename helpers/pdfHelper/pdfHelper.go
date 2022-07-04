@@ -26,8 +26,9 @@ const (
 
 	HalfPortraitValidWidth = 95.0
 
-	SignSpaceRowAmount = 4 // 签字区域的空白行数
-	BlankRowHeight     = 8 // 签字区域单行高度
+	SignSpaceRowAmount      = 4    // 签字区域的空白行数
+	BlankRowHeight          = 8    // 签字区域单行高度
+	SignFormPartyLineHeight = 10.0 // 签字区域 甲方乙方的行高
 )
 
 // NewPDFHelper 创建一个pdf助手
@@ -309,23 +310,25 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	leftSignData := firstParty.GetSignData()
 	rightSignData := secondParty.GetSignData()
 
+	leftSignData.SignFormCellStyle = getTips(firstParty)
+	rightSignData.SignFormCellStyle = getTips(secondParty)
+
+	//【2】为完整的form创建空间
+	helper.createSpaceForSignForm(fillTime, fillIP)
+
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
-	helper.PDF.SetFont(FontName, FontBold, 10)
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "甲方", "", 0, gofpdf.AlignCenter, false, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 10, "乙方", "", 1, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.SetFont(FontName, FontBold, SignFormPartyLineHeight)
+	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "甲方", "", 0, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "乙方", "", 1, gofpdf.AlignCenter, false, 0, "")
 
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
 	//【3】循环填充数据
 	for k := range leftData {
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.CellFormat(HalfPortraitValidWidth, 8, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
 	}
-
-	//【4】获取两边的数据
-	leftSignData.SignFormCellStyle = getSignData(firstParty)
-	rightSignData.SignFormCellStyle = getSignData(secondParty)
 
 	//【4】下方签字盖章区域
 	err = helper.drawSignArea(leftSignData, rightSignData, fillTime, fillIP)
@@ -371,8 +374,8 @@ func getPartyInfo(party SignerInterface) (fillData [7]string) {
 	return
 }
 
-// getSignData 获取签署区域的数据
-func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
+// getTips 获取签署区域的数据
+func getTips(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 	fillData = [SignSpaceRowAmount]*SignFormCellStyle{{
 		Content: "",
 		Fill:    false,
@@ -775,26 +778,53 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 		return
 	}
 
-	position := img.Position
+	//position := img.Position
 	if img.Size == nil {
 		return errors.New("图片url不为空，但size为空，无法完成签署")
 	}
-	if position == nil {
+	if img.Position == nil {
 		if autoSign == false {
 			return
 		}
 		// 需要自动签署
-		position = getRandomImgCenter(signArea, img.Size, overflowRate)
+		img.Position = getRandomImgCenter(signArea, img.Size, overflowRate)
 		if err != nil {
 			return
 		}
 	}
-	log.Println("position", position)
+	log.Println("position", img.Position)
 	log.Println("img.Size", img.Size)
 	log.Println("overflowRate", overflowRate)
 	log.Println("open")
 	log.Println("img.URL", img.URL)
-	helper.PDF.Image(img.URL, position.X, position.Y, img.Size.Width, img.Size.Height, false, "", 0, "") //插图
+	helper.PDF.Image(img.URL, img.Position.X, img.Position.Y, img.Size.Width, img.Size.Height, false, "", 0, "")
 	log.Println("opened")
 	return
+}
+
+// createSpaceForSignForm 判断当前页面是否可以放得下整个签名表单（包含甲方乙方和其对应信息）
+func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
+
+	//【1】计算表单高度
+	formHeight := float64(10) + float64(SignSpaceRowAmount)*BlankRowHeight
+	addRow := float64(1) // 1是 签字/盖章 那一行
+	if fillTime {
+		addRow++
+	}
+	if fillIP {
+		addRow++
+	}
+	formHeight += (SignSpaceRowAmount + addRow) * BlankRowHeight
+
+	//【2】获取当前y
+	nowY := helper.PDF.GetY()
+
+	//【3】判断
+	log.Println("nowY", nowY)
+	log.Println("formHeight", formHeight)
+	log.Println("nowY+formHeight", nowY+formHeight)
+	log.Println("PortraitValidHeight+Margin", nowY+PortraitValidHeight+Margin)
+	if nowY+formHeight > PortraitValidHeight+Margin {
+		helper.PDF.AddPage()
+	}
 }
