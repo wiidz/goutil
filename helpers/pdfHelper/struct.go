@@ -124,15 +124,17 @@ type PersonSigner struct {
 }
 
 type SignData struct {
-	StampImgURL      string         // 章图片地址
-	StampImgSize     imgHelper.Size // 章图片大小
-	StampImgPosition *Point         // 章定位
-	NameImgURL       string         // 签名图片地址
-	NameImgSize      imgHelper.Size // 签名图片大小
-	NameImgPosition  *Point         // 签名定位
-	Time             string         // 签署日期
-	IP               string         // 签署IP
-	OverflowRate     int            // 签名浮动区域（仅自动签名有效 0 - 100）
+	StampImg     *SignImg
+	NameImg      *SignImg
+	OverflowRate int    // 签名浮动区域（仅自动签名有效 0 - 100）
+	Time         string // 签署日期
+	IP           string // 签署IP
+	//StampImgURL      string         // 章图片地址
+	//StampImgSize     imgHelper.Size // 章图片大小
+	//StampImgPosition *Point         // 章定位
+	//NameImgURL       string         // 签名图片地址
+	//NameImgSize      imgHelper.Size // 签名图片大小
+	//NameImgPosition  *Point         // 签名定位
 }
 
 func (signer PersonSigner) GetKind() SignKind {
@@ -175,4 +177,10 @@ type RectArea struct {
 	RightTop    Point
 	LeftBottom  Point
 	RightBottom Point
+}
+
+type SignImg struct {
+	URL      string          // 图片地址
+	Position *Point          // 中心点
+	Size     *imgHelper.Size // 尺寸
 }

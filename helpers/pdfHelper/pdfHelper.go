@@ -328,36 +328,6 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		rightSignArea.LeftBottom = Point{X: tempX + 95, Y: 0}
 		rightSignArea.RightTop = Point{X: tempX + 95 + 95, Y: tempY}
 		rightSignArea.RightBottom = Point{X: tempX + 95 + 95, Y: 0}
-
-		if leftSignData.StampImgURL != "" {
-			stampCenter := leftSignData.StampImgPosition
-			if stampCenter == nil {
-				stampCenter = getRandomImgCenter(leftSignArea, leftSignData.StampImgSize, leftSignData.OverflowRate)
-			}
-			helper.PDF.Image(leftSignData.StampImgURL, stampCenter.X, stampCenter.Y, leftSignData.StampImgSize.Width, leftSignData.StampImgSize.Height, false, "", 0, "") //插图
-		}
-		if leftSignData.NameImgURL != "" {
-			nameCenter := leftSignData.NameImgPosition
-			if nameCenter == nil {
-				nameCenter = getRandomImgCenter(leftSignArea, leftSignData.NameImgSize, leftSignData.OverflowRate)
-			}
-			helper.PDF.Image(leftSignData.NameImgURL, nameCenter.X, nameCenter.Y, leftSignData.StampImgSize.Width, leftSignData.StampImgSize.Height, false, "", 0, "") //插图
-		}
-		if rightSignData.StampImgURL != "" {
-			stampCenter := rightSignData.StampImgPosition
-			if stampCenter == nil {
-				stampCenter = getRandomImgCenter(rightSignArea, rightSignData.StampImgSize, rightSignData.OverflowRate)
-			}
-			helper.PDF.Image(rightSignData.StampImgURL, stampCenter.X, stampCenter.Y, rightSignData.StampImgSize.Width, rightSignData.StampImgSize.Height, false, "", 0, "") //插图
-		}
-		if rightSignData.NameImgURL != "" {
-			nameCenter := rightSignData.NameImgPosition
-			if nameCenter == nil {
-				nameCenter = getRandomImgCenter(rightSignArea, rightSignData.NameImgSize, rightSignData.OverflowRate)
-			}
-			helper.PDF.Image(rightSignData.NameImgURL, nameCenter.X, nameCenter.Y, rightSignData.StampImgSize.Width, rightSignData.StampImgSize.Height, false, "", 0, "") //插图
-		}
-
 	}
 
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
@@ -386,10 +356,34 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		rightSignArea.RightBottom.Y = tempY
 		rightSignArea.RightBottom.Y = tempY
 
-		if leftSignData.StampImgURL != "" {
-			helper.PDF.Image(leftSignData.StampImgURL, 40, 125, 40, 0, false, "", 0, "") //插图
+		if leftSignData.StampImg != nil {
+			stampCenter := leftSignData.StampImg.Position
+			if stampCenter == nil {
+				stampCenter = getRandomImgCenter(&leftSignArea, leftSignData.StampImg.Size, leftSignData.OverflowRate)
+			}
+			helper.PDF.Image(leftSignData.StampImg.URL, stampCenter.X, stampCenter.Y, leftSignData.StampImg.Size.Width, leftSignData.StampImg.Size.Height, false, "", 0, "") //插图
 		}
-
+		if leftSignData.NameImg != nil {
+			nameCenter := leftSignData.NameImg.Position
+			if nameCenter == nil {
+				nameCenter = getRandomImgCenter(&leftSignArea, leftSignData.NameImg.Size, leftSignData.OverflowRate)
+			}
+			helper.PDF.Image(leftSignData.NameImg.URL, nameCenter.X, nameCenter.Y, leftSignData.StampImg.Size.Width, leftSignData.StampImg.Size.Height, false, "", 0, "") //插图
+		}
+		if rightSignData.StampImg != nil {
+			stampCenter := rightSignData.StampImg.Position
+			if stampCenter == nil {
+				stampCenter = getRandomImgCenter(&rightSignArea, rightSignData.StampImg.Size, rightSignData.OverflowRate)
+			}
+			helper.PDF.Image(rightSignData.StampImg.URL, stampCenter.X, stampCenter.Y, rightSignData.StampImg.Size.Width, rightSignData.StampImg.Size.Height, false, "", 0, "") //插图
+		}
+		if rightSignData.NameImg != nil {
+			nameCenter := rightSignData.NameImg.Position
+			if nameCenter == nil {
+				nameCenter = getRandomImgCenter(&rightSignArea, rightSignData.NameImg.Size, rightSignData.OverflowRate)
+			}
+			helper.PDF.Image(rightSignData.NameImg.URL, nameCenter.X, nameCenter.Y, rightSignData.StampImg.Size.Width, rightSignData.StampImg.Size.Height, false, "", 0, "") //插图
+		}
 	}
 	if fillIP {
 		helper.PDF.CellFormat(95, 8, "IP："+leftSignData.IP, "LR", 0, gofpdf.AlignLeft, false, 0, "")
@@ -476,7 +470,7 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
-func getRandomImgCenter(area RectArea, size imgHelper.Size, overflowRate int) (randomCenter *Point) {
+func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate int) (randomCenter *Point) {
 
 	randomCenter = &Point{
 		X: 0,
