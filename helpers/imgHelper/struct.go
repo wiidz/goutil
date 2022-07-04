@@ -1,13 +1,13 @@
 package imgHelper
 
 type Size struct {
-	Width  int
-	Height int
+	Width  float64
+	Height float64
 }
 
 type Position struct {
-	X int
-	Y int
+	X float64
+	Y float64
 }
 
 type CoverImgInterface interface {

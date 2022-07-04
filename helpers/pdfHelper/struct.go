@@ -1,6 +1,9 @@
 package pdfHelper
 
-import "github.com/jung-kurt/gofpdf"
+import (
+	"github.com/jung-kurt/gofpdf"
+	"github.com/wiidz/goutil/helpers/imgHelper"
+)
 
 type PDFHelper struct {
 	PDF             *gofpdf.Fpdf
@@ -70,8 +73,7 @@ const Company SignKind = 2 // 单位
 
 type SignerInterface interface {
 	GetKind() SignKind
-	GetTime() string
-	GetIP() string
+	GetSignData() SignData
 	GetDoHint() bool     // 是否需要高亮提示签署范围
 	GetHintName() string // 提示签字的姓名
 }
@@ -91,19 +93,16 @@ type CompanySigner struct {
 	SignerName  string // 签署人真实姓名
 	SignerPhone string // 签署人手机号
 
-	DoHint bool   // 是否需要提示签署位置
-	Time   string // 签署日期
-	IP     string // 签署IP
+	SignData SignData // 签名信息
+
+	DoHint bool // 是否需要提示签署位置
 }
 
 func (signer CompanySigner) GetKind() SignKind {
 	return Company
 }
-func (signer CompanySigner) GetIP() string {
-	return signer.IP
-}
-func (signer CompanySigner) GetTime() string {
-	return signer.Time
+func (signer CompanySigner) GetSignData() SignData {
+	return signer.SignData
 }
 func (signer CompanySigner) GetDoHint() bool {
 	return signer.DoHint
@@ -119,20 +118,29 @@ type PersonSigner struct {
 	Phone    string // 手机号
 	IDCardNo string // 身份证号
 
-	DoHint bool   // 是否需要提示签署位置
-	Time   string // 签署日期
-	IP     string // 签署IP
+	DoHint bool // 是否需要提示签署位置
+
+	SignData SignData // 签名信息
+}
+
+type SignData struct {
+	StampImgURL      string         // 章图片地址
+	StampImgSize     imgHelper.Size // 章图片大小
+	StampImgPosition *Point         // 章定位
+	NameImgURL       string         // 签名图片地址
+	NameImgSize      imgHelper.Size // 签名图片大小
+	NameImgPosition  *Point         // 签名定位
+	Time             string         // 签署日期
+	IP               string         // 签署IP
+	OverflowRate     int            // 签名浮动区域（仅自动签名有效 0 - 100）
 }
 
 func (signer PersonSigner) GetKind() SignKind {
 	return Person
 }
 
-func (signer PersonSigner) GetIP() string {
-	return signer.IP
-}
-func (signer PersonSigner) GetTime() string {
-	return signer.Time
+func (signer PersonSigner) GetSignData() SignData {
+	return signer.SignData
 }
 
 func (signer PersonSigner) GetDoHint() bool {
@@ -160,4 +168,11 @@ const Below Ln = 2
 type Point struct {
 	X float64
 	Y float64
+}
+
+type RectArea struct {
+	LeftTop     Point
+	RightTop    Point
+	LeftBottom  Point
+	RightBottom Point
 }

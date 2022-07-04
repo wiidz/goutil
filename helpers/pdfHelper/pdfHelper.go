@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/gen2brain/go-fitz"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/wiidz/goutil/helpers/imgHelper"
+	"github.com/wiidz/goutil/helpers/mathHelper"
 	"image"
 	"image/jpeg"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -288,11 +291,14 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 }
 
 // AddSignForm 添加一个签字用的区域
-func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) {
+func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillSign, fillTime, fillIP bool) {
 
 	//【1】获取两边的数据
 	leftData := getPartyInfo(firstParty)
 	rightData := getPartyInfo(secondParty)
+
+	leftSignData := firstParty.GetSignData()
+	rightSignData := secondParty.GetSignData()
 
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, 10)
@@ -308,6 +314,52 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	}
 
 	//【4】下方签字盖章区域
+	var leftSignArea, rightSignArea = RectArea{}, RectArea{}
+	if fillSign {
+		tempX, tempY := helper.PDF.GetXY()
+		log.Println("x", tempX)
+		log.Println("y", tempY)
+		leftSignArea.LeftTop = Point{X: tempX, Y: tempY}
+		leftSignArea.LeftBottom = Point{X: tempX, Y: 0} // 填充
+		leftSignArea.RightTop = Point{X: tempX + 95, Y: tempY}
+		leftSignArea.RightBottom = Point{X: tempX + 95, Y: 0} // 填充
+
+		rightSignArea.LeftTop = Point{X: tempX + 95, Y: tempY}
+		rightSignArea.LeftBottom = Point{X: tempX + 95, Y: 0}
+		rightSignArea.RightTop = Point{X: tempX + 95 + 95, Y: tempY}
+		rightSignArea.RightBottom = Point{X: tempX + 95 + 95, Y: 0}
+
+		if leftSignData.StampImgURL != "" {
+			stampCenter := leftSignData.StampImgPosition
+			if stampCenter == nil {
+				stampCenter = getRandomImgCenter(leftSignArea, leftSignData.StampImgSize, leftSignData.OverflowRate)
+			}
+			helper.PDF.Image(leftSignData.StampImgURL, stampCenter.X, stampCenter.Y, leftSignData.StampImgSize.Width, leftSignData.StampImgSize.Height, false, "", 0, "") //插图
+		}
+		if leftSignData.NameImgURL != "" {
+			nameCenter := leftSignData.NameImgPosition
+			if nameCenter == nil {
+				nameCenter = getRandomImgCenter(leftSignArea, leftSignData.NameImgSize, leftSignData.OverflowRate)
+			}
+			helper.PDF.Image(leftSignData.NameImgURL, nameCenter.X, nameCenter.Y, leftSignData.StampImgSize.Width, leftSignData.StampImgSize.Height, false, "", 0, "") //插图
+		}
+		if rightSignData.StampImgURL != "" {
+			stampCenter := rightSignData.StampImgPosition
+			if stampCenter == nil {
+				stampCenter = getRandomImgCenter(rightSignArea, rightSignData.StampImgSize, rightSignData.OverflowRate)
+			}
+			helper.PDF.Image(rightSignData.StampImgURL, stampCenter.X, stampCenter.Y, rightSignData.StampImgSize.Width, rightSignData.StampImgSize.Height, false, "", 0, "") //插图
+		}
+		if rightSignData.NameImgURL != "" {
+			nameCenter := rightSignData.NameImgPosition
+			if nameCenter == nil {
+				nameCenter = getRandomImgCenter(rightSignArea, rightSignData.NameImgSize, rightSignData.OverflowRate)
+			}
+			helper.PDF.Image(rightSignData.NameImgURL, nameCenter.X, nameCenter.Y, rightSignData.StampImgSize.Width, rightSignData.StampImgSize.Height, false, "", 0, "") //插图
+		}
+
+	}
+
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
 
 	helper.PDF.CellFormat(95, 8, "签字/盖章：", "LTR", 0, gofpdf.AlignLeft, firstParty.GetDoHint(), 0, "")
@@ -325,16 +377,31 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	helper.PDF.SetTextColor(48, 49, 51) // 把字体颜色改回来
 
 	//【6】填充IP、时间
+	if fillSign {
+		tempX, tempY := helper.PDF.GetXY()
+		log.Println("x", tempX)
+		log.Println("y", tempY)
+		leftSignArea.LeftBottom.Y = tempY
+		leftSignArea.RightBottom.Y = tempY
+		rightSignArea.RightBottom.Y = tempY
+		rightSignArea.RightBottom.Y = tempY
+
+		if leftSignData.StampImgURL != "" {
+			helper.PDF.Image(leftSignData.StampImgURL, 40, 125, 40, 0, false, "", 0, "") //插图
+		}
+
+	}
 	if fillIP {
-		helper.PDF.CellFormat(95, 8, "IP："+firstParty.GetIP(), "LR", 0, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.CellFormat(95, 8, "IP："+secondParty.GetIP(), "LR", 1, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, "IP："+leftSignData.IP, "LR", 0, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.CellFormat(95, 8, "IP："+rightSignData.IP, "LR", 1, gofpdf.AlignLeft, false, 0, "")
 	}
 
 	var timeStr = [2]string{"签署日期：", "签署日期："}
 	if fillTime {
-		timeStr[0] += firstParty.GetTime()
-		timeStr[1] += secondParty.GetTime()
+		timeStr[0] += leftSignData.Time
+		timeStr[1] += rightSignData.Time
 	}
+
 	helper.PDF.CellFormat(95, 8, timeStr[0], "LBR", 0, gofpdf.AlignLeft, false, 0, "")
 	helper.PDF.CellFormat(95, 8, timeStr[1], "LBR", 1, gofpdf.AlignLeft, false, 0, "")
 
@@ -405,6 +472,37 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 			fillData[2].Content = "并加盖 本公司/单位公章"
 		}
 	}
+	return
+}
+
+// getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
+func getRandomImgCenter(area RectArea, size imgHelper.Size, overflowRate int) (randomCenter *Point) {
+
+	randomCenter = &Point{
+		X: 0,
+		Y: 0,
+	}
+
+	//【1】扩大一下区域
+	overflowRateFloat := float64(overflowRate)
+	if overflowRate != 0 {
+		area.LeftTop.X *= 1 - overflowRateFloat
+		area.LeftTop.Y *= 1 - overflowRateFloat
+		area.RightTop.X *= 1 + overflowRateFloat
+		area.RightTop.Y *= 1 - overflowRateFloat
+		area.LeftBottom.X *= 1 - overflowRateFloat
+		area.LeftBottom.Y *= 1 + overflowRateFloat
+		area.RightBottom.X *= 1 + overflowRateFloat
+		area.RightBottom.Y *= 1 + overflowRateFloat
+	}
+
+	//【2】寻找中心点
+	distanceX := area.RightTop.X - area.LeftTop.X - size.Width
+	distanceY := area.RightTop.Y - area.LeftTop.Y - size.Height
+
+	randomCenter.X = area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100
+	randomCenter.Y = area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100
+
 	return
 }
 
