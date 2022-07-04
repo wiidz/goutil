@@ -404,7 +404,7 @@ func getSignData(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
-func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point, err error) {
+func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point) {
 
 	randomCenter = &Point{
 		X: 0,
@@ -774,6 +774,9 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 		}
 		// 需要自动签署
 		position = getRandomImgCenter(signArea, img.Size, overflowRate)
+		if err != nil {
+			return
+		}
 	}
 	log.Println("position", position)
 	log.Println("img.Size", img.Size)
