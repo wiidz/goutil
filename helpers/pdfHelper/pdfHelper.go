@@ -317,6 +317,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	//【2】为完整的form创建空间
 	helper.createSpaceForSignForm(fillTime, fillIP)
 
+	pageNo := helper.PDF.PageCount()
+	leftSignData.PageNo = pageNo
+	rightSignData.PageNo = pageNo
+
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, SignFormPartyLineHeight)

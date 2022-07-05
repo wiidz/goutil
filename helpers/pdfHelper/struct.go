@@ -122,6 +122,7 @@ type SignData struct {
 	StampImg          *SignImg
 	NameImg           *SignImg
 	OverflowRate      float64 // 签名浮动区域（仅自动签名有效 0 - 1）
+	PageNo            int     // 签署在合同的第几页
 	Time              string  // 签署日期
 	IP                string  // 签署IP
 	SignFormCellStyle [SignSpaceRowAmount]*SignFormCellStyle
