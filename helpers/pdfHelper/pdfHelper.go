@@ -440,8 +440,8 @@ func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float
 	//	distanceY = 0
 	//}
 
-	randomCenter.X = area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100
-	randomCenter.Y = area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100
+	randomCenter.X = math.Ceil(area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100)
+	randomCenter.Y = math.Ceil(area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100)
 
 	return
 }
