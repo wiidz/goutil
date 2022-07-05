@@ -128,7 +128,7 @@ type SignData struct {
 	SignFormCellStyle [SignSpaceRowAmount]*SignFormCellStyle
 
 	FaceImg  *SignImg // 人脸识别照片（目前不做相关处理）
-	SignerID int64    // 签署人主体ID（目前不做相关处理）
+	SignerID uint64   // 签署人主体ID（目前不做相关处理）
 }
 
 func (signer PersonSigner) GetKind() SignKind {
