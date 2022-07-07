@@ -13,6 +13,7 @@ import (
 	"hash"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -223,4 +224,15 @@ func (ossApi *OssApi) SignPrivateURL(url, domainSuffix string, expireSec int64) 
 	object := temp[1]
 	signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, expireSec) // 使用签名URL将OSS文件下载到流。
 	return
+}
+
+// DropSign 将链接中的签名数据全都去除
+func DropSign(signedURL string) (rawURL string) {
+	// 这里采取最暴力的方式，就是找到第一个?，然后把问号到结尾所有的字符串全部抛弃
+	index := strings.Index(signedURL, "?")
+	if index == -1 {
+		return signedURL
+	}
+
+	return signedURL[0 : index-1]
 }
