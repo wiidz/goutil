@@ -7,6 +7,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"github.com/wiidz/goutil/helpers/imgHelper"
 	"github.com/wiidz/goutil/helpers/mathHelper"
+	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
 	"log"
@@ -299,7 +300,8 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	return
 }
 
-// AddSignForm 添加一个签字用的区域
+// AddSignForm 添加一个签字用的区域（如果带有签名数据也会一起渲染上去）
+// 图片是网络地址的话，会先下载到当前项目根目录的/tmp下，注意权限
 func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fillTime, fillIP bool) (err error) {
 
 	//【1】获取两边的数据
@@ -722,7 +724,7 @@ func (helper *PDFHelper) getSignArea(fillTime, fillIP bool) (leftSignArea, right
 	return
 }
 
-// drawSignArea 绘制签名区域
+// drawSignArea 绘制签名区域（包括签名和图章）
 func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fillTime, fillIP bool) (err error) {
 
 	//【1】获取签名区域
@@ -779,11 +781,23 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 // drawSignImg 将签名图片按照位置放好
 func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowRate float64, autoSign bool) (err error) {
+
+	//【1】判断
 	if img == nil || img.URL == "" {
 		return
 	}
 
-	//position := img.Position
+	//【2】如果是网络图片，那么下载到本地
+	var localURL = img.URL
+	log.Println("aa", img.URL[0:3] == "http")
+	if len(img.URL) > 4 && img.URL[0:3] == "http" {
+		localURL, err = imgHelper.DownloadNetworkImg(img.URL)
+		defer osHelper.Delete(localURL)
+		if err != nil {
+			return
+		}
+	}
+
 	if img.Size == nil {
 		return errors.New("图片url不为空，但size为空，无法完成签署")
 	}
@@ -802,7 +816,8 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 	log.Println("overflowRate", overflowRate)
 	log.Println("open")
 	log.Println("img.URL", img.URL)
-	helper.PDF.Image(img.URL, img.Position.X, img.Position.Y, img.Size.Width, img.Size.Height, false, "", 0, "")
+	log.Println("localURL", localURL)
+	helper.PDF.Image(localURL, img.Position.X, img.Position.Y, img.Size.Width, img.Size.Height, false, "", 0, "")
 	log.Println("opened")
 	return
 }

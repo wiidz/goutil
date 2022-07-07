@@ -129,3 +129,13 @@ func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice ...*Netw
 	}()
 	return
 }
+
+// DownloadNetworkImg 根据网络图片地址，转化为本地文件及路径
+func DownloadNetworkImg(bgImgURL string) (bgImgFilePath string, err error) {
+	//【1】下载文件到本地
+	dir, _ := os.Getwd()
+	bgImgFilePath = dir + "/temp/" + strHelper.GetRandomString(8)
+
+	err = osHelper.DownloadFile(bgImgURL, bgImgFilePath, nil) // 注意这里是没有后缀名的
+	return
+}
