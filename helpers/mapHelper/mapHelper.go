@@ -184,3 +184,31 @@ func GetValues(imap map[string]interface{}) []interface{} {
 	}
 	return tmp
 }
+
+// Merge 合并两个map，生成一个新的
+func Merge(map1, map2 map[string]interface{}) map[string]interface{} {
+
+	newMap := map[string]interface{}{}
+
+	for k := range map1 {
+		newMap[k] = map1[k]
+	}
+
+	for k := range map2 {
+		newMap[k] = map2[k]
+	}
+
+	return newMap
+}
+
+// Copy 复制一个新的map
+func Copy(sourceMap map[string]interface{}) map[string]interface{} {
+
+	newMap := map[string]interface{}{}
+
+	for k := range sourceMap {
+		newMap[k] = sourceMap[k]
+	}
+
+	return newMap
+}
