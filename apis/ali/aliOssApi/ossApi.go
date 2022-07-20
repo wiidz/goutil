@@ -268,3 +268,37 @@ func (ossApi *OssApi) SignPrivateURLs(urls []string, domainSuffix string, expire
 
 	return
 }
+
+// SignPrivateURLsExplode 给不带签名的私密链接，加上签名，使其可以访问
+// 例如url = http://21bcn-private.oss-cn-shanghai.aliyuncs.com/private/20220531/1653982464704.jpg
+// domainSuffix = com 或者 cn 这样
+// expireSec = 60
+func (ossApi *OssApi) SignPrivateURLsExplode(combinedString string, domainSuffix string, expireSec int64) (signedURLs []string, err error) {
+
+	//【1】重启一下服务器（可能token过期了）
+	err = ossApi.refreshClient()
+	if err != nil {
+		return
+	}
+
+	//【2】组合url
+	signedURLs = []string{}
+	var signedURL string
+
+	urls := typeHelper.ExplodeStr(combinedString, ",")
+	for _, v := range urls {
+		temp := typeHelper.ExplodeStr(v, "."+domainSuffix+"/")
+		if len(temp) < 2 {
+			err = errors.New("解析url时失败，无法定位object")
+			return
+		}
+		object := temp[1]
+		signedURL, err = ossApi.Bucket.SignURL(object, oss.HTTPGet, expireSec) // 使用签名URL将OSS文件下载到流。
+		if err != nil {
+			return
+		}
+		signedURLs = append(signedURLs, signedURL)
+	}
+
+	return
+}
