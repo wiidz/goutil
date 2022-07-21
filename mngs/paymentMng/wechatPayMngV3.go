@@ -38,6 +38,9 @@ import (
 // 注意 原始文件并没有给public
 // 我们手动从给的 私钥 apiclient_key.pem 中生成 公钥
 // openssl rsa -in apiclient_key.pem -pubout -out apiclient_key_public.pem
+// https://blog.csdn.net/u011580177/article/details/106222865
+
+// 以上信息不用看了，不用我们去维护公钥！！！
 
 type WechatPayMngV3 struct {
 	Config *configStruct.WechatPayConfig
@@ -269,8 +272,8 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 		if transferList[k].UserName == "" {
 			continue
 		}
-		transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMPublicKeyContent))
-		//transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMCertContent))
+		//transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMPublicKeyContent)) // 不用我们去维护公钥！！！
+		transferList[k].UserName, err = mng.Client.V3EncryptText(transferList[k].UserName)
 		if err != nil {
 			return
 		}
