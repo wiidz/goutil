@@ -243,7 +243,8 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 		if transferList[k].UserName == "" {
 			continue
 		}
-		transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMKeyContent))
+		//transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMKeyContent))
+		transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMCertContent))
 		if err != nil {
 			return
 		}
