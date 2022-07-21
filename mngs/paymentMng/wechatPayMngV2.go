@@ -1,244 +1,245 @@
 package paymentMng
 
-import (
-	"errors"
-	"github.com/go-pay/gopay"
-	"github.com/go-pay/gopay/pkg/util"
-	"github.com/go-pay/gopay/pkg/xlog"
-	"github.com/go-pay/gopay/wechat"
-	"github.com/wiidz/goutil/structs/configStruct"
-	"log"
-	"strconv"
-	"time"
-)
-
-type WechatPayMngV2 struct {
-	Config *configStruct.WechatPayConfig
-	Client *wechat.Client
-}
-
-// getWechatPayInstance 获取微信支付实例
-func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
-
-	var wechatPayMng = &WechatPayMngV2{
-		Config: config,
-		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, !config.Debug),
-	}
-
-	// 打开Debug开关，输出请求日志，默认关闭
-	wechatPayMng.Client.DebugSwitch = gopay.DebugOn
-
-	// 设置国家：不设置默认 中国国内
-	//    wechat.China：中国国内
-	//    wechat.China2：中国国内备用
-	//    wechat.SoutheastAsia：东南亚
-	//    wechat.Other：其他国家
-	wechatPayMng.Client.SetCountry(wechat.China)
-
-	//certFilePath := "./configs/certs/"
-	//keyPath:= ""
-
-	//_ = wechatPayMng.Client.AddCertPemFilePath(Config.CertPath,Config.CertKeyPath)
-	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.CertContent))
-	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
-
-	// 添加微信pem证书
-	return wechatPayMng
-}
-
-// NewWechatPayMng 根据传入的config，获取信的微信支付
-func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
-	return getWechatPayInstance(config)
-}
-
-// H5 H5场景 totalFee 是分为单位
-func (mng *WechatPayMngV2) H5(param *UnifiedOrderParam) (mWebUrl string, err error) {
-	//初始化参数Map
-	totalFee := param.TotalAmount * 100 // 分为单位
-
-	bm := make(gopay.BodyMap)
-	bm.Set("nonce_str", util.GetRandomString(32)).
-		Set("body", param.Title).
-		Set("out_trade_no", param.OutTradeNo).
-		Set("total_fee", totalFee).
-		Set("spbill_create_ip", param.IP).
-		Set("notify_url", mng.Config.NotifyURL).
-		Set("trade_type", wechat.TradeType_H5).
-		Set("device_info", "WEB").
-		Set("sign_type", wechat.SignType_MD5).
-		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
-				bm.Set("type", "Wap")
-				bm.Set("wap_url", param.ReturnURL)
-				bm.Set("wap_name", param.AppName)
-			})
-		})
-
-	//请求支付下单，成功后得到结果
-	var wxRsp *wechat.UnifiedOrderResponse
-	wxRsp, err = mng.Client.UnifiedOrder(bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-	xlog.Debug("Response：", wxRsp)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
-	xlog.Debug("wxRsp.ResultCode:", wxRsp.ResultCode)
-	xlog.Debug("wxRsp.ReturnCode:", wxRsp.ReturnCode)
-	xlog.Debug("wxRsp.ReturnMsg:", wxRsp.ReturnMsg)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
-
-	if wxRsp.ReturnCode == "FAIL" {
-		err = errors.New(wxRsp.ReturnMsg)
-		return
-	} else if len(wxRsp.ErrCodeDes) != 0 {
-		err = errors.New(wxRsp.ErrCodeDes)
-		return
-	}
-
-	mWebUrl = wxRsp.MwebUrl
-	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
-	log.Println("timeStamp", timeStamp)
-	return
-}
-
-// Js js场景 统一下单获取 totalFee 是分为单位
-func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam, openID string) (data map[string]interface{}, err error) {
-
-	totalFee := param.TotalAmount * 100 // 分为单位
-
-	//初始化参数Map
-	bm := make(gopay.BodyMap)
-	bm.Set("nonce_str", util.GetRandomString(32)).
-		Set("body", param.Title).
-		Set("out_trade_no", param.OutTradeNo).
-		Set("total_fee", totalFee).
-		Set("spbill_create_ip", param.IP).
-		Set("notify_url", mng.Config.NotifyURL).
-		Set("trade_type", wechat.TradeType_JsApi).
-		Set("device_info", "WEB").
-		Set("sign_type", wechat.SignType_MD5).
-		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
-				bm.Set("type", "Wap")
-				bm.Set("wap_url", param.ReturnURL)
-				bm.Set("wap_name", param.AppName)
-			})
-		}).Set("openid", openID) //js支付必填
-
-	//请求支付下单，成功后得到结果
-	wxRsp, err := mng.Client.UnifiedOrder(bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-	xlog.Debug("Response：", wxRsp)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
-
-	//获取Jsapi支付需要的paySign
-	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
-
-	pac := "prepay_id=" + wxRsp.PrepayId
-	paySign := wechat.GetJsapiPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.ApiKey)
-	xlog.Debug("paySign:", paySign)
-
-	return map[string]interface{}{
-		"app_id":    mng.Config.AppID,
-		"timestamp": timeStamp,
-		"nonce_str": wxRsp.NonceStr,
-		"package":   "prepay_id=" + wxRsp.PrepayId,
-		"sign_type": wechat.SignType_MD5,
-		"pay_sign":  paySign,
-	}, nil
-}
-
-// Mini 小程序场景下单
-func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
-	//初始化参数Map
-	totalFee := param.TotalAmount * 100 // 分为单位
-
-	nonceStr = util.GetRandomString(32)
-
-	bm := make(gopay.BodyMap)
-	bm.Set("nonce_str", nonceStr).
-		Set("body", param.Title).
-		Set("out_trade_no", param.OutTradeNo).
-		Set("total_fee", totalFee).
-		Set("spbill_create_ip", param.IP).
-		Set("notify_url", mng.Config.NotifyURL).
-		Set("trade_type", wechat.TradeType_Mini).
-		Set("device_info", "WEB").
-		Set("sign_type", wechat.SignType_MD5).
-		Set("openid", openID). //js支付必填
-		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
-			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
-				bm.Set("type", "Wap")
-				bm.Set("wap_url", param.ReturnURL)
-				bm.Set("wap_name", param.AppName)
-			})
-		})
-
-	//请求支付下单，成功后得到结果
-	var wxRsp *wechat.UnifiedOrderResponse
-	wxRsp, err = mng.Client.UnifiedOrder(bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-	xlog.Debug("Response：", wxRsp)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
-	xlog.Debug("wxRsp.ResultCode:", wxRsp.ResultCode)
-	xlog.Debug("wxRsp.ReturnCode:", wxRsp.ReturnCode)
-	xlog.Debug("wxRsp.ReturnMsg:", wxRsp.ReturnMsg)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
-	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
-
-	if wxRsp.ReturnCode == "FAIL" {
-		err = errors.New(wxRsp.ReturnMsg)
-		return
-	} else if len(wxRsp.ErrCodeDes) != 0 {
-		err = errors.New(wxRsp.ErrCodeDes)
-		return
-	}
-
-	//pac := "prepay_id=" + wxRsp.PrepayId
-	//paySign := wechat.GetMiniPaySign("wxdaa2ab9ef87b5497", wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, "GFDS8j98rewnmgl45wHTt980jg543abc")
-	//xlog.Debug("paySign:", paySign)
-
-	timestampStr = strconv.FormatInt(time.Now().Unix(), 10)
-	packageStr = "prepay_id=" + wxRsp.PrepayId
-	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, packageStr, wechat.SignType_MD5, timestampStr, mng.Config.ApiKey)
-	xlog.Debug("paySign:", paySign)
-	return
-}
-
-// Refund 退款
-func (mng *WechatPayMngV2) Refund(param *RefundParam) (err error) {
-
-	xlog.Debug("out_refund_no:", param.OutTradeNo)
-
-	totalFee := param.TotalAmount * 100   // 分为单位
-	refundFee := param.RefundAmount * 100 // 分为单位
-
-	// 初始化参数结构体
-	bm := make(gopay.BodyMap)
-	bm.Set("out_trade_no", param.OutTradeNo).
-		Set("nonce_str", util.GetRandomString(32)).
-		Set("sign_type", wechat.SignType_MD5).
-		Set("out_refund_no", param.OrderRefundNo).
-		Set("total_fee", totalFee).
-		Set("refund_fee", refundFee).
-		Set("notify_url", mng.Config.RefundNotifyURL)
-
-	//请求申请退款（沙箱环境下，证书路径参数可传空）
-	//    body：参数Body
-	wxRsp, resBm, err := mng.Client.Refund(bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-	xlog.Debug("wxRsp：", wxRsp)
-	xlog.Debug("resBm:", resBm)
-	return
-}
+//
+//import (
+//	"errors"
+//	"github.com/go-pay/gopay"
+//	"github.com/go-pay/gopay/pkg/util"
+//	"github.com/go-pay/gopay/pkg/xlog"
+//	"github.com/go-pay/gopay/wechat"
+//	"github.com/wiidz/goutil/structs/configStruct"
+//	"log"
+//	"strconv"
+//	"time"
+//)
+//
+//type WechatPayMngV2 struct {
+//	Config *configStruct.WechatPayConfig
+//	Client *wechat.Client
+//}
+//
+//// getWechatPayInstance 获取微信支付实例
+//func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
+//
+//	var wechatPayMng = &WechatPayMngV2{
+//		Config: config,
+//		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, !config.Debug),
+//	}
+//
+//	// 打开Debug开关，输出请求日志，默认关闭
+//	wechatPayMng.Client.DebugSwitch = gopay.DebugOn
+//
+//	// 设置国家：不设置默认 中国国内
+//	//    wechat.China：中国国内
+//	//    wechat.China2：中国国内备用
+//	//    wechat.SoutheastAsia：东南亚
+//	//    wechat.Other：其他国家
+//	wechatPayMng.Client.SetCountry(wechat.China)
+//
+//	//certFilePath := "./configs/certs/"
+//	//keyPath:= ""
+//
+//	//_ = wechatPayMng.Client.AddCertPemFilePath(Config.CertPath,Config.CertKeyPath)
+//	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.CertContent))
+//	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
+//
+//	// 添加微信pem证书
+//	return wechatPayMng
+//}
+//
+//// NewWechatPayMng 根据传入的config，获取信的微信支付
+//func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
+//	return getWechatPayInstance(config)
+//}
+//
+//// H5 H5场景 totalFee 是分为单位
+//func (mng *WechatPayMngV2) H5(param *UnifiedOrderParam) (mWebUrl string, err error) {
+//	//初始化参数Map
+//	totalFee := param.TotalAmount * 100 // 分为单位
+//
+//	bm := make(gopay.BodyMap)
+//	bm.Set("nonce_str", util.GetRandomString(32)).
+//		Set("body", param.Title).
+//		Set("out_trade_no", param.OutTradeNo).
+//		Set("total_fee", totalFee).
+//		Set("spbill_create_ip", param.IP).
+//		Set("notify_url", mng.Config.NotifyURL).
+//		Set("trade_type", wechat.TradeType_H5).
+//		Set("device_info", "WEB").
+//		Set("sign_type", wechat.SignType_MD5).
+//		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+//			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
+//				bm.Set("type", "Wap")
+//				bm.Set("wap_url", param.ReturnURL)
+//				bm.Set("wap_name", param.AppName)
+//			})
+//		})
+//
+//	//请求支付下单，成功后得到结果
+//	var wxRsp *wechat.UnifiedOrderResponse
+//	wxRsp, err = mng.Client.UnifiedOrder(bm)
+//	if err != nil {
+//		xlog.Error(err)
+//		return
+//	}
+//	xlog.Debug("Response：", wxRsp)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
+//	xlog.Debug("wxRsp.ResultCode:", wxRsp.ResultCode)
+//	xlog.Debug("wxRsp.ReturnCode:", wxRsp.ReturnCode)
+//	xlog.Debug("wxRsp.ReturnMsg:", wxRsp.ReturnMsg)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
+//
+//	if wxRsp.ReturnCode == "FAIL" {
+//		err = errors.New(wxRsp.ReturnMsg)
+//		return
+//	} else if len(wxRsp.ErrCodeDes) != 0 {
+//		err = errors.New(wxRsp.ErrCodeDes)
+//		return
+//	}
+//
+//	mWebUrl = wxRsp.MwebUrl
+//	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
+//	log.Println("timeStamp", timeStamp)
+//	return
+//}
+//
+//// Js js场景 统一下单获取 totalFee 是分为单位
+//func (mng *WechatPayMngV2) Js(param *UnifiedOrderParam, openID string) (data map[string]interface{}, err error) {
+//
+//	totalFee := param.TotalAmount * 100 // 分为单位
+//
+//	//初始化参数Map
+//	bm := make(gopay.BodyMap)
+//	bm.Set("nonce_str", util.GetRandomString(32)).
+//		Set("body", param.Title).
+//		Set("out_trade_no", param.OutTradeNo).
+//		Set("total_fee", totalFee).
+//		Set("spbill_create_ip", param.IP).
+//		Set("notify_url", mng.Config.NotifyURL).
+//		Set("trade_type", wechat.TradeType_JsApi).
+//		Set("device_info", "WEB").
+//		Set("sign_type", wechat.SignType_MD5).
+//		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+//			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
+//				bm.Set("type", "Wap")
+//				bm.Set("wap_url", param.ReturnURL)
+//				bm.Set("wap_name", param.AppName)
+//			})
+//		}).Set("openid", openID) //js支付必填
+//
+//	//请求支付下单，成功后得到结果
+//	wxRsp, err := mng.Client.UnifiedOrder(bm)
+//	if err != nil {
+//		xlog.Error(err)
+//		return
+//	}
+//	xlog.Debug("Response：", wxRsp)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
+//
+//	//获取Jsapi支付需要的paySign
+//	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
+//
+//	pac := "prepay_id=" + wxRsp.PrepayId
+//	paySign := wechat.GetJsapiPaySign(mng.Config.AppID, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, mng.Config.ApiKey)
+//	xlog.Debug("paySign:", paySign)
+//
+//	return map[string]interface{}{
+//		"app_id":    mng.Config.AppID,
+//		"timestamp": timeStamp,
+//		"nonce_str": wxRsp.NonceStr,
+//		"package":   "prepay_id=" + wxRsp.PrepayId,
+//		"sign_type": wechat.SignType_MD5,
+//		"pay_sign":  paySign,
+//	}, nil
+//}
+//
+//// Mini 小程序场景下单
+//func (mng *WechatPayMngV2) Mini(param *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
+//	//初始化参数Map
+//	totalFee := param.TotalAmount * 100 // 分为单位
+//
+//	nonceStr = util.GetRandomString(32)
+//
+//	bm := make(gopay.BodyMap)
+//	bm.Set("nonce_str", nonceStr).
+//		Set("body", param.Title).
+//		Set("out_trade_no", param.OutTradeNo).
+//		Set("total_fee", totalFee).
+//		Set("spbill_create_ip", param.IP).
+//		Set("notify_url", mng.Config.NotifyURL).
+//		Set("trade_type", wechat.TradeType_Mini).
+//		Set("device_info", "WEB").
+//		Set("sign_type", wechat.SignType_MD5).
+//		Set("openid", openID). //js支付必填
+//		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
+//			bm.SetBodyMap("h5_info", func(bm gopay.BodyMap) {
+//				bm.Set("type", "Wap")
+//				bm.Set("wap_url", param.ReturnURL)
+//				bm.Set("wap_name", param.AppName)
+//			})
+//		})
+//
+//	//请求支付下单，成功后得到结果
+//	var wxRsp *wechat.UnifiedOrderResponse
+//	wxRsp, err = mng.Client.UnifiedOrder(bm)
+//	if err != nil {
+//		xlog.Error(err)
+//		return
+//	}
+//	xlog.Debug("Response：", wxRsp)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.MwebUrl)
+//	xlog.Debug("wxRsp.ResultCode:", wxRsp.ResultCode)
+//	xlog.Debug("wxRsp.ReturnCode:", wxRsp.ReturnCode)
+//	xlog.Debug("wxRsp.ReturnMsg:", wxRsp.ReturnMsg)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCode)
+//	xlog.Debug("wxRsp.MwebUrl:", wxRsp.ErrCodeDes)
+//
+//	if wxRsp.ReturnCode == "FAIL" {
+//		err = errors.New(wxRsp.ReturnMsg)
+//		return
+//	} else if len(wxRsp.ErrCodeDes) != 0 {
+//		err = errors.New(wxRsp.ErrCodeDes)
+//		return
+//	}
+//
+//	//pac := "prepay_id=" + wxRsp.PrepayId
+//	//paySign := wechat.GetMiniPaySign("wxdaa2ab9ef87b5497", wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, "GFDS8j98rewnmgl45wHTt980jg543abc")
+//	//xlog.Debug("paySign:", paySign)
+//
+//	timestampStr = strconv.FormatInt(time.Now().Unix(), 10)
+//	packageStr = "prepay_id=" + wxRsp.PrepayId
+//	paySign = wechat.GetMiniPaySign(mng.Config.AppID, wxRsp.NonceStr, packageStr, wechat.SignType_MD5, timestampStr, mng.Config.ApiKey)
+//	xlog.Debug("paySign:", paySign)
+//	return
+//}
+//
+//// Refund 退款
+//func (mng *WechatPayMngV2) Refund(param *RefundParam) (err error) {
+//
+//	xlog.Debug("out_refund_no:", param.OutTradeNo)
+//
+//	totalFee := param.TotalAmount * 100   // 分为单位
+//	refundFee := param.RefundAmount * 100 // 分为单位
+//
+//	// 初始化参数结构体
+//	bm := make(gopay.BodyMap)
+//	bm.Set("out_trade_no", param.OutTradeNo).
+//		Set("nonce_str", util.GetRandomString(32)).
+//		Set("sign_type", wechat.SignType_MD5).
+//		Set("out_refund_no", param.OrderRefundNo).
+//		Set("total_fee", totalFee).
+//		Set("refund_fee", refundFee).
+//		Set("notify_url", mng.Config.RefundNotifyURL)
+//
+//	//请求申请退款（沙箱环境下，证书路径参数可传空）
+//	//    body：参数Body
+//	wxRsp, resBm, err := mng.Client.Refund(bm)
+//	if err != nil {
+//		xlog.Error(err)
+//		return
+//	}
+//	xlog.Debug("wxRsp：", wxRsp)
+//	xlog.Debug("resBm:", resBm)
+//	return
+//}
