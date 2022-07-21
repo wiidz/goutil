@@ -238,16 +238,16 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 // BatchPayUser 批量付款给用户（用户的真实姓名要么都填，要么都不填，大于2000必填）
 func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUserParam, transferList []*TransferUserDetailList) (res *wechat.TransferRsp, err error) {
 
-	//// 【1】为名称加密
-	//for k := range transferList {
-	//	if transferList[k].UserName == "" {
-	//		continue
-	//	}
-	//	transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMKeyContent))
-	//	if err != nil {
-	//		return
-	//	}
-	//}
+	// 【1】为名称加密
+	for k := range transferList {
+		if transferList[k].UserName == "" {
+			continue
+		}
+		transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMKeyContent))
+		if err != nil {
+			return
+		}
+	}
 
 	// 初始化参数结构体
 	bm := make(gopay.BodyMap)
