@@ -258,6 +258,15 @@ func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam, transferList 
 						Set("total_num", params.TotalNum).
 						Set("transfer_detail_list", transferList)
 
+	//bm.Set("nonce_str", util.RandomString(32)).
+	//	Set("partner_trade_no", util.RandomString(32)).
+	//	Set("openid", "o0Df70H2Q0fY8JXh1aFPIRyOBgu8").
+	//	Set("check_name", "FORCE_CHECK"). // NO_CHECK：不校验真实姓名 , FORCE_CHECK：强校验真实姓名
+	//	Set("re_user_name", "付明明"). // 收款用户真实姓名。 如果check_name设置为FORCE_CHECK，则必填用户真实姓名
+	//	Set("amount", 30). // 企业付款金额，单位为分
+	//	Set("desc", "测试转账"). // 企业付款备注，必填。注意：备注中的敏感词会被转成字符*
+	//	Set("spbill_create_ip", "127.0.0.1")
+
 	// 企业向微信用户个人付款（不支持沙箱环境）
 	//    body：参数Body
 	res, err = mng.Client.V3Transfer(bm)

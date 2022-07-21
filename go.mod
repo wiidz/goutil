@@ -13,14 +13,17 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/go-pay/gopay v1.5.55
+	github.com/disintegration/imaging v1.6.2
+	github.com/fogleman/gg v1.3.0
+	github.com/gen2brain/go-fitz v1.20.0
+	github.com/go-pay/gopay v1.5.81
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/json-iterator/go v1.1.12
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/kataras/iris/v12 v12.2.0-beta1
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/olivere/elastic/v7 v7.0.29
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/shamsher31/goimgtype v1.0.0
 	github.com/silenceper/wechat/v2 v2.0.9
 	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.5.0
@@ -53,12 +56,9 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
-	github.com/fogleman/gg v1.3.0 // indirect
-	github.com/gen2brain/go-fitz v1.20.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
@@ -74,7 +74,6 @@ require (
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/jung-kurt/gofpdf v1.16.2 // indirect
 	github.com/kataras/blocks v0.0.5 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
 	github.com/kataras/pio v0.0.10 // indirect
@@ -94,7 +93,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
-	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/tdewolff/minify/v2 v2.11.1 // indirect
