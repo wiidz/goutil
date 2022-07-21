@@ -21,7 +21,7 @@ type WechatPayMngV3 struct {
 func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPayMngV3, err error) {
 
 	var client *wechat.ClientV3
-	client, err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3, config.CertContent)
+	client, err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3, config.PEMKeyContent)
 	if err != nil {
 		return
 	}
@@ -234,17 +234,15 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 	return
 }
 
-
 // BatchPayUser 批量付款给用户（用户的真实姓名要么都填，要么都不填，大于2000必填）
-func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam,transferList []*TransferUserDetailList)(res *wechat.TransferRsp,err error){
-
+func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam, transferList []*TransferUserDetailList) (res *wechat.TransferRsp, err error) {
 
 	// 【1】为名称加密
 	for k := range transferList {
 		if transferList[k].UserName == "" {
 			continue
 		}
-		transferList[k].UserName,err = wechat.V3EncryptText(transferList[k].UserName,[]byte(mng.Config.CertContent))
+		transferList[k].UserName, err = wechat.V3EncryptText(transferList[k].UserName, []byte(mng.Config.PEMKeyContent))
 		if err != nil {
 			return
 		}
@@ -253,12 +251,12 @@ func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam,transferList [
 	// 初始化参数结构体
 	bm := make(gopay.BodyMap)
 	bm.Set("appid", mng.Config.AppID). // 直连商户的appid，申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid）
-		Set("out_batch_no", params.OutBatchNo).
-		Set("batch_name", params.BatchName).
-		Set("batch_remark", params.BatchRemark).
-		Set("total_amount", params.TotalAmount).
-		Set("total_num", params.TotalNum).
-		Set("transfer_detail_list",transferList)
+						Set("out_batch_no", params.OutBatchNo).
+						Set("batch_name", params.BatchName).
+						Set("batch_remark", params.BatchRemark).
+						Set("total_amount", params.TotalAmount).
+						Set("total_num", params.TotalNum).
+						Set("transfer_detail_list", transferList)
 
 	// 企业向微信用户个人付款（不支持沙箱环境）
 	//    body：参数Body
@@ -270,7 +268,6 @@ func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam,transferList [
 		xlog.Error(err)
 		return
 	}
-
 
 	return
 }
