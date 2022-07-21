@@ -1,6 +1,7 @@
 package paymentMng
 
 import (
+	"context"
 	"errors"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
@@ -15,11 +16,17 @@ type AliPayMng struct {
 }
 
 // getAliPayInstance 获取实例
-func getAliPayInstance(config *configStruct.AliPayConfig) *AliPayMng {
+func getAliPayInstance(config *configStruct.AliPayConfig) (*AliPayMng, error) {
+
+	client, err := alipay.NewClient(config.AppID, config.PrivateKey, !config.Debug)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var alipayMng = &AliPayMng{
 		Config: config,
-		Client: alipay.NewClient(config.AppID, config.PrivateKey, !config.Debug),
+		Client: client,
 	}
 
 	//配置公共参数
@@ -52,16 +59,16 @@ func getAliPayInstance(config *configStruct.AliPayConfig) *AliPayMng {
 	//err := alipay.Client.SetCertSnByPath("appCertPublicKey.crt", "alipayRootCert.crt", "alipayCertPublicKey_RSA2.crt")
 	// 证书内容
 	//err := client.SetCertSnByContent("appCertPublicKey bytes", "alipayRootCert bytes", "alipayCertPublicKey_RSA2 bytes")
-	return alipayMng
+	return alipayMng, nil
 }
 
 // NewAliPayMng 根据传入的config生成管理器
-func NewAliPayMng(config *configStruct.AliPayConfig) *AliPayMng {
+func NewAliPayMng(config *configStruct.AliPayConfig) (*AliPayMng, error) {
 	return getAliPayInstance(config)
 }
 
 // WapPay H5支付
-func (aliPayMng *AliPayMng) WapPay(params *UnifiedOrderParam) (payURL string, err error) {
+func (aliPayMng *AliPayMng) WapPay(ctx context.Context, params *UnifiedOrderParam) (payURL string, err error) {
 
 	aliPayMng.Client.SetReturnUrl(params.ReturnURL)
 
@@ -74,7 +81,7 @@ func (aliPayMng *AliPayMng) WapPay(params *UnifiedOrderParam) (payURL string, er
 	body.Set("product_code", "QUICK_WAP_WAY")
 
 	//手机网站支付请求
-	payURL, err = aliPayMng.Client.TradeWapPay(body)
+	payURL, err = aliPayMng.Client.TradeWapPay(ctx, body)
 	if err != nil {
 		xlog.Error("err:", err)
 		temp := typeHelper.JsonDecodeMap(err.Error())
@@ -86,7 +93,7 @@ func (aliPayMng *AliPayMng) WapPay(params *UnifiedOrderParam) (payURL string, er
 }
 
 // Refund 退款
-func (aliPayMng *AliPayMng) Refund(param *RefundParam) (err error) {
+func (aliPayMng *AliPayMng) Refund(ctx context.Context, param *RefundParam) (err error) {
 
 	//请求参数
 	body := make(gopay.BodyMap)
@@ -96,7 +103,7 @@ func (aliPayMng *AliPayMng) Refund(param *RefundParam) (err error) {
 	body.Set("refund_reason", param.Reason)
 
 	//发起退款请求
-	aliRsp, err := aliPayMng.Client.TradeRefund(body)
+	aliRsp, err := aliPayMng.Client.TradeRefund(ctx, body)
 	//aliPayMng.Client.FundTransRefund()
 	if err != nil {
 		xlog.Error("err:", err)
@@ -110,13 +117,13 @@ func (aliPayMng *AliPayMng) Refund(param *RefundParam) (err error) {
 }
 
 // GetRefund 查询退款情况
-func (aliPayMng *AliPayMng) GetRefund(outTradeNo, orderRefundNo string) (resp *alipay.TradeFastpayRefundQueryResponse, err error) {
+func (aliPayMng *AliPayMng) GetRefund(ctx context.Context, outTradeNo, orderRefundNo string) (resp *alipay.TradeFastpayRefundQueryResponse, err error) {
 	//请求参数
 	body := make(gopay.BodyMap)
 	body.Set("out_trade_no", outTradeNo)
 	body.Set("out_request_no", orderRefundNo)
 	//发起退款查询请求
-	aliRsp, err := aliPayMng.Client.TradeFastPayRefundQuery(body)
+	aliRsp, err := aliPayMng.Client.TradeFastPayRefundQuery(ctx, body)
 	if err != nil {
 		xlog.Error("err:", err)
 		return
