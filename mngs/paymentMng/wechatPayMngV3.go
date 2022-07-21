@@ -1,6 +1,7 @@
 package paymentMng
 
 import (
+	"context"
 	"errors"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/pkg/xlog"
@@ -42,10 +43,10 @@ func NewWechatPayMngV3(config *configStruct.WechatPayConfig) (*WechatPayMngV3, e
 }
 
 // Mini 小程序场景下单，注意params.TotalAmount是元为单位
-func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
+func (mng *WechatPayMngV3) Mini(ctx context.Context, params *UnifiedOrderParam, openID string) (timestampStr, packageStr, nonceStr, paySign string, err error) {
 
 	//【1】获取prepayID
-	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
+	prepayRes, err := mng.jsApiPlaceOrder(ctx, params, openID)
 	if err != nil {
 		return
 	}
@@ -65,10 +66,10 @@ func (mng *WechatPayMngV3) Mini(params *UnifiedOrderParam, openID string) (times
 }
 
 // Js 公众号支付，注意params.TotalAmount是元为单位
-func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
+func (mng *WechatPayMngV3) Js(ctx context.Context, params *UnifiedOrderParam, openID string) (appID, timestampStr, nonceStr, packageStr, paySign, signType string, err error) {
 
 	//【1】获取prepayID
-	prepayRes, err := mng.jsApiPlaceOrder(params, openID)
+	prepayRes, err := mng.jsApiPlaceOrder(ctx, params, openID)
 	if err != nil {
 		return
 	}
@@ -90,7 +91,7 @@ func (mng *WechatPayMngV3) Js(params *UnifiedOrderParam, openID string) (appID, 
 }
 
 // H5 网页支付，注意params.TotalAmount是元为单位
-func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url string, err error) {
+func (mng *WechatPayMngV3) H5(ctx context.Context, params *UnifiedOrderParam, openID string) (H5Url string, err error) {
 
 	//【1】构建结构体
 	totalFee := int(math.Round(params.TotalAmount * 100)) // 分为单位，注意这里的近似
@@ -113,7 +114,7 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 
 	//【2】获取签名
 	var wxRsp *wechat.H5Rsp
-	wxRsp, err = mng.Client.V3TransactionH5(bm)
+	wxRsp, err = mng.Client.V3TransactionH5(ctx, bm)
 	if err != nil {
 		return
 	}
@@ -131,7 +132,7 @@ func (mng *WechatPayMngV3) H5(params *UnifiedOrderParam, openID string) (H5Url s
 }
 
 // Refund 退款
-func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, err error) {
+func (mng *WechatPayMngV3) Refund(ctx context.Context, param *RefundParam) (wxRsp *wechat.RefundRsp, err error) {
 	refundFee := int(param.RefundAmount * 100)
 	totalFee := int(param.TotalAmount * 100)
 	bm := make(gopay.BodyMap)
@@ -145,7 +146,7 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 				Set("currency", "CNY")
 		})
 
-	wxRsp, err = mng.Client.V3Refund(bm)
+	wxRsp, err = mng.Client.V3Refund(ctx, bm)
 	if err != nil {
 		return
 	}
@@ -162,7 +163,7 @@ func (mng *WechatPayMngV3) Refund(param *RefundParam) (wxRsp *wechat.RefundRsp, 
 }
 
 // jsApiPlaceOrder JSAPI/小程序下单API totalFee 是分为单位
-func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID string) (wxRsp *wechat.PrepayRsp, err error) {
+func (mng *WechatPayMngV3) jsApiPlaceOrder(ctx context.Context, params *UnifiedOrderParam, openID string) (wxRsp *wechat.PrepayRsp, err error) {
 
 	expire := time.Now().Add(10 * time.Minute).Format(time.RFC3339)
 	//totalFee := int(params.TotalAmount * 100) // 分为单位
@@ -184,7 +185,7 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(params *UnifiedOrderParam, openID str
 			bm.Set("openid", openID)
 		})
 
-	wxRsp, err = mng.Client.V3TransactionJsapi(bm)
+	wxRsp, err = mng.Client.V3TransactionJsapi(ctx, bm)
 
 	if err != nil {
 		xlog.Error(err)
@@ -235,7 +236,7 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 }
 
 // BatchPayUser 批量付款给用户（用户的真实姓名要么都填，要么都不填，大于2000必填）
-func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam, transferList []*TransferUserDetailList) (res *wechat.TransferRsp, err error) {
+func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUserParam, transferList []*TransferUserDetailList) (res *wechat.TransferRsp, err error) {
 
 	//// 【1】为名称加密
 	//for k := range transferList {
@@ -269,7 +270,7 @@ func (mng *WechatPayMngV3) BatchPayUser(params *TransferUserParam, transferList 
 
 	// 企业向微信用户个人付款（不支持沙箱环境）
 	//    body：参数Body
-	res, err = mng.Client.V3Transfer(bm)
+	res, err = mng.Client.V3Transfer(ctx, bm)
 	xlog.Debug("Response：", res)
 	xlog.Debug("err：", err)
 
