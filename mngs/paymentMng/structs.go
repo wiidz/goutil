@@ -91,11 +91,11 @@ type WechatError struct {
 
 // TransferUserParam 向用户转账
 type TransferUserParam struct {
-	OutBatchNo             string                    `json:"out_batch_no"`         // 商家批次单号，商户系统内部的商家批次单号，要求此参数只能由数字、大小写字母组成，在商户系统内部唯一（plfk2020042013）
-	BatchName              string                    `json:"batch_name"`           // 批次名称，该笔批量转账的名称（2019年1月深圳分部报销单）
-	BatchRemark            string                    `json:"batch_remark"`         // 批次备注，转账说明，UTF8编码，最多允许32个字符（2019年1月深圳分部报销单）
-	TotalAmount            int                       `json:"total_amount"`         // 转账总金额，转账金额单位为“分”。转账总金额必须与批次内所有明细转账金额之和保持一致，否则无法发起转账操作（4000000）
-	TotalNum               int                       `json:"total_num"`            // 转账总笔数，一个转账批次单最多发起三千笔转账。转账总笔数必须与批次内所有明细之和保持一致，否则无法发起转账操作（200）
+	OutBatchNo  string `json:"out_batch_no"` // 商家批次单号，商户系统内部的商家批次单号，要求此参数只能由数字、大小写字母组成，在商户系统内部唯一（plfk2020042013）
+	BatchName   string `json:"batch_name"`   // 批次名称，该笔批量转账的名称（2019年1月深圳分部报销单）
+	BatchRemark string `json:"batch_remark"` // 批次备注，转账说明，UTF8编码，最多允许32个字符（2019年1月深圳分部报销单）
+	TotalAmount int    `json:"total_amount"` // 转账总金额，转账金额单位为“分”。转账总金额必须与批次内所有明细转账金额之和保持一致，否则无法发起转账操作（4000000）
+	TotalNum    int    `json:"total_num"`    // 转账总笔数，一个转账批次单最多发起三千笔转账。转账总笔数必须与批次内所有明细之和保持一致，否则无法发起转账操作（200）
 	//TransferUserDetailList []*TransferUserDetailList `json:"transfer_detail_list"` // 转账明细列表，发起批量转账的明细列表，最多三千笔
 }
 

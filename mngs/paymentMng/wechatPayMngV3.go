@@ -305,8 +305,17 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 	xlog.Debug("err：", err)
 
 	if err != nil {
-		xlog.Error(err)
 		return
+	}
+
+	if res.Code != 0 {
+		wechatErr := WechatError{}
+		err = typeHelper.JsonDecodeWithStruct(res.Error, &wechatErr)
+		if err != nil {
+			err = errors.New(wechatErr.Message)
+		} else {
+			err = errors.New(res.Error)
+		}
 	}
 
 	return
