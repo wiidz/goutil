@@ -150,7 +150,7 @@ func (mng *WechatPayMngV3) H5(ctx context.Context, params *UnifiedOrderParam, op
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
 		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
-		if err != nil {
+		if err == nil {
 			err = errors.New(wechatErr.Message)
 		} else {
 			err = errors.New(wxRsp.Error)
@@ -182,7 +182,7 @@ func (mng *WechatPayMngV3) Refund(ctx context.Context, param *RefundParam) (wxRs
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
 		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
-		if err != nil {
+		if err == nil {
 			err = errors.New(wechatErr.Message)
 		} else {
 			err = errors.New(wxRsp.Error)
@@ -224,7 +224,7 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(ctx context.Context, params *UnifiedO
 	if wxRsp.Code != 0 {
 		wechatErr := WechatError{}
 		err = typeHelper.JsonDecodeWithStruct(wxRsp.Error, &wechatErr)
-		if err != nil {
+		if err == nil {
 			err = errors.New(wechatErr.Message)
 		} else {
 			err = errors.New(wxRsp.Error)
@@ -311,7 +311,7 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 	if res.Code != 0 {
 		wechatErr := WechatError{}
 		err = typeHelper.JsonDecodeWithStruct(res.Error, &wechatErr)
-		if err != nil {
+		if err == nil {
 			err = errors.New(wechatErr.Message)
 		} else {
 			err = errors.New(res.Error)
