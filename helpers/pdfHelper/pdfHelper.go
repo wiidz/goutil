@@ -252,7 +252,7 @@ func (helper *PDFHelper) SaveAsPDF(dir, fileName string) (filePath string, err e
 // SaveAsImgs 以图片格式保存
 // dir : 要以斜杠 / 结尾
 // fileName : 不要后缀名
-func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string, err error) {
+func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (localFilePaths []string, err error) {
 
 	//【1】先导出为pdf
 	pdfFilePath := dir + fileName + ".pdf"
@@ -269,7 +269,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 	}
 
 	//【3】循环将每页pdf转换成图片
-	imgFileNames = []string{}
+	localFilePaths = []string{}
 	for n := 0; n < doc.NumPage(); n++ {
 
 		//【3-1】
@@ -294,7 +294,7 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (imgFileNames []string
 		}
 
 		//【3-4】将文件名写入数组
-		imgFileNames = append(imgFileNames, imgFileName)
+		localFilePaths = append(localFilePaths, dir+"/"+imgFileName)
 		file.Close()
 	}
 
