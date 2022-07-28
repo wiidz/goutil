@@ -50,7 +50,7 @@ func Buff2Image(bytes []byte, filePath string) (err error) {
 }
 
 // MergeLocalImg 拼合本地图片
-func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...CoverImgInterface) (err error) {
+func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice []CoverImgInterface) (err error) {
 
 	//【1】打开背景图
 	var bgImg image.Image
@@ -91,7 +91,7 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 
 // MergeNetworkImg 拼合网络图片
 // 这个函数会将图片先下载到项目根目录下的/temp，记得给权限
-func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice ...*NetworkCoverImg) (err error) {
+func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice []*NetworkCoverImg) (err error) {
 
 	//【1】下载文件到本地
 	dir, _ := os.Getwd()
@@ -121,7 +121,7 @@ func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice ...*Netw
 		localFilePaths = append(localFilePaths, networkURL)
 	}
 
-	err = MergeLocalImg(bgImgFilePath, newFilePath, interfaceSlice...)
+	err = MergeLocalImg(bgImgFilePath, newFilePath, interfaceSlice)
 
 	go func() {
 		for _, v := range localFilePaths {
