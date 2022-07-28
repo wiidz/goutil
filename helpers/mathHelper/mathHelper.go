@@ -9,21 +9,13 @@ import (
 	"time"
 )
 
-/**
- * @func: GetRandomInt 获取范围内的int随机数
- * @author Wiidz
- * @date   2021-06-19
- */
+// GetRandomFloat64 获取随机浮点
 func GetRandomFloat64() (num float64) {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Float64()
 }
 
-/**
- * @func: GetRandomInt 获取范围内的int随机数
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetRandomInt 获取范围内的int随机数
 func GetRandomInt(min, max int) (num int) {
 	rand.Seed(time.Now().UnixNano())
 	for {
@@ -36,11 +28,7 @@ func GetRandomInt(min, max int) (num int) {
 	return
 }
 
-/**
- * @func: GetBezierPoints 获取贝塞尔曲线上的所有规定数量的点
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetBezierPoints 获取贝塞尔曲线上的所有规定数量的点
 func GetBezierPoints(dots []map[string]float64, amount int) []map[string]float64 {
 	points := make([]map[string]float64, 0)
 	for i := 0; i < amount; i++ {
@@ -50,11 +38,7 @@ func GetBezierPoints(dots []map[string]float64, amount int) []map[string]float64
 	return points
 }
 
-/**
- * @func: GetBezierPoints 获取贝塞尔曲线上的单个点
- * @author Wiidz
- * @date   2019-11-16
- */
+// multiPointBezier 获取贝塞尔曲线上的多个点
 func multiPointBezier(dots []map[string]float64, t float64) map[string]float64 {
 	len := float64(len(dots))
 	x := float64(0)
@@ -81,11 +65,7 @@ func multiPointBezier(dots []map[string]float64, t float64) map[string]float64 {
 	return map[string]float64{"x": x, "y": y}
 }
 
-/**
- * @func: MatrixTransform 矩阵变换
- * @author Wiidz
- * @date   2019-11-16
- */
+// MatrixTransform 矩阵变换
 func MatrixTransform(data []float64, matrix [][]float64) []float64 {
 	res := make([]float64, 0)
 	for _, row := range matrix {
@@ -100,11 +80,7 @@ func MatrixTransform(data []float64, matrix [][]float64) []float64 {
 	return res
 }
 
-/**
- * @func: GetNearestIntXDots 获取一组点中最接近整数x的点
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetNearestIntXDots 获取一组点中最接近整数x的点
 func GetNearestIntXDots(dots []map[string]float64) map[float64]map[string]float64 {
 	//fmt.Println("【dots】",dots)
 	intDots := make(map[float64]map[string]float64, 0)
@@ -135,11 +111,7 @@ func GetNearestIntXDots(dots []map[string]float64) map[float64]map[string]float6
 	return intDots
 }
 
-/**
- * @func: GetInsideDots 获取两组点构成的线，包围区域中间的点
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetInsideDots 获取两组点构成的线，包围区域中间的点
 func GetInsideDots(dots1 map[float64]map[string]float64, dots2 map[float64]map[string]float64) []map[string]float64 {
 	insideDots := make([]map[string]float64, 0)
 
@@ -168,11 +140,7 @@ func getKeys(imap map[float64]map[string]float64) []interface{} {
 	return tmp
 }
 
-/**
- * @func: GetIntergers 获取两个数之间指定数量的等分点
- * @author Wiidz
- * @date   2019-11-16
- */
+// GetIntergers 获取两个数之间指定数量的等分点
 func GetIntergers(border1 float64, border2 float64, narrow_range float64, amount float64) []float64 {
 	//【1】计算边界
 	max := math.Max(border1, border2)
@@ -199,6 +167,7 @@ func GetIntergers(border1 float64, border2 float64, narrow_range float64, amount
 	return sliceHelper.GetRange(math.Ceil(min), math.Floor(max), step)
 }
 
+// Keep 保留几位小数
 func Keep(number float64, amount int) float64 {
 	newNumber, _ := strconv.ParseFloat(fmt.Sprintf("%."+strconv.Itoa(amount)+"f", number), 64)
 	return newNumber
