@@ -215,7 +215,7 @@ func Delete(filePath string) error {
 }
 
 // SimpleDownloadFile 简单下载（下载到当前工程目录的/tmp下，记得给权限）
-func SimpleDownloadFile(url string) error {
+func SimpleDownloadFile(url string) (localPath string, err error) {
 	var (
 		fsize   int64
 		buf     = make([]byte, 32*1024)
@@ -225,16 +225,16 @@ func SimpleDownloadFile(url string) error {
 	_, _, fileType := networkHelper.GetFileNameFromURL(url)
 	tempName := strHelper.GetRandomString(8) + "." + fileType
 	dir, _ := os.Getwd()
-	localPath := dir + "/" + tempName
+	localPath = dir + "/" + tempName
 
 	//创建一个http client
 	client := new(http.Client)
-	
+
 	// client.Timeout = time.Second * 60 //设置超时时间
 	// get方法获取资源
 	resp, err := client.Get(url)
 	if err != nil {
-		return err
+		return
 	}
 
 	// 读取服务器返回的文件大小
@@ -246,7 +246,7 @@ func SimpleDownloadFile(url string) error {
 			fmt.Println(err)
 		}
 		if ExistSameSizeFile(localPath, fsize) {
-			return err
+			return
 		}
 		fmt.Println("fsize", fsize)
 	}
@@ -254,11 +254,12 @@ func SimpleDownloadFile(url string) error {
 	// 创建文件
 	file, err := os.Create(localPath)
 	if err != nil {
-		return err
+		return
 	}
 	defer file.Close()
 	if resp.Body == nil {
-		return errors.New("body is null")
+		err = errors.New("body is null")
+		return
 	}
 	defer resp.Body.Close()
 
@@ -292,5 +293,5 @@ func SimpleDownloadFile(url string) error {
 		}
 	}
 
-	return err
+	return
 }
