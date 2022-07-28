@@ -50,7 +50,7 @@ func Buff2Image(bytes []byte, filePath string) (err error) {
 }
 
 // MergeLocalImg 拼合本地图片
-func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice []CoverImgInterface) (err error) {
+func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...CoverImgInterface) (err error) {
 
 	//【1】打开背景图
 	var bgImg image.Image
@@ -121,7 +121,7 @@ func MergeNetworkImg(bgImgURL string, newFilePath string, coverImgSlice []*Netwo
 		localFilePaths = append(localFilePaths, networkURL)
 	}
 
-	err = MergeLocalImg(bgImgFilePath, newFilePath, interfaceSlice)
+	err = MergeLocalImg(bgImgFilePath, newFilePath, interfaceSlice...)
 
 	go func() {
 		for _, v := range localFilePaths {
