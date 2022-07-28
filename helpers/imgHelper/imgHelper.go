@@ -5,6 +5,7 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
 	"io/ioutil"
 	"os"
@@ -137,5 +138,18 @@ func DownloadNetworkImg(bgImgURL string) (bgImgFilePath string, err error) {
 	bgImgFilePath = dir + "/temp/" + strHelper.GetRandomString(8)
 
 	err = osHelper.DownloadFile(bgImgURL, bgImgFilePath, nil) // 注意这里是没有后缀名的
+	return
+}
+
+// GetSizeFromStr 从字符串中转换成size
+// 200,400 这种格式
+func GetSizeFromStr(str string) (size *Size) {
+	temp := typeHelper.ExplodeFloat64(str, ",")
+	if len(temp) == 2 {
+		size = &Size{
+			Width:  temp[0],
+			Height: temp[1],
+		}
+	}
 	return
 }

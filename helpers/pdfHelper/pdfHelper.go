@@ -8,6 +8,7 @@ import (
 	"github.com/wiidz/goutil/helpers/imgHelper"
 	"github.com/wiidz/goutil/helpers/mathHelper"
 	"github.com/wiidz/goutil/helpers/osHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
 	"image/jpeg"
 	"log"
@@ -848,4 +849,20 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 		helper.PDF.AddPage()
 		helper.PDF.SetXY(Margin, Margin)
 	}
+}
+
+// GetPositionFromStr 从字符串中转换成position
+// 0,120,234 这种格式
+func GetPositionFromStr(str string) (imgNo int, position *Point) {
+
+	temp := typeHelper.ExplodeFloat64(str, ",")
+	if len(temp) == 3 {
+		imgNo = int(temp[0])
+		position = &Point{
+			X: temp[1],
+			Y: temp[2],
+		}
+	}
+	return
+
 }
