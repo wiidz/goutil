@@ -12,7 +12,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -293,5 +295,26 @@ func SimpleDownloadFile(url string) (localPath string, err error) {
 		}
 	}
 
+	return
+}
+
+// GetFileFromLocalPath 从本地路径中提取文件
+// localFilePath 应该是 /home/www/wwwroot/aaaaa.html 这样
+func GetFileFromLocalPath(localFilePath string) (targetDir, wholeName, fileName, fileType string) {
+
+	reg := regexp.MustCompile(`([^/]\w*\.*\w*)$`)
+	result := reg.FindStringSubmatch(localFilePath)
+	if len(result) == 2 {
+		wholeName = result[1]
+		temp := typeHelper.ExplodeStr(wholeName, ".")
+
+		if len(temp) == 2 {
+
+			fileName = temp[0]
+			fileType = temp[1]
+
+			targetDir = strings.ReplaceAll(localFilePath, "/"+wholeName, "")
+		}
+	}
 	return
 }
