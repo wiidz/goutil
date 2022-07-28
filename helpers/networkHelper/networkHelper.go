@@ -653,7 +653,7 @@ func RequestJsonTest(method networkStruct.Method, targetURL string, params map[s
 	json.Unmarshal(data, &netReturn)
 
 	fmt.Println("【body-json】", netReturn)
-	fmt.Println("***************************\n")
+	fmt.Println("***************************")
 	//【8】返回
 	return netReturn, &resp.Header, resp.StatusCode, err
 
@@ -1222,5 +1222,31 @@ func MyRequest(params *networkStruct.MyRequestParams) (resData *networkStruct.My
 	}
 
 	//【8】返回
+	return
+}
+
+// GetDomainFromURL 从url中提取文件名
+func GetDomainFromURL(url string) (domain string) {
+
+	reg := regexp.MustCompile(`(\w+)(\.\w+)+`)
+	result := reg.FindStringSubmatch(url)
+	if len(result) > 2 {
+		domain = result[0]
+	}
+	return
+}
+
+// GetFileNameFromURL 从url中提取文件名
+func GetFileNameFromURL(url string) (wholeName, fileName string, fileType string) {
+	reg := regexp.MustCompile(`\w+\.\w+\/([^?]*)\??`)
+	result := reg.FindStringSubmatch(url)
+	if len(result) == 2 {
+		wholeName = result[1]
+		temp := typeHelper.ExplodeStr(wholeName, ".")
+		if len(temp) == 2 {
+			fileName = temp[0]
+			fileType = temp[1]
+		}
+	}
 	return
 }
