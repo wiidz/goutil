@@ -154,9 +154,9 @@ func GetSizeFromStr(str string) (size *Size) {
 	return
 }
 
-// GetPointFromStr 从字符串中转换成point
+// GetPositionFromStr 从字符串中转换成point
 // 0,120,234 这种格式
-func GetPointFromStr(str string) (imgNo int, position *Position) {
+func GetPositionFromStr(str string) (imgNo int, position *Position) {
 
 	temp := typeHelper.ExplodeFloat64(str, ",")
 	if len(temp) == 3 {
