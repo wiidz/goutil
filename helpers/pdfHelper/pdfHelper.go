@@ -851,9 +851,9 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 	}
 }
 
-// GetPositionFromStr 从字符串中转换成position
+// GetPointFromStr 从字符串中转换成point
 // 0,120,234 这种格式
-func GetPositionFromStr(str string) (imgNo int, position *Point) {
+func GetPointFromStr(str string) (imgNo int, position *Point) {
 
 	temp := typeHelper.ExplodeFloat64(str, ",")
 	if len(temp) == 3 {
