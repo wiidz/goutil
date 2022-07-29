@@ -230,8 +230,8 @@ func SimpleDownloadFile(url string) (finalFilePath string, err error) {
 
 	tempName := strHelper.GetRandomString(8)
 
-	tempPath := dir + "/temp/" + tempName + ".download"  // 临时路径
-	finalFilePath = dir + "/temp/" + tempName + fileType // 最终路径
+	tempPath := dir + "/temp/" + tempName + ".download"        // 临时路径
+	finalFilePath = dir + "/temp/" + tempName + "." + fileType // 最终路径
 
 	//创建一个http client
 	client := new(http.Client)

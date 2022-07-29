@@ -150,7 +150,6 @@ func GetPixelRgb(img_uri string, dots []map[string]float64) ([]map[string]interf
 	//获取image
 	m, err := imgHelper.OpenImageFile(localUri)
 	if err != nil {
-		fmt.Println(err)
 		return rgbArr, err
 	}
 	//循环获取点的rgba

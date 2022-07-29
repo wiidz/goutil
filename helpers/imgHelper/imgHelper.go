@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -45,7 +44,6 @@ func OpenImageFile(localUri string) (image.Image, error) {
 
 // Buff2Image 字节转图片
 func Buff2Image(bytes []byte, filePath string) (err error) {
-	//filePath = "/tmp/test.jpg"
 	err = ioutil.WriteFile(filePath, bytes, 0666)
 	return
 }
@@ -56,8 +54,6 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 	//【1】打开背景图
 	var bgImg image.Image
 	bgImg, err = OpenImageFile(bgImgFilePath)
-	log.Println("bgImg", bgImg)
-	log.Println("err", err)
 	if err != nil {
 		return
 	}
