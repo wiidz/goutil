@@ -227,7 +227,7 @@ func SimpleDownloadFile(url string) (localPath string, err error) {
 	_, _, fileType := networkHelper.GetFileNameFromURL(url)
 	tempName := strHelper.GetRandomString(8) + "." + fileType
 	dir, _ := os.Getwd()
-	localPath = dir + "/" + tempName
+	localPath = dir + "/temp/" + tempName
 
 	//创建一个http client
 	client := new(http.Client)
