@@ -8,6 +8,7 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -55,6 +56,8 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 	//【1】打开背景图
 	var bgImg image.Image
 	bgImg, err = OpenImageFile(bgImgFilePath)
+	log.Println("bgImg", bgImg)
+	log.Println("err", err)
 	if err != nil {
 		return
 	}
