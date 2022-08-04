@@ -794,7 +794,7 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 	var localURL = img.URL
 	if len(img.URL) > 4 && img.URL[0:4] == "http" {
 		localURL, err = osHelper.SimpleDownloadFile(img.URL)
-		defer osHelper.Delete(localURL)
+		//defer osHelper.Delete(localURL)
 		if err != nil {
 			return
 		}
