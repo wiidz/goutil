@@ -312,7 +312,9 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	log.Println("rightData", rightData)
 
 	leftSignData := firstParty.GetSignData()
+	log.Println("leftSignData", leftSignData)
 	rightSignData := secondParty.GetSignData()
+	log.Println("rightSignData", rightSignData)
 
 	leftSignData.SignFormCellStyle = getTips(firstParty)
 	rightSignData.SignFormCellStyle = getTips(secondParty)
@@ -790,8 +792,7 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 
 	//【2】如果是网络图片，那么下载到本地
 	var localURL = img.URL
-	log.Println("aa", img.URL[0:3] == "http")
-	if len(img.URL) > 4 && img.URL[0:3] == "http" {
+	if len(img.URL) > 4 && img.URL[0:4] == "http" {
 		localURL, err = imgHelper.DownloadNetworkImg(img.URL)
 		defer osHelper.Delete(localURL)
 		if err != nil {
