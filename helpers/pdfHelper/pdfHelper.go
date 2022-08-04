@@ -820,6 +820,7 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 	log.Println("img.URL", img.URL)
 	log.Println("localURL", localURL)
 	helper.PDF.Image(localURL, img.Position.X, img.Position.Y, img.Size.Width, img.Size.Height, false, "", 0, "")
+	log.Println("helper.PDF.Error()", helper.PDF.Error())
 	log.Println("opened")
 	return
 }
