@@ -793,7 +793,7 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 	//【2】如果是网络图片，那么下载到本地
 	var localURL = img.URL
 	if len(img.URL) > 4 && img.URL[0:4] == "http" {
-		localURL, err = imgHelper.DownloadNetworkImg(img.URL)
+		localURL, err = osHelper.SimpleDownloadFile(img.URL)
 		defer osHelper.Delete(localURL)
 		if err != nil {
 			return
