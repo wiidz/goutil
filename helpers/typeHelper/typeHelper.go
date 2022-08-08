@@ -513,6 +513,11 @@ func Int2Str(number int) string {
 	return strconv.Itoa(number)
 }
 
+// UintToStr uint 转换成 str
+func UintToStr(number uint) string {
+	return strconv.FormatUint(uint64(number), 10)
+}
+
 /**
  * @func: Float64SliceToInt float64 slice转换成 int slice
  * @author Wiidz
