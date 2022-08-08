@@ -8,7 +8,6 @@ import (
 	"github.com/wiidz/goutil/helpers/imgHelper"
 	"github.com/wiidz/goutil/helpers/mathHelper"
 	"github.com/wiidz/goutil/helpers/osHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
 	"image/jpeg"
 	"log"
@@ -417,9 +416,9 @@ func getTips(party SignerInterface) (fillData [4]*SignFormCellStyle) {
 }
 
 // getRandomImgCenter 根据区域和图形尺寸，获取一个随机的中心点
-func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *Point) {
+func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float64) (randomCenter *imgHelper.Position) {
 
-	randomCenter = &Point{
+	randomCenter = &imgHelper.Position{
 		X: 0,
 		Y: 0,
 	}
@@ -554,9 +553,9 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 }
 
 // AddTableHeadMulti 添加一个表格头
-func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *Point) {
+func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *imgHelper.Position, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *imgHelper.Position) {
 
-	thisLineEndPoint, nextLineStartPoint = &Point{}, &Point{}
+	thisLineEndPoint, nextLineStartPoint = &imgHelper.Position{}, &imgHelper.Position{}
 	helper.PDF.SetXY(startPoint.X, startPoint.Y)
 	//startPoint.X, startPoint.Y = helper.PDF.GetXY()
 
@@ -614,9 +613,9 @@ func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *Point, con
 }
 
 // AddTableBodyMulti 添加一个表格体
-func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *Point, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *Point) {
+func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *imgHelper.Position, content string, opt ...*ContentStyle) (thisLineEndPoint, nextLineStartPoint *imgHelper.Position) {
 
-	thisLineEndPoint, nextLineStartPoint = &Point{}, &Point{}
+	thisLineEndPoint, nextLineStartPoint = &imgHelper.Position{}, &imgHelper.Position{}
 	helper.PDF.SetXY(startPoint.X, startPoint.Y)
 
 	//【1】默认样式
@@ -707,15 +706,15 @@ func (helper *PDFHelper) getSignArea(fillTime, fillIP bool) (leftSignArea, right
 	toY := tempY + (SignSpaceRowAmount+addRow)*BlankRowHeight
 
 	//【3】构建初步的区域
-	leftSignArea.LeftTop = Point{X: tempX, Y: tempY}
-	leftSignArea.LeftBottom = Point{X: tempX, Y: toY} // 填充
-	leftSignArea.RightTop = Point{X: tempX + HalfPortraitValidWidth, Y: tempY}
-	leftSignArea.RightBottom = Point{X: tempX + HalfPortraitValidWidth, Y: toY} // 填充
+	leftSignArea.LeftTop = imgHelper.Position{X: tempX, Y: tempY}
+	leftSignArea.LeftBottom = imgHelper.Position{X: tempX, Y: toY} // 填充
+	leftSignArea.RightTop = imgHelper.Position{X: tempX + HalfPortraitValidWidth, Y: tempY}
+	leftSignArea.RightBottom = imgHelper.Position{X: tempX + HalfPortraitValidWidth, Y: toY} // 填充
 
-	rightSignArea.LeftTop = Point{X: tempX + HalfPortraitValidWidth, Y: tempY}
-	rightSignArea.LeftBottom = Point{X: tempX + HalfPortraitValidWidth, Y: toY}
-	rightSignArea.RightTop = Point{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: tempY}
-	rightSignArea.RightBottom = Point{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: toY}
+	rightSignArea.LeftTop = imgHelper.Position{X: tempX + HalfPortraitValidWidth, Y: tempY}
+	rightSignArea.LeftBottom = imgHelper.Position{X: tempX + HalfPortraitValidWidth, Y: toY}
+	rightSignArea.RightTop = imgHelper.Position{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: tempY}
+	rightSignArea.RightBottom = imgHelper.Position{X: tempX + HalfPortraitValidWidth + HalfPortraitValidWidth, Y: toY}
 
 	//log.Println("leftSignArea", leftSignArea)
 	//log.Println("rightSignArea", rightSignArea)
@@ -851,20 +850,4 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 		helper.PDF.AddPage()
 		helper.PDF.SetXY(Margin, Margin)
 	}
-}
-
-// GetPointFromStr 从字符串中转换成point
-// 0,120,234 这种格式
-func GetPointFromStr(str string) (imgNo int, position *Point) {
-
-	temp := typeHelper.ExplodeFloat64(str, ",")
-	if len(temp) == 3 {
-		imgNo = int(temp[0])
-		position = &Point{
-			X: temp[1],
-			Y: temp[2],
-		}
-	}
-	return
-
 }

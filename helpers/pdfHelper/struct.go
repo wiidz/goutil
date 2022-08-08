@@ -158,20 +158,15 @@ const ToTheRight Ln = 0
 const Wrap Ln = 1
 const Below Ln = 2
 
-type Point struct {
-	X float64
-	Y float64
-}
-
 type RectArea struct {
-	LeftTop     Point
-	RightTop    Point
-	LeftBottom  Point
-	RightBottom Point
+	LeftTop     imgHelper.Position
+	RightTop    imgHelper.Position
+	LeftBottom  imgHelper.Position
+	RightBottom imgHelper.Position
 }
 
 type SignImg struct {
-	URL      string          // 图片地址
-	Position *Point          // 中心点
-	Size     *imgHelper.Size // 尺寸
+	URL      string              // 图片地址
+	Position *imgHelper.Position // 中心点
+	Size     *imgHelper.Size     // 尺寸
 }
