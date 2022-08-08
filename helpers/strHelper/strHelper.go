@@ -150,11 +150,7 @@ func Substr(s string, start, length int) string {
 	return string(bt[start:end])
 }
 
-/**
- * @func：正则验证是否是手机号
- * @author Hank
- * @date   2019-02-24
- */
+// ValidatePhone 正则验证是否是手机号
 func ValidatePhone(phoneNum string) bool {
 	regular := `(?:^1[3456789]|^9[28])\d{9}$`
 	reg := regexp.MustCompile(regular)
@@ -207,4 +203,16 @@ func EncryptStr(source string, prefixAmount, suffixAmount int, symbol string) st
 
 	handledStr += string(bt[totalLen-1-suffixAmount : totalLen-1])
 	return handledStr
+}
+
+// LimitLength 限制字符长度
+func LimitLength(str string, length int) string {
+
+	totalLen := utf8.RuneCountInString(str)
+
+	if totalLen < length || length < 3 {
+		return str
+	}
+	
+	return str[0:length-3] + "..."
 }
