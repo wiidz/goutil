@@ -182,15 +182,16 @@ func (helper *PDFHelper) FirstTitle(text string) {
 	helper.PDF.SetFontStyle(FontBold)
 	helper.PDF.SetFontSize(14)
 
-	helper.PDF.SetTextColor(0, 0, 0)
-	helper.PDF.MultiCell(190, 14, text, "", gofpdf.AlignLeft, false)
+	//helper.PDF.SetTextColor(0, 0, 0)
+	//helper.PDF.MultiCell(helper.getValidWidth(), 21, text, "", gofpdf.AlignCenter, false)
+	helper.PDF.CellFormat(helper.getValidWidth(), 21, text, "", 2, gofpdf.AlignCenter, false, 0, "")
 }
 
 // SecondTitle 二级标题
 func (helper *PDFHelper) SecondTitle(text string) {
 	helper.PDF.SetFontStyle(FontBold)
 	helper.PDF.SetFontSize(12)
-	helper.PDF.CellFormat(helper.getValidWidth(), 16, text, "", 2, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(helper.getValidWidth(), 18, text, "", 2, gofpdf.AlignCenter, false, 0, "")
 }
 
 // NormalContent 常规正文内容（前面会有两格缩进）
