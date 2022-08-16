@@ -315,3 +315,7 @@ type TimeSummary struct {
 type DBStructInterface interface {
 	TableName() string
 }
+
+type SumData struct {
+	SumFloat64 float64 `gorm:"column:sum_float64"`
+}

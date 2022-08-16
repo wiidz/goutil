@@ -119,6 +119,24 @@ func (mysql *MysqlMng) Count(list ReadInterface) (count int64, err error) {
 	return
 }
 
+func (mysql *MysqlMng) SumFloat64(model DBStructInterface, sumField string, condition map[string]interface{}) (sum float64, err error) {
+
+	conn := mysql.GetConn()
+
+	//【2】处理条件
+	if len(condition) > 0 {
+		cons, vals, _ := WhereBuild(condition)
+		conn = conn.Where(cons, vals...)
+	}
+
+	var row SumData
+	err = conn.Model(model).Select("sum(" + sumField + ") as sum_float64").Scan(&row).Error
+	sum = row.SumFloat64
+
+	//【3】返回
+	return
+}
+
 /**
  * @func  : 通用方法 获取列表
  * @author: Wiidz
