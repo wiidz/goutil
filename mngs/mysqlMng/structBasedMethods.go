@@ -13,7 +13,7 @@ import (
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) {
+func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err error) {
 
 	//【1】初始化参数
 	offset := list.GetOffset()
@@ -44,7 +44,6 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) {
 	}
 
 	//【3】查询rows
-	var err error
 	if isSingle {
 		err = thisConn.First(model).Error // 查单条
 	} else {
@@ -69,9 +68,11 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) {
 
 	//【4】返回
 	list.SetError(err)
+	return
 }
 
 /**
+ * Count 统计数目
  * @func  : 通用方法 获取列表
  * @author: Wiidz
  * @date  : 2020-10-14
@@ -79,7 +80,7 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) {
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Count(list ReadInterface) {
+func (mysql *MysqlMng) Count(list ReadInterface) (err error) {
 
 	//【1】初始化参数
 	condition := list.GetCondition()
@@ -104,9 +105,6 @@ func (mysql *MysqlMng) Count(list ReadInterface) {
 		thisConn = thisConn.Order(order)
 	}
 
-	//【3】查询rows
-	var err error
-
 	//【4】查count
 	var count int64
 	thisConn = thisConn.Session(&gorm.Session{NewDB: true})
@@ -119,6 +117,7 @@ func (mysql *MysqlMng) Count(list ReadInterface) {
 
 	//【4】返回
 	list.SetError(err)
+	return
 }
 
 /**
@@ -351,6 +350,7 @@ func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data i
 	return "ok", params.GetRow(), 200
 }
 
+// SimpleCount 简单获取数量
 func (mysql *MysqlMng) SimpleCount(params ReadInterface) (msg string, data interface{}, statusCode int) {
 	//【1】查询
 	mysql.Count(params)
