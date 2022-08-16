@@ -13,7 +13,7 @@ import (
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Read(list ReadInterface,isSingle,doCount bool) {
+func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) {
 
 	//【1】初始化参数
 	offset := list.GetOffset()
@@ -46,9 +46,9 @@ func (mysql *MysqlMng) Read(list ReadInterface,isSingle,doCount bool) {
 	//【3】查询rows
 	var err error
 	if isSingle {
-		err = thisConn.First(model).Error 		// 查单条
+		err = thisConn.First(model).Error // 查单条
 	} else {
-		err = thisConn.Offset(offset).Limit(limit).Find(model).Error 		// 查若干
+		err = thisConn.Offset(offset).Limit(limit).Find(model).Error // 查若干
 	}
 	if err != nil {
 		list.SetError(err)
@@ -66,6 +66,56 @@ func (mysql *MysqlMng) Read(list ReadInterface,isSingle,doCount bool) {
 		err = thisConn.Model(model).Count(&count).Error
 		list.SetCount(count)
 	}
+
+	//【4】返回
+	list.SetError(err)
+}
+
+/**
+ * @func  : 通用方法 获取列表
+ * @author: Wiidz
+ * @date  : 2020-10-14
+ * @params: [mysql] *mysqlMng.MysqlMng 数据库连接
+ *			[list] dbStruct.List 查询结构体
+ * @return: [err] error 错误
+ */
+func (mysql *MysqlMng) Count(list ReadInterface) {
+
+	//【1】初始化参数
+	condition := list.GetCondition()
+	order := list.GetOrder()
+	preloads := list.GetPreloads()
+
+	var model = list.GetRow()
+
+	thisConn := mysql.GetConn()
+
+	//【2】拼接
+	if len(condition) > 0 {
+		cons, vals, _ := WhereBuild(condition)
+		thisConn = thisConn.Where(cons, vals...)
+	}
+	if len(preloads) > 0 {
+		for _, v := range preloads {
+			thisConn = thisConn.Preload(v)
+		}
+	}
+	if order != "" {
+		thisConn = thisConn.Order(order)
+	}
+
+	//【3】查询rows
+	var err error
+
+	//【4】查count
+	var count int64
+	thisConn = thisConn.Session(&gorm.Session{NewDB: true})
+	if len(condition) > 0 {
+		cons, vals, _ := WhereBuild(condition)
+		thisConn = thisConn.Where(cons, vals...)
+	}
+	err = thisConn.Model(model).Count(&count).Error
+	list.SetCount(count)
 
 	//【4】返回
 	list.SetError(err)
@@ -266,10 +316,10 @@ func (mysql *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data in
 }
 
 // SimpleGetList 简单获取列表
-func (mysql *MysqlMng) SimpleGetList(read ReadInterface,isSingle,doCount bool) (msg string, data interface{}, statusCode int) {
+func (mysql *MysqlMng) SimpleGetList(read ReadInterface, isSingle, doCount bool) (msg string, data interface{}, statusCode int) {
 
 	//【1】查询
-	mysql.Read(read,isSingle,doCount)
+	mysql.Read(read, isSingle, doCount)
 	if read.GetError() != nil {
 		return read.GetError().Error(), nil, 400
 	}
@@ -292,11 +342,22 @@ func (mysql *MysqlMng) SimpleGetList(read ReadInterface,isSingle,doCount bool) (
 func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
 
 	//【1】查询
-	mysql.Read(params,true,false)
+	mysql.Read(params, true, false)
 	if params.GetError() != nil {
 		return params.GetError().Error(), nil, 400
 	}
 
 	//【2】返回
 	return "ok", params.GetRow(), 200
+}
+
+func (mysql *MysqlMng) SimpleCount(params ReadInterface) (msg string, data interface{}, statusCode int) {
+	//【1】查询
+	mysql.Count(params)
+	if params.GetError() != nil {
+		return params.GetError().Error(), nil, 400
+	}
+
+	//【2】返回
+	return "ok", params.GetCount(), 200
 }
