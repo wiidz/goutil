@@ -80,7 +80,7 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err err
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Count(list ReadInterface) (err error) {
+func (mysql *MysqlMng) Count(list ReadInterface) (count int64, err error) {
 
 	//【1】初始化参数
 	condition := list.GetCondition()
@@ -106,7 +106,6 @@ func (mysql *MysqlMng) Count(list ReadInterface) (err error) {
 	}
 
 	//【4】查count
-	var count int64
 	thisConn = thisConn.Session(&gorm.Session{NewDB: true})
 	if len(condition) > 0 {
 		cons, vals, _ := WhereBuild(condition)
