@@ -530,3 +530,13 @@ func (tm MyJsonTime) GetLastDateOfWeek() (weekStartDate MyJsonTime) {
 	weekStartDate = MyJsonTime(time.Date(temp.Year(), temp.Month(), temp.Day(), 23, 59, 59, 1e9-1, time.Local).AddDate(0, 0, offset))
 	return
 }
+
+func NowHyphenDateStr() string {
+	currentTime := time.Now()
+	return currentTime.Format(HyphenDateStr)
+}
+
+func NowHyphenTimeStr() string {
+	currentTime := time.Now()
+	return currentTime.Format(HyphenTimeStr)
+}
