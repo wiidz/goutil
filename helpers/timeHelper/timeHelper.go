@@ -540,3 +540,9 @@ func NowHyphenTimeStr() string {
 	currentTime := time.Now()
 	return currentTime.Format(HyphenTimeStr)
 }
+
+func GetHyphenTimeStrByDays(diffDays int) string {
+	currentTime := time.Now()
+	formattedTime := currentTime.AddDate(0, 0, diffDays)
+	return formattedTime.Format("2006-01-02")
+}
