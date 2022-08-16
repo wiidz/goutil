@@ -361,3 +361,51 @@ func (mysql *MysqlMng) SimpleCount(params ReadInterface) (msg string, data inter
 	//【2】返回
 	return "ok", params.GetCount(), 200
 }
+
+// TimeBasedSummary 根据时间进行统计
+func (mysql *MysqlMng) TimeBasedSummary(model DBStructInterface, targetField string, expressions []string, commonCondition string) (row TimeSummary, err error) {
+
+	//【1】初始化变量
+	raw := "select "
+
+	//【2】拼接语句
+	for _, v := range expressions {
+		fieldName := ""
+		fieldName, err = getFieldName(v)
+		if err != nil {
+			return
+		}
+		raw += "sum(case DATEDIFF(NOW()," + targetField + ")" + v
+
+		if commonCondition != "" {
+			raw += " and " + commonCondition
+		}
+		raw += " when true then 1 else 0 end) as " + fieldName + ","
+	}
+
+	//【3】去掉最后一个逗号
+	raw = raw[0 : len(raw)-1]
+
+	//【4】拼接表名
+	raw += " from " + model.TableName()
+
+	err = mysql.GetConn().Model(model).Raw(raw).Scan(&row).Error
+	return row, err
+}
+func getFieldName(targetField string) (string, error) {
+	var fieldName string
+	var err error
+	switch targetField {
+	case "=0":
+		fieldName = "today"
+	case "=1":
+		fieldName = "yesterday"
+	case "<7":
+		fieldName = "week"
+	case "<30":
+		fieldName = "month"
+	default:
+		err = errors.New("未找到匹配字段")
+	}
+	return fieldName, err
+}

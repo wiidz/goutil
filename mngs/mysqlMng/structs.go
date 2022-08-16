@@ -304,3 +304,14 @@ func (delete *Delete) SetRow(row interface{}) {
 func (delete *Delete) SetError(err error) {
 	delete.Error = err
 }
+
+type TimeSummary struct {
+	TodayAmount     uint64 `gorm:"column:today;type:int(11)"`
+	YesterdayAmount uint64 `gorm:"column:yesterday;type:int(11)"`
+	WeekAmount      uint64 `gorm:"column:week;type:int(11)"`
+	MonthAmount     uint64 `gorm:"column:month;type:int(11)"`
+}
+
+type DBStructInterface interface {
+	TableName() string
+}
