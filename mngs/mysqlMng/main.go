@@ -118,28 +118,28 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 		case []interface{}:
 			switch v.([]interface{})[0] {
 			case "=":
-				whereSQL += fmt.Sprint(k, "=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "=?")
 			case ">":
-				whereSQL += fmt.Sprint(k, ">?")
+				whereSQL += fmt.Sprint("`"+k+"`", ">?")
 			case ">=":
-				whereSQL += fmt.Sprint(k, ">=?")
+				whereSQL += fmt.Sprint("`"+k+"`", ">=?")
 			case "<":
-				whereSQL += fmt.Sprint(k, "<?")
+				whereSQL += fmt.Sprint("`"+k+"`", "<?")
 			case "<=":
-				whereSQL += fmt.Sprint(k, "<=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "<=?")
 			case "!=":
-				whereSQL += fmt.Sprint(k, "!=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "!=?")
 			case "<>":
-				whereSQL += fmt.Sprint(k, "!=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "!=?")
 			case "like":
-				whereSQL += fmt.Sprint(k, " like ?")
+				whereSQL += fmt.Sprint("`"+k+"`", " like ?")
 			}
 
 			if v.([]interface{})[0] == "between" {
-				whereSQL += fmt.Sprint(k, " between ? AND ?")
+				whereSQL += fmt.Sprint("`"+k+"`", " between ? AND ?")
 				vals = append(vals, v.([]interface{})[1], v.([]interface{})[2])
 			} else if v.([]interface{})[0] == "in" || v.([]interface{})[0] == "not in" {
-				whereSQL += fmt.Sprint(k, " "+v.([]interface{})[0].(string)+" (")
+				whereSQL += fmt.Sprint("`"+k+"`", " "+v.([]interface{})[0].(string)+" (")
 				if intSlice, ok := v.([]interface{})[1].([]int); ok {
 					for k := 0; k < len(intSlice); k++ {
 						whereSQL += "?,"
@@ -175,12 +175,12 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 			switch v := v.(type) {
 			case NullType:
 				if v == IsNotNull {
-					whereSQL += fmt.Sprint(k, " IS NOT NULL")
+					whereSQL += fmt.Sprint("`"+k+"`", " IS NOT NULL")
 				} else {
-					whereSQL += fmt.Sprint(k, " IS NULL")
+					whereSQL += fmt.Sprint("`"+k+"`", " IS NULL")
 				}
 			default:
-				whereSQL += fmt.Sprint(k, "=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "=?")
 				vals = append(vals, v)
 			}
 		}
@@ -199,28 +199,28 @@ func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []int
 		case []interface{}:
 			switch v.([]interface{})[0] {
 			case "=":
-				whereSQL += fmt.Sprint(k, "=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "=?")
 			case ">":
-				whereSQL += fmt.Sprint(k, ">?")
+				whereSQL += fmt.Sprint("`"+k+"`", ">?")
 			case ">=":
-				whereSQL += fmt.Sprint(k, ">=?")
+				whereSQL += fmt.Sprint("`"+k+"`", ">=?")
 			case "<":
-				whereSQL += fmt.Sprint(k, "<?")
+				whereSQL += fmt.Sprint("`"+k+"`", "<?")
 			case "<=":
-				whereSQL += fmt.Sprint(k, "<=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "<=?")
 			case "!=":
-				whereSQL += fmt.Sprint(k, "!=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "!=?")
 			case "<>":
-				whereSQL += fmt.Sprint(k, "!=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "!=?")
 			case "like":
-				whereSQL += fmt.Sprint(k, " like ?")
+				whereSQL += fmt.Sprint("`"+k+"`", " like ?")
 			}
 
 			if v.([]interface{})[0] == "between" {
-				whereSQL += fmt.Sprint(k, " between ? AND ?")
+				whereSQL += fmt.Sprint("`"+k+"`", " between ? AND ?")
 				vals = append(vals, v.([]interface{})[1], v.([]interface{})[2])
 			} else if v.([]interface{})[0] == "in" {
-				whereSQL += fmt.Sprint(k, " IN (")
+				whereSQL += fmt.Sprint("`"+k+"`", " IN (")
 				if intSlice, ok := v.([]interface{})[1].([]int); ok {
 					for k := 0; k < len(intSlice); k++ {
 						whereSQL += "?,"
@@ -242,12 +242,12 @@ func WhereOrBuild(condition map[string]interface{}) (whereSQL string, vals []int
 			switch v := v.(type) {
 			case NullType:
 				if v == IsNotNull {
-					whereSQL += fmt.Sprint(k, " IS NOT NULL")
+					whereSQL += fmt.Sprint("`"+k+"`", " IS NOT NULL")
 				} else {
-					whereSQL += fmt.Sprint(k, " IS NULL")
+					whereSQL += fmt.Sprint("`"+k+"`", " IS NULL")
 				}
 			default:
-				whereSQL += fmt.Sprint(k, "=?")
+				whereSQL += fmt.Sprint("`"+k+"`", "=?")
 				vals = append(vals, v)
 			}
 		}
