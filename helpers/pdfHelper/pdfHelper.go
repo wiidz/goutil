@@ -360,7 +360,9 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		} else {
 			amountDiff = amountLeft - amountRight
 			for i := 0; i < amountDiff; i++ {
+				log.Println("right add", len(rightData[k]))
 				rightData[k] += "\n"
+				log.Println("right added", len(rightData[k]))
 			}
 		}
 
