@@ -362,6 +362,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 			for i := 0; i < amountDiff; i++ {
 				log.Println("right add", len(rightData[k]))
 				rightData[k] += "\n"
+				rightData[k] += "\r"
 				log.Println("right added", len(rightData[k]))
 			}
 		}
