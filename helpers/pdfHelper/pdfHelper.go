@@ -371,7 +371,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
 		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "1", gofpdf.AlignLeft, false)
 		y := helper.PDF.GetY()
-		helper.PDF.SetXY(HalfPortraitValidWidth+Margin, y-BlankRowHeight)
+		helper.PDF.SetXY(HalfPortraitValidWidth+Margin, y-float64(BlankRowHeight*amountDiff-1))
 		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "1", gofpdf.AlignLeft, false)
 	}
 
