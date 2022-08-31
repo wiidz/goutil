@@ -329,8 +329,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
 	helper.PDF.SetFont(FontName, FontBold, SignFormPartyLineHeight)
-	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "甲方", "", 0, gofpdf.AlignCenter, false, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "乙方", "", 1, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "甲方", "1", 0, gofpdf.AlignCenter, false, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "乙方", "1", 1, gofpdf.AlignCenter, false, 0, "")
 
 	helper.PDF.SetFont(FontName, FontRegular, 9)
 
@@ -340,7 +340,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
 		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "1", gofpdf.AlignLeft, false)
 		y := helper.PDF.GetY()
-		helper.PDF.SetXY(HalfPortraitValidWidth, y-BlankRowHeight)
+		helper.PDF.SetXY(HalfPortraitValidWidth+Margin, y-BlankRowHeight)
 		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "1", gofpdf.AlignLeft, false)
 	}
 
@@ -739,8 +739,8 @@ func (helper *PDFHelper) drawSignArea(leftSignData, rightSignData SignData, fill
 
 	//【2】第一行提示
 	helper.PDF.SetFillColor(255, 235, 238) // 设置填充颜色
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
-	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "1", 0, gofpdf.AlignLeft, leftSignData.DoHint, 0, "")
+	helper.PDF.CellFormat(HalfPortraitValidWidth, 8, "签字/盖章：", "1", 1, gofpdf.AlignLeft, rightSignData.DoHint, 0, "")
 
 	//【3】中间内容（空白行和提示行）
 	helper.PDF.SetTextColor(239, 154, 154) // 设置字体颜色
