@@ -337,7 +337,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 	//【3】循环填充数据
 	for k := range leftData {
 
-		maxLen := 0 // 谁最长 0代表left，1代表right
+		//maxLen := 0 // 谁最长 0代表left，1代表right
 
 		// 【3-1】首先获取两个数据的长度
 		lenLeft := helper.PDF.GetStringWidth(leftData[k])
@@ -352,7 +352,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		log.Println("amountRight", amountRight)
 		amountDiff := 0
 		if amountLeft < amountRight {
-			maxLen = 1
+			//maxLen = 1
 			amountDiff = amountRight - amountLeft
 			for i := 0; i < amountDiff; i++ {
 				leftData[k] += "\n"
