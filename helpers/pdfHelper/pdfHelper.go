@@ -336,8 +336,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 	//【3】循环填充数据
 	for k := range leftData {
-		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
+		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
+		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
+		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", gofpdf.AlignLeft, false)
+		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", gofpdf.AlignLeft, false)
 	}
 
 	//【4】下方签字盖章区域
