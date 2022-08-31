@@ -307,14 +307,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 	//【1】获取两边的数据
 	leftData := getPartyInfo(firstParty)
-	log.Println("leftData", leftData)
 	rightData := getPartyInfo(secondParty)
-	log.Println("rightData", rightData)
 
 	leftSignData := firstParty.GetSignData()
-	log.Println("leftSignData", leftSignData)
 	rightSignData := secondParty.GetSignData()
-	log.Println("rightSignData", rightSignData)
 
 	leftSignData.SignFormCellStyle = getTips(firstParty)
 	rightSignData.SignFormCellStyle = getTips(secondParty)
@@ -342,14 +338,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		// 【3-1】首先获取两个数据的长度
 		lenLeft := helper.PDF.GetStringWidth(leftData[k])
 		lenRight := helper.PDF.GetStringWidth(rightData[k])
-		log.Println("lenLeft", lenLeft)
-		log.Println("lenRight", lenRight)
 
 		//【3-2】获取行数
 		amountLeft := int(math.Ceil(lenLeft / HalfPortraitValidWidth))
 		amountRight := int(math.Ceil(lenRight / HalfPortraitValidWidth))
-		log.Println("amountLeft", amountLeft)
-		log.Println("amountRight", amountRight)
 		amountDiff := 0
 		if amountLeft < amountRight {
 			//maxLen = 1
@@ -360,16 +352,9 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		} else {
 			amountDiff = amountLeft - amountRight
 			for i := 0; i < amountDiff; i++ {
-				log.Println("right add", len(rightData[k]))
-				rightData[k] += "\n "
-				rightData[k] += "\n1"
-				//rightData[k] += " "
-				log.Println("right added", len(rightData[k]))
+				rightData[k] += "\n " // 不带空格会被trim掉
 			}
 		}
-
-		log.Println("leftData[k]", leftData[k])
-		log.Println("rightData[k]", rightData[k])
 
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
