@@ -343,13 +343,15 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		amountLeft := int(math.Ceil(lenLeft / HalfPortraitValidWidth))
 		amountRight := int(math.Ceil(lenRight / HalfPortraitValidWidth))
 		amountDiff := 0
+		maxAmount := 0
 		if amountLeft < amountRight {
-			//maxLen = 1
+			maxAmount = amountRight
 			amountDiff = amountRight - amountLeft
 			for i := 0; i < amountDiff; i++ {
 				leftData[k] += "\n"
 			}
 		} else {
+			maxAmount = amountLeft
 			amountDiff = amountLeft - amountRight
 			for i := 0; i < amountDiff; i++ {
 				rightData[k] += "\n " // 不带空格会被trim掉
@@ -366,10 +368,10 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
-		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "1", gofpdf.AlignLeft, false)
+		helper.PDF.MultiCell(HalfPortraitValidWidth, float64(maxAmount*BlankRowHeight), leftData[k], "1", gofpdf.AlignLeft, false)
 		y := helper.PDF.GetY()
 		helper.PDF.SetXY(HalfPortraitValidWidth+Margin, y-float64(BlankRowHeight*(amountDiff+1)))
-		helper.PDF.MultiCell(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "1", gofpdf.AlignLeft, false)
+		helper.PDF.MultiCell(HalfPortraitValidWidth, float64(maxAmount*BlankRowHeight), rightData[k], "1", gofpdf.AlignLeft, false)
 	}
 
 	//【4】下方签字盖章区域
