@@ -358,8 +358,8 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 		log.Println("amountLeft", amountLeft)
 		log.Println("amountRight", amountRight)
 		log.Println("amountDiff", amountDiff)
-		log.Println("leftData", leftData)
-		log.Println("rightData", rightData)
+		log.Println("leftData", leftData[k])
+		log.Println("rightData", rightData[k])
 
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
