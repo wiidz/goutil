@@ -355,6 +355,9 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 				rightData[k] += "\n " // 不带空格会被trim掉
 			}
 		}
+		log.Println("HalfPortraitValidWidth", HalfPortraitValidWidth)
+		log.Println("lenLeft", lenLeft)
+		log.Println("lenRight", lenRight)
 		log.Println("amountLeft", amountLeft)
 		log.Println("amountRight", amountRight)
 		log.Println("amountDiff", amountDiff)
