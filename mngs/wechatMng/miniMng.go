@@ -74,3 +74,68 @@ func (mng *MiniMng) GetQRCode(qrCoder qrcode.QRCoder) ([]byte, error) {
 	res, err := qrCodeApi.GetWXACodeUnlimit(qrCoder)
 	return res, err
 }
+
+// TextCheck 文字检测
+func (mng *MiniMng) TextCheck(content string) (err error) {
+	securityApi := mng.Client.GetContentSecurity()
+	err = securityApi.CheckText(content)
+	return
+}
+
+// ImgCheck 网络图片检测
+func (mng *MiniMng) ImgCheck(imgURL string) (err error) {
+	securityApi := mng.Client.GetContentSecurity()
+	err = securityApi.CheckImage(imgURL)
+	return
+}
+
+// ImgsCheck 网络图片检测
+func (mng *MiniMng) ImgsCheck(imgURLs []string) (err error) {
+	securityApi := mng.Client.GetContentSecurity()
+
+	for k := range imgURLs {
+		err = securityApi.CheckImage(imgURLs[k])
+		if err != nil {
+			break
+		}
+	}
+	return
+}
+
+//func ImgCheck(url string)error{
+//	// 网络图片检测
+//	// @url 要检测的图片网络路径
+//	// @token 接口调用凭证(access_token)
+//	access_token := getWxApiAccessToken()
+//	if len(url)==0{
+//		return errors.New("图片地址为空")
+//	}
+//	res, err := weapp.IMGSecCheckFromNet(url,access_token)
+//	if err != nil {
+//		return err
+//	}
+//
+//	if res.Errcode!=0{
+//		return errors.New("图片可能存在敏感内容")
+//	}
+//	return nil
+//}
+//
+//func TextCheck(content string)error{
+//	// 文本检测
+//	// @content 要检测的文本内容，长度不超过 500KB，编码格式为utf-8
+//	// @token 接口调用凭证(access_token)
+//	access_token := getWxApiAccessToken()
+//	if len(content)==0{
+//		return nil
+//	}
+//	res, err := weapp.MSGSecCheck(content,access_token)
+//	if err != nil {
+//		return err
+//	}
+//
+//	if res.Errcode!=0{
+//		return errors.New("文字可能存在敏感内容")
+//	}
+//	return nil
+//}
