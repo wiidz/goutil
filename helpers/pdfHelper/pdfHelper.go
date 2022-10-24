@@ -348,14 +348,16 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 			maxAmount = amountRight
 			amountDiff = amountRight - amountLeft
 			for i := 0; i < amountDiff; i++ {
-				leftData[k] += "\n"
+				leftData[k] += "\n "
 			}
-		} else {
+		} else if amountLeft > amountRight {
 			maxAmount = amountLeft
 			amountDiff = amountLeft - amountRight
 			for i := 0; i < amountDiff; i++ {
 				rightData[k] += "\n " // 不带空格会被trim掉
 			}
+		} else {
+			maxAmount = amountLeft
 		}
 		log.Println("HalfPortraitValidWidth", HalfPortraitValidWidth)
 		log.Println("lenLeft", lenLeft)
