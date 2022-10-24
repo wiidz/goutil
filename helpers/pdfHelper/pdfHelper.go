@@ -355,6 +355,11 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 				rightData[k] += "\n " // 不带空格会被trim掉
 			}
 		}
+		log.Println("amountLeft", amountLeft)
+		log.Println("amountRight", amountRight)
+		log.Println("amountDiff", amountDiff)
+		log.Println("leftData", leftData)
+		log.Println("rightData", rightData)
 
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, leftData[k], "", 0, gofpdf.AlignLeft, false, 0, "")
 		//helper.PDF.CellFormat(HalfPortraitValidWidth, BlankRowHeight, rightData[k], "", 1, gofpdf.AlignLeft, false, 0, "")
