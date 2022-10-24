@@ -8,6 +8,8 @@ import (
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"github.com/silenceper/wechat/v2/miniprogram/encryptor"
 	"github.com/silenceper/wechat/v2/miniprogram/qrcode"
+	"github.com/wiidz/goutil/helpers/networkHelper"
+	"github.com/wiidz/goutil/helpers/osHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
@@ -82,19 +84,53 @@ func (mng *MiniMng) TextCheck(content string) (err error) {
 	return
 }
 
-// ImgCheck 网络图片检测
+// ImgCheck 本地图片检测
 func (mng *MiniMng) ImgCheck(imgURL string) (err error) {
 	securityApi := mng.Client.GetContentSecurity()
 	err = securityApi.CheckImage(imgURL)
 	return
 }
 
-// ImgsCheck 网络图片检测
+// ImgsCheck 本地图片检测
 func (mng *MiniMng) ImgsCheck(imgURLs []string) (err error) {
 	securityApi := mng.Client.GetContentSecurity()
 
 	for k := range imgURLs {
 		err = securityApi.CheckImage(imgURLs[k])
+		if err != nil {
+			break
+		}
+	}
+	return
+}
+
+// NetworkImgCheck 网络图片检测
+func (mng *MiniMng) NetworkImgCheck(imgURL string) (err error) {
+	securityApi := mng.Client.GetContentSecurity()
+	err = securityApi.CheckImage(imgURL)
+	return
+}
+
+// NetworkImgsCheck 网络图片检测
+func (mng *MiniMng) NetworkImgsCheck(imgURLs []string) (err error) {
+
+	securityApi := mng.Client.GetContentSecurity()
+	localPaths := []string{}
+
+	go func() {
+		osHelper.DeleteFiles(localPaths)
+	}()
+
+	for k := range imgURLs {
+		//【2】下载文件到本地
+		var tempPath string
+		_, tempPath, err = networkHelper.DownloadFile(imgURLs[k], "")
+		if err != nil {
+			break
+		}
+		localPaths = append(localPaths, tempPath)
+
+		err = securityApi.CheckImage(tempPath)
 		if err != nil {
 			break
 		}

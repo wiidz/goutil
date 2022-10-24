@@ -133,6 +133,17 @@ func Delete(filePath string) error {
 	return os.Remove(filePath)
 }
 
+// DeleteFiles 删除指定路径文件夹/文件
+func DeleteFiles(filePaths []string) (err error) {
+	for _, v := range filePaths {
+		err = os.Remove(v)
+		if err != nil {
+			break
+		}
+	}
+	return
+}
+
 // DownloadFile 从url中下载文件
 func DownloadFile(url string, localPath string, fb func(length, downLen int64)) error {
 	var (
