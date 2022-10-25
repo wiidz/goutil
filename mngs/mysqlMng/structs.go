@@ -319,3 +319,8 @@ type DBStructInterface interface {
 type SumData struct {
 	SumFloat64 float64 `gorm:"column:sum_float64"`
 }
+
+type DataChange int8
+
+const Increase DataChange = 1
+const Decrease DataChange = 2

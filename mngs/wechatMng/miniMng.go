@@ -128,8 +128,12 @@ func (mng *MiniMng) ImgsCheck(userOpenID string, imgURLs []string, scene securit
 			OpenID:    userOpenID,   // 用户的openid（用户需在近两小时访问过小程序）
 			Scene:     uint8(scene), // 场景枚举值（1 资料；2 评论；3 论坛；4 社交日志）
 		})
+		if err != nil {
+			return
+		}
 		traceIDs = append(traceIDs, traceID)
 	}
+
 	return
 }
 
