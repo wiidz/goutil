@@ -20,9 +20,9 @@ type DataSteppingParam struct {
 func (p *DataSteppingParam) GetOperator() (operator string) {
 
 	if p.Way == Increase {
-		operator = " - "
-	} else {
 		operator = " + "
+	} else {
+		operator = " - "
 	}
 	return
 }
