@@ -1,7 +1,6 @@
 package mysqlMng
 
 import (
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"gorm.io/gorm"
 )
 
@@ -30,5 +29,5 @@ func (p *DataSteppingParam) GetOperator() (operator string) {
 
 // DataStepping 针对一个数字字段递增或递减
 func DataStepping(conn *gorm.DB, params *DataSteppingParam) (err error) {
-	return conn.Model(&params.Model).Where("id = ?", &params.ID).Update(params.FieldName, gorm.Expr(params.FieldName+params.GetOperator()+typeHelper.Int64ToStr(params.Amount))).Error
+	return conn.Model(&params.Model).Where("id = ?", &params.ID).Update(params.FieldName, gorm.Expr(params.FieldName+params.GetOperator()+" ?", params.Amount)).Error
 }
