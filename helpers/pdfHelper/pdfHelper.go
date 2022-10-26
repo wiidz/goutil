@@ -529,8 +529,8 @@ func (helper *PDFHelper) AddTableHead(width float64, ln Ln, content string, opt 
 	helper.PDF.SetFont(FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
-	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
-	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
+	helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+	//helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
 }
 
 // AddTableBody 添加一个表格体
@@ -579,7 +579,8 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 	helper.PDF.SetFont(FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
-	helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
+	helper.PDF.MultiCell(width, lineHeight, content, "LTRB", textAlign, fill)
 }
 
 // AddTableHeadMulti 添加一个表格头
