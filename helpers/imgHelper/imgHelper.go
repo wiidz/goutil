@@ -1,42 +1,23 @@
 package imgHelper
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
+	imgtype "github.com/shamsher31/goimgtype"
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"github.com/wiidz/goutil/helpers/strHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io/ioutil"
 	"os"
+	"reflect"
 )
-
-// OpenImageFile 打开图像文件
-//func OpenImageFile(localUri string) (image.Image, error) {
-//	var m image.Image
-//	ff, _ := ioutil.ReadFile(localUri) //读取文件 要先下载
-//	bbb := bytes.NewBuffer(ff)
-//
-//	datatype, err := imgtype.Get(localUri)
-//
-//	if err != nil {
-//		fmt.Println(err)
-//		return m, err
-//	}
-//	fmt.Println("【datatype】", datatype)
-//
-//	switch datatype {
-//	case "image/jpeg":
-//		m, err = jpeg.Decode(bbb)
-//	case "image/png":
-//		m, err = png.Decode(bbb)
-//	case "image/gif":
-//		m, err = gif.Decode(bbb)
-//	default:
-//		fmt.Println("不支持的格式", reflect.TypeOf(datatype).String())
-//	}
-//	return m, nil
-//}
 
 func OpenImageFile(localUri string) (image.Image, error) {
 	return gg.LoadImage(localUri)
@@ -45,6 +26,42 @@ func OpenImageFile(localUri string) (image.Image, error) {
 // Buff2Image 字节转图片
 func Buff2Image(bytes []byte, filePath string) (err error) {
 	err = ioutil.WriteFile(filePath, bytes, 0666)
+	return
+}
+
+// LocalImg2Buff 本地图片转字节
+func LocalImg2Buff(filePath string) (sendS3 []byte, err error) {
+
+	//【1】打开image
+	var img image.Image
+	img, err = OpenImageFile(filePath)
+	if err != nil {
+		return
+	}
+
+	//【2】获取图片格式
+	datatype, err := imgtype.Get(filePath)
+	if err != nil {
+		return
+	}
+	fmt.Println("【datatype】", datatype)
+
+	//【3】转换成buff
+	buf := new(bytes.Buffer)
+
+	switch datatype {
+	case "image/jpeg":
+		err = jpeg.Encode(buf, img, nil)
+	case "image/png":
+		err = png.Encode(buf, img)
+	case "image/gif":
+		err = gif.Encode(buf, img, nil)
+	default:
+		fmt.Println()
+		err = errors.New("不支持的格式" + reflect.TypeOf(datatype).String())
+	}
+
+	sendS3 = buf.Bytes()
 	return
 }
 

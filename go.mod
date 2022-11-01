@@ -21,6 +21,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/kataras/iris/v12 v12.2.0-beta1
+	github.com/kjunichi/imgtype v0.0.0-20170826031508-1c7bd0e75644
 	github.com/mojocn/base64Captcha v1.3.4
 	github.com/olivere/elastic/v7 v7.0.29
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -82,16 +83,21 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailgun/raymond/v2 v2.0.46 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/richardlehane/mscfb v1.0.3 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
+	github.com/shamsher31/goimgext v1.0.0 // indirect
+	github.com/shamsher31/goimgtype v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/tdewolff/minify/v2 v2.11.1 // indirect
