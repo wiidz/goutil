@@ -5,6 +5,7 @@ import (
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/jpeg"
 	"io/ioutil"
@@ -36,6 +37,31 @@ func NewTextBrush(FontFilePath string, FontSize float64, FontColor *image.Unifor
 
 // DrawFontOnRGBA 图片插入文字
 func (fb *TextBrush) DrawFontOnRGBA(rgba *image.RGBA, pt image.Point, content string) {
+	c := freetype.NewContext()
+	c.SetDPI(72)
+	c.SetFont(fb.FontType)
+	c.SetHinting(font.HintingFull)
+	c.SetFontSize(fb.FontSize)
+	c.SetClip(rgba.Bounds())
+	c.SetDst(rgba)
+	c.SetSrc(fb.FontColor)
+	c.DrawString(content, freetype.Pt(pt.X, pt.Y))
+
+}
+
+type FontStyle struct {
+	Color color.RGBA
+	Width int
+	Size  float64
+}
+
+// DrawFontOnRGBAWithColor 图片插入文字
+func (fb *TextBrush) DrawFontOnRGBAWithColor(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) {
+
+	fb.FontColor = image.NewUniform(fontStyle.Color)
+	fb.FontSize = fontStyle.Size
+	fb.TextWidth = fontStyle.Width
+
 	c := freetype.NewContext()
 	c.SetDPI(72)
 	c.SetFont(fb.FontType)
