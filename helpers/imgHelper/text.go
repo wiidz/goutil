@@ -6,7 +6,9 @@ import (
 	"golang.org/x/image/font"
 	"image"
 	"image/draw"
+	"image/jpeg"
 	"io/ioutil"
+	"os"
 )
 
 //字体相关
@@ -56,4 +58,20 @@ func Image2RGBA(img image.Image) *image.RGBA {
 	//首先将一个图片信息存入jpg
 	draw.Draw(des, des.Bounds(), img, img.Bounds().Min, draw.Over)
 	return des
+}
+
+func SaveImage(targetPath string, m image.Image) error {
+	fSave, err := os.Create(targetPath)
+	if err != nil {
+		return err
+	}
+	defer fSave.Close()
+
+	err = jpeg.Encode(fSave, m, nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
