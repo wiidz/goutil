@@ -50,9 +50,10 @@ func (fb *TextBrush) DrawFontOnRGBA(rgba *image.RGBA, pt image.Point, content st
 }
 
 type FontStyle struct {
-	Color color.RGBA
-	Width int
-	Size  float64
+	Color       color.RGBA
+	Width       int
+	Size        float64
+	SpaceAmount int // 前面空几格
 }
 
 // DrawFontOnRGBAWithColor 图片插入文字
@@ -61,6 +62,9 @@ func (fb *TextBrush) DrawFontOnRGBAWithColor(rgba *image.RGBA, pt image.Point, c
 	fb.FontColor = image.NewUniform(fontStyle.Color)
 	fb.FontSize = fontStyle.Size
 	fb.TextWidth = fontStyle.Width
+	for k := 0; k < fontStyle.SpaceAmount; k++ {
+		content += " "
+	}
 
 	c := freetype.NewContext()
 	c.SetDPI(72)
