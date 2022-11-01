@@ -63,7 +63,7 @@ func (fb *TextBrush) DrawFontOnRGBAWithStyle(rgba *image.RGBA, pt image.Point, c
 	fb.FontSize = fontStyle.Size
 	fb.TextWidth = fontStyle.Width
 	for k := 0; k < fontStyle.SpaceAmount; k++ {
-		content += "　" // 全角空格
+		content = "　" + content // 全角空格
 	}
 
 	c := freetype.NewContext()
