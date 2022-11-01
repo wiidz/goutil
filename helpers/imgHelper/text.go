@@ -56,8 +56,8 @@ type FontStyle struct {
 	SpaceAmount int // 前面空几格
 }
 
-// DrawFontOnRGBAWithColor 图片插入文字
-func (fb *TextBrush) DrawFontOnRGBAWithColor(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) {
+// DrawFontOnRGBAWithStyle 图片插入文字
+func (fb *TextBrush) DrawFontOnRGBAWithStyle(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) {
 
 	fb.FontColor = image.NewUniform(fontStyle.Color)
 	fb.FontSize = fontStyle.Size
