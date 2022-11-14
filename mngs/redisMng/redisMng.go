@@ -34,6 +34,8 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 		MinIdleConns: redisC.MaxIdle,
 		PoolSize:     redisC.MaxActive,
 	})
+	log.Println("redis Init", client.Context().Err())
+	log.Println("redis PoolStats", client.PoolStats())
 	return
 }
 
@@ -79,7 +81,6 @@ func (mng *RedisMng) HDel(key string, fields []string) (int64, error) {
 	return client.HDel(ctx, key, fields...).Result()
 
 }
-
 
 // HExists 判断hash中有没有这个field
 func (mng *RedisMng) HExists(key, field string) (bool, error) {
