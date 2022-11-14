@@ -38,6 +38,8 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 	log.Println("redis PoolStats", client.PoolStats())
 	ping := client.Ping(ctx)
 	log.Println("ping", ping)
+	log.Println("\tping.Err()", ping.Err())
+	err = ping.Err()
 	return
 }
 
