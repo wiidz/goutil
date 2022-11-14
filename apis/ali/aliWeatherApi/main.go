@@ -24,21 +24,21 @@ func NewWeatherApi(config *configStruct.AliApiConfig) *WeatherApi {
 	}
 }
 
-// QueryByCode 根据城市编码获取天气预报
-func (api *WeatherApi) QueryByCode(code string) (resStruct *QueryByCodeRes, err error) {
+// QueryByPostCode 根据城市编码获取天气预报
+func (api *WeatherApi) QueryByPostCode(postCode string) (resStruct *QueryByPostCodeRes, err error) {
 
 	temp, _, statusCode, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, QueryByCodeURL, map[string]interface{}{
-		"post_code": code, // 邮编，比如上海200000
+		"post_code": postCode, // 邮编，比如上海200000
 	}, map[string]string{
 		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, &QueryByCodeRes{})
+	}, &QueryByPostCodeRes{})
 
 	if err != nil {
 		return nil, err
 	}
 
 	if statusCode == 200 {
-		resStruct = temp.(*QueryByCodeRes)
+		resStruct = temp.(*QueryByPostCodeRes)
 
 		if resStruct.ShowapiResError != "" {
 			err = errors.New(resStruct.ShowapiResError)
@@ -50,5 +50,5 @@ func (api *WeatherApi) QueryByCode(code string) (resStruct *QueryByCodeRes, err 
 		return
 	}
 
-	return temp.(*QueryByCodeRes), nil
+	return
 }

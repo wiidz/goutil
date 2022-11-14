@@ -1,16 +1,16 @@
 package aliWeatherApi
 
-// QueryByCodeRes 根据区号查询响应体
-type QueryByCodeRes struct {
-	ShowapiResError string          `json:"showapi_res_error"`
-	ShowapiResId    string          `json:"showapi_res_id"`
-	ShowapiResCode  int             `json:"showapi_res_code"`
-	ShowapiFeeNum   int             `json:"showapi_fee_num"`
-	ShowapiResBody  QueryByCodeBody `json:"showapi_res_body"`
+// QueryByPostCodeRes 根据区号查询响应体
+type QueryByPostCodeRes struct {
+	ShowapiResError string               `json:"showapi_res_error"`
+	ShowapiResId    string               `json:"showapi_res_id"`
+	ShowapiResCode  int                  `json:"showapi_res_code"`
+	ShowapiFeeNum   int                  `json:"showapi_fee_num"`
+	ShowapiResBody  *QueryByPostCodeBody `json:"showapi_res_body"`
 }
 
-// QueryByCodeBody 根据区号查询数据体
-type QueryByCodeBody struct {
+// QueryByPostCodeBody 根据区号查询数据体
+type QueryByPostCodeBody struct {
 	Time    string `json:"time"`
 	Remark  string `json:"remark"`
 	RetCode int    `json:"ret_code"`
