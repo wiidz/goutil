@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"log"
 	"time"
 )
 
@@ -23,8 +22,8 @@ type RedisMng struct {
 func Init(redisC *configStruct.RedisConfig) (err error) {
 
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
+	//【1】创建连接
 	redisURL := redisC.Host + ":" + redisC.Port
-	log.Println("【redis-dsn】", redisURL)
 	client = redis.NewClient(&redis.Options{
 		Addr:         redisURL,
 		Username:     redisC.Username,
@@ -34,11 +33,9 @@ func Init(redisC *configStruct.RedisConfig) (err error) {
 		MinIdleConns: redisC.MaxIdle,
 		PoolSize:     redisC.MaxActive,
 	})
-	log.Println("redis Init", client.Context().Err())
-	log.Println("redis PoolStats", client.PoolStats())
+
+	//【2】判断一下是否连通
 	ping := client.Ping(ctx)
-	log.Println("ping", ping)
-	log.Println("\tping.Err()", ping.Err())
 	err = ping.Err()
 	return
 }
