@@ -958,3 +958,19 @@ func ExistUint64(needle uint64, scopeSlice []uint64) bool {
 	}
 	return false
 }
+
+// IsElementEqual 判断参数的attrIDs是否和数据库里的要求吻合
+func IsElementEqual(requiredIDs, paramsIDs []uint64) bool {
+
+	if len(requiredIDs) != len(paramsIDs) {
+		return false
+	}
+
+	for _, v := range paramsIDs {
+		if Exist(v, requiredIDs) {
+			continue
+		}
+		return false
+	}
+	return true
+}
