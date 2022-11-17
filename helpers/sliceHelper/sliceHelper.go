@@ -679,6 +679,12 @@ func Exist(needle interface{}, scopeSlice interface{}) bool {
 				return true
 			}
 		}
+	case uint64:
+		for _, item := range scopeSlice.([]uint64) {
+			if key == item {
+				return true
+			}
+		}
 
 	default:
 		return false
