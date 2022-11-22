@@ -1,5 +1,7 @@
 package orderMap
 
+import "strconv"
+
 type OrderStatus int8
 
 const WaitConfirm OrderStatus = 0 // （可跳过此步）待确认
@@ -45,4 +47,8 @@ func (status OrderStatus) ToString() string {
 	default:
 		return "未知"
 	}
+}
+
+func (status OrderStatus) ValueString() string {
+	return strconv.Itoa(int(status))
 }

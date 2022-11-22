@@ -353,3 +353,26 @@ func GetOffset(pageNow, pageSize int) int {
 	}
 	return offset
 }
+
+//var user dbStruct.User
+//err := mysqlM.GetConn().Model(dbStruct.User{
+//	ID: 2,
+//}).First(&user).Error
+
+// ok
+//var user = dbStruct.User{ID: 10}
+//err := mysqlM.GetConn().First(&user).Error
+
+// ok Where中放map
+//var users []dbStruct.User
+//err := mysqlM.GetConn().Where(map[string]interface{}{
+//	dbStruct.UserColumns.ID:           2,
+//	dbStruct.UserColumns.PointBalance: 0, // 这一条 会作为条件
+//}).Find(&users).Error
+
+// ok Where中放model
+//var users []dbStruct.User
+//err := mysqlM.GetConn().Where(&dbStruct.User{
+//	ID:           2,
+//	PointBalance: 0, // 这一条 并不会作为条件 注意
+//}).Find(&users).Error
