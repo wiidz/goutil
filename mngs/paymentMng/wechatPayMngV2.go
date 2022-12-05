@@ -245,7 +245,7 @@ func (mng *WechatPayMngV2) Refund(ctx context.Context, param *RefundParam) (err 
 }
 
 // ScanPay 扫用户付款码收款
-func (mng *WechatPayMngV2) ScanPay(ctx context.Context, param *ScanPayParam) (err error) {
+func (mng *WechatPayMngV2) ScanPay(ctx context.Context, param *ScanPayParam) (wxRsp *wechat.MicropayResponse, err error) {
 
 	xlog.Debug("out_refund_no:", param.OutTradeNo)
 
@@ -257,23 +257,23 @@ func (mng *WechatPayMngV2) ScanPay(ctx context.Context, param *ScanPayParam) (er
 	bm := make(gopay.BodyMap)
 	bm.Set("appid", mng.Config.AppID).
 		Set("mch_id", mng.Config.MchID).
-		Set("device_info", param.DeviceNo).      //【是-String(32)】终端设备号(商户自定义，如门店编号)
-		Set("nonce_str", nonceStr).              //【是-String(32)】随机字符串，不长于32位。推荐随机数生成算法
-		Set("sign", "").                         //【是-String(32)】签名，详见签名生成算法 ，gopay会自动填充
-		Set("sign_type", wechat.SignType_MD5).   //【是-String(32)】签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
-		Set("body", param.Title).                //【是-String(127)】商品简单描述，该字段须严格按照规范传递，具体请见参数规定
-		Set("detail", nonceStr).                 //【否-String(6000)】单品优惠功能字段，需要接入详见单品优惠详细说明
-		Set("attach", param.Attach).             //【否-String(127)】附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
-		Set("out_trade_no", param.OutTradeNo).   //【是-String(32)】商户系统内部订单号，要求32个字符内（最少6个字符），只能是数字、大小写字母_-|*且在同一个商户号下唯一。详见商户订单号
-		Set("total_fee", totalFee).              //【是-int】订单总金额，单位为分，只能为整数，详见支付金额
-		Set("fee_type", "CNY").                  //【否-String(16)】符合ISO4217标准的三位字母代码，默认人民币：CNY，详见货币类型
+		Set("device_info", param.DeviceNo). //【是-String(32)】终端设备号(商户自定义，如门店编号)
+		Set("nonce_str", nonceStr). //【是-String(32)】随机字符串，不长于32位。推荐随机数生成算法
+		Set("sign", ""). //【是-String(32)】签名，详见签名生成算法 ，gopay会自动填充
+		Set("sign_type", wechat.SignType_MD5). //【是-String(32)】签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+		Set("body", param.Title). //【是-String(127)】商品简单描述，该字段须严格按照规范传递，具体请见参数规定
+		Set("detail", nonceStr). //【否-String(6000)】单品优惠功能字段，需要接入详见单品优惠详细说明
+		Set("attach", param.Attach). //【否-String(127)】附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
+		Set("out_trade_no", param.OutTradeNo). //【是-String(32)】商户系统内部订单号，要求32个字符内（最少6个字符），只能是数字、大小写字母_-|*且在同一个商户号下唯一。详见商户订单号
+		Set("total_fee", totalFee). //【是-int】订单总金额，单位为分，只能为整数，详见支付金额
+		Set("fee_type", "CNY"). //【否-String(16)】符合ISO4217标准的三位字母代码，默认人民币：CNY，详见货币类型
 		Set("spbill_create_ip", param.DeviceIP). //【否-String(64)】支持IPV4和IPV6两种格式的IP地址。调用微信支付API的机器IP
-		Set("goods_tag", "").                    //【否-String(32)】订单优惠标记，代金券或立减优惠功能的参数，详见代金券或立减优惠
-		Set("time_start", "").                   //【否-String(14)】订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010。其他详见时间规则
-		Set("time_expire", "").                  //【否-String(14)】订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010。
-		Set("receipt", "").                      //【否-String(14)】电子发票入口开放标识,Y，传入Y时，支付成功消息和支付详情页将出现开票入口。需要在微信支付商户平台或微信公众平台开通电子发票功能，传此字段才可生效
-		Set("auth_code", param.AuthCode).        //【是-String(128)】扫码支付付款码，设备读取用户微信中的条码或者二维码信息 （用户付款码规则：18位纯数字，前缀以10、11、12、13、14、15开头）
-		Set("profit_sharing", "").               //【是-String(16)】Y-是，需要分账 N-否，不分账 字母要求大写，不传默认不分账
+		Set("goods_tag", ""). //【否-String(32)】订单优惠标记，代金券或立减优惠功能的参数，详见代金券或立减优惠
+		Set("time_start", ""). //【否-String(14)】订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010。其他详见时间规则
+		Set("time_expire", ""). //【否-String(14)】订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010。
+		Set("receipt", ""). //【否-String(14)】电子发票入口开放标识,Y，传入Y时，支付成功消息和支付详情页将出现开票入口。需要在微信支付商户平台或微信公众平台开通电子发票功能，传此字段才可生效
+		Set("auth_code", param.AuthCode). //【是-String(128)】扫码支付付款码，设备读取用户微信中的条码或者二维码信息 （用户付款码规则：18位纯数字，前缀以10、11、12、13、14、15开头）
+		Set("profit_sharing", ""). //【是-String(16)】Y-是，需要分账 N-否，不分账 字母要求大写，不传默认不分账
 		SetBodyMap("scene_info", func(bm gopay.BodyMap) {
 			bm.SetBodyMap("store_info", func(bm gopay.BodyMap) {
 				bm.Set("id", param.DeviceNo)  // 门店ID
@@ -283,7 +283,6 @@ func (mng *WechatPayMngV2) ScanPay(ctx context.Context, param *ScanPayParam) (er
 			})
 		}) // 【否-String(256)】该字段用于上报场景信息，目前支持上报实际门店信息。该字段为JSON对象数据，对象格式为{"store_info":{"id": "门店ID","name": "名称","area_code": "编码","address": "地址" }} ，字段详细说明请点击行前的+展开
 
-	var wxRsp *wechat.MicropayResponse
 	wxRsp, err = mng.Client.Micropay(ctx, bm)
 	if err != nil {
 		xlog.Error(err)
