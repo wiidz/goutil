@@ -84,6 +84,18 @@ type UnifiedOrderParam struct {
 	AppName     string  // 我们的项目名称
 }
 
+// ScanPayParam 微信扫码支付参数
+type ScanPayParam struct {
+	Title       string  // 订单标题
+	OutTradeNo  string  // 外部订单号
+	TotalAmount float64 // 总金额（元为单位）
+	DeviceIP    string  // 主机的IP
+	DeviceNo    string  // 主机的编号
+	AppName     string  // 我们的项目名称
+	Attach      string  // 附带数据
+	AuthCode    string  // 用户的付款码的数据
+}
+
 type WechatError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`

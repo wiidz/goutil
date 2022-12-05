@@ -320,3 +320,8 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 
 	return
 }
+
+// ScanPay 扫用户付款码收款
+func (mng *WechatPayMngV3) ScanPay(ctx context.Context) (err error) {
+	return
+}
