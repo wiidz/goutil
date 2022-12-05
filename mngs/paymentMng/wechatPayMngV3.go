@@ -43,12 +43,12 @@ import (
 // 以上信息不用看了，不用我们去维护公钥！！！
 
 type WechatPayMngV3 struct {
-	Config *configStruct.WechatPayConfig
+	Config *configStruct.WechatPayConfigV3
 	Client *wechat.ClientV3
 }
 
 // getWechatPayV3Instance 获取微信支付V3实例
-func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPayMngV3, err error) {
+func getWechatPayV3Instance(config *configStruct.WechatPayConfigV3) (mng *WechatPayMngV3, err error) {
 
 	var client *wechat.ClientV3
 	client, err = wechat.NewClientV3(config.MchID, config.CertSerialNo, config.ApiKeyV3, config.PEMPrivateKeyContent)
@@ -67,7 +67,7 @@ func getWechatPayV3Instance(config *configStruct.WechatPayConfig) (mng *WechatPa
 }
 
 // NewWechatPayMngV3 根据传入的config，获取信的微信支付
-func NewWechatPayMngV3(config *configStruct.WechatPayConfig) (*WechatPayMngV3, error) {
+func NewWechatPayMngV3(config *configStruct.WechatPayConfigV3) (*WechatPayMngV3, error) {
 	return getWechatPayV3Instance(config)
 }
 

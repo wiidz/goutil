@@ -33,11 +33,12 @@ type BaseConfig struct {
 	EsConfig       *EsConfig       // es设定
 	RabbitMQConfig *RabbitMQConfig // es设定
 
-	WechatMiniConfig *WechatMiniConfig // 小程序设定
-	WechatOaConfig   *WechatOaConfig   // 公众号设定
-	WechatOpenConfig *WechatOpenConfig // 开放平台设定
-	WechatPayConfig  *WechatPayConfig  // 微信支付设定
-	AliPayConfig     *AliPayConfig     // 支付宝设定
+	WechatMiniConfig  *WechatMiniConfig  // 小程序设定
+	WechatOaConfig    *WechatOaConfig    // 公众号设定
+	WechatOpenConfig  *WechatOpenConfig  // 开放平台设定
+	WechatPayConfigV3 *WechatPayConfigV3 // V3微信支付设定
+	WechatPayConfigV2 *WechatPayConfigV2 // V2微信支付设定
+	AliPayConfig      *AliPayConfig      // 支付宝设定
 
 	AliApiConfig *AliApiConfig // 阿里云APi市场设定
 	AliSmsConfig *AliSmsConfig // 阿里云短信服务设定
@@ -111,21 +112,36 @@ type WechatOpenConfig struct {
 	AppSecret string `gorm:"column:wechat_oa_app_secret" json:"wechat_oa_app_secret"`
 }
 
-// WechatPayConfig 微信支付参数
-type WechatPayConfig struct {
-	AppID        string `gorm:"column:wechat_pay_app_id" json:"app_id"`      //【微信支付】appID
-	ApiKey       string `gorm:"column:wechat_api_key" json:"api_key"`        //【微信支付】apiKey（v2）
-	ApiKeyV3     string `gorm:"column:wechat_api_key_v3" json:"api_key_v3"`  //【微信支付】apiKey,apiV3Key（v3）
-	MchID        string `gorm:"column:wechat_pay_mch_id" json:"mch_id"`      //【微信支付】商户ID 或者服务商模式的 sp_mchid
-	CertURI      string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri"`  //【微信支付】公钥文件
-	KeyURI       string `gorm:"column:wechat_pay_key_uri" json:"key_uri"`    //【微信支付】私钥文件
-	CertSerialNo string `gorm:"column:cert_serial_mo" json:"cert_serial_mo"` //【微信支付】证书序列号（V3使用）
-	//CertContent     string
+// WechatPayConfigV3 V3微信支付参数
+type WechatPayConfigV3 struct {
+	AppID                string `gorm:"column:wechat_pay_app_id" json:"app_id"`                        //【微信支付】appID
+	ApiKeyV3             string `gorm:"column:wechat_api_key_v3" json:"api_key_v3"`                    //【微信支付】apiKey,apiV3Key（v3）
+	MchID                string `gorm:"column:wechat_pay_mch_id" json:"mch_id"`                        //【微信支付】商户ID 或者服务商模式的 sp_mchid
+	CertURI              string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri"`                    //【微信支付】公钥文件
+	KeyURI               string `gorm:"column:wechat_pay_key_uri" json:"key_uri"`                      //【微信支付】私钥文件
+	CertSerialNo         string `gorm:"column:cert_serial_mo" json:"cert_serial_mo"`                   //【微信支付】证书序列号（V3使用）
 	NotifyURL            string `gorm:"column:notify_url" json:"notify_url"`                           // 【微信支付】支付回调地址
 	RefundNotifyURL      string `gorm:"column:refund_notify_url" json:"refund_notify_url"`             // 【微信支付】退款回调地址
 	Debug                bool   `gorm:"column:debug" json:"debug"`                                     // 【微信支付】是否是调试模式
 	PEMCertContent       string `gorm:"column:pem_cert_content" json:"pem_cert_content"`               //【微信支付】证书pem格式（apiclient_cert.pem） 从apiclient_cert.p12中导出证书部分的文件，为pem格式，请妥善保管不要泄漏和被他人复制 部分开发语言和环境，不能直接使用p12文件，而需要使用pem，所以为了方便您使用，已为您直接提供
 	PEMPrivateKeyContent string `gorm:"column:pem_private_key_content" json:"pem_private_key_content"` //【微信支付】证书密钥pem格式（apiclient_key.pem） 从apiclient_cert.p12中导出密钥部分的文件，为pem格式 部分开发语言和环境，不能直接使用p12文件，而需要使用pem，所以为了方便您使用，已为您直接提供
+	//PEMPublicKeyContent  string `gorm:"column:pem_public_key_content" json:"pem_public_key_content"`   //【微信支付】证书公钥pem格式(我们手动生成的)；；新：：：：：不用我们去维护公钥！！！
+}
+
+// WechatPayConfigV2 V2微信支付参数
+type WechatPayConfigV2 struct {
+	AppID           string `gorm:"column:wechat_pay_app_id" json:"app_id"`              //【微信支付】appID
+	ApiKey          string `gorm:"column:wechat_api_key" json:"api_key"`                //【微信支付】apiKey（v2）
+	MchID           string `gorm:"column:wechat_pay_mch_id" json:"mch_id"`              //【微信支付】商户ID 或者服务商模式的 sp_mchid
+	CertURI         string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri"`          //【微信支付】公钥文件
+	KeyURI          string `gorm:"column:wechat_pay_key_uri" json:"key_uri"`            //【微信支付】私钥文件
+	CertSerialNo    string `gorm:"column:cert_serial_mo" json:"cert_serial_mo"`         //【微信支付】证书序列号（V3使用）
+	NotifyURL       string `gorm:"column:notify_url" json:"notify_url"`                 // 【微信支付】支付回调地址
+	RefundNotifyURL string `gorm:"column:refund_notify_url" json:"refund_notify_url"`   // 【微信支付】退款回调地址
+	Debug           bool   `gorm:"column:debug" json:"debug"`                           // 【微信支付】是否是调试模式
+	P12CertFilePath string `gorm:"column:p12_cert_file_path" json:"p12_cert_file_path"` // apiclient_cert.p12的路径
+	//PEMCertContent       string `gorm:"column:pem_cert_content" json:"pem_cert_content"`               //【微信支付】证书pem格式（apiclient_cert.pem） 从apiclient_cert.p12中导出证书部分的文件，为pem格式，请妥善保管不要泄漏和被他人复制 部分开发语言和环境，不能直接使用p12文件，而需要使用pem，所以为了方便您使用，已为您直接提供
+	//PEMPrivateKeyContent string `gorm:"column:pem_private_key_content" json:"pem_private_key_content"` //【微信支付】证书密钥pem格式（apiclient_key.pem） 从apiclient_cert.p12中导出密钥部分的文件，为pem格式 部分开发语言和环境，不能直接使用p12文件，而需要使用pem，所以为了方便您使用，已为您直接提供
 	//PEMPublicKeyContent  string `gorm:"column:pem_public_key_content" json:"pem_public_key_content"`   //【微信支付】证书公钥pem格式(我们手动生成的)；；新：：：：：不用我们去维护公钥！！！
 }
 
