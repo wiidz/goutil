@@ -318,3 +318,36 @@ func (mng *WechatPayMngV2) ScanPay(ctx context.Context, param *ScanPayParam) (wx
 
 	return
 }
+
+// ReverseOrder 撤销订单
+// 支付交易返回失败或支付系统超时，调用该接口撤销交易。如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。
+// 注意：7天以内的交易单可调用撤销，其他正常支付的单如需实现相同功能请调用申请退款API。提交支付交易后调用【查询订单API】，没有明确的支付结果再调用【撤销订单API】。
+func (mng *WechatPayMngV2) ReverseOrder(ctx context.Context, transactionID, outTradeNo string) (wxRsp *wechat.ReverseResponse, err error) {
+
+	nonceStr := util.RandomString(32)
+
+	bm := make(gopay.BodyMap)
+	bm.Set("appid", mng.Config.AppID).
+		Set("mch_id", mng.Config.MchID).
+		Set("transaction_id", transactionID). //【否-String(32)】微信的订单号，优先使用
+		Set("out_trade_no", outTradeNo).      //【是-String(32)】商户系统内部的订单号,transaction_id、out_trade_no二选一，如果同时存在优先级：transaction_id> out_trade_no
+		Set("nonce_str", nonceStr).           //【是-String(32)】随机字符串，不长于32位。推荐随机数生成算法
+		Set("sign", "").                      //【是-String(32)】签名，详见签名生成算法 ，gopay会自动填充
+		Set("sign_type", wechat.SignType_MD5) //【是-String(32)】签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+
+	wxRsp, err = mng.Client.Reverse(ctx, bm)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+	if wxRsp.ReturnCode == "FAIL" {
+		err = errors.New(wxRsp.ReturnMsg)
+		return
+	} else if len(wxRsp.ErrCodeDes) != 0 {
+		err = errors.New(wxRsp.ErrCodeDes)
+		return
+	}
+
+	return
+}
