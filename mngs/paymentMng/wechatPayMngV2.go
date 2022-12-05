@@ -19,9 +19,9 @@ type WechatPayMngV2 struct {
 }
 
 // getWechatPayInstance 获取微信支付实例
-func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
+func getWechatPayInstance(config *configStruct.WechatPayConfig) (wechatPayMng *WechatPayMngV2, err error) {
 
-	var wechatPayMng = &WechatPayMngV2{
+	wechatPayMng = &WechatPayMngV2{
 		Config: config,
 		Client: wechat.NewClient(config.AppID, config.MchID, config.ApiKey, !config.Debug),
 	}
@@ -40,15 +40,15 @@ func getWechatPayInstance(config *configStruct.WechatPayConfig) *WechatPayMngV2 
 	//keyPath:= ""
 
 	//_ = wechatPayMng.Client.AddCertPemFilePath(Config.CertPath,Config.CertKeyPath)
-	_ = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.PEMCertContent))
+	err = wechatPayMng.Client.AddCertPkcs12FileContent([]byte(config.PEMCertContent))
 	//_ = wechatPayMng.Client.AddCertPkcs12FilePath(config.CertPath)
 
 	// 添加微信pem证书
-	return wechatPayMng
+	return
 }
 
-// NewWechatPayMng 根据传入的config，获取信的微信支付
-func NewWechatPayMng(config *configStruct.WechatPayConfig) *WechatPayMngV2 {
+// NewWechatPayMngV2 根据传入的config，获取信的微信支付
+func NewWechatPayMngV2(config *configStruct.WechatPayConfig) (*WechatPayMngV2, error) {
 	return getWechatPayInstance(config)
 }
 
