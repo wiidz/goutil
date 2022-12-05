@@ -164,3 +164,23 @@ func (aliPayMng *AliPayMng) ScanPay(ctx context.Context, params *ScanPayParam) (
 	xlog.Debug("aliRsp:", *resp)
 	return
 }
+
+// TradeQuery 查询订单详情
+func (aliPayMng *AliPayMng) TradeQuery(ctx context.Context, tradeNo, outTradeNo string) (resp *alipay.TradeQueryResponse, err error) {
+	body := make(gopay.BodyMap)
+	body.Set("trade_no", tradeNo)         //【二者取一-String(64)】支付宝交易号，和商户订单号不能同时为空
+	body.Set("out_trade_no", outTradeNo)  //【二者取一-String(64)】订单支付时传入的商户订单号,和支付宝交易号不能同时为空。 trade_no,out_trade_no如果同时存在优先取trade_no
+	body.Set("query_options", outTradeNo) //【否-String(1024)】查询选项，商户通过上送该参数来定制同步需要额外返回的信息字段，数组格式。支持枚举如下：
+	// fund_bill_list：交易支付使用的资金渠道；
+	// voucher_detail_list：交易支付时使用的所有优惠券信息；
+	// discount_goods_detail：交易支付所使用的单品券优惠的商品优惠信息；
+	// mdiscount_amount：商家优惠金额；
+
+	resp, err = aliPayMng.Client.TradeQuery(ctx, body)
+	if err != nil {
+		xlog.Error("err:", err)
+		return
+	}
+	xlog.Debug("aliRsp:", *resp)
+	return
+}
