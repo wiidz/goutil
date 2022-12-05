@@ -282,12 +282,12 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 	// 初始化参数结构体
 	bm := make(gopay.BodyMap)
 	bm.Set("appid", mng.Config.AppID). // 直连商户的appid，申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid）
-						Set("out_batch_no", params.OutBatchNo).
-						Set("batch_name", params.BatchName).
-						Set("batch_remark", params.BatchRemark).
-						Set("total_amount", params.TotalAmount).
-						Set("total_num", params.TotalNum).
-						Set("transfer_detail_list", transferList)
+		Set("out_batch_no", params.OutBatchNo).
+		Set("batch_name", params.BatchName).
+		Set("batch_remark", params.BatchRemark).
+		Set("total_amount", params.TotalAmount).
+		Set("total_num", params.TotalNum).
+		Set("transfer_detail_list", transferList)
 
 	//bm.Set("nonce_str", util.RandomString(32)).
 	//	Set("partner_trade_no", util.RandomString(32)).
@@ -321,7 +321,29 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 	return
 }
 
-// ScanPay 扫用户付款码收款
+// ScanPay 扫用户付款码收款（腾讯那边 V3没有完成，暂时用V2）
 func (mng *WechatPayMngV3) ScanPay(ctx context.Context) (err error) {
+	return
+}
+
+// TransactionQueryOrder 查询订单
+func (mng *WechatPayMngV3) TransactionQueryOrder(ctx context.Context, transactionID, outTradeNo string) (res *wechat.QueryOrderRsp, err error) {
+
+	if transactionID != "" {
+		res, err = mng.Client.V3TransactionQueryOrder(ctx, wechat.TransactionId, transactionID)
+	} else if outTradeNo != "" {
+		res, err = mng.Client.V3TransactionQueryOrder(ctx, wechat.OutTradeNo, outTradeNo)
+	}
+
+	if res.Code != 0 {
+		wechatErr := WechatError{}
+		err = typeHelper.JsonDecodeWithStruct(res.Error, &wechatErr)
+		if err == nil {
+			err = errors.New(wechatErr.Message)
+		} else {
+			err = errors.New(res.Error)
+		}
+	}
+
 	return
 }
