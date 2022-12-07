@@ -224,6 +224,10 @@ func getAliPayConfig(rows []*DbSettingRow, debug bool) *configStruct.AliPayConfi
 		PrivateKey: GetValueFromRow(rows, "ali", "pay", "private_key", "", debug),
 		NotifyURL:  GetValueFromRow(rows, "ali", "pay", "notify_url", "", debug),
 		Debug:      GetValueFromRow(rows, "ali", "pay", "debug", "0", debug) == "1", // 0=生产，1=调试
+
+		AppCertPublicKey: GetValueFromRow(rows, "ali", "pay", "app_cert_public_key", "", debug),
+		CertPublicKey:    GetValueFromRow(rows, "ali", "pay", "cert_public_key", "", debug),
+		RootCert:         GetValueFromRow(rows, "ali", "pay", "root_cert", "", debug),
 	}
 }
 

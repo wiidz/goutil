@@ -33,8 +33,8 @@ func getAliPayInstance(config *configStruct.AliPayConfig) (*AliPayMng, error) {
 	//配置公共参数
 	alipayMng.Client.SetCharset("utf-8").
 		SetSignType(alipay.RSA2).
-		SetPrivateKeyType(alipay.PKCS1).
-		SetNotifyUrl(config.NotifyURL)
+		SetNotifyUrl(config.NotifyURL).
+		SetCertSnByContent([]byte(config.AppCertPublicKey), []byte(config.RootCert), []byte(config.CertPublicKey))
 
 	// 打开Debug开关，输出日志，默认关闭
 	alipayMng.Client.DebugSwitch = gopay.DebugOn

@@ -150,8 +150,13 @@ type WechatPayConfigV2 struct {
 type AliPayConfig struct {
 	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id"`           //【支付宝】appID
 	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key"` //【支付宝】密钥（PKCS1）
-	NotifyURL  string // 【支付宝】回调地址
-	Debug      bool   // 【支付宝】是否是调试模式
+
+	AppCertPublicKey string `gorm:"column:app_cert_public_key" json:"app_cert_public_key"` //【支付宝】应用公钥证书 appCertPublicKey.crt
+	RootCert         string `gorm:"column:root_cert" json:"root_cert"`                     //【支付宝】支付宝根证书 alipayRootCert.crt
+	CertPublicKey    string `gorm:"column:cert_public_key" json:"cert_public_key"`         //【支付宝】支付宝公钥证书 alipayCertPublicKey_RSA2.crt
+
+	NotifyURL string // 【支付宝】回调地址
+	Debug     bool   // 【支付宝】是否是调试模式
 }
 
 type ProjectConfig interface {
