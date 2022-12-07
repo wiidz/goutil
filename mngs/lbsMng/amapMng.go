@@ -67,7 +67,7 @@ func (mng *AmapMng) Geo(address string) (*ReGeoData, error) {
 // GetDriveRoute 驾车路径规划
 // Docs: https://lbs.amap.com/api/webservice/guide/api/newroute
 func (mng *AmapMng) GetDriveRoute(originLongitude, originLatitude, targetLongitude, targetLatitude string) (*RouteRes, error) {
-	resStr, _, _, err := networkHelper.RequestJsonWithStructTest(networkStruct.Get, DriveRouteURL, map[string]interface{}{
+	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, DriveRouteURL, map[string]interface{}{
 		"key":         mng.Config.Key,
 		"destination": targetLongitude + "," + targetLatitude,
 		"origin":      originLongitude + "," + originLatitude,

@@ -54,9 +54,8 @@ type Street struct {
 
 // RouteRes 驾车路线
 type RouteRes struct {
-	Count      string           `json:"count"`
-	Route      *Route           `json:"route"`
-	ShowFields *RouteShowFields `json:"show_fields"` // 可选差异化结果返回
+	Count string `json:"count"`
+	Route *Route `json:"route"`
 	*BaseRes
 }
 type RouteShowFields struct {
@@ -89,6 +88,7 @@ type Route struct {
 }
 
 type Path struct {
+	// Basic
 	Distance string `json:"distance"` // 方案距离，单位：米 27876
 	//Duration      string      `json:"duration"`       // 4197
 	//Strategy      string      `json:"strategy"`       // 速度最快
@@ -97,6 +97,13 @@ type Path struct {
 	Restriction string `json:"restriction"` // 0 代表限行已规避或未限行，即该路线没有限行路段  1 代表限行无法规避，即该线路有限行路段
 	//TrafficLights string  `json:"traffic_lights"` // 23
 	Steps []*Step `json:"steps"` // 路线分段
+
+	// RouteShowFields
+	Cost *Cost `json:"cost"` // 设置后可返回方案所需时间及费用成本
+	Tmcs *Tmcs `json:"tmcs"` // 设置后可返回分段路况详情
+	//Navi     `json:"navi"`     // 设置后可返回详细导航动作指令
+	//Cities   `json:"cities"`   // 设置后可返回分段途径城市信息
+	//polyline `json:"Polyline"` // 设置后可返回分路段坐标点串，两点间用“,”分隔
 }
 
 type Step struct {
