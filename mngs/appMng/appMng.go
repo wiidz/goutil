@@ -310,9 +310,9 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfi
 }
 
 // getAmapConfig 高德地图
-func getAmapConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfig {
-	return &configStruct.AliIotConfig{
-		AccessKeySecret: GetValueFromRow(rows, "ali", "amap", "key", "", debug),
+func getAmapConfig(rows []*DbSettingRow, debug bool) *configStruct.AmapConfig {
+	return &configStruct.AmapConfig{
+		Key: GetValueFromRow(rows, "ali", "amap", "key", "", debug),
 	}
 }
 
