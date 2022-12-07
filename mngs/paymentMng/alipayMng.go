@@ -147,13 +147,14 @@ func (aliPayMng *AliPayMng) ScanPay(ctx context.Context, params *ScanPayParam) (
 	body.Set("subject", params.Title)            //【是-String(256)】订单标题。 注意：不可使用特殊字符，如 /，=，& 等
 	body.Set("auth_code", params.AuthCode)       //【是-String(64)】  支付授权码。 当面付场景传买家的付款码（25~30开头的长度为16~24位的数字，实际字符串长度以开发者获取的付款码长度为准）或者刷脸标识串（fp开头的35位字符串）。
 	body.Set("scene", scene)                     //【是-String(64)】支付场景。 枚举值： bar_code：当面付条码支付场景； security_code：当面付刷脸支付场景，对应的auth_code为fp开头的刷脸标识串； 默认值为bar_code。
-	body.Set("product_code", "")                 //【否-String(64)】产品码。 商家和支付宝签约的产品码。当面付场景下，如果签约的是当面付快捷版，则传 OFFLINE_PAYMENT;其它支付宝当面付产品传 FACE_TO_FACE_PAYMENT；不传则默认使用FACE_TO_FACE_PAYMENT。
-	body.Set("seller_id", "")                    //【否-String(28)】卖家支付宝用户ID。 当需要指定收款账号时，通过该参数传入，如果该值为空，则默认为商户签约账号对应的支付宝用户ID。 收款账号优先级规则：门店绑定的收款账户>请求传入的seller_id>商户签约账号对应的支付宝用户ID； 注：直付通和机构间联场景下seller_id无需传入或者保持跟pid一致；如果传入的seller_id与pid不一致，需要联系支付宝小二配置收款关系；
+
+	//body.Set("product_code", "") //【否-String(64)】产品码。 商家和支付宝签约的产品码。当面付场景下，如果签约的是当面付快捷版，则传 OFFLINE_PAYMENT;其它支付宝当面付产品传 FACE_TO_FACE_PAYMENT；不传则默认使用FACE_TO_FACE_PAYMENT。
+	//body.Set("seller_id", "")    //【否-String(28)】卖家支付宝用户ID。 当需要指定收款账号时，通过该参数传入，如果该值为空，则默认为商户签约账号对应的支付宝用户ID。 收款账号优先级规则：门店绑定的收款账户>请求传入的seller_id>商户签约账号对应的支付宝用户ID； 注：直付通和机构间联场景下seller_id无需传入或者保持跟pid一致；如果传入的seller_id与pid不一致，需要联系支付宝小二配置收款关系；
 	//body.Set("goods_detail", "")                 //【否-String】订单包含的商品列表信息，json格式。
-	body.Set("extend_params", params.Attach) //【否-String】业务扩展参数
+	//body.Set("extend_params", params.Attach) //【否-String】业务扩展参数
 	//body.Set("promo_params", params.Attach)  //【否-String】优惠明细参数，通过此属性补充营销参数。 注：仅与支付宝协商后可用。
-	body.Set("store_id", params.DeviceNo) //【否-String(32)】商户门店编号。 指商户创建门店时输入的门店编号。
-	body.Set("operator_id", "")           //【否-String(28)】商户操作员编号。
+	//body.Set("store_id", params.DeviceNo) //【否-String(32)】商户门店编号。 指商户创建门店时输入的门店编号。
+	//body.Set("operator_id", "")           //【否-String(28)】商户操作员编号。
 	//body.Set("query_options", "")        //【否-String(1024)】返回参数选项。商户通过传递该参数来定制同步需要额外返回的信息字段，数组格式。如：["fund_bill_list","voucher_detail_list","discount_goods_detail"]
 	resp, err = aliPayMng.Client.TradePay(ctx, body)
 
