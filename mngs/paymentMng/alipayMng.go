@@ -169,9 +169,13 @@ func (aliPayMng *AliPayMng) ScanPay(ctx context.Context, params *ScanPayParam) (
 // TradeQuery 查询订单详情
 func (aliPayMng *AliPayMng) TradeQuery(ctx context.Context, tradeNo, outTradeNo string) (resp *alipay.TradeQueryResponse, err error) {
 	body := make(gopay.BodyMap)
+	//body.Set("app_id", aliPayMng.Config.AppID) //【是-String(32)】支付宝分配给开发者的应用ID
+	//body.Set("charset", alipay.UTF8)           //【是-String(10)】请求使用的编码格式，如utf-8,gbk,gb2312等
 	body.Set("trade_no", tradeNo)        //【二者取一-String(64)】支付宝交易号，和商户订单号不能同时为空
 	body.Set("out_trade_no", outTradeNo) //【二者取一-String(64)】订单支付时传入的商户订单号,和支付宝交易号不能同时为空。 trade_no,out_trade_no如果同时存在优先取trade_no
-	body.Set("query_options", "")        //【否-String(1024)】查询选项，商户通过上送该参数来定制同步需要额外返回的信息字段，数组格式。支持枚举如下：
+
+	//body.Set("query_options", "") //【否-String(1024)】查询选项，商户通过上送该参数来定制同步需要额外返回的信息字段，数组格式。支持枚举如下：
+
 	// fund_bill_list：交易支付使用的资金渠道；
 	// voucher_detail_list：交易支付时使用的所有优惠券信息；
 	// discount_goods_detail：交易支付所使用的单品券优惠的商品优惠信息；
