@@ -44,6 +44,7 @@ type BaseConfig struct {
 	AliSmsConfig *AliSmsConfig // 阿里云短信服务设定
 	AliIotConfig *AliIotConfig // 阿里云物联网市场设定
 	AliOssConfig *AliOssConfig // 阿里云oss对象存储设定
+	AmapConfig   *AmapConfig   // 高德地图设定
 
 	YunxinConfig *YunxinConfig // 网易云信设定
 }

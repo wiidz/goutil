@@ -135,6 +135,7 @@ func (mng *AppMng) SetBaseConfig(dbName string, tableName string) (config *confi
 	config.AliApiConfig = getAliApiConfig(rows, config.Profile.Debug)
 	config.AliSmsConfig = getAliSmsConfig(rows, config.Profile.Debug)
 	config.AliIotConfig = getAliIotConfig(rows, config.Profile.Debug)
+	config.AmapConfig = getAmapConfig(rows, config.Profile.Debug)
 
 	// 网易系
 	config.YunxinConfig = getYunXinConfig(rows, config.Profile.Debug)
@@ -305,6 +306,13 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfi
 		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
 		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
 		RegionID:        GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
+	}
+}
+
+// getAmapConfig 高德地图
+func getAmapConfig(rows []*DbSettingRow, debug bool) *configStruct.AliIotConfig {
+	return &configStruct.AliIotConfig{
+		AccessKeySecret: GetValueFromRow(rows, "ali", "amap", "key", "", debug),
 	}
 }
 
