@@ -8,6 +8,7 @@ import (
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"log"
 	"math"
 	"net/http"
 	"time"
@@ -282,12 +283,12 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 	// 初始化参数结构体
 	bm := make(gopay.BodyMap)
 	bm.Set("appid", mng.Config.AppID). // 直连商户的appid，申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid）
-		Set("out_batch_no", params.OutBatchNo).
-		Set("batch_name", params.BatchName).
-		Set("batch_remark", params.BatchRemark).
-		Set("total_amount", params.TotalAmount).
-		Set("total_num", params.TotalNum).
-		Set("transfer_detail_list", transferList)
+						Set("out_batch_no", params.OutBatchNo).
+						Set("batch_name", params.BatchName).
+						Set("batch_remark", params.BatchRemark).
+						Set("total_amount", params.TotalAmount).
+						Set("total_num", params.TotalNum).
+						Set("transfer_detail_list", transferList)
 
 	//bm.Set("nonce_str", util.RandomString(32)).
 	//	Set("partner_trade_no", util.RandomString(32)).
@@ -334,6 +335,11 @@ func (mng *WechatPayMngV3) TransactionQueryOrder(ctx context.Context, transactio
 	} else if outTradeNo != "" {
 		res, err = mng.Client.V3TransactionQueryOrder(ctx, wechat.OutTradeNo, outTradeNo)
 	}
+
+	log.Println("res", res)
+	log.Println("res.Code", res.Code)
+	log.Println("res.Response", res.Response)
+	log.Println("res.SignInfo", res.SignInfo)
 
 	if res.Code != 0 {
 		wechatErr := WechatError{}
