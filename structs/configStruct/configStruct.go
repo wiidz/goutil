@@ -202,3 +202,8 @@ type YunxinConfig struct {
 	AppSecret string `gorm:"column:app_secret;type:varchar(128)" json:"app_secret"` // 【云信】密钥
 	CCURL     string `gorm:"column:cc_url;type:varchar(128)" json:"cc_url"`         // 信息抄送地址
 }
+
+// AmapConfig 高德地图配置
+type AmapConfig struct {
+	Key string
+}

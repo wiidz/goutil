@@ -8,20 +8,21 @@ import (
 	"log"
 )
 
-const ReGeoURL = "https://regeo.market.alicloudapi.com/v3/geocode/regeo"
-const GeoURL = "https://geo.market.alicloudapi.com/v3/geocode/geo"
-const DriveRouteURL = "http://direction.market.alicloudapi.com/v3/direction/driving"
+const ReGeoURL = "https://restapi.amap.com/v3/geocode/regeo"
+const GeoURL = "https://restapi.amap.com/v3/geocode/geo"
+const DriveRouteURL = "https://restapi.amap.com/v5/direction/driving"
 const WalkRouteURL = "http://direction.market.alicloudapi.com/v3/direction/walking"
 const BusRouteURL = "http://direction.market.alicloudapi.com/v3/direction/transit/integrated"
 
 // 以下方法均为高德地图在阿里云市场中提供的服务
 
 type LbsMng struct {
-	Config *configStruct.AliApiConfig
+	//Config *configStruct.AliApiConfig
+	Config *configStruct.AmapConfig
 }
 
 // GetLbsMng : 返回地理位置管理器
-func GetLbsMng(config *configStruct.AliApiConfig) *LbsMng {
+func GetLbsMng(config *configStruct.AmapConfig) *LbsMng {
 	return &LbsMng{
 		Config: config,
 	}
@@ -31,12 +32,11 @@ func GetLbsMng(config *configStruct.AliApiConfig) *LbsMng {
 func (mng *LbsMng) ReGeo(longitude, latitude string) (data *ReGeoData, err error) {
 
 	tempStr, _, _, err := networkHelper.RequestRaw(networkStruct.Get, ReGeoURL, map[string]interface{}{
+		"key":      mng.Config.Key,
 		"location": longitude + "," + latitude,
-	}, map[string]string{
-		"Authorization": "APPCODE " + mng.Config.AppCode,
-	})
+	}, nil)
 
-	log.Println("【tempStr】",tempStr)
+	log.Println("【tempStr】", tempStr)
 
 	temp := ReGeoRes{}
 	err = typeHelper.JsonDecodeWithStruct(tempStr, &temp)
@@ -53,10 +53,9 @@ func (mng *LbsMng) ReGeo(longitude, latitude string) (data *ReGeoData, err error
 func (mng *LbsMng) Geo(address string) (*ReGeoData, error) {
 
 	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, GeoURL, map[string]interface{}{
+		"key":     mng.Config.Key,
 		"address": address,
-	}, map[string]string{
-		"Authorization": "APPCODE " + mng.Config.AppCode,
-	}, &ReGeoRes{})
+	}, nil, &ReGeoRes{})
 
 	if err != nil {
 		return nil, err
@@ -69,11 +68,10 @@ func (mng *LbsMng) Geo(address string) (*ReGeoData, error) {
 // Docs: https://market.aliyun.com/products/56928004/cmapi020537.html?spm=5176.2020520132.101.1.4ed572180w4m2J#sku=yuncode1453700000
 func (mng *LbsMng) GetDriveRoute(originLongitude, originLatitude, targetLongitude, targetLatitude string) (*RouteRes, error) {
 	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, DriveRouteURL, map[string]interface{}{
+		"key":         mng.Config.Key,
 		"destination": targetLongitude + "," + targetLatitude,
 		"origin":      originLongitude + "," + originLatitude,
-	}, map[string]string{
-		"Authorization": "APPCODE " + mng.Config.AppCode,
-	}, &RouteRes{})
+	}, nil, &RouteRes{})
 
 	if err != nil {
 		return nil, err
