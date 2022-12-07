@@ -71,7 +71,7 @@ func (mng *AmapMng) GetDriveRoute(originLongitude, originLatitude, targetLongitu
 		"key":         mng.Config.Key,
 		"destination": targetLongitude + "," + targetLatitude,
 		"origin":      originLongitude + "," + originLatitude,
-		"show_fields": "cost",
+		"show_fields": "cost,tmcs",
 	}, nil, &RouteRes{})
 
 	log.Println("resStr", resStr)
