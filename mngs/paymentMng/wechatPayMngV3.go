@@ -350,6 +350,9 @@ func (mng *WechatPayMngV3) TransactionQueryOrder(ctx context.Context, transactio
 			err = errors.New(res.Error)
 		}
 	}
+	if res.Response.TradeState != "SUCCESS" {
+		err = errors.New(res.Response.TradeStateDesc)
+	}
 
 	return
 }
