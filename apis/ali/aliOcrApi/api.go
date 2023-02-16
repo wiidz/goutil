@@ -5,7 +5,9 @@ import (
 	ocr20191230 "github.com/alibabacloud-go/ocr-20191230/v2/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"regexp"
 )
 
 // AliOcrApi 文字识别Api
@@ -65,7 +67,7 @@ func NewAliOcrApi(config *configStruct.AliRamConfig) (api *AliOcrApi, err error)
 // 图像大小：不超过3MB。
 // 图像分辨率：大于15×15像素，小于4096×4096像素。
 // URL地址中不能包含中文字符。
-func (api *AliOcrApi) CheckIDCard(imgURL string, side CardSide) (res *ocr20191230.RecognizeIdentityCardResponse, err error) {
+func (api *AliOcrApi) CheckIDCard(imgURL string, side CardSide, handelErr bool) (res *ocr20191230.RecognizeIdentityCardResponse, err error) {
 
 	temp := string(side)
 	params := &ocr20191230.RecognizeIdentityCardRequest{
@@ -75,6 +77,9 @@ func (api *AliOcrApi) CheckIDCard(imgURL string, side CardSide) (res *ocr2019123
 
 	runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
 	res, err = api.Client.RecognizeIdentityCardWithOptions(params, runtime)
+	if err != nil && handelErr {
+		err = api.handleSDKError(err)
+	}
 	return
 }
 
@@ -88,7 +93,7 @@ func (api *AliOcrApi) CheckIDCard(imgURL string, side CardSide) (res *ocr2019123
 // 图像大小：不超过3 MB。
 // 图像分辨率：不限制图片分辨率，但图片分辨率太高可能会导致API识别超时，超时时间为5秒。
 // URL地址中不能包含中文字符。
-func (api *AliOcrApi) CheckDrivingLicense(imgURL string, side CardSide) (res *ocr20191230.RecognizeDrivingLicenseResponse, err error) {
+func (api *AliOcrApi) CheckDrivingLicense(imgURL string, side CardSide, handelErr bool) (res *ocr20191230.RecognizeDrivingLicenseResponse, err error) {
 	temp := string(side)
 	params := &ocr20191230.RecognizeDrivingLicenseRequest{
 		ImageURL: &imgURL, // 图像URL地址。当前仅支持上海地域的OSS链接，如何生成URL请参见生成URL。
@@ -98,6 +103,9 @@ func (api *AliOcrApi) CheckDrivingLicense(imgURL string, side CardSide) (res *oc
 	//runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
 	//res, err = api.Client.RecognizeDrivingLicenseWithOptions(params, runtime)
 	res, err = api.Client.RecognizeDrivingLicense(params)
+	if err != nil && handelErr {
+		err = api.handleSDKError(err)
+	}
 	return
 }
 
@@ -111,7 +119,7 @@ func (api *AliOcrApi) CheckDrivingLicense(imgURL string, side CardSide) (res *oc
 // 图像大小：不超过4 MB。
 // 图像分辨率：大于15×15像素，小于4096×4096像素。
 // URL地址中不能包含中文字符。
-func (api *AliOcrApi) CheckDriverLicense(imgURL string, side CardSide) (res *ocr20191230.RecognizeDriverLicenseResponse, err error) {
+func (api *AliOcrApi) CheckDriverLicense(imgURL string, side CardSide, handelErr bool) (res *ocr20191230.RecognizeDriverLicenseResponse, err error) {
 	temp := string(side)
 	params := &ocr20191230.RecognizeDriverLicenseRequest{
 		ImageURL: &imgURL, // 图像URL地址。当前仅支持上海地域的OSS链接，如何生成URL请参见生成URL。
@@ -121,6 +129,9 @@ func (api *AliOcrApi) CheckDriverLicense(imgURL string, side CardSide) (res *ocr
 	//runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
 	//res, err = api.Client.RecognizeDriverLicenseWithOptions(params, runtime)
 	res, err = api.Client.RecognizeDriverLicense(params)
+	if err != nil && handelErr {
+		err = api.handleSDKError(err)
+	}
 	return
 }
 
@@ -134,7 +145,7 @@ func (api *AliOcrApi) CheckDriverLicense(imgURL string, side CardSide) (res *ocr
 // 图像大小：不超过4 MB。
 // 图像分辨率：大于15×15像素，小于4096×4096像素。
 // URL地址中不能包含中文字符。
-func (api *AliOcrApi) CheckLicensePlate(imgURL string) (res *ocr20191230.RecognizeLicensePlateResponse, err error) {
+func (api *AliOcrApi) CheckLicensePlate(imgURL string, handelErr bool) (res *ocr20191230.RecognizeLicensePlateResponse, err error) {
 	params := &ocr20191230.RecognizeLicensePlateRequest{
 		ImageURL: &imgURL, // 图像URL地址。当前仅支持上海地域的OSS链接，如何生成URL请参见生成URL。
 	}
@@ -142,6 +153,9 @@ func (api *AliOcrApi) CheckLicensePlate(imgURL string) (res *ocr20191230.Recogni
 	//runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
 	//res, err = api.Client.RecognizeLicensePlateWithOptions(params, runtime)
 	res, err = api.Client.RecognizeLicensePlate(params)
+	if err != nil && handelErr {
+		err = api.handleSDKError(err)
+	}
 	return
 }
 
@@ -155,7 +169,7 @@ func (api *AliOcrApi) CheckLicensePlate(imgURL string) (res *ocr20191230.Recogni
 // 图像大小：不超过3 MB。
 // 图像分辨率：不限制图片分辨率，但图片分辨率太高可能会导致API识别超时，超时时间为5秒。
 // 请求格式：JPEG、JPG、PNG、BMP、GIF。
-func (api *AliOcrApi) CheckBusinessLicense(imgURL string) (res *ocr20191230.RecognizeBusinessLicenseResponse, err error) {
+func (api *AliOcrApi) CheckBusinessLicense(imgURL string, handelErr bool) (res *ocr20191230.RecognizeBusinessLicenseResponse, err error) {
 	params := &ocr20191230.RecognizeBusinessLicenseRequest{
 		ImageURL: &imgURL, // 图像URL地址。当前仅支持上海地域的OSS链接，如何生成URL请参见生成URL。
 	}
@@ -163,5 +177,28 @@ func (api *AliOcrApi) CheckBusinessLicense(imgURL string) (res *ocr20191230.Reco
 	//runtime := &util.RuntimeOptions{} // 一些配置，暂时用不到
 	//res, err = api.Client.RecognizeLicensePlateWithOptions(params, runtime)
 	res, err = api.Client.RecognizeBusinessLicense(params)
+	if err != nil && handelErr {
+		err = api.handleSDKError(err)
+	}
 	return
+}
+
+// handleSDKError 处理ocr sdk的报错
+func (api *AliOcrApi) handleSDKError(err error) error {
+
+	dataReg := regexp.MustCompile(`\sData:(.*)`)
+	dataFind := dataReg.FindStringSubmatch(err.Error())
+	if len(dataFind) < 2 {
+		return &OcrError{
+			OriginalErr: err,
+			Message:     "解析失败",
+		}
+	}
+	dataStr := dataFind[1]
+
+	newErr := &OcrError{}
+	_ = typeHelper.JsonDecodeWithStruct(dataStr, &newErr)
+	newErr.OriginalErr = err
+
+	return newErr
 }
