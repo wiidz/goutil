@@ -692,8 +692,8 @@ func ParamsInvalid(ctx iris.Context, err error) {
 	ctx.StatusCode(404)
 
 	_, _ = ctx.JSON(iris.Map{
-		"msg":  "参数无效",
-		"data": err.Error(),
+		"msg":  err.Error(),
+		"data": nil,
 	})
 	return
 }
