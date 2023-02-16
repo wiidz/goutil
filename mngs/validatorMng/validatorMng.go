@@ -9,7 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	zhtrans "github.com/go-playground/validator/v10/translations/zh"
 	"github.com/wiidz/goutil/helpers/typeHelper"
-	"log"
 	"reflect"
 	"strings"
 )
@@ -84,25 +83,22 @@ func TranslateOne(params interface{}, errs error) (err error) {
 
 	// 只取一号错误
 	for k := range translatedErrs {
-		log.Println("k", k)
+
 		//【2】获取字段定义
 		structType := reflect.TypeOf(params)
-		log.Println("structType", structType)
 
 		tempArr := typeHelper.ExplodeStr(k, ".") // 这个时候还是MyStruct.TrueName,所以要提取TrueName
 		if len(tempArr) < 2 {
 			return errs
 		}
-		field, _ := structType.Elem().FieldByName(tempArr[1])
-
-		log.Println("field", field)
+		filedName := tempArr[1]
+		field, _ := structType.Elem().FieldByName(filedName)
 		cnTag := field.Tag.Get("cn") // 如果定义了中文
-		log.Println("cnTag", cnTag)
 
 		//【3】替换字段名
 		errStr := translatedErrs[k]
 		if cnTag != "" {
-			errStr = strings.Replace(errStr, k, cnTag, 1)
+			errStr = strings.Replace(errStr, filedName, cnTag, 1)
 		}
 
 		return errors.New(errStr)
