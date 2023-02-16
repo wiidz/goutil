@@ -1,9 +1,9 @@
 package validatorMng
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"log"
 )
 
 type ValidatorMng struct{}
@@ -12,18 +12,10 @@ var validate = validator.New()
 
 func GetError(s interface{}) error {
 	err := validate.Struct(s)
-	validationErrors := err.(validator.ValidationErrors)
-	log.Println("validationErrors", validationErrors)
-
-	for k := range validationErrors {
-		log.Println("validationErrors", k, validationErrors[k])
-	}
-
 	if err == nil {
 		return nil
 	}
-	Report(err)
-	return err
+	return TranslateOne(err)
 }
 
 func Report(errs error) {
@@ -41,4 +33,24 @@ func Report(errs error) {
 		fmt.Println(err.Param())
 		fmt.Println("---------------------------------------")
 	}
+}
+
+// TranslateOne 翻译一下
+func TranslateOne(errs error) (err error) {
+
+	//【1】提取错误
+	validationErrors := errs.(validator.ValidationErrors)
+	if len(validationErrors) == 0 {
+		return errs
+	}
+
+	//【2】只取一号错误
+	target := validationErrors[0]
+
+	if target.Tag() == "required" {
+		err = errors.New(target.Field() + "是必填项")
+	} else {
+		err = target
+	}
+	return
 }
