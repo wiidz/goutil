@@ -8,6 +8,8 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	zhtrans "github.com/go-playground/validator/v10/translations/zh"
+	"reflect"
+	"strings"
 )
 
 type ValidatorMng struct{}
@@ -35,7 +37,7 @@ func GetError(s interface{}) error {
 		return nil
 	}
 
-	return TranslateOne(err)
+	return TranslateOne(s, err)
 }
 
 func Report(errs error) {
@@ -74,13 +76,24 @@ func Report(errs error) {
 //}
 
 // TranslateOne 翻译一下
-func TranslateOne(errs error) (err error) {
+func TranslateOne(params interface{}, errs error) (err error) {
 
 	translatedErrs := errs.(validator.ValidationErrors).Translate(trans)
 
 	// 只取一号错误
 	for k := range translatedErrs {
-		return errors.New(translatedErrs[k])
+		//【2】获取字段定义
+		structType := reflect.TypeOf(params)
+		field, _ := structType.Elem().FieldByName(k)
+		cnTag := field.Tag.Get("cn") // 如果定义了中文
+
+		//【3】替换字段名
+		errStr := translatedErrs[k]
+		if cnTag != "" {
+			errStr = strings.Replace(errStr, k, cnTag, 1)
+		}
+
+		return errors.New(errStr)
 	}
 
 	return
