@@ -1,7 +1,6 @@
 package validatorMng
 
 import (
-	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 )
@@ -45,12 +44,5 @@ func TranslateOne(errs error) (err error) {
 	}
 
 	//【2】只取一号错误
-	target := validationErrors[0]
-
-	if target.Tag() == "required" {
-		err = errors.New(target.Field() + "是必填项")
-	} else {
-		err = target
-	}
-	return
+	return NewValidatorErr(validationErrors[0])
 }
