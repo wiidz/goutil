@@ -1,19 +1,40 @@
 package validatorMng
 
 import (
+	"errors"
 	"fmt"
+	"github.com/go-playground/locales/en"
+	"github.com/go-playground/locales/zh"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	zhtrans "github.com/go-playground/validator/v10/translations/zh"
 )
 
 type ValidatorMng struct{}
 
 var validate = validator.New()
+var trans ut.Translator
+
+func init() {
+	en := en.New() //英文翻译器
+	zh := zh.New() //中文翻译器
+
+	// 第一个参数是必填，如果没有其他的语言设置，就用这第一个
+	// 后面的参数是支持多语言环境（
+	// uni := ut.New(en, en) 也是可以的
+	// uni := ut.New(en, zh, tw)
+	uni := ut.New(en, zh)
+	trans, _ = uni.GetTranslator("zh") //获取需要的语言
+
+	zhtrans.RegisterDefaultTranslations(validate, trans)
+}
 
 func GetError(s interface{}) error {
 	err := validate.Struct(s)
 	if err == nil {
 		return nil
 	}
+
 	return TranslateOne(err)
 }
 
@@ -34,15 +55,33 @@ func Report(errs error) {
 	}
 }
 
+// GetTranslate 获取带翻译器的validate
+//func GetTranslate(){
+//
+//}
+
+// TranslateOne 翻译一下
+//func TranslateOne(errs error) (err error) {
+//
+//	//【1】提取错误
+//	validationErrors := errs.(validator.ValidationErrors)
+//	if len(validationErrors) == 0 {
+//		return errs
+//	}
+//
+//	//【2】只取一号错误
+//	return NewValidatorErr(validationErrors[0])
+//}
+
 // TranslateOne 翻译一下
 func TranslateOne(errs error) (err error) {
 
-	//【1】提取错误
-	validationErrors := errs.(validator.ValidationErrors)
-	if len(validationErrors) == 0 {
-		return errs
+	translatedErrs := errs.(validator.ValidationErrors).Translate(trans)
+
+	// 只取一号错误
+	for k := range translatedErrs {
+		return errors.New(translatedErrs[k])
 	}
 
-	//【2】只取一号错误
-	return NewValidatorErr(validationErrors[0])
+	return
 }
