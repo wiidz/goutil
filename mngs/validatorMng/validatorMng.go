@@ -8,6 +8,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	zhtrans "github.com/go-playground/validator/v10/translations/zh"
+	"log"
 	"reflect"
 	"strings"
 )
@@ -82,11 +83,14 @@ func TranslateOne(params interface{}, errs error) (err error) {
 
 	// 只取一号错误
 	for k := range translatedErrs {
+		log.Println("k", k)
 		//【2】获取字段定义
 		structType := reflect.TypeOf(params)
+		log.Println("structType", structType)
 		field, _ := structType.Elem().FieldByName(k)
+		log.Println("field", field)
 		cnTag := field.Tag.Get("cn") // 如果定义了中文
-
+		log.Println("cnTag", cnTag)
 		//【3】替换字段名
 		errStr := translatedErrs[k]
 		if cnTag != "" {
