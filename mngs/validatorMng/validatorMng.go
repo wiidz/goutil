@@ -3,6 +3,7 @@ package validatorMng
 import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"log"
 )
 
 type ValidatorMng struct{}
@@ -11,6 +12,13 @@ var validate = validator.New()
 
 func GetError(s interface{}) error {
 	err := validate.Struct(s)
+	validationErrors := err.(validator.ValidationErrors)
+	log.Println("validationErrors", validationErrors)
+
+	for k := range validationErrors {
+		log.Println("validationErrors", k, validationErrors[k])
+	}
+
 	if err == nil {
 		return nil
 	}
