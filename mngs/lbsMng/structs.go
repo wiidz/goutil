@@ -73,8 +73,8 @@ type Building struct {
 
 type Neighborhood struct {
 	//ID       string `json:"id"`
-	Name string   `json:"name"` // 名称：方恒国际中心
-	Type []string `json:"type"` // 类型：商务住宅;楼宇;商务写字楼
+	Name string `json:"name"` // 名称：方恒国际中心
+	Type string `json:"type"` // 类型：商务住宅;楼宇;商务写字楼
 	//Location string `json:"location"` // 经纬度：（经度，纬度）
 }
 
