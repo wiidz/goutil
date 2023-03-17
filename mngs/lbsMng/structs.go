@@ -37,30 +37,30 @@ type MetaPlace struct {
 	Location string `json:"location"` // 经纬度：（经度，纬度）
 }
 
-type ReGeoResWithoutBusinessAreas struct {
+type ReGeoResWithout struct {
 	*BaseRes
-	ReGeoCode *ReGeoDataWithoutBusinessAreas
+	ReGeoCode *ReGeoDataWithout
 }
 
-// ReGeoDataWithoutBusinessAreas 上面那个可能报错，
-type ReGeoDataWithoutBusinessAreas struct {
-	FormattedAddress string                                `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
-	AddressComponent *AddressComponentWithoutBusinessAreas `json:"addressComponent"`
+// ReGeoDataWithout 上面那个可能报错，因为Neighborhood或者BusinessAreas的值可能是[[]]这样的
+type ReGeoDataWithout struct {
+	FormattedAddress string                   `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
+	AddressComponent *AddressComponentWithout `json:"addressComponent"`
 }
 
-// AddressComponentWithoutBusinessAreas 上面那个可能报错，因为BusinessAreas的值可能是[[]]这样的
-type AddressComponentWithoutBusinessAreas struct {
-	Country      string        `json:"country"`  // 国家：中国
-	Province     string        `json:"province"` // 省份：北京市
-	City         string        `json:"city"`     // 城市：
-	CityCode     string        `json:"citycode"` // 城市编码：010
-	District     string        `json:"district"` // 街道：朝阳区
-	AdCode       string        `json:"adcode"`   // 邮政编码：110105
-	Township     string        `json:"township"` // 乡镇：望京街道
-	TownCode     string        `json:"towncode"` // 乡镇编号：110105026000
-	Neighborhood *Neighborhood `json:"neighborhood"`
-	Building     *Building     `json:"building"`
-	StreetNumber *Street       `json:"streetNumber"`
+// AddressComponentWithout 上面那个可能报错，因为Neighborhood或者BusinessAreas的值可能是[[]]这样的
+type AddressComponentWithout struct {
+	Country  string `json:"country"`  // 国家：中国
+	Province string `json:"province"` // 省份：北京市
+	City     string `json:"city"`     // 城市：
+	CityCode string `json:"citycode"` // 城市编码：010
+	District string `json:"district"` // 街道：朝阳区
+	AdCode   string `json:"adcode"`   // 邮政编码：110105
+	Township string `json:"township"` // 乡镇：望京街道
+	TownCode string `json:"towncode"` // 乡镇编号：110105026000
+	//Neighborhood *Neighborhood `json:"neighborhood"`
+	//Building     *Building     `json:"building"`
+	StreetNumber *Street `json:"streetNumber"`
 	//BusinessAreas []*MetaPlace  `json:"businessAreas"`
 }
 

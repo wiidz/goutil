@@ -29,7 +29,7 @@ func NewAmapMng(config *configStruct.AmapConfig) *AmapMng {
 }
 
 // ReGeo : 逆地理编码(将经纬度转换为详细结构化的地址，且返回附近周边的POI、AOI信息)
-func (mng *AmapMng) ReGeo(longitude, latitude string) (data *ReGeoData, anotherData *ReGeoDataWithoutBusinessAreas, err error) {
+func (mng *AmapMng) ReGeo(longitude, latitude string) (data *ReGeoData, anotherData *ReGeoDataWithout, err error) {
 
 	tempStr, _, _, err := networkHelper.RequestRaw(networkStruct.Get, ReGeoURL, map[string]interface{}{
 		"key":      mng.Config.Key,
@@ -42,7 +42,7 @@ func (mng *AmapMng) ReGeo(longitude, latitude string) (data *ReGeoData, anotherD
 	err = typeHelper.JsonDecodeWithStruct(tempStr, &temp)
 
 	if err != nil {
-		newTemp := ReGeoResWithoutBusinessAreas{}
+		newTemp := ReGeoResWithout{}
 		err = typeHelper.JsonDecodeWithStruct(tempStr, &newTemp)
 		if err == nil {
 			data = nil
