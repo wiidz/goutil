@@ -37,6 +37,33 @@ type MetaPlace struct {
 	Location string `json:"location"` // 经纬度：（经度，纬度）
 }
 
+type ReGeoResWithoutBusinessAreas struct {
+	*BaseRes
+	ReGeoCode *ReGeoDataWithoutBusinessAreas
+}
+
+// ReGeoDataWithoutBusinessAreas 上面那个可能报错，
+type ReGeoDataWithoutBusinessAreas struct {
+	FormattedAddress string                                `json:"formatted_address"` // 格式化的地址：北京市朝阳区望京街道方恒国际中心B座方恒国际中心
+	AddressComponent *AddressComponentWithoutBusinessAreas `json:"addressComponent"`
+}
+
+// AddressComponentWithoutBusinessAreas 上面那个可能报错，因为BusinessAreas的值可能是[[]]这样的
+type AddressComponentWithoutBusinessAreas struct {
+	Country      string        `json:"country"`  // 国家：中国
+	Province     string        `json:"province"` // 省份：北京市
+	City         string        `json:"city"`     // 城市：
+	CityCode     string        `json:"citycode"` // 城市编码：010
+	District     string        `json:"district"` // 街道：朝阳区
+	AdCode       string        `json:"adcode"`   // 邮政编码：110105
+	Township     string        `json:"township"` // 乡镇：望京街道
+	TownCode     string        `json:"towncode"` // 乡镇编号：110105026000
+	Neighborhood *Neighborhood `json:"neighborhood"`
+	Building     *Neighborhood `json:"building"`
+	StreetNumber *Street       `json:"streetNumber"`
+	//BusinessAreas []*MetaPlace  `json:"businessAreas"`
+}
+
 type Neighborhood struct {
 	//ID       string `json:"id"`
 	Name []string `json:"name"` // 名称：方恒国际中心
