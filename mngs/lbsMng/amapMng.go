@@ -43,7 +43,7 @@ func (mng *AmapMng) ReGeo(longitude, latitude string) (data *ReGeoData, anotherD
 
 	if err != nil {
 		newTemp := ReGeoResWithoutBusinessAreas{}
-		err = typeHelper.JsonDecodeWithStruct(tempStr, &temp)
+		err = typeHelper.JsonDecodeWithStruct(tempStr, &newTemp)
 		if err == nil {
 			data = nil
 			err = nil
