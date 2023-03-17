@@ -59,9 +59,16 @@ type AddressComponentWithoutBusinessAreas struct {
 	Township     string        `json:"township"` // 乡镇：望京街道
 	TownCode     string        `json:"towncode"` // 乡镇编号：110105026000
 	Neighborhood *Neighborhood `json:"neighborhood"`
-	Building     *Neighborhood `json:"building"`
+	Building     *Building     `json:"building"`
 	StreetNumber *Street       `json:"streetNumber"`
 	//BusinessAreas []*MetaPlace  `json:"businessAreas"`
+}
+
+type Building struct {
+	//ID       string `json:"id"`
+	Name []string `json:"name"` // 名称：
+	Type []string `json:"type"` // 类型：商务住宅;楼宇;商务写字楼
+	//Location string `json:"location"` // 经纬度：（经度，纬度）
 }
 
 type Neighborhood struct {
