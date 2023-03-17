@@ -46,6 +46,7 @@ func (mng *AmapMng) ReGeo(longitude, latitude string) (data *ReGeoData, anotherD
 		err = typeHelper.JsonDecodeWithStruct(tempStr, &temp)
 		if err == nil {
 			data = nil
+			err = nil
 			anotherData = newTemp.ReGeoCode
 		}
 	} else {
