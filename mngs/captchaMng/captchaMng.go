@@ -55,6 +55,14 @@ func (mng *CaptchaMng) GenerateGraphCaptcha(width, height, noiseCount, length in
 	return captcha.Generate()
 }
 
+// GenerateNumberGraphCaptcha 生成图形验证码base64（仅数字）
+func (mng *CaptchaMng) GenerateNumberGraphCaptcha(width, height, noiseCount, length int) (id, b64s string, err error) {
+	driver := cp.NewDriverString(height, width, noiseCount, cp.OptionShowHollowLine,
+		length, cp.TxtNumbers, &color.RGBA{254, 254, 254, 254}, []string{"Flim-Flam.ttf"})
+	captcha := cp.NewCaptcha(driver, cp.DefaultMemStore)
+	return captcha.Generate()
+}
+
 // GetNumberCaptcha 获取数字验证码
 func (mng *CaptchaMng) GetNumberCaptcha(identify string) (id, captchaStr string, err error) {
 
@@ -95,21 +103,21 @@ func (mng *CaptchaMng) SetCache(keyName, value string, expire time.Duration) (er
 		mng.MemoryMng.Set(keyName, value, expire)
 	}
 
-	log.Println("keyName",keyName)
-	log.Println("value",value)
+	log.Println("keyName", keyName)
+	log.Println("value", value)
 
 	return err
 }
 
 // GetCache 读取缓存
 func (mng *CaptchaMng) GetCache(keyName string) (string, error) {
-	log.Println("keyName",keyName)
+	log.Println("keyName", keyName)
 	if mng.DataSource == dataSourceStruct.Redis {
 		return mng.RedisMng.GetString(keyName)
 	} else if mng.DataSource == dataSourceStruct.Memory {
 		value, exist := mng.MemoryMng.GetString(keyName)
 		if exist == false {
-			return "",errors.New("指定的keyName不存在")
+			return "", errors.New("指定的keyName不存在")
 		}
 		return value, nil
 	}
