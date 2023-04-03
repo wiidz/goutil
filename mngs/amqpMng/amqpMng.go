@@ -135,18 +135,16 @@ func (mng *RabbitMQ) SetExchange() (err error) {
 	return
 }
 
-// BindQueue 申明并绑定队列到当前channel和exchange上 ttl 是毫秒,-1表示不设置
-func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
+// DeclareQueue 声明队列（可以简单理解为预创建一个队列，确定他在不在，能不能投递进去）
+// 生产者需要先声明，不需要绑定
+func (mng *RabbitMQ) DeclareQueue() (queue *amqp.Queue, err error) {
 
-	//【3】申明队列
 	var args = mng.Config.QueueDeclareArgs
 	if mng.Config.QueueTTL != -1 {
 		args["x-message-ttl"] = mng.Config.QueueTTL
 	}
 
-	log.Printf("mng.Channel", mng.Channel)
-
-	temp, err := mng.Channel.QueueDeclare(
+	*queue, err = mng.Channel.QueueDeclare(
 		mng.Config.QueueName,
 		true,
 		false,
@@ -156,13 +154,13 @@ func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
 
 	if err != nil {
 		err = fmt.Errorf("RabbitMQ channel QueueDeclare: %s", err)
-		return
 	}
+	return
+}
 
-	queue = &temp
+// BindQueue 绑定队列到当前channel和exchange上
+func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
 
-	//【4】队列绑定至交换机
-	// 发布延时任务，注意千万不能绑定队列，不然会直接推到队列里去？
 	err = mng.Channel.QueueBind(
 		mng.Config.QueueName,
 		mng.Config.BindingKey, // Producer
@@ -242,12 +240,8 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 		return
 	}
 
-	//【3】声明并绑定队列
-	if mng.Config.ExchangeType == XDelayedMessage {
-		mng.Queue, err = mng.BindDelayQueue()
-	} else {
-		mng.Queue, err = mng.BindQueue()
-	}
+	//【3】声明队列
+	_, err = mng.DeclareQueue()
 	if err != nil {
 		return
 	}
@@ -336,7 +330,13 @@ func (mng *RabbitMQ) Consume(consumerTag string, handleFunc func(delivery amqp.D
 		return
 	}
 
-	//【3】声明并绑定队列
+	//【3】声明队列
+	_, err = mng.DeclareQueue()
+	if err != nil {
+		return
+	}
+
+	//【3】绑定队列
 	if mng.Config.ExchangeType == XDelayedMessage {
 		mng.Queue, err = mng.BindDelayQueue()
 	} else {
