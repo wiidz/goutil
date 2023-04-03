@@ -15,12 +15,12 @@ type Consumer struct {
 }
 
 // NewConsumer 获取消费者
-func NewConsumer(exchangeName string, exchangeType ExchangeType, isDelay bool) (consumer *Consumer, err error) {
+func NewConsumer(exchangeName string, exchangeType ExchangeType, isDelay, isDurable bool) (consumer *Consumer, err error) {
 
 	//【1】创建mq
 	var rabbitM *RabbitMQ
 	if isDelay {
-		rabbitM, err = NewRabbitMQDelay(exchangeName, exchangeType)
+		rabbitM, err = NewRabbitMQDelay(exchangeName, exchangeType, isDurable)
 	} else {
 		rabbitM, err = NewRabbitMQ(exchangeName, exchangeType)
 	}

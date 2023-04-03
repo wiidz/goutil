@@ -57,7 +57,7 @@ func NewRabbitMQ(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ,
 	return
 }
 
-func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ, err error) {
+func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType, isDurable bool) (mng *RabbitMQ, err error) {
 	mng = &RabbitMQ{
 		Conn:         conn,
 		ExchangeName: exchangeName,
@@ -69,6 +69,7 @@ func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType) (mng *Rabb
 	}
 
 	err = mng.SetExchange(amqp.Table{
+		"durable":        isDurable,
 		"x-delayed-type": string(Direct),
 	})
 	return
