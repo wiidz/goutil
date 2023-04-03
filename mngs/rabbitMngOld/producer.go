@@ -1,4 +1,4 @@
-package rabbitMng
+package rabbitMngOld
 
 import (
 	"fmt"
@@ -30,24 +30,38 @@ func NewProducer(exchangeName string, exchangeType ExchangeType, isDelay, isDura
 	return
 }
 
+// One would typically keep a channel of publishings, a sequence number, and a
+// set of unacknowledged sequence numbers and loop until the publishing channel
+// is closed.
+func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
+
+	log.Printf("waiting for confirmation of one publishing")
+
+	if confirmed := <-confirms; confirmed.Ack {
+		log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
+	} else {
+		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
+	}
+}
+
 // Publish 发布任务
 func (producer *Producer) Publish(routingKey string, body string, expiration int, reliable bool) (err error) {
+
+	var ch *amqp.Channel
+	ch, err = conn.Channel()
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
 		log.Printf("enabling publishing confirms.")
-		if err := producer.Channel.Confirm(false); err != nil {
+		if err := ch.Confirm(false); err != nil {
 			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
 		}
 
-		confirms := producer.Channel.NotifyPublish(make(chan amqp.Confirmation, 1))
+		confirms := ch.NotifyPublish(make(chan amqp.Confirmation, 1))
 		defer producer.confirmOne(confirms)
 	}
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
-
-	var ch *amqp.Channel
-	ch, err = conn.Channel()
 
 	err = ch.Publish(
 		producer.ExchangeName, // publish to an exchange
@@ -71,20 +85,6 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 	}
 
 	return nil
-}
-
-// One would typically keep a channel of publishings, a sequence number, and a
-// set of unacknowledged sequence numbers and loop until the publishing channel
-// is closed.
-func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
-
-	log.Printf("waiting for confirmation of one publishing")
-
-	if confirmed := <-confirms; confirmed.Ack {
-		log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
-	} else {
-		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
-	}
 }
 
 // PublishDelay 发布延时任务,注意千万不能绑定队列，不然会直接推到队列里去

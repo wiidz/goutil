@@ -1,4 +1,4 @@
-package rabbitMng
+package rabbitMngOld
 
 import (
 	"github.com/streadway/amqp"
@@ -47,10 +47,6 @@ func NewRabbitMQ(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ,
 		Conn:         conn,
 		ExchangeName: exchangeName,
 		ExchangeType: exchangeType,
-	}
-	err = mng.SetChannel()
-	if err != nil {
-		return
 	}
 
 	err = mng.SetExchange(nil)

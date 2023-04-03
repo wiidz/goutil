@@ -1,4 +1,4 @@
-package rabbitMng
+package rabbitMngOld
 
 import (
 	"fmt"
