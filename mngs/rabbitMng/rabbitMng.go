@@ -57,6 +57,15 @@ func NewRabbitMQ(exchangeName string, exchangeType ExchangeType) (mng *RabbitMQ,
 	return
 }
 
+// NewRabbitMQDelay
+// RabbitMq对交换器，队列，消息都可以声明持久化属性，交换器和队列持久化属性为durable（其属性值为false代表不持久化，属性值为true代表持久化），
+// 消息持久化属性为deliveryMode（其属性值为1代表不持久化，属性值为2代表持久化）。
+// 在说明durable之前，需要指出的是：
+// 1、RabbitMq实例以broker表示，当broker重启时，所有未申明durable的交换器和队列都会被删除。
+// 2、RabbitMq中消息都被保存在队列中，所以如果队列都删除了，消息不管有没有设置deliveryMode=2都不管用了。
+// 综上所述，可以得出的结论为，交换器未声明durable属性不会影响队列的持久化（但是发送方的producer会被影响，无法正常发送消息）；
+// 只声明队列持久化，重启之后消息会丢失；只声明消息的持久化，重启之后消息随队列一起丢失。单单设置消息持久化而不设置队列的持久化没有任何意义。
+// 设置 durable=false，如果消费者长期未启动的话，发布者启用队列的时候会出错。这时候需要改 durable=true.
 func NewRabbitMQDelay(exchangeName string, exchangeType ExchangeType, isDurable bool) (mng *RabbitMQ, err error) {
 	mng = &RabbitMQ{
 		Conn:         conn,

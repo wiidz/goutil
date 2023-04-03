@@ -52,7 +52,11 @@ func (consumer *Consumer) Start(queueName, consumerTag string, handleFunc func(d
 	consumer.ConsumerTag = consumerTag
 
 	var deliveries <-chan amqp.Delivery
-	deliveries, err = consumer.Channel.Consume(
+
+	var ch *amqp.Channel
+	ch, err = conn.Channel()
+
+	deliveries, err = ch.Consume(
 		queueName,            // name
 		consumer.ConsumerTag, // consumerTag,
 		false,                // noAck

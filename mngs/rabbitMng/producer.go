@@ -31,7 +31,7 @@ func NewProducer(exchangeName string, exchangeType ExchangeType, isDelay, isDura
 }
 
 // Publish 发布任务
-func (producer *Producer) Publish(routingKey string, body, expiration string, reliable bool) error {
+func (producer *Producer) Publish(routingKey string, body string, expiration int, reliable bool) (err error) {
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
@@ -46,7 +46,10 @@ func (producer *Producer) Publish(routingKey string, body, expiration string, re
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
-	if err := producer.Channel.Publish(
+	var ch *amqp.Channel
+	ch, err = conn.Channel()
+
+	if err = ch.Publish(
 		producer.ExchangeName, // publish to an exchange
 		routingKey,            // routing to 0 or more queues
 		false,                 // mandatory
@@ -56,9 +59,9 @@ func (producer *Producer) Publish(routingKey string, body, expiration string, re
 			ContentType:     "text/plain",
 			ContentEncoding: "",
 			Body:            []byte(body),
-			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
-			Priority:        0,               // 0-9
-			Expiration:      expiration,      // 设置2小时7200000  测试五秒
+			DeliveryMode:    amqp.Persistent,    // 1=non-persistent, 2=persistent
+			Priority:        0,                  // 0-9
+			Expiration:      string(expiration), // 设置2小时7200000  测试五秒
 			// a bunch of application/implementation-specific fields
 		},
 	); err != nil {
@@ -84,7 +87,7 @@ func (producer *Producer) confirmOne(confirms <-chan amqp.Confirmation) {
 
 // PublishDelay 发布延时任务,注意千万不能绑定队列，不然会直接推到队列里去
 // 这个插件的作用是发挥在exchange上的，到时间了，分发到队列里去
-func (producer *Producer) PublishDelay(routingKey, body string, expiration int64, reliable bool) error {
+func (producer *Producer) PublishDelay(routingKey, body string, expiration int64, reliable bool) (err error) {
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
@@ -99,7 +102,10 @@ func (producer *Producer) PublishDelay(routingKey, body string, expiration int64
 		defer producer.confirmOne(confirms)
 	}
 
-	err := producer.Channel.Publish(
+	var ch *amqp.Channel
+	ch, err = conn.Channel()
+
+	err = ch.Publish(
 		producer.ExchangeName,
 		routingKey, // routing to 0 or more queues
 		false,      // mandatory
