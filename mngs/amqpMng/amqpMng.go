@@ -104,6 +104,9 @@ func (mng *RabbitMQ) SetExchange() (err error) {
 
 	args := mng.Config.ExchangeDeclareArgs
 	if mng.Config.ExchangeType == XDelayedMessage {
+		if args == nil {
+			args = amqp.Table{}
+		}
 		args["durable"] = mng.Config.IsDurable
 		args["x-delayed-type"] = string(Direct)
 	}
