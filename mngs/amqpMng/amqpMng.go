@@ -20,9 +20,9 @@ var conn *amqp.Connection // 连接
 type RabbitMQ struct {
 	Config *Config
 
-	//Conn         *amqp.Connection // 连接，是指物理的连接，一个client与一个server之间有一个连接；
-	Channel *amqp.Channel // 频道，一个连接上可以建立多个channel，可以理解为逻辑上的连接。一般应用的情况下
-	Queue   *amqp.Queue   // 队列，仅是针对接收方（consumer）的，由接收方根据需求创建的。只有队列创建了，交换机才会将新接受到的消息送到队列中，交换机是不会在队列创建之前的消息放进来的。 即在建立队列之前，发出的所有消息都被丢弃了。
+	Conn    *amqp.Connection // 连接，是指物理的连接，一个client与一个server之间有一个连接；
+	Channel *amqp.Channel    // 频道，一个连接上可以建立多个channel，可以理解为逻辑上的连接。一般应用的情况下
+	Queue   *amqp.Queue      // 队列，仅是针对接收方（consumer）的，由接收方根据需求创建的。只有队列创建了，交换机才会将新接受到的消息送到队列中，交换机是不会在队列创建之前的消息放进来的。 即在建立队列之前，发出的所有消息都被丢弃了。
 }
 
 type ExchangeType string
@@ -74,6 +74,7 @@ func NewRabbitMQ(config *Config) (mng *RabbitMQ, err error) {
 
 	//【1】构建管理器
 	mng = &RabbitMQ{
+		Conn:   conn,
 		Config: config,
 	}
 
@@ -105,11 +106,14 @@ func NewRabbitMQ(config *Config) (mng *RabbitMQ, err error) {
 // SetChannel 获取信道
 func (mng *RabbitMQ) SetChannel() (err error) {
 
-	mng.Channel, err = conn.Channel()
+	var channel *amqp.Channel
+	channel, err = mng.Conn.Channel()
 
 	if err != nil {
 		err = fmt.Errorf("RabbitMQ SetChannel: %s", err)
 	}
+
+	mng.Channel = channel
 
 	return
 }
@@ -221,6 +225,8 @@ func (mng *RabbitMQ) BindDelayQueue() (queue *amqp.Queue, err error) {
 
 // Publish 推入task
 func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err error) {
+
+	log.Printf("mng.Channel", mng.Channel)
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
