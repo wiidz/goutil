@@ -130,14 +130,29 @@ func (mng *RabbitMQ) SetExchange() (err error) {
 // 生产者需要先声明，不需要绑定
 func (mng *RabbitMQ) DeclareQueue() (queue *amqp.Queue, err error) {
 
+	//【1】初始化参数
 	var args = mng.Config.QueueDeclareArgs
+	if args == nil {
+		args = amqp.Table{}
+	}
+
+	//【2】设置ttl
 	if mng.Config.QueueTTL != -1 {
 		args["x-message-ttl"] = mng.Config.QueueTTL
 	}
 
+	//【3】设置其他的（主要是delay）
+	if mng.Config.ExchangeType == XDelayedMessage {
+		if mng.Config.TargetExchangeName == "" || mng.Config.TargetRoutingKey == "" {
+			err = errors.New("绑定队列失败，参数不齐全")
+		}
+		args["x-dead-letter-exchange"] = mng.Config.TargetExchangeName  // 将过期消息发送到执行的exchange中
+		args["x-dead-letter-routing-key"] = mng.Config.TargetRoutingKey // 将过期消息发送到指定的路由中
+	}
+
 	temp, err := mng.Channel.QueueDeclare(
 		mng.Config.QueueName,
-		true,
+		mng.Config.IsDurable,
 		false,
 		false,
 		true,
@@ -152,7 +167,7 @@ func (mng *RabbitMQ) DeclareQueue() (queue *amqp.Queue, err error) {
 }
 
 // BindQueue 绑定队列到当前channel和exchange上
-func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
+func (mng *RabbitMQ) BindQueue() (err error) {
 
 	err = mng.Channel.QueueBind(
 		mng.Config.QueueName,
@@ -160,52 +175,6 @@ func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
 		mng.Config.ExchangeName,
 		true,
 		mng.Config.QueueBindArgs)
-
-	if err != nil {
-		err = fmt.Errorf("RabbitMQ channel QueueBind: %s", err)
-	}
-
-	return
-}
-
-// BindDelayQueue 申明并绑定延迟队列到当前的channel信道的exchange上
-func (mng *RabbitMQ) BindDelayQueue() (queue *amqp.Queue, err error) {
-
-	//【1】验一下参数
-	if mng.Config.TargetExchangeName == "" || mng.Config.TargetRoutingKey == "" {
-		err = errors.New("绑定队列失败，参数不齐全")
-	}
-
-	var args = amqp.Table{
-		"x-dead-letter-exchange":    mng.Config.TargetExchangeName, // 将过期消息发送到执行的exchange中
-		"x-dead-letter-routing-key": mng.Config.TargetRoutingKey,   // 将过期消息发送到指定的路由中
-	}
-	if mng.Config.QueueTTL != -1 {
-		args["x-message-ttl"] = mng.Config.QueueTTL
-	}
-
-	//【1】申明延迟队列
-	*queue, err = mng.Channel.QueueDeclare(
-		mng.Config.QueueName, // name
-		mng.Config.IsDurable, // durable
-		false,                // delete when unused
-		false,                // exclusive
-		false,                // no-wait
-		args,                 // arguments
-	)
-
-	if err != nil {
-		err = fmt.Errorf("RabbitMQ channel QueueDeclare: %s", err)
-		return
-	}
-
-	//【2】常规队列绑定至交换机
-	err = mng.Channel.QueueBind(
-		queue.Name,
-		mng.Config.BindingKey,
-		mng.Config.ExchangeName,
-		false,
-		nil)
 
 	if err != nil {
 		err = fmt.Errorf("RabbitMQ channel QueueBind: %s", err)
@@ -240,7 +209,6 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 	}
 
 	//【4】推入
-
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
 		log.Printf("enabling publishing confirms.")
@@ -255,7 +223,7 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 
 	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
-	//【2】区分一下
+	//【5】区分一下
 	var publishing amqp.Publishing
 	exprStr := strconv.Itoa(expiration)
 	if mng.Config.ExchangeType == XDelayedMessage {
@@ -330,12 +298,9 @@ func (mng *RabbitMQ) Consume(consumerTag string, handleFunc func(delivery amqp.D
 		return
 	}
 
-	//【3】绑定队列
-	if mng.Config.ExchangeType == XDelayedMessage {
-		mng.Queue, err = mng.BindDelayQueue()
-	} else {
-		mng.Queue, err = mng.BindQueue()
-	}
+	//【4】绑定队列
+	err = mng.BindQueue()
+
 	if err != nil {
 		return
 	}
