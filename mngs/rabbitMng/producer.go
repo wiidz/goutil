@@ -37,7 +37,7 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 	if reliable {
 		log.Printf("enabling publishing confirms.")
 		if err := producer.Channel.Confirm(false); err != nil {
-			return fmt.Errorf("Channel could not be put into confirm mode: %s", err)
+			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
 		}
 
 		confirms := producer.Channel.NotifyPublish(make(chan amqp.Confirmation, 1))
@@ -49,7 +49,7 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 	var ch *amqp.Channel
 	ch, err = conn.Channel()
 
-	if err = ch.Publish(
+	err = ch.Publish(
 		producer.ExchangeName, // publish to an exchange
 		routingKey,            // routing to 0 or more queues
 		false,                 // mandatory
@@ -64,8 +64,10 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 			Expiration:      string(expiration), // 设置2小时7200000  测试五秒
 			// a bunch of application/implementation-specific fields
 		},
-	); err != nil {
-		return fmt.Errorf("Exchange Publish: %s", err)
+	)
+
+	if err != nil {
+		return fmt.Errorf("exchange Publish: %s", err)
 	}
 
 	return nil
@@ -95,7 +97,7 @@ func (producer *Producer) PublishDelay(routingKey, body string, expiration int64
 	if reliable {
 		log.Printf("enabling publishing confirms.")
 		if err := producer.Channel.Confirm(false); err != nil {
-			return fmt.Errorf("Channel could not be put into confirm mode: %s", err)
+			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
 		}
 
 		confirms := producer.Channel.NotifyPublish(make(chan amqp.Confirmation, 1))
@@ -120,7 +122,7 @@ func (producer *Producer) PublishDelay(routingKey, body string, expiration int64
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("Exchange Publish: %s", err)
+		return fmt.Errorf("exchange Publish: %s", err)
 	}
 
 	return nil
