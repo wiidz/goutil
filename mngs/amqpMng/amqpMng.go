@@ -6,6 +6,7 @@ import (
 	"github.com/streadway/amqp"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
+	"strconv"
 )
 
 var conn *amqp.Connection // 连接
@@ -60,7 +61,7 @@ type Config struct {
 
 	// 我们默认这俩一样所以在设置的时候也搞一样就好了
 	BindingKey string // 绑定（Binding）Exchange与Queue的同时，一般会指定一个binding key ; binding key 并不是在所有情况下都生效，它依赖于Exchange Type，比如fanout类型的Exchange就会无视binding key，而是将消息路由到所有绑定到该Exchange的Queue
-	RoutingKey string // 消费者将消息发送给Exchange时，一般会指定一个routing key，当binding key与routing key相匹配时，消息将会被路由到对应的Queue中
+	RoutingKey string // 生产者将消息发送给Exchange时，一般会指定一个routing key，当binding key与routing key相匹配时，消息将会被路由到对应的Queue中
 
 	// 只有delay类型有这两个值
 	TargetExchangeName string // 在delayExchange中过期后，到哪个exchange去
@@ -77,28 +78,6 @@ func NewRabbitMQ(config *Config) (mng *RabbitMQ, err error) {
 		Conn:   conn,
 		Config: config,
 	}
-
-	////【2】打开信道
-	//err = mng.SetChannel()
-	//if err != nil {
-	//	return
-	//}
-	//
-	////【3】声明交换机
-	//err = mng.SetExchange()
-	//if err != nil {
-	//	return
-	//}
-	//
-	////【4】声明并绑定队列
-	//if config.ExchangeType == XDelayedMessage {
-	//	mng.Queue, err = mng.BindDelayQueue()
-	//} else {
-	//	mng.Queue, err = mng.BindQueue()
-	//}
-	//if err != nil {
-	//	return
-	//}
 
 	return
 }
@@ -266,10 +245,11 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 
 	//【2】区分一下
 	var publishing amqp.Publishing
+	exprStr := strconv.Itoa(expiration)
 	if mng.Config.ExchangeType == XDelayedMessage {
 		publishing = amqp.Publishing{
 			Headers: amqp.Table{
-				"x-delay": expiration,
+				"x-delay": exprStr,
 			},
 			ContentType: "text/plain",
 			Body:        []byte(body),
@@ -281,9 +261,9 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 			ContentType:     "text/plain",
 			ContentEncoding: "",
 			Body:            []byte(body),
-			DeliveryMode:    amqp.Persistent,    // 1=non-persistent, 2=persistent
-			Priority:        0,                  // 0-9
-			Expiration:      string(expiration), // 设置2小时7200000  测试五秒
+			DeliveryMode:    amqp.Persistent, // 1=non-persistent, 2=persistent
+			Priority:        0,               // 0-9
+			Expiration:      exprStr,         // 设置2小时7200000  测试五秒
 		}
 	}
 
