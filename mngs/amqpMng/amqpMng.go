@@ -144,7 +144,7 @@ func (mng *RabbitMQ) DeclareQueue() (queue *amqp.Queue, err error) {
 		args["x-message-ttl"] = mng.Config.QueueTTL
 	}
 
-	*queue, err = mng.Channel.QueueDeclare(
+	temp, err := mng.Channel.QueueDeclare(
 		mng.Config.QueueName,
 		true,
 		false,
@@ -155,6 +155,8 @@ func (mng *RabbitMQ) DeclareQueue() (queue *amqp.Queue, err error) {
 	if err != nil {
 		err = fmt.Errorf("RabbitMQ channel QueueDeclare: %s", err)
 	}
+	queue = &temp
+
 	return
 }
 
