@@ -104,6 +104,7 @@ func NewRabbitMQ(config *Config) (mng *RabbitMQ, err error) {
 
 // SetChannel 获取信道
 func (mng *RabbitMQ) SetChannel() (err error) {
+
 	mng.Channel, err = conn.Channel()
 
 	if err != nil {
@@ -139,7 +140,9 @@ func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
 		args["x-message-ttl"] = mng.Config.QueueTTL
 	}
 
-	*queue, err = mng.Channel.QueueDeclare(
+	log.Printf("mng.Channel", mng.Channel)
+
+	temp, err := mng.Channel.QueueDeclare(
 		mng.Config.QueueName,
 		true,
 		false,
@@ -151,6 +154,8 @@ func (mng *RabbitMQ) BindQueue() (queue *amqp.Queue, err error) {
 		err = fmt.Errorf("RabbitMQ channel QueueDeclare: %s", err)
 		return
 	}
+
+	queue = &temp
 
 	//【4】队列绑定至交换机
 	// 发布延时任务，注意千万不能绑定队列，不然会直接推到队列里去？
