@@ -2,10 +2,10 @@ package appMng
 
 import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/memoryMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
-	"github.com/wiidz/goutil/mngs/rabbitMngOld"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
@@ -81,7 +81,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 
 	//【5】初始化mq
 	if checkStart.RabbitMQ {
-		err = rabbitMngOld.Init(mng.BaseConfig.RabbitMQConfig)
+		err = amqpMng.Init(mng.BaseConfig.RabbitMQConfig)
 		if err != nil {
 			return
 		}
