@@ -50,6 +50,8 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 
 // Config 启动的参数
 type Config struct {
+	IsDurable bool // 是否是持久化
+
 	ExchangeName        string       // 交换机名称
 	ExchangeType        ExchangeType // 交换机类型
 	ExchangeDeclareArgs amqp.Table   // 交换机补充数据
@@ -99,14 +101,21 @@ func (mng *RabbitMQ) SetChannel() (err error) {
 
 // SetExchange 申明交换机
 func (mng *RabbitMQ) SetExchange() (err error) {
+
+	args := mng.Config.ExchangeDeclareArgs
+	if mng.Config.ExchangeType == XDelayedMessage {
+		args["durable"] = mng.Config.IsDurable
+		args["x-delayed-type"] = string(Direct)
+	}
+
 	err = mng.Channel.ExchangeDeclare(
 		mng.Config.ExchangeName,         // name of the exchange
 		string(mng.Config.ExchangeType), // type
-		true,                            // durable 持久化
+		mng.Config.IsDurable,            // durable 持久化
 		false,                           // delete when complete 完成后是否删除
 		false,                           // internal
 		false,                           // noWait
-		mng.Config.ExchangeDeclareArgs,  // arguments
+		args,                            // arguments
 	)
 	if err != nil {
 		err = fmt.Errorf("RabbitMQ channel SetExchange: %s", err)
@@ -175,7 +184,7 @@ func (mng *RabbitMQ) BindDelayQueue() (queue *amqp.Queue, err error) {
 	//【1】申明延迟队列
 	*queue, err = mng.Channel.QueueDeclare(
 		mng.Config.QueueName, // name
-		true,                 // durable
+		mng.Config.IsDurable, // durable
 		false,                // delete when unused
 		false,                // exclusive
 		false,                // no-wait
