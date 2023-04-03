@@ -78,27 +78,27 @@ func NewRabbitMQ(config *Config) (mng *RabbitMQ, err error) {
 		Config: config,
 	}
 
-	//【2】打开信道
-	err = mng.SetChannel()
-	if err != nil {
-		return
-	}
-
-	//【3】声明交换机
-	err = mng.SetExchange()
-	if err != nil {
-		return
-	}
-
-	//【4】声明并绑定队列
-	if config.ExchangeType == XDelayedMessage {
-		mng.Queue, err = mng.BindDelayQueue()
-	} else {
-		mng.Queue, err = mng.BindQueue()
-	}
-	if err != nil {
-		return
-	}
+	////【2】打开信道
+	//err = mng.SetChannel()
+	//if err != nil {
+	//	return
+	//}
+	//
+	////【3】声明交换机
+	//err = mng.SetExchange()
+	//if err != nil {
+	//	return
+	//}
+	//
+	////【4】声明并绑定队列
+	//if config.ExchangeType == XDelayedMessage {
+	//	mng.Queue, err = mng.BindDelayQueue()
+	//} else {
+	//	mng.Queue, err = mng.BindQueue()
+	//}
+	//if err != nil {
+	//	return
+	//}
 
 	return
 }
@@ -224,9 +224,35 @@ func (mng *RabbitMQ) BindDelayQueue() (queue *amqp.Queue, err error) {
 }
 
 // Publish 推入task
+// Q：在使用RabbitMQ时，一些常见的操作会产生异常，例如连接错误、频道未打开、交换机/队列不存在等等。在您的情况下，当您重复使用同一 channel 发送消息时，可能会发生频道未打开的异常，这是由于 channel 在某些情况下可能会被关闭，例如由于网络问题或由于其他进程关闭了该 channel。
+// A：因此，建议您在每次发送消息时都创建一个新的 channel，并在完成后关闭该 channel。这样可以确保 channel 的状态是正确的，并且能够避免意外的异常。
+//    当然，您也可以在程序中添加异常处理程序，以处理可能出现的异常情况。例如，如果 channel 关闭，则可以在 catch 语句块中重新打开一个新的 channel。但是，这种方法可能会增加代码复杂性，并且不如直接创建新的 channel 安全可靠。
 func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err error) {
 
-	log.Printf("mng.Channel", mng.Channel)
+	//【1】打开信道
+	err = mng.SetChannel()
+	if err != nil {
+		return
+	}
+	defer mng.Channel.Close()
+
+	//【2】声明交换机
+	err = mng.SetExchange()
+	if err != nil {
+		return
+	}
+
+	//【3】声明并绑定队列
+	if mng.Config.ExchangeType == XDelayedMessage {
+		mng.Queue, err = mng.BindDelayQueue()
+	} else {
+		mng.Queue, err = mng.BindQueue()
+	}
+	if err != nil {
+		return
+	}
+
+	//【4】推入
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
@@ -294,10 +320,33 @@ func (mng *RabbitMQ) confirmOne(confirms <-chan amqp.Confirmation) {
 	}
 }
 
-// Start 开始消费（可以开多个消费者）
-func (mng *RabbitMQ) Start(consumerTag string, handleFunc func(delivery amqp.Delivery) error) (err error) {
+// Consume 开始消费（可以开多个消费者）
+func (mng *RabbitMQ) Consume(consumerTag string, handleFunc func(delivery amqp.Delivery) error) (err error) {
 
-	//【1】开始消费
+	//【1】打开信道
+	err = mng.SetChannel()
+	if err != nil {
+		return
+	}
+	defer mng.Channel.Close()
+
+	//【2】声明交换机
+	err = mng.SetExchange()
+	if err != nil {
+		return
+	}
+
+	//【3】声明并绑定队列
+	if mng.Config.ExchangeType == XDelayedMessage {
+		mng.Queue, err = mng.BindDelayQueue()
+	} else {
+		mng.Queue, err = mng.BindQueue()
+	}
+	if err != nil {
+		return
+	}
+
+	//【4】开始消费
 	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %q)", consumerTag)
 
 	var deliveries <-chan amqp.Delivery
