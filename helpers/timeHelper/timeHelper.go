@@ -92,31 +92,67 @@ func GetISO8601(date int64) string {
 type MyJsonTime time.Time
 
 // ParseFromHyphenDateStr 从DateStr 转成 MyJsonTime "2006-01-02"
-func ParseFromHyphenDateStr(hyphenDateStr string) MyJsonTime {
-	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(HyphenDateStr, hyphenDateStr, local)
-	return MyJsonTime(temp)
+func ParseFromHyphenDateStr(hyphenDateStr string) (newTime MyJsonTime, err error) {
+	local, err := time.LoadLocation("Local")
+	if err != nil {
+		return
+	}
+
+	temp, err := time.ParseInLocation(HyphenDateStr, hyphenDateStr, local)
+	if err != nil {
+		return
+	}
+
+	newTime = MyJsonTime(temp)
+	return
 }
 
 // ParseFromHyphenTimeStr 从DateStr 转成 MyJsonTime "2006-01-02 15:04:05"
-func ParseFromHyphenTimeStr(hyphenTimeStr string) MyJsonTime {
-	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(HyphenTimeStr, hyphenTimeStr, local)
-	return MyJsonTime(temp)
+func ParseFromHyphenTimeStr(hyphenTimeStr string) (newTime MyJsonTime, err error) {
+	local, err := time.LoadLocation("Local")
+	if err != nil {
+		return
+	}
+
+	temp, err := time.ParseInLocation(HyphenTimeStr, hyphenTimeStr, local)
+	if err != nil {
+		return
+	}
+
+	newTime = MyJsonTime(temp)
+	return
 }
 
 // ParseFromSlashDateStr 从DateStr 转成 MyJsonTime "2006/01/02"
-func ParseFromSlashDateStr(slashDateStr string) MyJsonTime {
-	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(SlashDateStr, slashDateStr, local)
-	return MyJsonTime(temp)
+func ParseFromSlashDateStr(slashDateStr string) (newTime MyJsonTime, err error) {
+	local, err := time.LoadLocation("Local")
+	if err != nil {
+		return
+	}
+
+	temp, err := time.ParseInLocation(SlashDateStr, slashDateStr, local)
+	if err != nil {
+		return
+	}
+
+	newTime = MyJsonTime(temp)
+	return
 }
 
 // ParseFromSlashTimeStr 从DateTimeStr 转成 MyJsonTime "2006/01/02 15:04:05"
-func ParseFromSlashTimeStr(slashTimeStr string) MyJsonTime {
-	local, _ := time.LoadLocation("Local")
-	temp, _ := time.ParseInLocation(SlashTimeStr, slashTimeStr, local)
-	return MyJsonTime(temp)
+func ParseFromSlashTimeStr(slashTimeStr string) (newTime MyJsonTime, err error) {
+	local, err := time.LoadLocation("Local")
+	if err != nil {
+		return
+	}
+	temp, err := time.ParseInLocation(SlashTimeStr, slashTimeStr, local)
+	if err != nil {
+		return
+	}
+
+	newTime = MyJsonTime(temp)
+	return
+
 }
 
 // ParseFromHyphenDateStrWithLocation 从DateStr 转成 MyJsonTime "2006-01-02"
