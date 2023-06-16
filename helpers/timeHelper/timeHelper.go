@@ -13,6 +13,7 @@ const (
 	SlashDateStr   = "2006/01/02"
 	ISO8601TimeStr = "2006-01-02T15:04:05Z"
 	PureNumber     = "20060102150405"
+	PureNumberDate = "20060102"
 )
 
 var weekdayCn = [][]string{
@@ -99,6 +100,22 @@ func ParseFromHyphenDateStr(hyphenDateStr string) (newTime MyJsonTime, err error
 	}
 
 	temp, err := time.ParseInLocation(HyphenDateStr, hyphenDateStr, local)
+	if err != nil {
+		return
+	}
+
+	newTime = MyJsonTime(temp)
+	return
+}
+
+// ParseFromPrueNumberDateTimeStr 从DateStr 转成 MyJsonTime "20060102"
+func ParseFromPrueNumberDateTimeStr(timeStr string) (newTime MyJsonTime, err error) {
+	local, err := time.LoadLocation("Local")
+	if err != nil {
+		return
+	}
+
+	temp, err := time.ParseInLocation(PureNumberDate, timeStr, local)
 	if err != nil {
 		return
 	}
