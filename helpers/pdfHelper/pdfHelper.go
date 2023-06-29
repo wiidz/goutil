@@ -28,7 +28,7 @@ const (
 	HalfPortraitValidWidth = 95.0
 
 	SignSpaceRowAmount      = 4    // 签字区域的空白行数
-	SignerInfoRowAmount     = 7    // 签名人员信息高度（公司7 个人4）
+	SignerInfoRowAmount     = 8    // 签名人员信息高度（公司8 个人4）
 	BlankRowHeight          = 8    // 签字区域单行高度
 	SignFormPartyLineHeight = 10.0 // 签字区域 甲方乙方的行高
 )
@@ -391,6 +391,7 @@ func getPartyInfo(party SignerInterface) (fillData [SignerInfoRowAmount]string) 
 			"税        号：" + temp.OgLicenseNo,
 			"单位地址：" + temp.OgAddress,
 			"开户银行：" + ogBankName,
+			"银行账号：" + temp.OgBankAccount,
 			"法定代表：" + temp.LawPersonName,
 			"电        话：" + temp.OgTel,
 			"传        真：" + temp.OgFax,
@@ -403,6 +404,7 @@ func getPartyInfo(party SignerInterface) (fillData [SignerInfoRowAmount]string) 
 			"身份证号：" + temp.IDCardNo,
 			"手        机：" + temp.Phone,
 			"住        所：" + temp.Address,
+			"",
 			"",
 			"",
 			"",
