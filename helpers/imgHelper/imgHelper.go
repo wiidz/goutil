@@ -158,9 +158,10 @@ func DownloadNetworkImg(bgImgURL string) (bgImgFilePath string, err error) {
 }
 
 // DownloadNetworkFileToDir 根据网络图片地址，转化为本地文件及路径
+// localDirPath 例子 /tmp/
 func DownloadNetworkFileToDir(bgImgURL string, localDirPath string) (bgImgFilePath string, err error) {
 	//【1】下载文件到本地
-	bgImgFilePath = localDirPath + "/temp/" + strHelper.GetRandomString(8)
+	bgImgFilePath = localDirPath + strHelper.GetRandomString(8)
 
 	err = osHelper.DownloadFile(bgImgURL, bgImgFilePath, nil) // 注意这里是没有后缀名的
 	return
