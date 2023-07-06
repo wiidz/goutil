@@ -17,6 +17,8 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/gen2brain/go-fitz v1.20.0
 	github.com/go-pay/gopay v1.5.81
+	github.com/go-playground/locales v0.14.1
+	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.11.2
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
@@ -62,8 +64,6 @@ require (
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.7-0.20220412154129-171d97575378 // indirect

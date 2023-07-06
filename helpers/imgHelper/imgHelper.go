@@ -157,6 +157,15 @@ func DownloadNetworkImg(bgImgURL string) (bgImgFilePath string, err error) {
 	return
 }
 
+// DownloadNetworkImgToDir 根据网络图片地址，转化为本地文件及路径
+func DownloadNetworkImgToDir(bgImgURL string, localDirPath string) (bgImgFilePath string, err error) {
+	//【1】下载文件到本地
+	bgImgFilePath = localDirPath + "/temp/" + strHelper.GetRandomString(8)
+
+	err = osHelper.DownloadFile(bgImgURL, bgImgFilePath, nil) // 注意这里是没有后缀名的
+	return
+}
+
 // GetSizeFromStr 从字符串中转换成size
 // 200,400 这种格式
 func GetSizeFromStr(str string) (size *Size) {
