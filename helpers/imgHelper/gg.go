@@ -40,17 +40,12 @@ func CropCircleCenter(target image.Image) image.Image {
 	dc = gg.NewContext(size, size)
 
 	// 绘制圆形路径
-	radius := float64(0)
-	if width > height {
-		radius = height / 2
-	} else {
-		radius = width / 2
-	}
+	radius := float64(size) / 2
 	dc.DrawCircle(width/2, height/2, radius)
 	dc.Clip()
 
 	// 填充背景色
-	dc.SetRGB(1, 1, 1)
+	//dc.SetRGB(1, 1, 1)
 	dc.Clear()
 
 	// 绘制裁剪后的圆形图片
