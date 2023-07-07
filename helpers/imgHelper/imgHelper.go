@@ -88,13 +88,14 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 			return
 		}
 
-		//【2-3】判断是否需要缩放
-		if size != nil {
-			temp = imaging.Resize(temp, int(size.Width), int(size.Height), imaging.Lanczos)
+		//【2-3】判断是否需要裁剪
+		if cropCircle {
+			temp = CropCircleCenter(temp)
 		}
 
-		if cropCircle {
-			context = CropCircleCenter(temp)
+		//【2-4】判断是否需要缩放
+		if size != nil {
+			temp = imaging.Resize(temp, int(size.Width), int(size.Height), imaging.Lanczos)
 		}
 
 		//【2-4】插入图片

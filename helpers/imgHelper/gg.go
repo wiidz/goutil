@@ -21,7 +21,7 @@ func OpenImageFileContext(localUri string) (*gg.Context, error) {
 }
 
 // CropCircleCenter 将图片从中心裁切成最大圆
-func CropCircleCenter(target image.Image) *gg.Context {
+func CropCircleCenter(target image.Image) image.Image {
 
 	dc := gg.NewContextForImage(target)
 
@@ -52,7 +52,7 @@ func CropCircleCenter(target image.Image) *gg.Context {
 
 	// 绘制裁剪后的圆形图片
 	dc.DrawImage(target, 0, 0)
-	return dc
+	return dc.Image()
 }
 
 // CropCornerRadius 裁圆角
