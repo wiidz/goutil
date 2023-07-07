@@ -94,7 +94,7 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 		}
 
 		if cropCircle {
-			context = CropCircleCenter(bgImg)
+			context = CropCircleCenter(temp)
 		}
 
 		//【2-4】插入图片
