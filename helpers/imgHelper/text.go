@@ -72,7 +72,7 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 
 	// 获取文本宽度
 	face := truetype.NewFace(fontStyle.Family, &truetype.Options{
-		Size:    fontStyle.Size,
+		Size:    fontStyle.Size * 64,
 		DPI:     fontStyle.DPI,
 		Hinting: font.HintingFull,
 	})
@@ -91,7 +91,7 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 		textX = fixed.I(pt.X) // 默认居左
 	}
 
-	newPt := freetype.Pt(int(textX), pt.Y)
+	newPt := freetype.Pt(int(textX/64), pt.Y)
 	log.Println("textWidth", textWidth)
 	log.Println("content", content)
 	log.Println("int(textX)", int(textX))
