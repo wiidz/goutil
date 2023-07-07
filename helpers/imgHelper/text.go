@@ -10,6 +10,7 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -80,6 +81,9 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 	}
 
 	newPt := freetype.Pt(int(textX), pt.Y)
+	log.Println("content", content)
+	log.Println("int(textX)", int(textX))
+	log.Println("pt.Y", pt.Y)
 	_, err = c.DrawString(content, newPt)
 	//c.DrawString(content, freetype.Pt(pt.X, pt.Y))
 	return
