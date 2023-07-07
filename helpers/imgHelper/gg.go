@@ -3,6 +3,7 @@ package imgHelper
 import (
 	"github.com/fogleman/gg"
 	"image"
+	"log"
 )
 
 func OpenImageFile(localUri string) (image.Image, error) {
@@ -34,6 +35,8 @@ func CropCircleCenter(target image.Image) image.Image {
 	if width > height {
 		size = int(height)
 	}
+	log.Println("width", width)
+	log.Println("height", height)
 	dc = gg.NewContext(size, size)
 
 	// 绘制圆形路径
