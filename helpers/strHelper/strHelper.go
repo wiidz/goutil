@@ -206,13 +206,18 @@ func EncryptStr(source string, prefixAmount, suffixAmount int, symbol string) st
 }
 
 // LimitLength 限制字符长度
-func LimitLength(str string, length int) string {
+func LimitLength(str string, maxLength int) string {
 
-	totalLen := utf8.RuneCountInString(str)
+	runeStr := []rune(str)
+	runeLen := len(runeStr)
 
-	if totalLen < length || length < 3 {
+	if runeLen <= maxLength {
 		return str
 	}
-	
-	return str[0:length-3] + "..."
+
+	if maxLength <= 3 {
+		return "..."
+	}
+
+	return string(runeStr[:maxLength-1]) + "..."
 }
