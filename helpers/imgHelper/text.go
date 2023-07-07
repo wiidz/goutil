@@ -4,6 +4,7 @@ import (
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/draw"
@@ -13,69 +14,75 @@ import (
 )
 
 //字体相关
-type TextBrush struct {
-	FontType  *truetype.Font
-	FontSize  float64
-	FontColor *image.Uniform
-	TextWidth int
-}
+//type TextBrush struct {
+//	FontType  *truetype.Font
+//	FontSize  float64
+//	FontColor *image.Uniform
+//	TextWidth int
+//}
 
-func NewTextBrush(FontFilePath string, FontSize float64, FontColor *image.Uniform, textWidth int) (*TextBrush, error) {
-	fontFile, err := ioutil.ReadFile(FontFilePath)
-	if err != nil {
-		return nil, err
-	}
-	fontType, err := truetype.Parse(fontFile)
-	if err != nil {
-		return nil, err
-	}
-	if textWidth <= 0 {
-		textWidth = 20
-	}
-	return &TextBrush{FontType: fontType, FontSize: FontSize, FontColor: FontColor, TextWidth: textWidth}, nil
-}
+type HorizonAlign int8
 
-// DrawFontOnRGBA 图片插入文字
-func (fb *TextBrush) DrawFontOnRGBA(rgba *image.RGBA, pt image.Point, content string) {
-	c := freetype.NewContext()
-	c.SetDPI(72)
-	c.SetFont(fb.FontType)
-	c.SetHinting(font.HintingFull)
-	c.SetFontSize(fb.FontSize)
-	c.SetClip(rgba.Bounds())
-	c.SetDst(rgba)
-	c.SetSrc(fb.FontColor)
-	c.DrawString(content, freetype.Pt(pt.X, pt.Y))
-
-}
+const Left HorizonAlign = 1
+const Center HorizonAlign = 2
+const Right HorizonAlign = 3
 
 type FontStyle struct {
+	DPI         float64
+	Family      *truetype.Font
 	Color       color.RGBA
 	Width       int
 	Size        float64
-	SpaceAmount int // 前面空几格
+	SpaceAmount int          // 前面空几格
+	Align       HorizonAlign // 水平对齐方式
 }
 
-// DrawFontOnRGBAWithStyle 图片插入文字
-func (fb *TextBrush) DrawFontOnRGBAWithStyle(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) {
+// GetFontType 根据文件地址构建字库
+func GetFontType(fontFilePath string) (fontType *truetype.Font, err error) {
+	fontFile, err := ioutil.ReadFile(fontFilePath)
+	if err != nil {
+		return nil, err
+	}
+	fontType, err = truetype.Parse(fontFile)
+	return
+}
 
-	fb.FontColor = image.NewUniform(fontStyle.Color)
-	fb.FontSize = fontStyle.Size
-	fb.TextWidth = fontStyle.Width
+// DrawFontToImage 图片插入文字
+func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) (err error) {
+	c := freetype.NewContext()
+
 	for k := 0; k < fontStyle.SpaceAmount; k++ {
 		content = "　" + content // 全角空格
 	}
 
-	c := freetype.NewContext()
-	c.SetDPI(72)
-	c.SetFont(fb.FontType)
+	// 创建绘图上下文
+	c.SetDPI(fontStyle.DPI)
+	c.SetFont(fontStyle.Family)
 	c.SetHinting(font.HintingFull)
-	c.SetFontSize(fb.FontSize)
+	c.SetFontSize(fontStyle.Size)
 	c.SetClip(rgba.Bounds())
+	c.SetSrc(image.NewUniform(fontStyle.Color))
 	c.SetDst(rgba)
-	c.SetSrc(fb.FontColor)
-	c.DrawString(content, freetype.Pt(pt.X, pt.Y))
 
+	// 获取文本宽度
+	textWidth := c.PointToFixed(fontStyle.Size) * fixed.I(len(content))
+	// 计算对齐位置
+	var textX fixed.Int26_6
+	switch fontStyle.Align {
+	case Left:
+		textX = fixed.I(pt.X)
+	case Center:
+		textX = fixed.I(pt.X) - textWidth/2
+	case Right:
+		textX = fixed.I(pt.X) - textWidth
+	default:
+		textX = fixed.I(pt.X) // 默认居左
+	}
+
+	newPt := freetype.Pt(int(textX), pt.Y)
+	_, err = c.DrawString(content, newPt)
+	//c.DrawString(content, freetype.Pt(pt.X, pt.Y))
+	return
 }
 
 // Image2RGBA 图片转换成image.RGBA
