@@ -19,10 +19,6 @@ import (
 	"reflect"
 )
 
-func OpenImageFile(localUri string) (image.Image, error) {
-	return gg.LoadImage(localUri)
-}
-
 // Buff2Image 字节转图片
 func Buff2Image(bytes []byte, filePath string) (err error) {
 	err = ioutil.WriteFile(filePath, bytes, 0666)
@@ -83,6 +79,7 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 		var size = coverImgSlice[k].GetSize()
 		var position = coverImgSlice[k].GetPosition()
 		var localFilePath = coverImgSlice[k].GetLocalFilePath()
+		var cropCircle = coverImgSlice[k].GetCropCircle()
 
 		//【2-2】打开cover图片
 		var temp image.Image
@@ -94,6 +91,10 @@ func MergeLocalImg(bgImgFilePath string, newFilePath string, coverImgSlice ...Co
 		//【2-3】判断是否需要缩放
 		if size != nil {
 			temp = imaging.Resize(temp, int(size.Width), int(size.Height), imaging.Lanczos)
+		}
+
+		if cropCircle {
+			context = CropCircleCenter(bgImg)
 		}
 
 		//【2-4】插入图片
