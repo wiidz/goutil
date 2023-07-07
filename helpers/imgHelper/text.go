@@ -67,6 +67,7 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 
 	// 获取文本宽度
 	textWidth := c.PointToFixed(fontStyle.Size) * fixed.I(len(content))
+
 	// 计算对齐位置
 	var textX fixed.Int26_6
 	switch fontStyle.Align {
@@ -81,6 +82,7 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 	}
 
 	newPt := freetype.Pt(int(textX), pt.Y)
+	log.Println("textWidth", textWidth)
 	log.Println("content", content)
 	log.Println("int(textX)", int(textX))
 	log.Println("pt.Y", pt.Y)
