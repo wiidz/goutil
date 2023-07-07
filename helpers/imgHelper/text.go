@@ -91,11 +91,11 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 		textX = fixed.I(pt.X) // 默认居左
 	}
 
-	newPt := freetype.Pt(int(textX), pt.Y)
+	newPt := freetype.Pt(textX.Ceil(), pt.Y)
 	log.Println("fixed.I(pt.X)", fixed.I(pt.X))
 	log.Println("textWidth", textWidth)
 	log.Println("content", content)
-	log.Println("int(textX)", int(textX))
+	log.Println("int(textX)", textX.Ceil())
 	log.Println("pt.Y", pt.Y)
 	_, err = c.DrawString(content, newPt)
 	//c.DrawString(content, freetype.Pt(pt.X, pt.Y))
