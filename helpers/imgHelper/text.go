@@ -48,14 +48,10 @@ func GetFontType(fontFilePath string) (fontType *truetype.Font, err error) {
 	return
 }
 
-func CalculateTextWidth(fnt font.Face, fontSize fixed.Int26_6, text string) fixed.Int26_6 {
-	advance := fixed.Int26_6(0)
-	for _, r := range text {
-		a, _ := fnt.GlyphAdvance(r)
-		advance += a
-	}
-	return advance * fontSize
-}
+//func CalculateTextWidth(fnt font.Face, text string) fixed.Int26_6 {
+//	bounds := font.MeasureString(fnt, text)
+//	return bounds.Ceil()
+//}
 
 // DrawFontToImage 图片插入文字
 func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle FontStyle) (err error) {
@@ -75,11 +71,12 @@ func DrawFontToImage(rgba *image.RGBA, pt image.Point, content string, fontStyle
 	c.SetDst(rgba)
 
 	// 获取文本宽度
-	textWidth := CalculateTextWidth(truetype.NewFace(fontStyle.Family, &truetype.Options{
+	face := truetype.NewFace(fontStyle.Family, &truetype.Options{
 		Size:    fontStyle.Size,
 		DPI:     fontStyle.DPI,
 		Hinting: font.HintingFull,
-	}), fixed.Int26_6(fontStyle.Size*64), content)
+	})
+	textWidth := font.MeasureString(face, content)
 
 	// 计算对齐位置
 	var textX fixed.Int26_6
