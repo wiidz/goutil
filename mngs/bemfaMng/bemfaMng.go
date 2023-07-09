@@ -56,7 +56,7 @@ func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 		sendMap["wemsg"] = weMsg
 	}
 
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, sendMap, map[string]string{}, &ReturnBase{})
+	res, _, _, err := networkHelper.RequestJsonWithStructTest(networkStruct.Post, url, sendMap, map[string]string{}, &ReturnBase{})
 
 	if err != nil {
 		return

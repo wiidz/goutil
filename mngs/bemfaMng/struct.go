@@ -84,6 +84,14 @@ func (code ReturnCode) GetError() (err error) {
 	case Success:
 	case AddSuccess:
 	case DeleteSuccess:
+
+	case ParamError:
+		errorStr = "请求参数有误"
+	case UnknownError:
+		errorStr = "未知错误"
+	case KeyError:
+		errorStr = "私钥或主题错误"
+
 	case NoUIDError:
 		errorStr = "缺少uid字段"
 	case WrongUIDError:
