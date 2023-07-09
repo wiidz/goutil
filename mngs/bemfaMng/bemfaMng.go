@@ -43,6 +43,28 @@ func (mng *BemfaMng) SwitchOff(weMsg string) (data *ReturnBase, err error) {
 	return res.(*ReturnBase), err
 }
 
+// GetSwitchStatus 获取开关的状态
+func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
+	var url = Domain + "/va/postJsonMsg"
+	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, map[string]interface{}{
+		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
+		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
+		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
+		"msg":   "q1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
+		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
+	}, map[string]string{}, &ReturnBase{})
+
+	if err != nil {
+		return
+	}
+
+	if res.(*ReturnBase).Data == "n1" {
+		isOn = true
+	}
+
+	return isOn, err
+}
+
 // SendMsg 推送消息
 // 向主题推送消息，支持POST协议
 func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
