@@ -29,12 +29,24 @@ func (mng *BemfaMng) SwitchOff(weMsg string) (data *ReturnBase, err error) {
 
 // GetSwitchStatus 获取开关的状态
 func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
-	data, err := mng.SendMsg("q1", weMsg)
+
+	//【1】发送
+	_, err = mng.SendMsg("q1", weMsg)
 	if err != nil {
 		return
 	}
 
-	if data.Data == "n1" {
+	//【2】读取
+	returnData, err := mng.GetMsg(1)
+	if err != nil {
+		return
+	}
+
+	if len(returnData.Data) == 0 {
+		err = errors.New("没有新数据")
+	}
+
+	if returnData.Data[0].Msg == "n1" {
 		isOn = true
 	}
 
@@ -57,8 +69,7 @@ func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 	}
 
 	//res, _, _, err := networkHelper.RequestJsonWithStructTest(networkStruct.Post, url, sendMap, nil, &ReturnBase{})
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, url, sendMap, nil, &ReturnBase{})
-
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, url, sendMap, nil, &ReturnBase{})
 	if err != nil {
 		return
 	}
@@ -72,13 +83,20 @@ func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 // 获取主题消息，支持GET协议
 func (mng *BemfaMng) GetMsg(msgAmount int) (data *GetMsgResult, err error) {
 	var url = Domain + "/va/getmsg"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, url, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
 		"num":   msgAmount,   // 选填，获取的历史数据条数，不填默认默认是1，最大5000
 	}, map[string]string{}, &GetMsgResult{})
-	return res.(*GetMsgResult), err
+
+	data = res.(*GetMsgResult)
+
+	if len(data.Data) == 0 {
+		err = errors.New("没有新数据")
+	}
+
+	return
 }
 
 // GetAllTopic 获取全部主题
@@ -95,7 +113,7 @@ func (mng *BemfaMng) GetAllTopic() (data *AllTopicResult, err error) {
 // 获取主题消息，支持GET协议
 func (mng *BemfaMng) IsOnline() (isOnline bool, err error) {
 	var url = Domain + "/va/online"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, url, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
@@ -163,7 +181,7 @@ func (mng *BemfaMng) DeleteTimer() (ok bool, err error) {
 // GetTimer 获取定时操作
 func (mng *BemfaMng) GetTimer() (data *ReturnBase, err error) {
 	var url = Domain + "/cloud/settime/v1/"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, url, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，设备类型，当type=3时为创客云设备，当等于2时为设备云设备，当等于1时为MQTT设备
