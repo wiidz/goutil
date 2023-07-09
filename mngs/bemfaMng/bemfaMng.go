@@ -5,6 +5,7 @@ import (
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/networkStruct"
+	"log"
 )
 
 const Domain = "https://apis.bemfa.com"
@@ -83,7 +84,7 @@ func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 // 获取主题消息，支持GET协议
 func (mng *BemfaMng) GetMsg(msgAmount int) (data *GetMsgResult, err error) {
 	var url = Domain + "/va/getmsg"
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
@@ -91,6 +92,7 @@ func (mng *BemfaMng) GetMsg(msgAmount int) (data *GetMsgResult, err error) {
 	}, map[string]string{}, &GetMsgResult{})
 
 	data = res.(*GetMsgResult)
+	log.Println("data", data)
 
 	if len(data.Data) == 0 {
 		err = errors.New("没有新数据")
