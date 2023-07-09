@@ -5,6 +5,7 @@ import (
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/networkStruct"
+	"log"
 )
 
 const Domain = "https://apis.bemfa.com"
@@ -27,6 +28,10 @@ func (mng *BemfaMng) SwitchOn(weMsg string) (data *ReturnBase, err error) {
 		"msg":   "a1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
 		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
 	}, map[string]string{}, &ReturnBase{})
+
+	log.Println("res", res)
+	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
+
 	return res.(*ReturnBase), err
 }
 
@@ -40,6 +45,10 @@ func (mng *BemfaMng) SwitchOff(weMsg string) (data *ReturnBase, err error) {
 		"msg":   "b1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
 		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
 	}, map[string]string{}, &ReturnBase{})
+
+	log.Println("res", res)
+	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
+
 	return res.(*ReturnBase), err
 }
 
@@ -58,6 +67,8 @@ func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
 		return
 	}
 
+	log.Println("res", res)
+	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
 	if res.(*ReturnBase).Data == "n1" {
 		isOn = true
 	}
