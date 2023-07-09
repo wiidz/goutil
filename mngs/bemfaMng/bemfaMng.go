@@ -5,7 +5,6 @@ import (
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/networkStruct"
-	"log"
 )
 
 const Domain = "https://apis.bemfa.com"
@@ -20,56 +19,22 @@ func NewBemfaMng(UID, topicID string) (es *BemfaMng) {
 
 // SwitchOn 打开1路开关
 func (mng *BemfaMng) SwitchOn(weMsg string) (data *ReturnBase, err error) {
-	var url = Domain + "/va/postJsonMsg"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, map[string]interface{}{
-		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
-		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
-		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
-		"msg":   "a1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
-		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
-	}, map[string]string{}, &ReturnBase{})
-
-	log.Println("res", res)
-	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
-
-	return res.(*ReturnBase), err
+	return mng.SendMsg("a1", weMsg)
 }
 
 // SwitchOff 关闭1路开关
 func (mng *BemfaMng) SwitchOff(weMsg string) (data *ReturnBase, err error) {
-	var url = Domain + "/va/postJsonMsg"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, map[string]interface{}{
-		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
-		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
-		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
-		"msg":   "b1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
-		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
-	}, map[string]string{}, &ReturnBase{})
-
-	log.Println("res", res)
-	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
-
-	return res.(*ReturnBase), err
+	return mng.SendMsg("b1", weMsg)
 }
 
 // GetSwitchStatus 获取开关的状态
 func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
-	var url = Domain + "/va/postJsonMsg"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, map[string]interface{}{
-		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
-		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
-		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
-		"msg":   "q1",        // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
-		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
-	}, map[string]string{}, &ReturnBase{})
-
+	data, err := mng.SendMsg("q1", weMsg)
 	if err != nil {
 		return
 	}
 
-	log.Println("res", res)
-	log.Println("res.(*ReturnBase)", res.(*ReturnBase))
-	if res.(*ReturnBase).Data == "n1" {
+	if data.Data == "n1" {
 		isOn = true
 	}
 
@@ -80,14 +45,26 @@ func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
 // 向主题推送消息，支持POST协议
 func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 	var url = Domain + "/va/postJsonMsg"
-	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, map[string]interface{}{
+	var sendMap = map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
 		"msg":   msg,         // 必填，消息体，要推送的消息，自定义即可，比如on，或off等等
-		"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
-	}, map[string]string{}, &ReturnBase{})
-	return res.(*ReturnBase), err
+		//"wemsg": weMsg,       // 选填，发送到微信的消息，自定义即可。如果携带此字段，会将消息发送到微信
+	}
+	if weMsg != "" {
+		sendMap["wemsg"] = weMsg
+	}
+
+	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Post, url, sendMap, map[string]string{}, &ReturnBase{})
+
+	if err != nil {
+		return
+	}
+
+	data = res.(*ReturnBase)
+	err = ReturnCode(data.Code).GetError()
+	return
 }
 
 // GetMsg 获取消息

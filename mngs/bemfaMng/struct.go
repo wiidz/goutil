@@ -1,5 +1,10 @@
 package bemfaMng
 
+import (
+	"errors"
+	"strconv"
+)
+
 // BemfaMng 巴法云
 type BemfaMng struct {
 	UID     string `json:"uid"`
@@ -71,6 +76,52 @@ const ParamError ReturnCode = 10002 // 请求参数有误
 
 const UnknownError ReturnCode = 40000 // 未知错误
 const KeyError ReturnCode = 40004     // 私钥或主题错误
+
+func (code ReturnCode) GetError() (err error) {
+
+	var errorStr = ""
+	switch code {
+	case Success:
+	case AddSuccess:
+	case DeleteSuccess:
+	case NoUIDError:
+		errorStr = "缺少uid字段"
+	case WrongUIDError:
+		errorStr = "uid值为空或不正确"
+	case NoTopicError:
+		errorStr = "缺少topic字段"
+	case WrongTopicError:
+		errorStr = "topic值为空或不正确"
+	case NoTypeError:
+		errorStr = "缺少type字段"
+	case WrongTypeError:
+		errorStr = "type值为空或不正确"
+	case NoTimeError:
+		errorStr = "缺少time字段"
+	case WrongTimeError:
+		errorStr = "time值为空或不正确"
+
+	case NoMsgError:
+		errorStr = "缺少msg字段"
+	case WrongMsgError:
+		errorStr = "time值为空或不正确"
+	case NoActionError:
+		errorStr = "缺少action字段"
+	case WrongActionError:
+		errorStr = "action值为空或不正确"
+
+	case Existed:
+		errorStr = "定时已存在"
+
+	default:
+		errorStr = strconv.Itoa(int(code))
+	}
+
+	if errorStr == "" {
+		return nil
+	}
+	return errors.New(errorStr)
+}
 
 // 定时相关
 const NoUIDError ReturnCode = 4003001       // 缺少uid字段
