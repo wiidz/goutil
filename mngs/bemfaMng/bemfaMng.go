@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const Domain = "https://apis.bemfa.com"
+//const Domain = "https://apis.bemfa.com"
 
 // NewBemfaMng  获取es管理器
 func NewBemfaMng(UID, topicID string) (es *BemfaMng) {
@@ -29,35 +29,53 @@ func (mng *BemfaMng) SwitchOff(weMsg string) (data *ReturnBase, err error) {
 }
 
 // GetSwitchStatus 获取开关的状态
-func (mng *BemfaMng) GetSwitchStatus(weMsg string) (isOn bool, err error) {
+func (mng *BemfaMng) GetSwitchStatus() (isOn bool, err error) {
 
-	//【1】发送
-	_, err = mng.SendMsg("q1", weMsg)
+	const url = "https://api.bemfa.com/api/device/v1/data/1/"
+	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
+		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
+		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
+	}, map[string]string{}, &GetSwitchStatusResult{})
 	if err != nil {
 		return
 	}
 
-	//【2】读取
-	returnData, err := mng.GetMsg(1)
-	if err != nil {
-		return
-	}
-
-	if len(returnData.Data) == 0 {
-		err = errors.New("没有新数据")
-	}
-
-	if returnData.Data[0].Msg == "n1" {
+	var data = res.(*GetSwitchStatusResult)
+	if data.Msg == "n1" {
 		isOn = true
 	}
 
-	return isOn, err
+	return
+
+	////【1】发送
+	//_, err = mng.SendMsg("q1", weMsg)
+	//if err != nil {
+	//	return
+	//}
+	//
+	////【2】等待1秒再获取
+	//time.Sleep(time.Second * 1)
+	//
+	////【3】读取
+	//returnData, err := mng.GetMsg(1)
+	//if err != nil {
+	//	return
+	//}
+	//if len(returnData.Data) == 0 {
+	//	err = errors.New("没有新数据")
+	//}
+	//
+	//if returnData.Data[0].Msg == "n1" {
+	//	isOn = true
+	//}
+	//
+	//return isOn, err
 }
 
 // SendMsg 推送消息
 // 向主题推送消息，支持POST协议
 func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
-	var url = Domain + "/va/postJsonMsg"
+	const url = "https://apis.bemfa.com/va/postJsonMsg"
 	var sendMap = map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
@@ -83,7 +101,7 @@ func (mng *BemfaMng) SendMsg(msg, weMsg string) (data *ReturnBase, err error) {
 // GetMsg 获取消息
 // 获取主题消息，支持GET协议
 func (mng *BemfaMng) GetMsg(msgAmount int) (data *GetMsgResult, err error) {
-	var url = Domain + "/va/getmsg"
+	const url = "https://apis.bemfa.com/va/getmsg"
 	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
@@ -103,7 +121,7 @@ func (mng *BemfaMng) GetMsg(msgAmount int) (data *GetMsgResult, err error) {
 
 // GetAllTopic 获取全部主题
 func (mng *BemfaMng) GetAllTopic() (data *AllTopicResult, err error) {
-	var url = Domain + "/va/alltopic"
+	const url = "https://apis.bemfa.com/va/alltopic"
 	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, url, map[string]interface{}{
 		"uid":  mng.UID, // 必填，用户私钥，巴法云控制台获取
 		"type": 3,       // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
@@ -114,7 +132,7 @@ func (mng *BemfaMng) GetAllTopic() (data *AllTopicResult, err error) {
 // IsOnline 判断设备是否在线
 // 获取主题消息，支持GET协议
 func (mng *BemfaMng) IsOnline() (isOnline bool, err error) {
-	var url = Domain + "/va/online"
+	const url = "https://apis.bemfa.com/va/online"
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
@@ -131,7 +149,7 @@ func (mng *BemfaMng) IsOnline() (isOnline bool, err error) {
 
 // SetTimer 设置定时操作
 func (mng *BemfaMng) SetTimer(msg string, hour, min, second int) (ok bool, err error) {
-	var url = Domain + "/cloud/settime/v1/"
+	const url = "https://api.bemfa.com/cloud/settime/v1/"
 	var timeStr = typeHelper.Int2Str(hour) + ":" + typeHelper.Int2Str(min) + ":" + typeHelper.Int2Str(second)
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyForm, url, map[string]interface{}{
 		"uid":    mng.UID,     // 必填，用户私钥，巴法云控制台获取
@@ -157,7 +175,7 @@ func (mng *BemfaMng) SetTimer(msg string, hour, min, second int) (ok bool, err e
 
 // DeleteTimer 删除定时操作
 func (mng *BemfaMng) DeleteTimer() (ok bool, err error) {
-	var url = Domain + "/cloud/settime/v1/"
+	const url = "https://api.bemfa.com/cloud/settime/v1/"
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Delete, networkStruct.BodyForm, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
@@ -182,7 +200,7 @@ func (mng *BemfaMng) DeleteTimer() (ok bool, err error) {
 
 // GetTimer 获取定时操作
 func (mng *BemfaMng) GetTimer() (data *ReturnBase, err error) {
-	var url = Domain + "/cloud/settime/v1/"
+	const url = "https://api.bemfa.com/cloud/settime/v1/"
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建

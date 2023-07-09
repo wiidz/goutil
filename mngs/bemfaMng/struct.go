@@ -147,3 +147,10 @@ const WrongActionError ReturnCode = 4003012 // action值为空或不正确
 const AddSuccess ReturnCode = 4003013       // 添加成功
 const DeleteSuccess ReturnCode = 4003014    // 删除
 const Existed ReturnCode = 4003015          // 定时已存在
+
+type GetSwitchStatusResult struct {
+	Code   string `json:"code"`
+	Msg    string `json:"msg"`
+	Time   string `json:"time"`
+	Status string `json:"status"`
+}
