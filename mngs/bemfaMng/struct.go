@@ -84,6 +84,7 @@ func (code ReturnCode) GetError() (err error) {
 	case Success:
 	case AddSuccess:
 	case DeleteSuccess:
+	case Getok:
 
 	case ParamError:
 		errorStr = "请求参数有误"
@@ -121,6 +122,15 @@ func (code ReturnCode) GetError() (err error) {
 	case Existed:
 		errorStr = "定时已存在"
 
+	case NoUIDErrorOld:
+		errorStr = "缺少uid字段"
+	case WrongUIDErrorOld:
+		errorStr = "uid值为空或不正确"
+	case NoTopicErrorOld:
+		errorStr = "缺少topic字段"
+	case WrongTopicErrorOld:
+		errorStr = "topic值为空或不正确"
+
 	default:
 		errorStr = strconv.Itoa(int(code))
 	}
@@ -147,6 +157,13 @@ const WrongActionError ReturnCode = 4003012 // action值为空或不正确
 const AddSuccess ReturnCode = 4003013       // 添加成功
 const DeleteSuccess ReturnCode = 4003014    // 删除
 const Existed ReturnCode = 4003015          // 定时已存在
+
+// 似乎是老版本的数据
+const Getok ReturnCode = 40020              // 获取设备状态的时候 getok
+const WrongUIDErrorOld ReturnCode = 40012   // uid值为空或不正确 no uid
+const NoUIDErrorOld ReturnCode = 41020      // 缺少uid字段 no uid
+const NoTopicErrorOld ReturnCode = 41021    // 缺少topic字段 no uid
+const WrongTopicErrorOld ReturnCode = 41022 // topic值为空或不正确 no uid
 
 type GetSwitchStatusResult struct {
 	Code   string `json:"code"`
