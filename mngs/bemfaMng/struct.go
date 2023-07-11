@@ -17,6 +17,11 @@ type ReturnBase struct {
 	Data    interface{} `json:"data"`
 }
 
+type TimerData struct {
+	Msg  string `json:"msg"`
+	Time string `json:"time"`
+}
+
 type ReturnStatus struct {
 	Code   int    `json:"code"`
 	Status string `json:"status"`
