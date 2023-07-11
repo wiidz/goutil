@@ -200,12 +200,12 @@ func (mng *BemfaMng) DeleteTimer(msg string, hour, min, second int) (ok bool, er
 }
 
 // GetTimer 获取定时操作
-func (mng *BemfaMng) GetTimer() (data []TimerData, err error) {
+func (mng *BemfaMng) GetTimer() (data []*TimerData, err error) {
 	const url = "https://api.bemfa.com/cloud/gettime/v1/"
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Get, networkStruct.Query, url, map[string]interface{}{
 		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":  3,           // 必填，设备类型，当type=3时为创客云设备，当等于2时为设备云设备，当等于1时为MQTT设备
-	}, map[string]string{}, []TimerData{})
-	return res.([]TimerData), err
+	}, map[string]string{}, &[]*TimerData{})
+	return res.([]*TimerData), err
 }
