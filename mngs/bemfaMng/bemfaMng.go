@@ -174,15 +174,16 @@ func (mng *BemfaMng) SetTimer(msg string, hour, min, second int) (ok bool, err e
 }
 
 // DeleteTimer 删除定时操作
-func (mng *BemfaMng) DeleteTimer() (ok bool, err error) {
+func (mng *BemfaMng) DeleteTimer(msg string, hour, min, second int) (ok bool, err error) {
 	const url = "https://api.bemfa.com/cloud/settime/v1/"
+	var timeStr = typeHelper.Int2Str(hour) + ":" + typeHelper.Int2Str(min) + ":" + typeHelper.Int2Str(second)
 	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Delete, networkStruct.BodyForm, url, map[string]interface{}{
-		"uid":   mng.UID,     // 必填，用户私钥，巴法云控制台获取
-		"topic": mng.TopicID, // 必填，主题名，可在控制台创建
-		"type":  3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
-		//"msg":    msg,         // 必填，消息体，即定时发送的消息,比如等于on或者off
-		//"time":   timeStr,     // 必填，时间，格式为 小时:分钟:秒，中间":"为英文格式符号，小时0-23，分钟0-59，秒0-59
-		"action": "del", // 必填，动作，action=add时是添加定时，action=del是删除定时
+		"uid":    mng.UID,     // 必填，用户私钥，巴法云控制台获取
+		"topic":  mng.TopicID, // 必填，主题名，可在控制台创建
+		"type":   3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
+		"msg":    msg,         // 必填，消息体，即定时发送的消息,比如等于on或者off
+		"time":   timeStr,     // 必填，时间，格式为 小时:分钟:秒，中间":"为英文格式符号，小时0-23，分钟0-59，秒0-59
+		"action": "del",       // 必填，动作，action=add时是添加定时，action=del是删除定时
 	}, map[string]string{}, &ReturnStatus{})
 
 	if err != nil {
