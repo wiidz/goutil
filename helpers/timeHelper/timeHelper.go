@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	TimeStr        = "15:04:05"
 	HyphenTimeStr  = "2006-01-02 15:04:05"
 	SlashTimeStr   = "2006/01/02 15:04:05"
 	HyphenDateStr  = "2006-01-02"
@@ -214,6 +215,14 @@ func (tm MyJsonTime) GetHyphenTimeStr() string {
 		return ""
 	}
 	return time.Time(tm).Format(HyphenTimeStr)
+}
+
+// GetTimeStr 获取 时间 字符串
+func (tm MyJsonTime) GetTimeStr() string {
+	if tm.IsNull() {
+		return ""
+	}
+	return time.Time(tm).Format(TimeStr)
 }
 
 // GetPureNumberStr 获取 纯数字 年月日时分秒
