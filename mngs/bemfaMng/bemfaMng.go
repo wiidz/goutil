@@ -177,7 +177,7 @@ func (mng *BemfaMng) SetTimer(msg string, hour, min, second int) (ok bool, err e
 func (mng *BemfaMng) DeleteTimer(msg string, hour, min, second int) (ok bool, err error) {
 	const url = "https://api.bemfa.com/cloud/settime/v1/"
 	var timeStr = typeHelper.Int2Str(hour) + ":" + typeHelper.Int2Str(min) + ":" + typeHelper.Int2Str(second)
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Delete, networkStruct.BodyForm, url, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyForm, url, map[string]interface{}{
 		"uid":    mng.UID,     // 必填，用户私钥，巴法云控制台获取
 		"topic":  mng.TopicID, // 必填，主题名，可在控制台创建
 		"type":   3,           // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
