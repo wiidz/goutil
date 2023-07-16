@@ -79,7 +79,7 @@ func NewRedisMng() *RedisMng {
 
 // GetString 读取指定键的字符串值
 func (mng *RedisMng) GetString(key string) (val string, err error) {
-	return client.Get(ctx, key).Result()
+	val, err = client.Get(ctx, key).Result()
 	if err == redis.Nil {
 		err = nil
 	}
