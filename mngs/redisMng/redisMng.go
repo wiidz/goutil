@@ -80,7 +80,11 @@ func NewRedisMng() *RedisMng {
 // GetString 读取指定键的字符串值
 func (mng *RedisMng) GetString(key string) (val string, err error) {
 	return client.Get(ctx, key).Result()
-	//  err == redis.Nil 不存在
+	if err == redis.Nil {
+		err = nil
+	}
+	return
+
 }
 
 // Set 设置键值
@@ -91,8 +95,12 @@ func (mng *RedisMng) Set(key string, value interface{}, expire time.Duration) (e
 // -------BEGIN------哈希相关的操作-----BEGIN--------
 
 // HGetString 集合获取
-func (mng *RedisMng) HGetString(key, field string) (string, error) {
-	return client.HGet(ctx, key, field).Result()
+func (mng *RedisMng) HGetString(key, field string) (res string, err error) {
+	res, err = client.HGet(ctx, key, field).Result()
+	if err == redis.Nil {
+		err = nil
+	}
+	return
 }
 
 // HSet 设置Hash
