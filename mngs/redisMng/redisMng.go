@@ -94,6 +94,24 @@ func (mng *RedisMng) Set(key string, value interface{}, expire time.Duration) (e
 
 // -------BEGIN------哈希相关的操作-----BEGIN--------
 
+// HGetAll 获取集合中所有数据
+func (mng *RedisMng) HGetAll(key string) (res map[string]string, err error) {
+	res, err = client.HGetAll(ctx, key).Result()
+	if err == redis.Nil {
+		err = nil
+	}
+	return
+}
+
+// HDelAll 获取集合中所有数据
+func (mng *RedisMng) HDelAll(key string) (delAmount int64, err error) {
+	delAmount, err = client.Del(ctx, key).Result()
+	if err == redis.Nil {
+		err = nil
+	}
+	return
+}
+
 // HGetString 集合获取
 func (mng *RedisMng) HGetString(key, field string) (res string, err error) {
 	res, err = client.HGet(ctx, key, field).Result()
