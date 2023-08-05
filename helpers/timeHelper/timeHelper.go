@@ -15,6 +15,8 @@ const (
 	ISO8601TimeStr = "2006-01-02T15:04:05Z"
 	PureNumber     = "20060102150405"
 	PureNumberDate = "20060102"
+
+	HyphenTimeStrNoYear = "01-02 15:04:05"
 )
 
 var weekdayCn = [][]string{
@@ -215,6 +217,19 @@ func (tm MyJsonTime) GetHyphenTimeStr() string {
 		return ""
 	}
 	return time.Time(tm).Format(HyphenTimeStr)
+}
+
+// GetHyphenTimeStrNoYear 如果今年是今年，去掉今年（哲学）
+func (tm MyJsonTime) GetHyphenTimeStrNoYear(yearNow int) string {
+	if tm.IsNull() {
+		return ""
+	}
+
+	if tm.Year() == yearNow {
+		return time.Time(tm).Format(HyphenTimeStrNoYear)
+	} else {
+		return time.Time(tm).Format(HyphenTimeStr)
+	}
 }
 
 // GetTimeStr 获取 时间 字符串
