@@ -233,8 +233,8 @@ func GetAsciiValue(letter string) (asciiValue int, err error) {
 	return int(letter[0]), nil
 }
 
-// GetLetterRank  获取字母的排序(1-26),无论大小写
-func GetLetterRank(letter string) (rank int, err error) {
+// GetAlphabetRank  获取字母的排序(1-26),无论大小写
+func GetAlphabetRank(letter string) (rank int, err error) {
 
 	letter = strings.ToLower(letter) // 将输入字母转换为小写
 
