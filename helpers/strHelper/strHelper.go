@@ -3,6 +3,7 @@ package strHelper
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"math"
 	"math/rand"
 	"regexp"
@@ -220,4 +221,29 @@ func LimitLength(str string, maxLength int) string {
 	}
 
 	return string(runeStr[:maxLength-1]) + "..."
+}
+
+// GetAsciiValue  获取ascii值(只接受一个值)
+func GetAsciiValue(letter string) (asciiValue int, err error) {
+
+	if len(letter) != 1 {
+		err = errors.New("输入必须是一个字母")
+		return
+	}
+	return int(letter[0]), nil
+}
+
+// GetLetterRank  获取字母的排序(1-26),无论大小写
+func GetLetterRank(letter string) (rank int, err error) {
+
+	letter = strings.ToLower(letter) // 将输入字母转换为小写
+
+	if len(letter) != 1 || letter < "a" || letter > "z" {
+		err = errors.New("输入必须是一个字母")
+		return
+	}
+
+	// 计算排名
+	rank = int(letter[0]) - int('a') + 1
+	return rank, nil
 }
