@@ -691,7 +691,7 @@ func ParamsInvalid(ctx iris.Context, err error) {
 
 	ctx.StatusCode(400)
 
-	_, _ = ctx.JSON(iris.Map{
+	_ = ctx.JSON(iris.Map{
 		"msg":  err.Error(),
 		"data": nil,
 	})

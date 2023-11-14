@@ -1,6 +1,6 @@
 module github.com/wiidz/goutil
 
-go 1.18
+go 1.21
 
 require (
 	github.com/alibabacloud-go/darabonba-openapi v0.1.16
