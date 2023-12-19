@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	jsoniter "github.com/json-iterator/go"
 	"log"
 	"reflect"
@@ -405,6 +406,25 @@ func Str2Uint64(str string) uint64 {
 	return number
 }
 
+// Str2Uint 将字符串转为uint
+// @author Wiidz
+// @date   2023-12-19
+func Str2Uint(str string) (res uint, err error) {
+
+	num64, _ := strconv.ParseUint(str, 10, 0)
+
+	// 检查是否在 uint 范围内
+	if num64 > uint64(^uint(0)) {
+		err = errors.New("超出 uint 范围")
+		return
+	}
+
+	// 将 uint64 转换为 uint
+	res = uint(num64)
+
+	return
+}
+
 /**
  * @func: Str2Int 将字符串转为int
  * @author Wiidz
@@ -508,7 +528,8 @@ func JsonDecodeIntSlice(jsonStr string) []int {
 }
 
 // JsonDecodeWithStruct 带结构体的json解码
-// 	temp := ReGeoRes{}
+//
+//	temp := ReGeoRes{}
 //	typeHelper.JsonDecodeWithStruct(tempStr,&temp)
 func JsonDecodeWithStruct(jsonStr string, iStruct interface{}) error {
 	return json.Unmarshal([]byte(jsonStr), &iStruct)
