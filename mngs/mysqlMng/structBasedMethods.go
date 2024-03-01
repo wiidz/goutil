@@ -13,7 +13,7 @@ import (
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err error) {
+func (mng *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err error) {
 
 	//【1】初始化参数
 	offset := list.GetOffset()
@@ -27,7 +27,7 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err err
 		model = list.GetRow()
 	}
 
-	thisConn := mysql.GetConn()
+	thisConn := mng.GetConn()
 
 	//【2】拼接
 	if len(condition) > 0 {
@@ -80,7 +80,7 @@ func (mysql *MysqlMng) Read(list ReadInterface, isSingle, doCount bool) (err err
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Count(list ReadInterface) (count int64, err error) {
+func (mng *MysqlMng) Count(list ReadInterface) (count int64, err error) {
 
 	//【1】初始化参数
 	condition := list.GetCondition()
@@ -89,7 +89,7 @@ func (mysql *MysqlMng) Count(list ReadInterface) (count int64, err error) {
 
 	var model = list.GetRow()
 
-	thisConn := mysql.GetConn()
+	thisConn := mng.GetConn()
 
 	//【2】拼接
 	if len(condition) > 0 {
@@ -119,9 +119,9 @@ func (mysql *MysqlMng) Count(list ReadInterface) (count int64, err error) {
 	return
 }
 
-func (mysql *MysqlMng) SumFloat64(model DBStructInterface, sumField string, condition map[string]interface{}) (sum float64, err error) {
+func (mng *MysqlMng) SumFloat64(model DBStructInterface, sumField string, condition map[string]interface{}) (sum float64, err error) {
 
-	conn := mysql.GetConn()
+	conn := mng.GetConn()
 
 	//【2】处理条件
 	if len(condition) > 0 {
@@ -145,13 +145,13 @@ func (mysql *MysqlMng) SumFloat64(model DBStructInterface, sumField string, cond
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) Update(update UpdateInterface) error {
+func (mng *MysqlMng) Update(update UpdateInterface) error {
 
 	//【1】初始化参数
 	condition := update.GetCondition()
 	value := update.GetValue()
 	//tableName := update.GetTableName()
-	thisConn := mysql.GetConn()
+	thisConn := mng.GetConn()
 	model := update.GetRow()
 	if model == nil {
 		return errors.New("")
@@ -190,11 +190,11 @@ func (mysql *MysqlMng) Update(update UpdateInterface) error {
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng) CreateOne(insert InsertInterface) {
+func (mng *MysqlMng) CreateOne(insert InsertInterface) {
 
 	//【1】初始化参数
 	row := insert.GetRow()
-	thisConn := mysql.GetConn()
+	thisConn := mng.GetConn()
 	thisConn = thisConn.Create(row)
 
 	//【2】提取结果
@@ -217,12 +217,12 @@ func (mysql *MysqlMng) CreateOne(insert InsertInterface) {
  *          [newsID]  int 新闻的ID
  * @return: [err] error 错误信息
  */
-func (mysql *MysqlMng) Delete(params DeleteInterface) error {
+func (mng *MysqlMng) Delete(params DeleteInterface) error {
 
 	//【1】初始化参数
 	condition := params.GetCondition()
 	row := params.GetRow()
-	thisConn := mysql.GetConn()
+	thisConn := mng.GetConn()
 
 	//【2】拼接
 	if len(condition) == 0 {
@@ -252,10 +252,10 @@ func (mysql *MysqlMng) Delete(params DeleteInterface) error {
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【3】查询
-	mysql.LogRead(read, userID, authID)
+	mng.LogRead(read, userID, authID)
 	if read.GetError() != nil {
 		return read.GetError().Error(), nil, 400
 	}
@@ -268,10 +268,10 @@ func (mysql *MysqlMng) SimpleGetListWithLog(read ReadInterface, userID, authID i
 }
 
 // SimpleGetDetailWithLog 简单获取记录
-func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, authID int) (msg string, data interface{}, statusCode int) {
 
 	//【2】查询
-	mysql.LogRead(params, userID, authID)
+	mng.LogRead(params, userID, authID)
 	if params.GetError() != nil {
 		return params.GetError().Error(), nil, 400
 	}
@@ -281,10 +281,10 @@ func (mysql *MysqlMng) SimpleGetDetailWithLog(params ReadInterface, userID, auth
 }
 
 // SimpleUpdate 简单修改
-func (mysql *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【1】修改
-	err := mysql.Update(params)
+	err := mng.Update(params)
 	if err != nil {
 		return err.Error(), nil, 400
 	}
@@ -294,10 +294,10 @@ func (mysql *MysqlMng) SimpleUpdate(params UpdateInterface) (msg string, data in
 }
 
 // SimpleUpdateMany 简单修改多条
-func (mysql *MysqlMng) SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleUpdateMany(params UpdateInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】修改
-	err := mysql.Update(params)
+	err := mng.Update(params)
 	if err != nil {
 		return err.Error(), nil, 400
 	}
@@ -306,10 +306,10 @@ func (mysql *MysqlMng) SimpleUpdateMany(params UpdateInterface) (msg string, dat
 }
 
 // SimpleCreateOne 简单插入
-func (mysql *MysqlMng) SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleCreateOne(params InsertInterface) (msg string, data interface{}, statusCode int) {
 
 	//【1】写入数据库
-	mysql.CreateOne(params)
+	mng.CreateOne(params)
 	if err := params.GetError(); err != nil {
 		return err.Error(), nil, 400
 	}
@@ -319,10 +319,10 @@ func (mysql *MysqlMng) SimpleCreateOne(params InsertInterface) (msg string, data
 }
 
 // SimpleDelete 简单删除
-func (mysql *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data interface{}, statusCode int) {
 
 	//【2】写入数据库
-	_ = mysql.Delete(params)
+	_ = mng.Delete(params)
 	if err := params.GetError(); err != nil {
 		return err.Error(), nil, 400
 	}
@@ -332,10 +332,10 @@ func (mysql *MysqlMng) SimpleDelete(params DeleteInterface) (msg string, data in
 }
 
 // SimpleGetList 简单获取列表
-func (mysql *MysqlMng) SimpleGetList(read ReadInterface, isSingle, doCount bool) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleGetList(read ReadInterface, isSingle, doCount bool) (msg string, data interface{}, statusCode int) {
 
 	//【1】查询
-	mysql.Read(read, isSingle, doCount)
+	mng.Read(read, isSingle, doCount)
 	if read.GetError() != nil {
 		return read.GetError().Error(), nil, 400
 	}
@@ -355,10 +355,10 @@ func (mysql *MysqlMng) SimpleGetList(read ReadInterface, isSingle, doCount bool)
 }
 
 // SimpleGetDetail 简单获取详情
-func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data interface{}, statusCode int) {
 
 	//【1】查询
-	mysql.Read(params, true, false)
+	mng.Read(params, true, false)
 	if params.GetError() != nil {
 		return params.GetError().Error(), nil, 400
 	}
@@ -368,9 +368,9 @@ func (mysql *MysqlMng) SimpleGetDetail(params ReadInterface) (msg string, data i
 }
 
 // SimpleCount 简单获取数量
-func (mysql *MysqlMng) SimpleCount(params ReadInterface) (msg string, data interface{}, statusCode int) {
+func (mng *MysqlMng) SimpleCount(params ReadInterface) (msg string, data interface{}, statusCode int) {
 	//【1】查询
-	mysql.Count(params)
+	mng.Count(params)
 	if params.GetError() != nil {
 		return params.GetError().Error(), nil, 400
 	}
@@ -380,7 +380,7 @@ func (mysql *MysqlMng) SimpleCount(params ReadInterface) (msg string, data inter
 }
 
 // TimeBasedSummary 根据时间进行统计
-func (mysql *MysqlMng) TimeBasedSummary(model DBStructInterface, targetField string, expressions []string, commonCondition string) (row TimeSummary, err error) {
+func (mng *MysqlMng) TimeBasedSummary(model DBStructInterface, targetField string, expressions []string, commonCondition string) (row TimeSummary, err error) {
 
 	//【1】初始化变量
 	raw := "select "
@@ -406,7 +406,7 @@ func (mysql *MysqlMng) TimeBasedSummary(model DBStructInterface, targetField str
 	//【4】拼接表名
 	raw += " from " + model.TableName()
 
-	err = mysql.GetConn().Model(model).Raw(raw).Scan(&row).Error
+	err = mng.GetConn().Model(model).Raw(raw).Scan(&row).Error
 	return row, err
 }
 func getFieldName(targetField string) (string, error) {

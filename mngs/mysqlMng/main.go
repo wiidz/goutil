@@ -13,93 +13,93 @@ import (
 	"time"
 )
 
-var db *gorm.DB
-
 type MysqlMng struct {
-	Conn      *gorm.DB // 普通会话
-	TransConn *gorm.DB // 事务会话
+	db        *gorm.DB
+	config    *configStruct.MysqlConfig // 配置项
+	Conn      *gorm.DB                  // 普通会话
+	TransConn *gorm.DB                  // 事务会话
 }
 
-func Init(config *configStruct.MysqlConfig) (err error) {
+// NewMysqlMng 获取一个mysql实例
+func NewMysqlMng(config *configStruct.MysqlConfig) (mysqlMng *MysqlMng, err error) {
+	mysqlMng = &MysqlMng{
+		config: config,
+	}
+
+	err = mysqlMng.Init()
+	return
+}
+
+func (mng *MysqlMng) Init() (err error) {
 	//【1】构建DSN
-	dsn := config.Username + ":" + config.Password +
-		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
-		"?charset=" + config.Charset +
-		"&collation=" + config.Collation +
-		"&loc=" + url.QueryEscape(config.TimeZone) +
-		"&parseTime=" + strconv.FormatBool(config.ParseTime)
+	dsn := mng.config.Username + ":" + mng.config.Password +
+		"@tcp(" + mng.config.Host + ":" + mng.config.Port + ")/" + mng.config.DbName +
+		"?charset=" + mng.config.Charset +
+		"&collation=" + mng.config.Collation +
+		"&loc=" + url.QueryEscape(mng.config.TimeZone) +
+		"&parseTime=" + strconv.FormatBool(mng.config.ParseTime)
 
 	//【3】构建DB对象
 	log.Println("【mysql-dsn】", dsn)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	mng.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Println("【mysql-init-err】", err)
 		return
 	}
-	sqlDB, _ := db.DB()
-	sqlDB.SetMaxIdleConns(config.MaxIdle)                                     //最大空闲连接数
-	sqlDB.SetMaxOpenConns(config.MaxOpenConns)                                //最大连接数
-	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(config.MaxLifeTime)) //设置连接空闲超时
+	sqlDB, _ := mng.db.DB()
+	sqlDB.SetMaxIdleConns(mng.config.MaxIdle)                                     //最大空闲连接数
+	sqlDB.SetMaxOpenConns(mng.config.MaxOpenConns)                                //最大连接数
+	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(mng.config.MaxLifeTime)) //设置连接空闲超时
 	return
 }
 
-/**
- * @func:   NewMysqlMng mysql管理器工厂模式
- * @author: Wiidz
- * @date:   2020-04-15
- */
-func NewMysqlMng() *MysqlMng {
-	mysqlMng := &MysqlMng{}
-	return mysqlMng
-}
-
-// 获取一个新的会话
-func (mysql *MysqlMng) NewCommonConn() {
-	mysql.Conn = db.Session(&gorm.Session{
+// NewCommonConn 获取一个新的会话
+func (mng *MysqlMng) NewCommonConn() {
+	mng.Conn = mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: db.Logger.LogMode(logger.Info),
+		Logger: mng.db.Logger.LogMode(logger.Info),
 		//Logger: db.Logger.LogMode(logger.Warn),
 	})
 }
 
 // GetConn 获取一个新的会话
-func (mysql *MysqlMng) GetConn() *gorm.DB {
-	return db.Session(&gorm.Session{
+func (mng *MysqlMng) GetConn() *gorm.DB {
+	return mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: db.Logger.LogMode(logger.Info),
+		Logger: mng.db.Logger.LogMode(logger.Info),
 	})
 }
 
 // GetDBConn 获取一个新的会话，并且切换数据库名
-func (mysql *MysqlMng) GetDBConn(dbName string) *gorm.DB {
-	return db.Session(&gorm.Session{
+func (mng *MysqlMng) GetDBConn(dbName string) *gorm.DB {
+	return mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: db.Logger.LogMode(logger.Info),
+		Logger: mng.db.Logger.LogMode(logger.Info),
 	}).Exec("use " + dbName)
 }
 
 // GetDBTransConn 获取一个新的会话，并且切换数据库名
-func (mysql *MysqlMng) GetDBTransConn(dbName string) *gorm.DB {
-	return db.Begin().Exec("use " + dbName)
+func (mng *MysqlMng) GetDBTransConn(dbName string) *gorm.DB {
+	return mng.db.Begin().Exec("use " + dbName)
 }
 
-// 开启一个事务会话
-func (mysql *MysqlMng) NewTransConn() {
-	mysql.TransConn = db.Session(&gorm.Session{
+// NewTransConn 开启一个事务会话
+func (mng *MysqlMng) NewTransConn() {
+	mng.TransConn = mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: db.Logger.LogMode(logger.Info),
+		Logger: mng.db.Logger.LogMode(logger.Info),
 	}).Begin()
 }
 
-// 回滚事务
-func (mysql *MysqlMng) Rollback() {
-	mysql.TransConn.Rollback()
+// Rollback 回滚事务
+func (mng *MysqlMng) Rollback() {
+	mng.TransConn.Rollback()
 }
 
-// 提交事务
-func (mysql *MysqlMng) Commit() {
-	mysql.TransConn.Commit()
+// Commit 提交事务
+func (mng *MysqlMng) Commit() {
+	mng.TransConn.Commit()
 }
 
 // IsNotFound 判断读取结果是否为空错误

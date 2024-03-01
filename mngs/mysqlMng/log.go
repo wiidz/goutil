@@ -99,7 +99,7 @@ func (x *LogInsertCreate) TableName() string {
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
+func (mng *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 
 	//【1】初始化参数
 	offset := list.GetOffset()
@@ -109,7 +109,7 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 	preloads := list.GetPreloads()
 	rows := list.GetRows()
 
-	thisConn := mysql.Conn
+	thisConn := mng.Conn
 
 	//【2】拼接
 	if len(condition) > 0 {
@@ -141,7 +141,7 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 
 			// count
 			//mysql.NewCommonConn()
-			thisConn = mysql.Conn
+			thisConn = mng.Conn
 			if len(condition) > 0 {
 				cons, vals, _ := WhereBuild(condition)
 				thisConn = thisConn.Where(cons, vals...)
@@ -153,9 +153,9 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
 
 	// 【4】记录操作
 	go func() {
-		mysql.NewCommonConn()
+		mng.NewCommonConn()
 		jsonCondition, _ := typeHelper.JsonEncode(condition)
-		mysql.Conn.Create(&LogReadCreate{
+		mng.Conn.Create(&LogReadCreate{
 			UserID:       userID,
 			AuthID:       authID,
 			Kind:         int8(1),
@@ -182,14 +182,14 @@ func (mysql *MysqlMng) LogRead(list ReadInterface, userID, authID int) {
  * 			[data] interface{} 数据
  * 			[statusCode] 状态码
  */
-func (mysql *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) error {
+func (mng *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) error {
 
 	//【1】初始化参数
 	row := insert.GetRow()
 
-	thisConn := mysql.Conn
-	if mysql.TransConn != nil {
-		thisConn = mysql.TransConn
+	thisConn := mng.Conn
+	if mng.TransConn != nil {
+		thisConn = mng.TransConn
 	}
 	thisConn = thisConn.Create(row)
 
@@ -205,7 +205,7 @@ func (mysql *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) 
 
 	//【5】记录操作
 	go func() {
-		mysql.NewCommonConn()
+		mng.NewCommonConn()
 		jsonValue, _ := typeHelper.JsonEncode(row)
 		data := LogInsertCreate{
 			UserID:       userID,
@@ -214,7 +214,7 @@ func (mysql *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) 
 			Data:         jsonValue,
 			RowsAffected: int(rowsAffected),
 		}
-		mysql.Conn.Create(&data)
+		mng.Conn.Create(&data)
 	}()
 
 	//【5】返回
@@ -229,15 +229,15 @@ func (mysql *MysqlMng) LogCreateOne(insert InsertInterface, userID, authID int) 
  *			[list] dbStruct.List 查询结构体
  * @return: [err] error 错误
  */
-func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) error {
+func (mng *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) error {
 
 	//【1】初始化参数
 	condition := update.GetCondition()
 	value := update.GetValue()
 	tableName := update.GetTableName()
-	thisConn := mysql.Conn
-	if mysql.TransConn != nil {
-		thisConn = mysql.TransConn
+	thisConn := mng.Conn
+	if mng.TransConn != nil {
+		thisConn = mng.TransConn
 	}
 
 	//【2】拼接
@@ -260,7 +260,7 @@ func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) err
 
 	//【5】记录操作
 	go func() {
-		mysql.NewCommonConn()
+		mng.NewCommonConn()
 		jsonCondition, _ := typeHelper.JsonEncode(condition)
 		jsonValue, _ := typeHelper.JsonEncode(value)
 		data := LogUpdateCreate{
@@ -271,7 +271,7 @@ func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) err
 			Data:         jsonValue,
 			RowsAffected: int(rowsAffected),
 		}
-		mysql.Conn.Create(&data)
+		mng.Conn.Create(&data)
 	}()
 
 	//【5】返回
@@ -288,13 +288,13 @@ func (mysql *MysqlMng) LogUpdate(update UpdateInterface, userID, authID int) err
  *          [newsID]  int 新闻的ID
  * @return: [err] error 错误信息
  */
-func (mysql *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) error {
+func (mng *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) error {
 
 	//【1】初始化参数
 	condition := params.GetCondition()
-	thisConn := mysql.Conn
-	if mysql.TransConn != nil {
-		thisConn = mysql.TransConn
+	thisConn := mng.Conn
+	if mng.TransConn != nil {
+		thisConn = mng.TransConn
 	}
 
 	row := params.GetRow()
@@ -316,7 +316,7 @@ func (mysql *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) err
 
 	//【5】记录操作
 	go func() {
-		mysql.NewCommonConn()
+		mng.NewCommonConn()
 		jsonCondition, _ := typeHelper.JsonEncode(condition)
 		data := LogDeleteCreate{
 			UserID:       userID,
@@ -325,7 +325,7 @@ func (mysql *MysqlMng) LogDelete(params DeleteInterface, userID, authID int) err
 			Condition:    jsonCondition,
 			RowsAffected: int(rowsAffected),
 		}
-		mysql.Conn.Create(&data)
+		mng.Conn.Create(&data)
 	}()
 
 	//【5】返回

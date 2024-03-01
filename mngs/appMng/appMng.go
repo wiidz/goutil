@@ -13,7 +13,8 @@ import (
 )
 
 var cacheM = memoryMng.NewCacheMng()
-var mysqlM = mysqlMng.NewMysqlMng()
+
+var mysqlM *mysqlMng.MysqlMng
 
 // GetSingletonAppMng : 获取单例app管理器
 func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, configStruct configStruct.ProjectConfig, checkStart *configStruct.CheckStart) (mng *AppMng, err error) {
@@ -44,7 +45,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 	//【1】初始化mysql
 	if checkStart.Mysql {
 		//【2-1】基础配置
-		err = mysqlMng.Init(mysqlConfig)
+		mysqlM, err = mysqlMng.NewMysqlMng(mysqlConfig)
 		if err != nil {
 			return
 		}
