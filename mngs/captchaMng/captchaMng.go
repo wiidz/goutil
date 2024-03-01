@@ -44,6 +44,9 @@ func (mng *CaptchaMng) VerifyGraphCaptcha(id, answer string) bool {
 	if strings.ToLower(strings.TrimSpace(answer)) != strings.ToLower(get) {
 		return false
 	}
+	
+	// 手动删除
+	cp.DefaultMemStore.Get(id, true)
 	return true
 }
 
