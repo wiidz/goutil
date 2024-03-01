@@ -7,19 +7,22 @@ import (
 	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/gorm"
 	"reflect"
 )
 
 type AuthMng struct {
+	mysqlConfig    *configStruct.MysqlConfig
 	AuthTableName  string // 身份表的名称例如user,staff
 	OwnerTableName string // auth表的名称
 	IdentifyKey    string // 使用者在tokenData中的身份标识名称：例如user_id，staff_id
 }
 
 // New 获取权限验证器
-func New(ownerTableName, authTableName, identifyKey string) *AuthMng {
+func New(mysqlConfig *configStruct.MysqlConfig, ownerTableName, authTableName, identifyKey string) *AuthMng {
 	return &AuthMng{
+		mysqlConfig:    mysqlConfig,
 		OwnerTableName: ownerTableName,
 		AuthTableName:  authTableName,
 		IdentifyKey:    identifyKey,
@@ -45,7 +48,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	}
 
 	//【2】初始化数据库
-	mysql := mysqlMng.NewMysqlMng()
+	mysql, _ := mysqlMng.NewMysqlMng(mng.mysqlConfig)
 	conn := mysql.GetConn()
 
 	//【3】获取用户资料并判断
