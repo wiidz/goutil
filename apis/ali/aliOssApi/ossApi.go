@@ -17,9 +17,9 @@ import (
 	"time"
 )
 
-const base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr234560178912"
-
-var coder = base64.NewEncoding(base64Table)
+//const base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr234560178912"
+//
+//var coder = base64.NewEncoding(base64Table)
 
 // NewOssApi 创建ossApi
 func NewOssApi(config *configStruct.AliOssConfig) (*OssApi, error) {
