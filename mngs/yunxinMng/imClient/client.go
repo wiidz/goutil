@@ -23,7 +23,7 @@ func NewClient(appKey, appSecret string) *Client {
 }
 
 // getCheckSum 获取令牌
-func (client *Client) getCheckSum(nonce, timestampStr string) string {
+func (client *Client) getCheckSum(nonce, timestampStr string) (string, error) {
 	return cryptorHelper.SHA1Encrypt(client.AppSecret + nonce + timestampStr)
 }
 
@@ -38,7 +38,10 @@ func (client *Client) Post(path string, params interface{}, iStruct RespInterfac
 	//【2】获取令牌
 	nowTimestamp := typeHelper.Int64ToStr(time.Now().Unix())
 	nonce := strHelper.GetRandomString(12)
-	checkSum := client.getCheckSum(nonce, nowTimestamp)
+	checkSum, err := client.getCheckSum(nonce, nowTimestamp)
+	if err != nil {
+		return
+	}
 
 	//【3】发送请求
 	var statusCode int
