@@ -15,12 +15,12 @@ func MD5Encrypt(raw string) string {
 	return fmt.Sprintf("%x", w.Sum(nil))
 }
 
-//// SHA1Encrypt 对字符串进行SHA1哈希
-//func SHA1Encrypt(data string) string {
-//	t := sha1.New()
-//	_, _ = io.WriteString(t, data)
-//	return fmt.Sprintf("%x", t.Sum(nil))
-//}
+// SHA1EncryptOld 对字符串进行SHA1哈希
+func SHA1EncryptOld(data string) string {
+	t := sha1.New()
+	_, _ = io.WriteString(t, data)
+	return fmt.Sprintf("%x", t.Sum(nil))
+}
 
 // SHA1Encrypt 对字符串进行SHA1哈希
 func SHA1Encrypt(data string) (result string, err error) {
