@@ -337,3 +337,19 @@ func GetFileNameFromLocalPath(localFilePath string) (targetDir, wholeName, fileN
 	}
 	return
 }
+
+// SaveStringToFile 将字符串输出到文件中
+func SaveStringToFile(content string, filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(content)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

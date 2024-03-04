@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+	"github.com/google/uuid"
 	"math"
 	"math/rand"
 	"regexp"
@@ -246,4 +247,10 @@ func GetAlphabetRank(letter string) (rank int, err error) {
 	// 计算排名
 	rank = int(letter[0]) - int('a') + 1
 	return rank, nil
+}
+
+// GetUUID 创建uuid
+func GetUUID() uuid.UUID {
+	uid := uuid.New()
+	return uid
 }
