@@ -455,7 +455,7 @@ func Str2Float64(str string) float64 {
 }
 
 /**
- * @func: JsonEncode 编码json
+ * @func: JsonEncode 编码json 注意这种方法可能会保留转义符号
  * @author Wiidz
  * @date   2019-11-16
  */
