@@ -61,7 +61,7 @@ func extractRow(tbl *lua.LTable, doCamel bool) map[string]interface{} {
 			if doCamel {
 				columnName = camelToSnake(key.String())
 			}
-			row[columnName] = value.String()
+			row[columnName] = value
 		}
 	})
 	return row
