@@ -74,7 +74,7 @@ func camelToSnake(s string) string {
 }
 
 // LuaValueToInterface 将 Lua 值转换为对应的 Go 数据类型
-func LuaValueToInterface(L *lua.LState, lv lua.LValue) interface{} {
+func LuaValueToInterface(lv lua.LValue) interface{} {
 	switch lv.Type() {
 	case lua.LTString:
 		return lv.String()
@@ -86,7 +86,7 @@ func LuaValueToInterface(L *lua.LState, lv lua.LValue) interface{} {
 		tbl := lv.(*lua.LTable)
 		goMap := make(map[string]interface{})
 		tbl.ForEach(func(key, value lua.LValue) {
-			goMap[key.String()] = LuaValueToInterface(L, value)
+			goMap[key.String()] = LuaValueToInterface(value)
 		})
 		return goMap
 	default:
