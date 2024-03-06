@@ -10,7 +10,7 @@ import (
 )
 
 // ReadMapSliceFromFile 从lua文件中读取数据并转换为[]map[string]interface{}
-func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSlice []map[string]interface{}, err error) {
+func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSlice []map[string]lua.LValue, err error) {
 
 	//【1】读byte
 	file, _ := os.Open(filePath)
@@ -41,7 +41,7 @@ func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSl
 	luaTable := tableItem.(*lua.LTable)
 
 	//【6】转换
-	mapSlice = []map[string]interface{}{}
+	mapSlice = []map[string]lua.LValue{}
 	luaTable.ForEach(func(_, value lua.LValue) {
 		if tbl, ok := value.(*lua.LTable); ok {
 			row := extractRow(tbl, doCamel)
@@ -52,9 +52,9 @@ func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSl
 	return
 }
 
-// extractRow 提取一行数据为map[string]interface{}
-func extractRow(tbl *lua.LTable, doCamel bool) map[string]interface{} {
-	row := make(map[string]interface{})
+// extractRow 提取一行数据为map[string]lua.LValue
+func extractRow(tbl *lua.LTable, doCamel bool) map[string]lua.LValue {
+	row := make(map[string]lua.LValue)
 	tbl.ForEach(func(key, value lua.LValue) {
 		if key.Type() == lua.LTString {
 			var columnName = key.String()
