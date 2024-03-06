@@ -84,19 +84,14 @@ func LuaValueToInterface(lv lua.LValue) interface{} {
 		return lv.(lua.LBool)
 	case lua.LTTable:
 
-		// 这种方法会返回一个带有Metatable的空map
-		//tbl.ForEach(func(key, value lua.LValue) {
-		//	goMap[key.String()] = LuaValueToInterface(value)
-		//})
-
 		tbl := lv.(*lua.LTable)
 		goMap := make(map[string]interface{})
+		// 不这么做会返回一个带有Metatable的空map
+		if tbl.Len() == 0 {
+			return goMap
+		}
 		tbl.ForEach(func(key, value lua.LValue) {
-			if _, ok := value.(*lua.LTable); ok && value.(*lua.LTable).Len() == 0 {
-				goMap[key.String()] = make(map[string]interface{})
-			} else {
-				goMap[key.String()] = LuaValueToInterface(value)
-			}
+			goMap[key.String()] = LuaValueToInterface(value)
 		})
 		return goMap
 
