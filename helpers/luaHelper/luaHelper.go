@@ -72,3 +72,24 @@ func camelToSnake(s string) string {
 	var re = regexp.MustCompile(`(?m)([a-z])([A-Z])`)
 	return strings.ToLower(re.ReplaceAllString(s, "${1}_${2}"))
 }
+
+// LuaValueToInterface 将 Lua 值转换为对应的 Go 数据类型
+func LuaValueToInterface(L *lua.LState, lv lua.LValue) interface{} {
+	switch lv.Type() {
+	case lua.LTString:
+		return lv.String()
+	case lua.LTNumber:
+		return lv.(lua.LNumber)
+	case lua.LTBool:
+		return lv.(lua.LBool)
+	case lua.LTTable:
+		tbl := lv.(*lua.LTable)
+		goMap := make(map[string]interface{})
+		tbl.ForEach(func(key, value lua.LValue) {
+			goMap[key.String()] = LuaValueToInterface(L, value)
+		})
+		return goMap
+	default:
+		return lv.String()
+	}
+}
