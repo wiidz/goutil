@@ -213,3 +213,10 @@ type YunxinConfig struct {
 type AmapConfig struct {
 	Key string
 }
+
+type TcpConfig struct {
+	IP           string        `json:"ip"`
+	Port         int           `json:"port"`
+	ReadTimeOut  time.Duration // 读取超时时间
+	WriteTimeOut time.Duration // 写入超时时间
+}
