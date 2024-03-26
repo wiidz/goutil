@@ -44,3 +44,8 @@ func (mng *MemoryMng) Set(keyName string, data interface{}, expire time.Duration
 	log.Println("set", keyName, data, expire)
 	mng.Client.Set(keyName, data, expire)
 }
+
+// Delete 删除一个键
+func (mng *MemoryMng) Delete(keyName string) {
+	mng.Client.Delete(keyName)
+}
