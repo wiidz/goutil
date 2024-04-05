@@ -826,11 +826,11 @@ func IndexOfStrSlice(needle string, fields_slice []string) int {
 }
 
 /**
- * @func: IndexOfStrSlice 从slice中，寻找指定内容的键值
+ * @func: IndexOfOld 从slice中，寻找指定内容的键值
  * @author Wiidz
  * @date   2019-11-06
  */
-func IndexOf(needle interface{}, scopeSlice interface{}) int {
+func IndexOfOld(needle interface{}, scopeSlice interface{}) int {
 	switch key := needle.(type) {
 	case string:
 		for index, item := range scopeSlice.([]string) {
@@ -872,6 +872,16 @@ func IndexOf(needle interface{}, scopeSlice interface{}) int {
 		return -1
 	}
 
+	return -1
+}
+
+// IndexOf 从slice中，寻找指定内容的键值
+func IndexOf(needle interface{}, scopeSlice []interface{}) int {
+	for index, item := range scopeSlice {
+		if needle == item {
+			return index
+		}
+	}
 	return -1
 }
 
