@@ -1,6 +1,6 @@
 package sliceHelper
 
-// Difference 获取s2比s1差异的部分
+// Difference 获取s1比s2差异的部分
 func Difference(s1, s2 []interface{}) []interface{} {
 	m := make(map[interface{}]bool)
 	var diff []interface{}
@@ -21,10 +21,10 @@ func Difference(s1, s2 []interface{}) []interface{} {
 	return diff
 }
 
-// DifferenceUint64 获取s2比s1差异的部分
-func DifferenceUint64(s1, s2 []uint64) []interface{} {
+// DifferenceUint64 获取s1比s2差异的部分
+func DifferenceUint64(s1, s2 []uint64) []uint64 {
 	m := make(map[interface{}]bool)
-	var diff []interface{}
+	var diff []uint64
 
 	// 将s2中的元素添加到map中
 	for _, item := range s2 {
