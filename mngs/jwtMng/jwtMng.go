@@ -3,7 +3,7 @@ package jwtMng
 import (
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
@@ -67,6 +67,7 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	})
 
 	if err != nil {
+		log.Println("eeee", err)
 		return err
 	}
 
@@ -220,8 +221,8 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 	err = mng.Decrypt(mng.TokenStruct, tokenStr)
 
 	// 判断错误过期
-	var expErr *jwt.TokenExpiredError
-	if xerrors.As(err, &expErr) || err == nil {
+	//var expErr *jwt.ErrTokenExpired
+	if xerrors.As(err, jwt.ErrTokenExpired) || err == nil {
 
 		//【】取出过期时间
 		immutable := reflect.ValueOf(err)
