@@ -9,7 +9,6 @@ import (
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
-	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -67,7 +66,6 @@ func (mng *JwtMng) Decrypt(claims jwt.Claims, tokenStr string) error {
 	})
 
 	if err != nil {
-		log.Println("eeee", err)
 		return err
 	}
 
@@ -150,6 +148,10 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 
 	//【2】尝试解密
 	if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			networkHelper.ReturnResult(ctx, "登陆信息已过期", nil, 401)
+			return
+		}
 		networkHelper.ReturnError(ctx, err.Error())
 		return
 	}
@@ -293,7 +295,6 @@ func (mng *JwtMng) IsPkSet(tokenData jwt.Claims) bool {
 	}
 
 	temp := immutable.Elem().FieldByName(mng.IdentifyKey)
-	log.Println("temp", temp)
 
 	if temp.IsValid() == false {
 		return false
@@ -321,8 +322,6 @@ func (mng *JwtMng) GetTokenData(ctx iris.Context) (data jwt.Claims, err error) {
 		err = errors.New("token解析失败")
 		return
 	}
-
-	log.Println("mng.IsPkSet", mng.IsPkSet(data))
 
 	if mng.IsPkSet(data) == false {
 		err = errors.New("登陆主体为空")
