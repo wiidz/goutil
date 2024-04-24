@@ -1,5 +1,7 @@
 package paymentMng
 
+import "time"
+
 type TransferMerchantErrorObj struct {
 	Code   string `json:"code"`
 	Detail struct {
@@ -69,4 +71,22 @@ func (tme TransferMerchantError) Cn() string {
 	default:
 		return "未知错误"
 	}
+}
+
+// V3DecryptTransferMerchantResult 商家转账解密后的数据（gopay没提供，我们自己写）
+// 当 event_type为MCHTRANSFER.BATCH.FINISHED时，数据密文ciphertext解密之后的内容
+type V3DecryptTransferMerchantResult struct {
+	OutBatchNo    string    `json:"out_batch_no"`
+	BatchId       string    `json:"batch_id"`
+	BatchStatus   string    `json:"batch_status"`
+	TotalNum      int       `json:"total_num"`
+	TotalAmount   int       `json:"total_amount"`
+	SuccessAmount int       `json:"success_amount"`
+	SuccessNum    int       `json:"success_num"`
+	FailAmount    int       `json:"fail_amount"`
+	FailNum       int       `json:"fail_num"`
+	MchID         string    `json:"mchid"`
+	UpdateTime    time.Time `json:"update_time"`
+
+	CloseReason string `json:"close_reason"` // 当 event_type 为MCHTRANSFER.BATCH.CLOSED时，数据密文ciphertext解密之后的内容
 }

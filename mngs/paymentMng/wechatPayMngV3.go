@@ -2,10 +2,14 @@ package paymentMng
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/go-pay/crypto/aes"
 	"github.com/go-pay/gopay"
-	"github.com/go-pay/gopay/pkg/xlog"
 	"github.com/go-pay/gopay/wechat/v3"
+	"github.com/go-pay/xlog"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
@@ -235,6 +239,17 @@ func (mng *WechatPayMngV3) jsApiPlaceOrder(ctx context.Context, params *UnifiedO
 	return
 }
 
+// Notify 普通回调（不解密）
+func (mng *WechatPayMngV3) Notify(req *http.Request) (notifyReq *wechat.V3NotifyReq, err error) {
+
+	notifyReq, err = wechat.V3ParseNotify(req)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+	return
+}
+
 // NotifyPayment 一般支付回调
 func (mng *WechatPayMngV3) NotifyPayment(req *http.Request) (res *wechat.V3DecryptResult, err error) {
 
@@ -262,6 +277,48 @@ func (mng *WechatPayMngV3) NotifyRefund(req *http.Request) (res *wechat.V3Decryp
 
 	// 普通支付通知解密
 	res, err = notifyReq.DecryptRefundCipherText(mng.Config.ApiKeyV3)
+	return
+}
+
+// 解密商家转账的加密数据（gopay没提供，我们自己写）
+func (mng *WechatPayMngV3) decryptRefundCipherText(v *wechat.V3NotifyReq, apiV3Key string) (result *V3DecryptTransferMerchantResult, err error) {
+	if v.Resource != nil {
+		result, err = V3DecryptRefundNotifyCipherText(v.Resource.Ciphertext, v.Resource.Nonce, v.Resource.AssociatedData, apiV3Key)
+		if err != nil {
+			bytes, _ := json.Marshal(v)
+			return nil, fmt.Errorf("V3NotifyReq(%s) decrypt cipher text error(%w)", string(bytes), err)
+		}
+		return result, nil
+	}
+	return nil, errors.New("notify data Resource is nil")
+}
+
+// V3DecryptRefundNotifyCipherText 解密 商家转账 回调中的加密信息
+func V3DecryptRefundNotifyCipherText(ciphertext, nonce, additional, apiV3Key string) (result *V3DecryptTransferMerchantResult, err error) {
+	cipherBytes, _ := base64.StdEncoding.DecodeString(ciphertext)
+	decrypt, err := aes.GCMDecrypt(cipherBytes, []byte(nonce), []byte(additional), []byte(apiV3Key))
+	if err != nil {
+		return nil, fmt.Errorf("aes.GCMDecrypt, err:%w", err)
+	}
+	result = &V3DecryptTransferMerchantResult{}
+	if err = json.Unmarshal(decrypt, result); err != nil {
+		return nil, fmt.Errorf("json.Unmarshal(%s), err:%w", string(decrypt), err)
+	}
+	return result, nil
+}
+
+// NotifyTransferMerchant 商家转账回调
+func (mng *WechatPayMngV3) NotifyTransferMerchant(req *http.Request) (res *V3DecryptTransferMerchantResult, err error) {
+
+	var notifyReq *wechat.V3NotifyReq
+	notifyReq, err = wechat.V3ParseNotify(req)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+	// 商家转账回调
+	res, err = mng.decryptRefundCipherText(notifyReq, mng.Config.ApiKeyV3)
 	return
 }
 
