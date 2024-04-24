@@ -396,7 +396,7 @@ func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo
 	if res.Error != "" {
 		// {"code":"PARAM_ERROR","detail":{"location":"query","value":1},"message":"输入源“/query/limit”映射到数值字段“最大资源条数”规则校验失败，值低于最小值 20"}
 		var errObj TransferMerchantError
-		parseErr := typeHelper.JsonDecodeWithStruct(res.Error, errObj)
+		parseErr := typeHelper.JsonDecodeWithStruct(res.Error, &errObj)
 		if parseErr != nil {
 			// 解析失败
 			err = errors.New(res.Error)
