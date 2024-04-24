@@ -356,3 +356,30 @@ func (mng *WechatPayMngV3) TransactionQueryOrder(ctx context.Context, transactio
 
 	return
 }
+
+type DetailStatus string
+
+const (
+	All     DetailStatus = "ALL"
+	SUCCESS DetailStatus = "SUCCESS"
+	FAIL    DetailStatus = "FAIL"
+)
+
+// TransferMerchantQuery 商家转账到零钱 查询转账批次
+func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo string, offset, limit int, detailStatus DetailStatus) (res *wechat.TransferMerchantQueryRsp, err error) {
+
+	//【need_query_detail】：boolean,query枚举值： true：是；false：否，默认否。商户可选择是否查询指定状态的转账明细单，当转账批次单状态为“FINISHED”（已完成）时，才会返回满足条件的转账明细单。示例值：true
+	//【offset】：int,请求资源起始位置，该次请求资源（转账明细单）的起始位置，从0开始，默认值为0，示例值：1
+	//【limit】：int,该次请求可返回的最大资源（转账明细单）条数，最小20条，最大100条，不传则默认20条。不足20条按实际条数返回,示例值：20
+	//【detail_status】：string[1,32]，查询指定状态的转账明细单，当need_query_detail为true时，该字段必填，ALL：全部。需要同时查询转账成功和转账失败的明细单 ，SUCCESS：转账成功。只查询转账成功的明细单 ，FAIL：转账失败。需要通过查询明细单接口确认明细失败原因后，再决定是否重新发起对该笔明细单的转账（并非整个转账批次单）
+
+	// 初始化 BodyMap
+	bm := make(gopay.BodyMap)
+	bm.Set("need_query_detail", true).
+		Set("offset", offset).
+		Set("limit", limit).
+		Set("detail_status", detailStatus)
+
+	res, err = mng.Client.V3TransferMerchantQuery(ctx, outBatchNo, bm)
+	return
+}
