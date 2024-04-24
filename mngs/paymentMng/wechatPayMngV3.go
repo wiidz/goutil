@@ -360,10 +360,26 @@ func (mng *WechatPayMngV3) TransactionQueryOrder(ctx context.Context, transactio
 type DetailStatus string
 
 const (
-	All     DetailStatus = "ALL"
-	SUCCESS DetailStatus = "SUCCESS"
-	FAIL    DetailStatus = "FAIL"
+	All      DetailStatus = "ALL"
+	WAIT_PAY DetailStatus = "WAIT_PAY"
+	SUCCESS  DetailStatus = "SUCCESS"
+	FAIL     DetailStatus = "FAIL"
 )
+
+func (status DetailStatus) String() string {
+	switch status {
+	case All:
+		return "ALL"
+	case SUCCESS:
+		return "SUCCESS"
+	case FAIL:
+		return "FAIL"
+	case WAIT_PAY:
+		return "WAIT_PAY"
+	default:
+		return "ALL"
+	}
+}
 
 type TransferMerchantError struct {
 	Code   string `json:"code"`
@@ -387,7 +403,7 @@ func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo
 	bm.Set("need_query_detail", true).
 		Set("offset", offset).
 		Set("limit", limit).
-		Set("detail_status", detailStatus)
+		Set("detail_status", detailStatus.String())
 
 	res, err = mng.Client.V3TransferMerchantQuery(ctx, outBatchNo, bm)
 	if err != nil {
