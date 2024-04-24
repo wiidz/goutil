@@ -308,9 +308,8 @@ func V3DecryptRefundNotifyCipherText(ciphertext, nonce, additional, apiV3Key str
 }
 
 // NotifyTransferMerchant 商家转账回调
-func (mng *WechatPayMngV3) NotifyTransferMerchant(req *http.Request) (res *V3DecryptTransferMerchantResult, err error) {
+func (mng *WechatPayMngV3) NotifyTransferMerchant(req *http.Request) (notifyReq *wechat.V3NotifyReq, res *V3DecryptTransferMerchantResult, err error) {
 
-	var notifyReq *wechat.V3NotifyReq
 	notifyReq, err = wechat.V3ParseNotify(req)
 	if err != nil {
 		xlog.Error(err)
