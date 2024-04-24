@@ -365,6 +365,15 @@ const (
 	FAIL    DetailStatus = "FAIL"
 )
 
+type TransferMerchantError struct {
+	Code   string `json:"code"`
+	Detail struct {
+		Location string `json:"location"`
+		Value    int    `json:"value"`
+	} `json:"detail"`
+	Message string `json:"message"`
+}
+
 // TransferMerchantQuery 商家转账到零钱 查询转账批次
 func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo string, offset, limit int, detailStatus DetailStatus) (res *wechat.TransferMerchantQueryRsp, err error) {
 
@@ -381,5 +390,21 @@ func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo
 		Set("detail_status", detailStatus)
 
 	res, err = mng.Client.V3TransferMerchantQuery(ctx, outBatchNo, bm)
+	if err != nil {
+		return
+	}
+	if res.Error != "" {
+		// {"code":"PARAM_ERROR","detail":{"location":"query","value":1},"message":"输入源“/query/limit”映射到数值字段“最大资源条数”规则校验失败，值低于最小值 20"}
+		var errObj TransferMerchantError
+		parseErr := typeHelper.JsonDecodeWithStruct(res.Error, errObj)
+		if parseErr != nil {
+			// 解析失败
+			err = errors.New(res.Error)
+			return
+		}
+
+		err = errors.New(errObj.Message)
+	}
+
 	return
 }
