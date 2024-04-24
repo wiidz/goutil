@@ -288,7 +288,8 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 						Set("batch_remark", params.BatchRemark).
 						Set("total_amount", params.TotalAmount).
 						Set("total_num", params.TotalNum).
-						Set("transfer_detail_list", transferList)
+						Set("transfer_detail_list", transferList).
+						Set("notify_url", mng.Config.NotifyURL)
 
 	//bm.Set("nonce_str", util.RandomString(32)).
 	//	Set("partner_trade_no", util.RandomString(32)).
@@ -409,18 +410,35 @@ func (mng *WechatPayMngV3) TransferMerchantQuery(ctx context.Context, outBatchNo
 	if err != nil {
 		return
 	}
-	if res.Error != "" {
+	err = mng.handleError(res.Error)
+
+	return
+}
+
+// handleError 处理错误信息
+func (mng *WechatPayMngV3) handleError(errStr string) (err error) {
+	if errStr != "" {
 		// {"code":"PARAM_ERROR","detail":{"location":"query","value":1},"message":"输入源“/query/limit”映射到数值字段“最大资源条数”规则校验失败，值低于最小值 20"}
 		var errObj TransferMerchantError
-		parseErr := typeHelper.JsonDecodeWithStruct(res.Error, &errObj)
+		parseErr := typeHelper.JsonDecodeWithStruct(errStr, &errObj)
 		if parseErr != nil {
 			// 解析失败
-			err = errors.New(res.Error)
+			err = errors.New(errStr)
 			return
 		}
 
 		err = errors.New(errObj.Message)
 	}
+	return
+}
+
+// V3TransferMerchantDetail 商家明细单号查询明细单API
+func (mng *WechatPayMngV3) V3TransferMerchantDetail(ctx context.Context, outBatchNo, outDetailNo string) (res *wechat.TransferMerchantDetailRsp, err error) {
+	res, err = mng.Client.V3TransferMerchantDetail(ctx, outBatchNo, outDetailNo)
+	if err != nil {
+		return
+	}
+	err = mng.handleError(res.Error)
 
 	return
 }
