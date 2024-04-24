@@ -289,7 +289,7 @@ func (mng *WechatPayMngV3) BatchPayUser(ctx context.Context, params *TransferUse
 						Set("total_amount", params.TotalAmount).
 						Set("total_num", params.TotalNum).
 						Set("transfer_detail_list", transferList).
-						Set("notify_url", mng.Config.NotifyURL)
+						Set("notify_url", mng.Config.MerchantTransferNotifyURL)
 
 	//bm.Set("nonce_str", util.RandomString(32)).
 	//	Set("partner_trade_no", util.RandomString(32)).

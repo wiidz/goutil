@@ -194,12 +194,13 @@ func getWechatPayConfigV3(rows []*DbSettingRow, debug bool) *configStruct.Wechat
 		CertURI:  GetValueFromRow(rows, "wechat", "pay_v3", "cert_uri", "", debug),
 		KeyURI:   GetValueFromRow(rows, "wechat", "pay_v3", "key_uri", "", debug),
 		//PEMPublicKeyContent:  GetValueFromRow(rows, "wechat", "pay", "pem_public_key_content", "", debug),
-		PEMPrivateKeyContent: GetValueFromRow(rows, "wechat", "pay_v3", "pem_private_key_content", "", debug),
-		PEMCertContent:       GetValueFromRow(rows, "wechat", "pay_v3", "pem_cert_content", "", debug),
-		CertSerialNo:         GetValueFromRow(rows, "wechat", "pay_v3", "cert_serial_no", "", debug),
-		NotifyURL:            GetValueFromRow(rows, "wechat", "pay_v3", "notify_url", "", debug),
-		RefundNotifyURL:      GetValueFromRow(rows, "wechat", "pay_v3", "refund_notify_url", "", debug),
-		Debug:                GetValueFromRow(rows, "wechat", "pay_v3", "debug", "0", debug) == "1", // 0=生产，1=调试
+		PEMPrivateKeyContent:      GetValueFromRow(rows, "wechat", "pay_v3", "pem_private_key_content", "", debug),
+		PEMCertContent:            GetValueFromRow(rows, "wechat", "pay_v3", "pem_cert_content", "", debug),
+		CertSerialNo:              GetValueFromRow(rows, "wechat", "pay_v3", "cert_serial_no", "", debug),
+		NotifyURL:                 GetValueFromRow(rows, "wechat", "pay_v3", "notify_url", "", debug),
+		RefundNotifyURL:           GetValueFromRow(rows, "wechat", "pay_v3", "refund_notify_url", "", debug),
+		MerchantTransferNotifyURL: GetValueFromRow(rows, "wechat", "pay_v3", "merchant_transfer_notify_url", "", debug),
+		Debug:                     GetValueFromRow(rows, "wechat", "pay_v3", "debug", "0", debug) == "1", // 0=生产，1=调试
 	}
 }
 
