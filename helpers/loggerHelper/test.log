@@ -1,0 +1,7 @@
+{"level":"INFO","ts":"2024-04-26T16:26:23.523+0800","caller":"loggerHelper/loggerHelper.go:73","msg":"test","line":17,"file":"loggerHelper_test.go"}
+{"level":"INFO","ts":"2024-04-26T16:26:36.854+0800","caller":"loggerHelper/loggerHelper.go:73","msg":"test","line":18,"file":"loggerHelper_test.go"}
+{"level":"INFO","ts":"2024-04-26T16:27:26.847+0800","caller":"loggerHelper/loggerHelper.go:73","msg":"test","line":18,"file":"loggerHelper_test.go"}
+{"level":"INFO","ts":"2024-04-26T16:28:03.481+0800","msg":"test","line":18,"file":"loggerHelper_test.go"}
+{"level":"INFO","ts":"2024-04-26T16:31:38.760+0800","msg":"[test]"}
+{"level":"INFO","ts":"2024-04-26T16:32:38.942+0800","msg":"test","line":19,"file":"loggerHelper_test.go"}
+2024-04-26T16:39:36.808+0800	INFO	test	{"line": 19, "file": "loggerHelper_test.go"}

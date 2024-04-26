@@ -47,8 +47,8 @@ func GetFontType(fontFilePath string) (fontType *truetype.Font, err error) {
 	return
 }
 
-//func CalculateTextWidth(fnt font.Face, text string) fixed.Int26_6 {
-//	bounds := font.MeasureString(fnt, text)
+//func CalculateTextWidth(fnt fonts.Face, text string) fixed.Int26_6 {
+//	bounds := fonts.MeasureString(fnt, text)
 //	return bounds.Ceil()
 //}
 
