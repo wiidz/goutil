@@ -5,3 +5,13 @@
 {"level":"INFO","ts":"2024-04-26T16:31:38.760+0800","msg":"[test]"}
 {"level":"INFO","ts":"2024-04-26T16:32:38.942+0800","msg":"test","line":19,"file":"loggerHelper_test.go"}
 2024-04-26T16:39:36.808+0800	INFO	test	{"line": 19, "file": "loggerHelper_test.go"}
+2024-04-26T16:42:43.078+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 19}
+2024-04-26T16:47:37.051+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 19}
+2024-04-26T16:47:50.546+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 19}
+2024-04-26T16:54:31.761+0800	INFO	test	{"file": "/Users/本地/Code-local/goutil/helpers/loggerHelper/loggerHelper_test.go", "line": 19}
+2024-04-26T16:59:41.839+0800	INFO	[test]
+2024-04-26T17:00:08.513+0800	INFO	test	{"file": "/Users/本地/Code-local/goutil/helpers/loggerHelper/loggerHelper_test.go", "line": 20}
+2024-04-26T17:00:14.812+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 20}
+2024-04-26T17:01:42.156+0800	INFO	test	{"file": "/Users/本地/Code-local/goutil/helpers/loggerHelper/loggerHelper_test.go", "line": 20}
+2024-04-26T17:01:47.791+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 20}
+2024-04-26T17:04:23.385+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 20}

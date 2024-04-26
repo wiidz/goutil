@@ -17,6 +17,7 @@ type Config struct {
 	Json          bool          // 是否以json格式输出
 	SyncToConsole bool          // 是否同步到控制台（仅文本时生效）
 
+	IsFullPath      bool // 输出的复杂度，true的时候只输出文件名，false就输出复杂一点
 	AddCaller       bool // 是否输出调用文件和行数，目前这个caller只会输出loggerHelper调用，所以可以不要，我们已经默认输出行数了
 	ShowFileAndLine bool // 我们用这个来控制是否输出行数
 }
@@ -45,7 +46,7 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 	}
 
 	var isFileLogger bool
-	helper.Normal, isFileLogger, err = getLogger(config.Filename, config.Json, config.Level, config.AddCaller)
+	helper.Normal, isFileLogger, err = getLogger(config.Filename, config)
 	if err != nil {
 		return
 	}
@@ -53,7 +54,7 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 	//【2】如果是文件logger，同步做一个输出到控制台
 	if config.SyncToConsole && isFileLogger {
 		var tempLogger *zap.Logger
-		tempLogger, _, err = getLogger("", config.Json, config.Level, config.AddCaller)
+		tempLogger, _, err = getLogger("", config)
 		if err != nil {
 			return
 		}
@@ -64,25 +65,32 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 	return
 }
 
+// log 输出信息
+// 在 Zap 中，Panic 级别的日志消息确实比 Fatal 级别更严重。这可能有些让人困惑，因为通常我们认为 Panic 表示程序遇到了无法恢复的严重错误，会立即终止程序的执行，而 Fatal 表示程序遇到了严重错误，但还有可能继续执行。
+// Zap 设计 Panic 级别的日志消息比 Fatal 更严重，是因为 Panic 级别的日志消息触发了程序的 panic 行为，这可能会导致程序在运行时出现崩溃，因此被视为更为严重的错误。
+// 在 Zap 中，Panic 级别的日志消息通常用于标识一些非常严重的、无法恢复的错误，即使这些错误可能并不需要导致程序立即终止。而 Fatal 级别的日志消息则表示程序遇到了严重错误，但仍有可能继续执行，因此其严重性略低于 Panic。
 func (helper *LoggerHelper) log(sugar *zap.SugaredLogger, level zapcore.Level, args ...interface{}) {
 	_, file, line, _ := runtime.Caller(2) // 获取调用方法的文件名和行号
-	file = filepath.Base(file)
+	if !helper.Config.IsFullPath {
+		file = filepath.Base(file)
+	}
 	msg := fmt.Sprint(args...)
 	switch level {
-	case zapcore.DebugLevel:
-		sugar.Debugw(msg, "file", file, "line", line)
-	case zapcore.InfoLevel:
-		sugar.Infow(msg, "file", file, "line", line)
-	case zapcore.WarnLevel:
-		sugar.Warnw(msg, "file", file, "line", line)
+	// 以下也代表了level层级
+	case zapcore.PanicLevel:
+		sugar.Panicw(msg, "file", file, "line", line) // 会导致程序退出（用于生产环境），当发生严重错误但程序仍然有可能继续执行时，可以选择使用 Panic 级别。记录 Panic 级别的日志消息会导致程序 panic，并终止程序的执行，但与 Fatal 不同的是，Panic 可以提供更多的上下文信息和调试信息，有助于排查问题。
+	case zapcore.FatalLevel:
+		sugar.Fatalw(msg, "file", file, "line", line) // 会导致程序退出（用于生产环境），当发生严重错误并且程序无法继续执行时，可以选择使用 Fatal 级别。记录 Fatal 级别的日志消息将导致程序立即退出，这在生产环境中可以帮助及时发现并解决一些无法修复的严重问题。
+	case zapcore.DPanicLevel:
+		sugar.DPanicw(msg, "file", file, "line", line) // 不会退出（用户开发环境）
 	case zapcore.ErrorLevel:
 		sugar.Errorw(msg, "file", file, "line", line)
-	case zapcore.DPanicLevel:
-		sugar.DPanicw(msg, "file", file, "line", line)
-	case zapcore.PanicLevel:
-		sugar.Panicw(msg, "file", file, "line", line)
-	case zapcore.FatalLevel:
-		sugar.Fatalw(msg, "file", file, "line", line)
+	case zapcore.WarnLevel:
+		sugar.Warnw(msg, "file", file, "line", line)
+	case zapcore.InfoLevel:
+		sugar.Infow(msg, "file", file, "line", line)
+	case zapcore.DebugLevel:
+		sugar.Debugw(msg, "file", file, "line", line)
 	}
 }
 
@@ -194,40 +202,39 @@ func (helper *LoggerHelper) Warn(args ...interface{}) {
 }
 
 // getLogger 获取logger
-func getLogger(fileName string, json bool, level zapcore.Level, addCaller bool) (logger *zap.Logger, isFileLogger bool, err error) {
+func getLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogger bool, err error) {
 	var core zapcore.Core
 	if fileName != "" {
 		// 输出到文本
-		encoder := getEncoder(json, false) // 文本中强制不要颜色
+		encoder := getEncoder(config.Json, false, config.IsFullPath) // 文本中强制不要颜色
 		writeSyncer := getLogWriter(fileName)
-		core = getCore(encoder, writeSyncer, level)
+		core = getCore(encoder, writeSyncer, config.Level)
 		isFileLogger = true
 	} else {
 		// 输出到控制台(json输出到控制台可读性太差了，强制不要)
 		var encoder zapcore.Encoder
-		if json {
+		if config.Json {
 			//【1】如果是json输出就不要颜色
-			encoder = getEncoder(false, false) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
+			encoder = getEncoder(false, false, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
 		} else {
 			//【2】如果是控制台就强制要颜色
-			encoder = getEncoder(false, true) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
+			encoder = getEncoder(false, true, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
 		}
 
 		//consoleDebugging := zapcore.Lock(zapcore.AddSync(os.Stdout))
 		//core = getCore(encoder, consoleDebugging, level) // 直接使用 os.Stdout 输出到控制台
-		core = getCore(encoder, os.Stdout, level) // 直接使用 os.Stdout 输出到控制台
+		core = getCore(encoder, os.Stdout, config.Level) // 直接使用 os.Stdout 输出到控制台
 	}
 
-	if addCaller {
+	if config.AddCaller {
 		logger = zap.New(core, zap.AddCaller())
 	} else {
 		logger = zap.New(core)
 	}
-
 	return
 }
 
-func getEncoder(json, color bool) (encoder zapcore.Encoder) {
+func getEncoder(json, color, isFullPath bool) (encoder zapcore.Encoder) {
 
 	var encodeLevel zapcore.LevelEncoder
 	if color {
@@ -247,7 +254,14 @@ func getEncoder(json, color bool) (encoder zapcore.Encoder) {
 		EncodeLevel:    encodeLevel,                    // 可以选择其他编码器
 		EncodeTime:     zapcore.ISO8601TimeEncoder,     // 可以选择其他编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder, // 可以选择其他编码器
-		EncodeCaller:   zapcore.ShortCallerEncoder,     // 简短模式的 caller encoder
+		//EncodeCaller:   zapcore.FullCallerEncoder, // 注意这里设置了以后，外面还是要加addCaller才行
+	}
+
+	// 注意：由于我们使用了log方法，不需要输出原本的路径了，因为不管咋输出都是loggerHelper，但是当外面使用helper.Sugar输出就有效
+	if isFullPath {
+		encoderConfig.EncodeCaller = zapcore.FullCallerEncoder
+	} else {
+		encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}
 
 	if json {

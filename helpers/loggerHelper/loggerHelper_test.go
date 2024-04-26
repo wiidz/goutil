@@ -11,9 +11,10 @@ func TestNewLoggerHelper(t *testing.T) {
 		Filename: "./test.log",
 		//Filename:  "",
 		//AddCaller:     false,
+		IsFullPath:      false,
 		ShowFileAndLine: true,
 		Json:            false,
-		Level:           zapcore.DebugLevel,
+		Level:           zapcore.InfoLevel,
 		SyncToConsole:   true,
 	})
 	temp.Info("test")
