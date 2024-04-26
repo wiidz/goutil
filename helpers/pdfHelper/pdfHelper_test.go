@@ -1,8 +1,8 @@
 package pdfHelper
 
 import (
-	"go.uber.org/zap"
-	"log"
+	"github.com/wiidz/goutil/helpers/loggerHelper"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"testing"
 )
@@ -34,9 +34,12 @@ var waterMarkOption = &WaterMarkOption{
 
 func TestAdd(t *testing.T) {
 
-	logger, _ := zap.NewProduction()
-	logger = logger.WithOptions(zap.AddCaller()) // 添加 caller 选项
-	defer logger.Sync()
+	logH, _ := loggerHelper.NewLoggerHelper(&loggerHelper.Config{
+		IsFullPath:      true,
+		ShowFileAndLine: true,
+		Json:            false,
+		Level:           zapcore.DebugLevel,
+	})
 
 	mainDir, _ := os.Getwd()
 	fontOption = &FontOption{
@@ -46,7 +49,6 @@ func TestAdd(t *testing.T) {
 		HeavyTTFURL:   "./fonts/Alibaba-PuHuiTi-Heavy.ttf",
 	}
 
-	log.Println("main")
 	pdfH := NewPDFHelper(fontOption, headerOption, footerOption, waterMarkOption)
 	pdfH.MainTitle("购销合同")
 
@@ -60,14 +62,13 @@ func TestAdd(t *testing.T) {
 	pdfH.AddTableBody(headerSlice[1].Width, ToTheRight, "456")
 	pdfH.AddTableBody(headerSlice[2].Width, ToTheRight, "789")
 
-	logger.Info("test")
-
 	//【6】输出
 	fileName := "contact-letter-test"
+	logH.Info(mainDir + "/temp/" + fileName + ".pdf")
 
-	imgNames, err := pdfH.SaveAsImgs(mainDir+"/temp", fileName)
-	logger.Info("imgNames", zap.Reflect("imgNames", imgNames))
-	logger.Error("Error occurred", zap.Error(err))
+	imgNames, err := pdfH.SaveAsImgs(mainDir+"/temp/", fileName)
+	logH.Info("imgNames", imgNames)
+	logH.Error("Error occurred", err)
 
 	return
 }

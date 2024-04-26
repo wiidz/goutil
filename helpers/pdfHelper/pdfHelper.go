@@ -258,6 +258,8 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (localFilePaths []stri
 	pdfFilePath := dir + fileName + ".pdf"
 	err = helper.PDF.OutputFileAndClose(pdfFilePath)
 	if err != nil {
+		log.Println(pdfFilePath)
+		log.Println("fuck")
 		return
 	}
 	defer os.Remove(pdfFilePath) // 完成后删除pdf文件
