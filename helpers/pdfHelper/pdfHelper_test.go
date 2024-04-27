@@ -7,68 +7,57 @@ import (
 	"testing"
 )
 
-var fontOption = &FontOption{
-	//LightTTFURL:   "/static/fonts/Alibaba-PuHuiTi-Light.ttf",
-	//RegularTTFURL: "/static/fonts/Alibaba-PuHuiTi-Regular.ttf",
-	//BoldTTFURL:    "/static/fonts/Alibaba-PuHuiTi-Medium.ttf",
-	//HeavyTTFURL:   "/static/fonts/Alibaba-PuHuiTi-Heavy.ttf",
-}
-var footerOption = &FooterOption{
-	LeftText:  "", // 写平台名称（心宿乐清）
-	RightText: "ANTARES (YQ) INFO-TECH. CO.LTD",
-}
-var headerOption = &HeaderOption{
-	//LeftImgURL: "./static/images/logo.png",
-	RightText: "", // 写合同编号
-}
-var waterMarkOption = &WaterMarkOption{
-	TextCn:   "联合电气",
-	TextEn:   "21B.cn",
-	FontSize: 16,
-	Color: &RGBColor{
-		R: 189,
-		G: 205,
-		B: 215,
-	},
-}
-
 func TestAdd(t *testing.T) {
-
 	logH, _ := loggerHelper.NewLoggerHelper(&loggerHelper.Config{
 		IsFullPath:      true,
 		ShowFileAndLine: true,
 		Json:            false,
 		Level:           zapcore.DebugLevel,
 	})
-
-	mainDir, _ := os.Getwd()
-	fontOption = &FontOption{
+	fontOption := &FontOption{
+		FontName:      "MyFont",
 		LightTTFURL:   "./fonts/Alibaba-PuHuiTi-Light.ttf",
 		RegularTTFURL: "./fonts/Alibaba-PuHuiTi-Regular.ttf",
 		BoldTTFURL:    "./fonts/Alibaba-PuHuiTi-Medium.ttf",
 		HeavyTTFURL:   "./fonts/Alibaba-PuHuiTi-Heavy.ttf",
 	}
-
-	pdfH := NewPDFHelper(fontOption, headerOption, footerOption, waterMarkOption)
-	pdfH.MainTitle("购销合同")
+	pdfH := NewPDFHelper(fontOption, nil, nil, nil)
+	pdfH.MainTitle("购销合同2")
 
 	headerSlice := []HeaderSlice{
-		{"序号", 8},
-		{"品名", 44},
+		{"序号", 40},
+		{"品名", 100},
 		{"规格型号", 52},
 	} // 表头数据
 
-	pdfH.AddTableBody(headerSlice[0].Width, ToTheRight, "123")
-	pdfH.AddTableBody(headerSlice[1].Width, ToTheRight, "456")
-	pdfH.AddTableBody(headerSlice[2].Width, ToTheRight, "789")
+	var dataSlice = [][]string{
+		[]string{
+			"test",
+			"一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789",
+			"23321",
+		},
+		[]string{
+			"test",
+			"一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789",
+			"23321",
+		},
+		[]string{
+			"test",
+			"一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789一二三四五六七八九123456789",
+			"23321",
+		},
+	}
+	for k := range dataSlice {
+		pdfH.AddTableBodyRow([]float64{headerSlice[0].Width, headerSlice[1].Width, headerSlice[2].Width}, dataSlice[k], &ContentStyle{
+			FontSize:   10,
+			LineHeight: 10 * 0.6,
+		})
+	}
 
 	//【6】输出
-	fileName := "contact-letter-test"
-	logH.Info(mainDir + "/temp/" + fileName + ".pdf")
-
-	imgNames, err := pdfH.SaveAsImgs(mainDir+"/temp/", fileName)
-	logH.Info("imgNames", imgNames)
+	mainDir, _ := os.Getwd()
+	imgNames, err := pdfH.SaveAsPDF(mainDir+"/", "test")
+	logH.Info("imgNames ", imgNames)
 	logH.Error("Error occurred", err)
-
 	return
 }

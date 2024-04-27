@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	FontName             = "MyFont"
+	// helper.FontOption.FontName             = "MyFont"
 	PortraitValidWidth   = 190.0
 	PortraitValidHeight  = 277.0
 	LandscapeValidWidth  = 277.0
@@ -45,8 +45,17 @@ func NewPDFHelper(fontOption *FontOption, headerOption *HeaderOption, footerOpti
 	}
 
 	helper.addFonts() // 添加预设字体
-	helper.AddHeader()
-	helper.AddFooter()
+
+	// 设置页眉
+	if headerOption != nil {
+		helper.AddHeader()
+	}
+
+	// 设置页脚
+	if footerOption != nil {
+		helper.AddFooter()
+	}
+
 	helper.PDF.AddPage() // 添加一页
 	// 这里不要忘记了，如果没有addPage，也能输出pdf，但是这个pdf的数据头不一样，就会导致fitz认不到格式
 
@@ -55,10 +64,20 @@ func NewPDFHelper(fontOption *FontOption, headerOption *HeaderOption, footerOpti
 
 // addFonts 添加字体
 func (helper *PDFHelper) addFonts() {
-	helper.PDF.AddUTF8Font(FontName, FontLight, helper.FontOption.LightTTFURL)
-	helper.PDF.AddUTF8Font(FontName, FontRegular, helper.FontOption.RegularTTFURL)
-	helper.PDF.AddUTF8Font(FontName, FontBold, helper.FontOption.BoldTTFURL)
-	helper.PDF.AddUTF8Font(FontName, FontHeavy, helper.FontOption.HeavyTTFURL)
+	if helper.FontOption != nil {
+		if helper.FontOption.LightTTFURL != "" {
+			helper.PDF.AddUTF8Font(helper.FontOption.FontName, FontLight, helper.FontOption.LightTTFURL)
+		}
+		if helper.FontOption.RegularTTFURL != "" {
+			helper.PDF.AddUTF8Font(helper.FontOption.FontName, FontRegular, helper.FontOption.RegularTTFURL)
+		}
+		if helper.FontOption.BoldTTFURL != "" {
+			helper.PDF.AddUTF8Font(helper.FontOption.FontName, FontBold, helper.FontOption.BoldTTFURL)
+		}
+		if helper.FontOption.HeavyTTFURL != "" {
+			helper.PDF.AddUTF8Font(helper.FontOption.FontName, FontHeavy, helper.FontOption.HeavyTTFURL)
+		}
+	}
 }
 
 // getValidWidth 获取当前页有效宽度
@@ -87,8 +106,8 @@ func (helper *PDFHelper) AddHeader() {
 
 		//【2】合同编号
 		helper.PDF.SetXY(Margin, Margin)
-		helper.PDF.SetTextColor(144, 147, 153)             //设置字体
-		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 12) //设置字体
+		helper.PDF.SetTextColor(144, 147, 153)                               //设置字体
+		helper.PDF.SetFont(helper.FontOption.FontName, gofpdf.AlignLeft, 12) //设置字体
 		helper.PDF.CellFormat(helper.getValidWidth(), Margin, helper.HeaderOption.RightText, "", 1, gofpdf.AlignRight, false, 0, "")
 		//【3】添加水印
 		if helper.WaterMarkOption != nil {
@@ -112,12 +131,12 @@ func (helper *PDFHelper) AddFooter() {
 
 		//【1】编号（左）
 		helper.PDF.SetTextColor(96, 98, 102)
-		helper.PDF.SetFont(FontName, FontLight, 10) //设置字体
+		helper.PDF.SetFont(helper.FontOption.FontName, FontLight, 10) //设置字体
 		helper.PDF.CellFormat(height[0], Margin, helper.FooterOption.LeftText, "", 0, gofpdf.AlignLeft, false, 0, "")
 
 		//【2】页码（中）
 		helper.PDF.SetTextColor(48, 49, 51)
-		helper.PDF.SetFont(FontName, FontBold, 12) //设置字体
+		helper.PDF.SetFont(helper.FontOption.FontName, FontBold, 12) //设置字体
 
 		pageNow := helper.PDF.PageNo()
 		//pageTotal := pdf.PageCount()
@@ -127,7 +146,7 @@ func (helper *PDFHelper) AddFooter() {
 		//pageTotal = 99
 		//【3】编号（右）
 		helper.PDF.SetTextColor(96, 98, 102)
-		helper.PDF.SetFont(FontName, gofpdf.AlignLeft, 10) //设置字体
+		helper.PDF.SetFont(helper.FontOption.FontName, gofpdf.AlignLeft, 10) //设置字体
 		helper.PDF.CellFormat(height[2], Margin, helper.FooterOption.RightText, "", 0, gofpdf.AlignCenter, false, 0, "")
 	})
 }
@@ -140,7 +159,7 @@ func (helper *PDFHelper) AddWaterMark() {
 	ctrY := LandscapeValidHeight / 2.0
 
 	helper.PDF.SetTextColor(helper.WaterMarkOption.Color.R, helper.WaterMarkOption.Color.G, helper.WaterMarkOption.Color.B)
-	helper.PDF.SetFont(FontName, "", helper.WaterMarkOption.FontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, "", helper.WaterMarkOption.FontSize)
 	helper.PDF.SetXY(30, 0)
 	helper.PDF.TransformBegin()
 	helper.PDF.TransformRotate(15, ctrX, ctrY)
@@ -166,7 +185,7 @@ func (helper *PDFHelper) AddWaterMark() {
 func (helper *PDFHelper) MainTitle(text string) {
 
 	helper.PDF.SetXY(Margin, 15)
-	helper.PDF.SetFont(FontName, FontHeavy, 24) // 设置字体
+	helper.PDF.SetFont(helper.FontOption.FontName, FontHeavy, 24) // 设置字体
 
 	totalWidth := PortraitValidWidth
 	if !helper.isPortraitHeader() {
@@ -178,7 +197,7 @@ func (helper *PDFHelper) MainTitle(text string) {
 
 // FirstTitle 一级标题
 func (helper *PDFHelper) FirstTitle(text string) {
-	//helper.PDF.SetFont(FontName, "B", 14)
+	//helper.PDF.SetFont(helper.FontOption.FontName, "B", 14)
 	helper.PDF.SetFontStyle(FontBold)
 	helper.PDF.SetFontSize(14)
 
@@ -235,7 +254,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 	}
 
 	//【3】写入
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 	helper.PDF.MultiCell(190, lineHeight, text, "", textAlign, false)
 }
@@ -246,6 +265,7 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 func (helper *PDFHelper) SaveAsPDF(dir, fileName string) (filePath string, err error) {
 	filePath = dir + fileName + ".pdf"
 	err = helper.PDF.OutputFileAndClose(filePath)
+	log.Println("sssserr", err)
 	return
 }
 
@@ -326,11 +346,11 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 
 	//【2】填充甲乙双方信息
 	helper.PDF.Ln(-1)
-	helper.PDF.SetFont(FontName, FontBold, SignFormPartyLineHeight)
+	helper.PDF.SetFont(helper.FontOption.FontName, FontBold, SignFormPartyLineHeight)
 	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "甲方", "1", 0, gofpdf.AlignCenter, false, 0, "")
 	helper.PDF.CellFormat(HalfPortraitValidWidth, SignFormPartyLineHeight, "乙方", "1", 1, gofpdf.AlignCenter, false, 0, "")
 
-	helper.PDF.SetFont(FontName, FontRegular, 9)
+	helper.PDF.SetFont(helper.FontOption.FontName, FontRegular, 9)
 
 	//【3】循环填充数据
 	for k := range leftData {
@@ -530,7 +550,7 @@ func (helper *PDFHelper) AddTableHead(width float64, ln Ln, content string, opt 
 		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
 	}
 
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
@@ -580,7 +600,7 @@ func (helper *PDFHelper) AddTableBody(width float64, ln Ln, content string, opt 
 		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
 	}
 
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
@@ -635,7 +655,7 @@ func (helper *PDFHelper) AddTableHeadMulti(width float64, startPoint *imgHelper.
 		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
 	}
 
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
@@ -694,7 +714,7 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *imgHelper.
 		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
 	}
 
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	//helper.PDF.CellFormat(width, lineHeight, content, "LTRB", int(ln), textAlign, fill, 0, "")
@@ -709,7 +729,7 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *imgHelper.
 
 // GetTotalHeight 获取多行文字的行高
 func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight FontWeight, fontSize, lineHeight float64) (totalHeight float64) {
-	helper.PDF.SetFont(FontName, string(weight), fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, string(weight), fontSize)
 
 	//lines := helper.PDF.SplitLines([]byte(content), width)
 	lines := helper.PDF.SplitText(content, width)
@@ -901,7 +921,9 @@ func (helper *PDFHelper) BatchSplitLines(widthSlice []float64, contentSlice []st
 	lineSlice = [][][]byte{}
 
 	for k := range widthSlice {
+		log.Println("【【【【【", k, widthSlice[k], contentSlice[k])
 		lines := helper.PDF.SplitLines([]byte(contentSlice[k]), widthSlice[k])
+		log.Println("]]]", len(lines), lines)
 		lineSlice = append(lineSlice, lines)
 		if maxLines < len(lines) {
 			maxLines = len(lines)
@@ -955,16 +977,79 @@ func (helper *PDFHelper) AddTableBodyMultiLines(width float64, ln Ln, contentByt
 		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
 	}
 
-	helper.PDF.SetFont(FontName, fontWeight, fontSize)
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	for index, line := range contentByte {
+		log.Println("index", index)
+		log.Println("line", string(line))
 		tempLn := ln
 		if index > 0 {
 			tempLn = Wrap
 		}
+		log.Println("tempLn", tempLn)
 		helper.PDF.CellFormat(width, lineHeight, string(line), "LTRB", int(tempLn), textAlign, fill, 0, "")
 	}
 
 	return
+}
+
+// AddTableBodyRow 新的tableBody写法（支持换行）
+func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []string, opt ...*ContentStyle) {
+	//【1】默认样式
+	var fontSize = float64(10)
+	var lineHeight = fontSize * 1
+	var textAlign = gofpdf.AlignCenter
+	var fontWeight = FontRegular
+	var color = &RGBColor{
+		R: 48,
+		G: 49,
+		B: 51,
+	}
+	var bgColor *RGBColor
+
+	//【2】判断有无设置的样式
+	if len(opt) != 0 {
+		if opt[0].FontSize != 0 {
+			fontSize = opt[0].FontSize
+		}
+		if opt[0].TextAlign != "" {
+			textAlign = opt[0].TextAlign
+		}
+		if opt[0].FontWeight != "" {
+			fontWeight = string(opt[0].FontWeight)
+		}
+		if opt[0].Color != nil {
+			color = opt[0].Color
+		}
+		if opt[0].BgColor != nil {
+			bgColor = opt[0].BgColor
+		}
+		if opt[0].LineHeight != 0 {
+			lineHeight = opt[0].LineHeight
+		}
+	}
+
+	//【3】设置样式
+	var fill bool
+	if bgColor != nil {
+		fill = true
+		helper.PDF.SetFillColor(bgColor.R, bgColor.G, bgColor.B)
+	}
+
+	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
+	helper.PDF.SetTextColor(color.R, color.G, color.B)
+
+	lines, maxLines, _ := helper.BatchSplitLines(widthSlice, contentSlice)
+
+	x := float64(Margin)
+	y := helper.PDF.GetY()
+	for k := range widthSlice {
+		tempLH := lineHeight * float64(maxLines) / float64(len(lines[k]))
+		helper.PDF.MultiCell(widthSlice[k], tempLH, contentSlice[k], "LTBR", textAlign, fill)
+		x += widthSlice[k]
+		helper.PDF.SetXY(x, y)
+	}
+	helper.PDF.Ln(float64(Wrap))
+	helper.PDF.SetXY(float64(Margin), y+lineHeight*float64(maxLines))
 }

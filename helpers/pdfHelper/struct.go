@@ -23,6 +23,8 @@ type FontOption struct {
 	RegularTTFURL string // 常规体字体文件
 	BoldTTFURL    string // 粗体字体文件
 	HeavyTTFURL   string // 超粗体字体文件
+
+	FontName string // 预设文本（预设字体名字如Arial,自定义的话随便取个名字）
 }
 type FooterOption struct {
 	LeftText  string // 左侧文字
