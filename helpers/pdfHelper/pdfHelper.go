@@ -10,6 +10,7 @@ import (
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
+	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -891,7 +892,12 @@ func (helper *PDFHelper) BatchSplitLines(widthSlice []float64, contentSlice []st
 	lineSlice = [][]string{}
 
 	for k := range widthSlice {
-		lines := helper.SplitText(widthSlice[k], contentSlice[k])
+		var lines []string
+		if contentSlice[k] == "" {
+			lines = []string{""}
+		} else {
+			lines = helper.SplitText(widthSlice[k], contentSlice[k])
+		}
 		lineSlice = append(lineSlice, lines)
 		if maxLines < len(lines) {
 			maxLines = len(lines)
@@ -1011,12 +1017,12 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 	for k := range widthSlice {
 
 		lineAmount := float64(len(lines[k]))
-		var tempLH float64
-		if lineAmount == 0 {
-			tempLH = lineHeight * float64(maxLines)
-		} else {
-			tempLH = lineHeight * float64(maxLines) / float64(len(lines[k]))
-		}
+		var tempLH = lineHeight * float64(maxLines) / lineAmount
+
+		log.Println("contentSlice[k]", contentSlice[k])
+		log.Println("lineAmount", lineAmount)
+		log.Println("tempLH", tempLH)
+
 		helper.PDF.MultiCell(widthSlice[k], tempLH, contentSlice[k], "LTBR", textAlign, fill)
 		x += widthSlice[k]
 		helper.PDF.SetXY(x, y)
