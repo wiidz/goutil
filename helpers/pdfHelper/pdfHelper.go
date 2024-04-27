@@ -915,13 +915,19 @@ func (helper *PDFHelper) SplitLines(width float64, content string) (lines [][]by
 	return
 }
 
-// BatchSplitLines 批量拆分
-func (helper *PDFHelper) BatchSplitLines(widthSlice []float64, contentSlice []string) (lineSlice [][][]byte, maxLines int, err error) {
+// SplitText 将文字拆分成几行(UTF-8用这个）
+func (helper *PDFHelper) SplitText(width float64, content string) (lines []string) {
+	lines = helper.PDF.SplitText(content, width)
+	return
+}
 
-	lineSlice = [][][]byte{}
+// BatchSplitLines 批量拆分
+func (helper *PDFHelper) BatchSplitLines(widthSlice []float64, contentSlice []string) (lineSlice [][]string, maxLines int, err error) {
+
+	lineSlice = [][]string{}
 
 	for k := range widthSlice {
-		lines := helper.PDF.SplitLines([]byte(contentSlice[k]), widthSlice[k])
+		lines := helper.SplitText(widthSlice[k], contentSlice[k])
 		lineSlice = append(lineSlice, lines)
 		if maxLines < len(lines) {
 			maxLines = len(lines)
@@ -1037,7 +1043,6 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 
 	helper.PDF.SetFont(helper.FontOption.FontName, fontWeight, fontSize)
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
-
 	lines, maxLines, _ := helper.BatchSplitLines(widthSlice, contentSlice)
 
 	x := float64(Margin)
