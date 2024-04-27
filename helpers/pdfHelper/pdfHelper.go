@@ -921,9 +921,7 @@ func (helper *PDFHelper) BatchSplitLines(widthSlice []float64, contentSlice []st
 	lineSlice = [][][]byte{}
 
 	for k := range widthSlice {
-		log.Println("【【【【【", k, widthSlice[k], contentSlice[k])
 		lines := helper.PDF.SplitLines([]byte(contentSlice[k]), widthSlice[k])
-		log.Println("]]]", len(lines), lines)
 		lineSlice = append(lineSlice, lines)
 		if maxLines < len(lines) {
 			maxLines = len(lines)
@@ -1045,11 +1043,16 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 	x := float64(Margin)
 	y := helper.PDF.GetY()
 	for k := range widthSlice {
+
+		log.Println("lineHeight", lineHeight)
+		log.Println("maxLines", maxLines)
+		log.Println("len(lines[k])", len(lines[k]))
+		log.Println("content", contentSlice[k])
+
 		tempLH := lineHeight * float64(maxLines) / float64(len(lines[k]))
 		helper.PDF.MultiCell(widthSlice[k], tempLH, contentSlice[k], "LTBR", textAlign, fill)
 		x += widthSlice[k]
 		helper.PDF.SetXY(x, y)
 	}
-	helper.PDF.Ln(float64(Wrap))
 	helper.PDF.SetXY(float64(Margin), y+lineHeight*float64(maxLines))
 }
