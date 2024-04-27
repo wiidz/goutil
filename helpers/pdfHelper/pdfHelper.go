@@ -10,7 +10,6 @@ import (
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
-	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -265,7 +264,6 @@ func (helper *PDFHelper) NormalContent(text string, opt ...*ContentStyle) {
 func (helper *PDFHelper) SaveAsPDF(dir, fileName string) (filePath string, err error) {
 	filePath = dir + fileName + ".pdf"
 	err = helper.PDF.OutputFileAndClose(filePath)
-	log.Println("sssserr", err)
 	return
 }
 
@@ -278,8 +276,6 @@ func (helper *PDFHelper) SaveAsImgs(dir, fileName string) (localFilePaths []stri
 	pdfFilePath := dir + fileName + ".pdf"
 	err = helper.PDF.OutputFileAndClose(pdfFilePath)
 	if err != nil {
-		log.Println(pdfFilePath)
-		log.Println("fuck")
 		return
 	}
 	defer os.Remove(pdfFilePath) // 完成后删除pdf文件
@@ -399,10 +395,7 @@ func (helper *PDFHelper) AddSignForm(firstParty, secondParty SignerInterface, fi
 func getPartyInfo(party SignerInterface) (fillData [SignerInfoRowAmount]string) {
 
 	if party.GetKind() == Company {
-		log.Println("company")
-		temp, ok := party.(CompanySigner)
-		log.Println("temp", temp)
-		log.Println("ok", ok)
+		temp, _ := party.(CompanySigner)
 		ogBankName := temp.OgBankName
 		if temp.OgBankNo != "" {
 			ogBankName += "（行号" + temp.OgBankNo + "）"
@@ -419,7 +412,6 @@ func getPartyInfo(party SignerInterface) (fillData [SignerInfoRowAmount]string) 
 			"传        真：" + temp.OgFax,
 		}
 	} else {
-		log.Println("person")
 		temp, _ := party.(PersonSigner)
 		fillData = [SignerInfoRowAmount]string{
 			"姓        名：" + temp.TrueName,
@@ -491,15 +483,6 @@ func getRandomImgCenter(area *RectArea, size *imgHelper.Size, overflowRate float
 	//【2】寻找中心点
 	distanceX := math.Abs(area.RightTop.X-area.LeftTop.X) - size.Width
 	distanceY := math.Abs(area.LeftBottom.Y-area.LeftTop.Y) - size.Height
-
-	log.Println("distanceX", distanceX)
-	log.Println("distanceY", distanceY)
-	//if distanceX < 0 {
-	//	distanceX = 0
-	//}
-	//if distanceY < 0 {
-	//	distanceY = 0
-	//}
 
 	randomCenter.X = math.Ceil(area.LeftTop.X + distanceX*float64(mathHelper.GetRandomInt(0, 100))/100)
 	randomCenter.Y = math.Ceil(area.LeftTop.Y + distanceY*float64(mathHelper.GetRandomInt(0, 100))/100)
@@ -730,15 +713,7 @@ func (helper *PDFHelper) AddTableBodyMulti(width float64, startPoint *imgHelper.
 // GetTotalHeight 获取多行文字的行高
 func (helper *PDFHelper) GetTotalHeight(content string, width float64, weight FontWeight, fontSize, lineHeight float64) (totalHeight float64) {
 	helper.PDF.SetFont(helper.FontOption.FontName, string(weight), fontSize)
-
-	//lines := helper.PDF.SplitLines([]byte(content), width)
 	lines := helper.PDF.SplitText(content, width)
-
-	//log.Println("fonts:", string(weight), fontSize, lineHeight)
-	//for _, v := range lines {
-	//	log.Println("v", string(v))
-	//}
-
 	totalHeight = float64(len(lines)) * lineHeight
 	return
 }
@@ -867,15 +842,8 @@ func (helper *PDFHelper) drawSignImg(signArea *RectArea, img *SignImg, overflowR
 			return
 		}
 	}
-	log.Println("position", img.Position)
-	log.Println("img.Size", img.Size)
-	log.Println("overflowRate", overflowRate)
-	log.Println("open")
-	log.Println("img.URL", img.URL)
-	log.Println("localURL", localURL)
 	helper.PDF.Image(localURL, img.Position.X, img.Position.Y, img.Size.Width, img.Size.Height, false, "", 0, "")
-	log.Println("helper.PDF.Error()", helper.PDF.Error())
-	log.Println("opened")
+
 	return
 }
 
@@ -897,10 +865,6 @@ func (helper *PDFHelper) createSpaceForSignForm(fillTime, fillIP bool) {
 	nowY := helper.PDF.GetY()
 
 	//【3】判断
-	log.Println("nowY", nowY)
-	log.Println("formHeight", formHeight)
-	log.Println("nowY+formHeight", nowY+formHeight)
-	log.Println("PortraitValidHeight+Margin", PortraitValidHeight+Margin)
 	if nowY+formHeight > PortraitValidHeight+Margin {
 		helper.PDF.AddPage()
 		helper.PDF.SetXY(Margin, Margin)
@@ -985,13 +949,10 @@ func (helper *PDFHelper) AddTableBodyMultiLines(width float64, ln Ln, contentByt
 	helper.PDF.SetTextColor(color.R, color.G, color.B)
 
 	for index, line := range contentByte {
-		log.Println("index", index)
-		log.Println("line", string(line))
 		tempLn := ln
 		if index > 0 {
 			tempLn = Wrap
 		}
-		log.Println("tempLn", tempLn)
 		helper.PDF.CellFormat(width, lineHeight, string(line), "LTRB", int(tempLn), textAlign, fill, 0, "")
 	}
 
@@ -1049,12 +1010,13 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 	y := helper.PDF.GetY()
 	for k := range widthSlice {
 
-		log.Println("lineHeight", lineHeight)
-		log.Println("maxLines", maxLines)
-		log.Println("len(lines[k])", len(lines[k]))
-		log.Println("content", contentSlice[k])
-
-		tempLH := lineHeight * float64(maxLines) / float64(len(lines[k]))
+		lineAmount := float64(len(lines[k]))
+		var tempLH float64
+		if lineAmount == 0 {
+			tempLH = lineHeight * float64(maxLines)
+		} else {
+			tempLH = lineHeight * float64(maxLines) / float64(len(lines[k]))
+		}
 		helper.PDF.MultiCell(widthSlice[k], tempLH, contentSlice[k], "LTBR", textAlign, fill)
 		x += widthSlice[k]
 		helper.PDF.SetXY(x, y)
