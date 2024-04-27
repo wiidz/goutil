@@ -10,7 +10,6 @@ import (
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"image"
 	"image/jpeg"
-	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -1019,9 +1018,9 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 		lineAmount := float64(len(lines[k]))
 		var tempLH = lineHeight * float64(maxLines) / lineAmount
 
-		log.Println("contentSlice[k]", contentSlice[k])
-		log.Println("lineAmount", lineAmount)
-		log.Println("tempLH", tempLH)
+		//log.Println("contentSlice[k]", contentSlice[k])
+		//log.Println("lineAmount", lineAmount)
+		//log.Println("tempLH", tempLH)
 
 		helper.PDF.MultiCell(widthSlice[k], tempLH, contentSlice[k], "LTBR", textAlign, fill)
 		x += widthSlice[k]
