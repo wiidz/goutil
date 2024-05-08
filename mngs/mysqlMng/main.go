@@ -6,7 +6,6 @@ import (
 	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"net/url"
 	"strconv"
@@ -41,7 +40,9 @@ func (mng *MysqlMng) Init() (err error) {
 
 	//【3】构建DB对象
 	log.Println("【mysql-dsn】", dsn)
-	mng.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	mng.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: mng.config.Logger,
+	})
 
 	if err != nil {
 		log.Println("【mysql-init-err】", err)
@@ -58,8 +59,7 @@ func (mng *MysqlMng) Init() (err error) {
 func (mng *MysqlMng) NewCommonConn() {
 	mng.Conn = mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: mng.db.Logger.LogMode(logger.Info),
-		//Logger: db.Logger.LogMode(logger.Warn),
+		Logger: mng.config.Logger,
 	})
 }
 
@@ -67,7 +67,7 @@ func (mng *MysqlMng) NewCommonConn() {
 func (mng *MysqlMng) GetConn() *gorm.DB {
 	return mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: mng.db.Logger.LogMode(logger.Info),
+		Logger: mng.config.Logger,
 	})
 }
 
@@ -75,7 +75,7 @@ func (mng *MysqlMng) GetConn() *gorm.DB {
 func (mng *MysqlMng) GetDBConn(dbName string) *gorm.DB {
 	return mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: mng.db.Logger.LogMode(logger.Info),
+		Logger: mng.config.Logger,
 	}).Exec("use " + dbName)
 }
 
@@ -88,7 +88,7 @@ func (mng *MysqlMng) GetDBTransConn(dbName string) *gorm.DB {
 func (mng *MysqlMng) NewTransConn() {
 	mng.TransConn = mng.db.Session(&gorm.Session{
 		//WithConditions: true,
-		Logger: mng.db.Logger.LogMode(logger.Info),
+		Logger: mng.config.Logger,
 	}).Begin()
 }
 
@@ -144,11 +144,9 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 			}
 
 			if v.([]interface{})[0] == "between" {
-				//whereSQL += fmt.Sprint("`"+k+"`", " between ? AND ?")
 				whereSQL += fmt.Sprint(k, " between ? AND ?")
 				vals = append(vals, v.([]interface{})[1], v.([]interface{})[2])
 			} else if v.([]interface{})[0] == "in" || v.([]interface{})[0] == "not in" {
-				//whereSQL += fmt.Sprint("`"+k+"`", " "+v.([]interface{})[0].(string)+" (")
 				whereSQL += fmt.Sprint(k, " "+v.([]interface{})[0].(string)+" (")
 				if intSlice, ok := v.([]interface{})[1].([]int); ok {
 					for k := 0; k < len(intSlice); k++ {
@@ -157,19 +155,19 @@ func WhereBuild(condition map[string]interface{}) (whereSQL string, vals []inter
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
 				} else if intSlice, ok := v.([]interface{})[1].(*[]int); ok {
-					for k := 0; k < len((*intSlice)); k++ {
+					for k := 0; k < len(*intSlice); k++ {
 						whereSQL += "?,"
 						vals = append(vals, (*intSlice)[k])
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
 				} else if int8Slice, ok := v.([]interface{})[1].([]int8); ok {
-					for k := 0; k < len((int8Slice)); k++ {
+					for k := 0; k < len(int8Slice); k++ {
 						whereSQL += "?,"
 						vals = append(vals, (int8Slice)[k])
 					}
 					whereSQL = whereSQL[0:len(whereSQL)-1] + ")"
 				} else if uint64Slice, ok := v.([]interface{})[1].([]uint64); ok {
-					for k := 0; k < len((uint64Slice)); k++ {
+					for k := 0; k < len(uint64Slice); k++ {
 						whereSQL += "?,"
 						vals = append(vals, (uint64Slice)[k])
 					}

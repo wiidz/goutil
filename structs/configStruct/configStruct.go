@@ -1,6 +1,9 @@
 package configStruct
 
-import "time"
+import (
+	"gorm.io/gorm/logger"
+	"time"
+)
 
 // AppProfile App资料
 type AppProfile struct {
@@ -64,6 +67,8 @@ type MysqlConfig struct {
 	SettingTableName string `gorm:"column:setting_table_name" json:"setting_table_name"` // 设置表的表名
 	TimeZone         string // 时区
 	ParseTime        bool
+
+	Logger logger.Interface
 }
 
 // EsConfig elastic search 设置
