@@ -186,7 +186,8 @@ func (mng *RabbitMQ) BindQueue() (err error) {
 // Publish 推入task
 // Q：在使用RabbitMQ时，一些常见的操作会产生异常，例如连接错误、频道未打开、交换机/队列不存在等等。在您的情况下，当您重复使用同一 channel 发送消息时，可能会发生频道未打开的异常，这是由于 channel 在某些情况下可能会被关闭，例如由于网络问题或由于其他进程关闭了该 channel。
 // A：因此，建议您在每次发送消息时都创建一个新的 channel，并在完成后关闭该 channel。这样可以确保 channel 的状态是正确的，并且能够避免意外的异常。
-//    当然，您也可以在程序中添加异常处理程序，以处理可能出现的异常情况。例如，如果 channel 关闭，则可以在 catch 语句块中重新打开一个新的 channel。但是，这种方法可能会增加代码复杂性，并且不如直接创建新的 channel 安全可靠。
+//
+//	当然，您也可以在程序中添加异常处理程序，以处理可能出现的异常情况。例如，如果 channel 关闭，则可以在 catch 语句块中重新打开一个新的 channel。但是，这种方法可能会增加代码复杂性，并且不如直接创建新的 channel 安全可靠。
 func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err error) {
 
 	//【1】打开信道
@@ -221,7 +222,8 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) (err er
 		defer mng.confirmOne(confirms)
 	}
 
-	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
+	log.Printf("[%s] get new push\n", mng.Config.QueueName)
+	log.Printf("%dB body (%q)\n", len(body), body)
 
 	//【5】区分一下
 	var publishing amqp.Publishing
