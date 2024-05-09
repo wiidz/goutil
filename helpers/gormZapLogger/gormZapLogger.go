@@ -33,9 +33,20 @@ const (
 type GormZapLogger struct {
 	*loggerHelper.LoggerHelper // 嵌入 example 包中的 StructA 结构体
 
-	GormConfig                          *gormLogger.Config
+	GormConfig *gormLogger.Config
+
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
+}
+
+type Config struct {
+	ShowFileAndLine bool // 是否显示调用文件
+
+	SlowThreshold             time.Duration
+	Colorful                  bool
+	IgnoreRecordNotFoundError bool
+	ParameterizedQueries      bool
+	LogLevel                  gormLogger.LogLevel
 }
 
 func GetDefault() (helper *GormZapLogger, err error) {
@@ -47,7 +58,8 @@ func GetDefault() (helper *GormZapLogger, err error) {
 		Level:           zapcore.InfoLevel,
 		EncodeTime:      loggerHelper.MyTimeEncoder,
 		SyncToConsole:   true,
-	}, &gormLogger.Config{
+	}, &Config{
+		ShowFileAndLine:           true,
 		SlowThreshold:             time.Microsecond * 500, // 慢查询阈值（单位：ns），超过此阈值的查询将被记录
 		LogLevel:                  gormLogger.Info,        // 日志级别，可选的级别有 Silent、Error、Warn、Info
 		IgnoreRecordNotFoundError: true,                   // 是否忽略 RecordNotFoundError 错误
@@ -55,28 +67,52 @@ func GetDefault() (helper *GormZapLogger, err error) {
 	})
 }
 
-func NewGormZapLogger(config *loggerHelper.Config, gormConfig *gormLogger.Config) (helper *GormZapLogger, err error) {
+func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *GormZapLogger, err error) {
 	helper = &GormZapLogger{
-		GormConfig: gormConfig,
+		GormConfig: &gormLogger.Config{
+			SlowThreshold:             myConfig.SlowThreshold,
+			Colorful:                  myConfig.Colorful,
+			IgnoreRecordNotFoundError: myConfig.IgnoreRecordNotFoundError,
+			ParameterizedQueries:      myConfig.ParameterizedQueries,
+			LogLevel:                  myConfig.LogLevel,
+		},
 	}
 	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
 
-	var (
-		infoStr      = "%s\n[info] "
-		warnStr      = "%s\n[warn] "
-		errStr       = "%s\n[error] "
-		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
-		traceWarnStr = "%s %s\n[%.3fms] [rows:%v] %s"
-		traceErrStr  = "%s %s\n[%.3fms] [rows:%v] %s"
-	)
+	var infoStr, warnStr, errStr, traceStr, traceWarnStr, traceErrStr string
 
-	if gormConfig.Colorful {
-		infoStr = Green + "%s\n" + Reset + Green + "[info] " + Reset
-		warnStr = BlueBold + "%s\n" + Reset + Magenta + "[warn] " + Reset
-		errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
-		traceStr = Green + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
-		traceWarnStr = Green + "%s " + Yellow + "%s\n" + Reset + RedBold + "[%.3fms] " + Yellow + "[rows:%v]" + Magenta + " %s" + Reset
-		traceErrStr = RedBold + "%s " + MagentaBold + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+	if myConfig.ShowFileAndLine {
+		if myConfig.Colorful {
+			infoStr = Green + "%s\n" + Reset + Green + "[info] " + Reset
+			warnStr = BlueBold + "%s\n" + Reset + Magenta + "[warn] " + Reset
+			errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
+			traceStr = Green + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+			traceWarnStr = Green + "%s " + Yellow + "%s\n" + Reset + RedBold + "[%.3fms] " + Yellow + "[rows:%v]" + Magenta + " %s" + Reset
+			traceErrStr = RedBold + "%s " + MagentaBold + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+		} else {
+			infoStr = "%s\n[info] "
+			warnStr = "%s\n[warn] "
+			errStr = "%s\n[error] "
+			traceStr = "%s\n[%.3fms] [rows:%v] %s"
+			traceWarnStr = "%s %s\n[%.3fms] [rows:%v] %s"
+			traceErrStr = "%s %s\n[%.3fms] [rows:%v] %s"
+		}
+	} else {
+		if myConfig.Colorful {
+			infoStr = Reset + Green + "[info] " + Reset
+			warnStr = BlueBold + "%s\n" + Reset + Magenta + "[warn] " + Reset
+			errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
+			traceStr = Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+			traceWarnStr = Yellow + "%s\n" + Reset + RedBold + "[%.3fms] " + Yellow + "[rows:%v]" + Magenta + " %s" + Reset
+			traceErrStr = RedBold + "%s " + MagentaBold + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+		} else {
+			infoStr = "[info] "
+			warnStr = "[warn] "
+			errStr = "[error] "
+			traceStr = "[%.3fms] [rows:%v] %s"
+			traceWarnStr = "%s %s\n[%.3fms] [rows:%v] %s"
+			traceErrStr = "%s %s\n[%.3fms] [rows:%v] %s"
+		}
 	}
 
 	//helper.Writer = writer
@@ -136,24 +172,52 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 	case err != nil && l.GormConfig.LogLevel >= gormLogger.Error && (!errors.Is(err, gormLogger.ErrRecordNotFound) || !l.GormConfig.IgnoreRecordNotFoundError):
 		sql, rows := fc()
 		if rows == -1 {
-			l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			}
+
 		} else {
-			l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			}
+
 		}
 	case elapsed > l.GormConfig.SlowThreshold && l.GormConfig.SlowThreshold != 0 && l.GormConfig.LogLevel >= gormLogger.Warn:
 		sql, rows := fc()
 		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.GormConfig.SlowThreshold)
 		if rows == -1 {
-			l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			}
 		} else {
-			l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			}
 		}
 	case l.GormConfig.LogLevel == gormLogger.Info:
 		sql, rows := fc()
 		if rows == -1 {
-			l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceStr, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+			}
 		} else {
-			l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			if l.Config.ShowFileAndLine {
+				l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			} else {
+				l.LoggerHelper.Infof(l.traceStr, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+			}
+
 		}
 	}
 }
