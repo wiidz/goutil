@@ -53,7 +53,7 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 	}
 
 	var isFileLogger bool
-	helper.Normal, isFileLogger, err = getLogger(config.Filename, config)
+	helper.Normal, isFileLogger, err = GetLogger(config.Filename, config)
 	if err != nil {
 		return
 	}
@@ -61,7 +61,7 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 	//【2】如果是文件logger，同步做一个输出到控制台
 	if config.SyncToConsole && isFileLogger {
 		var tempLogger *zap.Logger
-		tempLogger, _, err = getLogger("", config)
+		tempLogger, _, err = GetLogger("", config)
 		if err != nil {
 			return
 		}
@@ -208,8 +208,9 @@ func (helper *LoggerHelper) Warn(args ...interface{}) {
 	}
 }
 
-// getLogger 获取logger
-func getLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogger bool, err error) {
+// GetLogger 获取logger
+// gormZapLogger 也要用
+func GetLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogger bool, err error) {
 	var core zapcore.Core
 	if fileName != "" {
 		// 输出到文本

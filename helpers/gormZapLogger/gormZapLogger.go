@@ -13,11 +13,19 @@ import (
 // GormZapLogger 此包为重写logger中的方法，以适用于gorm使用
 // 是一个新的结构体，嵌入了 example 包中的 StructA 结构体
 type GormZapLogger struct {
-	loggerHelper.LoggerHelper // 嵌入 example 包中的 StructA 结构体
+	*loggerHelper.LoggerHelper // 嵌入 example 包中的 StructA 结构体
 
 	GormConfig                          gormLogger.Config
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
+}
+
+func NewGormZapLogger(config *loggerHelper.Config, gormConfig gormLogger.Config) (helper *GormZapLogger, err error) {
+	helper = &GormZapLogger{
+		GormConfig: gormConfig,
+	}
+	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
+	return
 }
 
 // LogMode log mode
