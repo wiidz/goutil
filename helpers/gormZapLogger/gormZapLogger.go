@@ -174,16 +174,16 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 		if rows == -1 {
 
 			if l.Config.ShowFileAndLine {
-				l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+				l.LoggerHelper.Errorf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			} else {
-				l.LoggerHelper.Infof(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+				l.LoggerHelper.Errorf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			}
 
 		} else {
 			if l.Config.ShowFileAndLine {
-				l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+				l.LoggerHelper.Errorf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			} else {
-				l.LoggerHelper.Infof(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+				l.LoggerHelper.Errorf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			}
 
 		}
@@ -192,15 +192,15 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.GormConfig.SlowThreshold)
 		if rows == -1 {
 			if l.Config.ShowFileAndLine {
-				l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+				l.LoggerHelper.Warnf(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			} else {
-				l.LoggerHelper.Infof(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
+				l.LoggerHelper.Warnf(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			}
 		} else {
 			if l.Config.ShowFileAndLine {
-				l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+				l.LoggerHelper.Warnf(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			} else {
-				l.LoggerHelper.Infof(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
+				l.LoggerHelper.Warnf(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			}
 		}
 	case l.GormConfig.LogLevel == gormLogger.Info:
