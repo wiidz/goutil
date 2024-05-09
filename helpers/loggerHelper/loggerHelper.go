@@ -12,10 +12,11 @@ import (
 
 // Config 配置项
 type Config struct {
-	Filename      string        // 输出的log文件路径
-	Level         zapcore.Level // 输出限制等级
-	Json          bool          // 是否以json格式输出
-	SyncToConsole bool          // 是否同步到控制台（仅文本时生效）
+	Filename      string              // 输出的log文件路径
+	Level         zapcore.Level       // 输出限制等级
+	Json          bool                // 是否以json格式输出
+	SyncToConsole bool                // 是否同步到控制台（仅文本时生效）
+	EncodeTime    zapcore.TimeEncoder // 时间格式 如 zapcore.ISO8601TimeEncoder
 
 	IsFullPath      bool // 输出的复杂度，true的时候只输出文件名，false就输出复杂一点
 	AddCaller       bool // 是否输出调用文件和行数，目前这个caller只会输出loggerHelper调用，所以可以不要，我们已经默认输出行数了
@@ -206,7 +207,7 @@ func getLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogge
 	var core zapcore.Core
 	if fileName != "" {
 		// 输出到文本
-		encoder := getEncoder(config.Json, false, config.IsFullPath) // 文本中强制不要颜色
+		encoder := getEncoder(config, false, config.IsFullPath) // 文本中强制不要颜色
 		writeSyncer := getLogWriter(fileName)
 		core = getCore(encoder, writeSyncer, config.Level)
 		isFileLogger = true
@@ -215,10 +216,10 @@ func getLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogge
 		var encoder zapcore.Encoder
 		if config.Json {
 			//【1】如果是json输出就不要颜色
-			encoder = getEncoder(false, false, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
+			encoder = getEncoder(config, false, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
 		} else {
 			//【2】如果是控制台就强制要颜色
-			encoder = getEncoder(false, true, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
+			encoder = getEncoder(config, true, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
 		}
 
 		//consoleDebugging := zapcore.Lock(zapcore.AddSync(os.Stdout))
@@ -234,7 +235,7 @@ func getLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogge
 	return
 }
 
-func getEncoder(json, color, isFullPath bool) (encoder zapcore.Encoder) {
+func getEncoder(config *Config, color, isFullPath bool) (encoder zapcore.Encoder) {
 
 	var encodeLevel zapcore.LevelEncoder
 	if color {
@@ -252,9 +253,9 @@ func getEncoder(json, color, isFullPath bool) (encoder zapcore.Encoder) {
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    encodeLevel,                    // 可以选择其他编码器
-		EncodeTime:     zapcore.ISO8601TimeEncoder,     // 可以选择其他编码器
+		EncodeTime:     config.EncodeTime,              // 可以选择其他编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder, // 可以选择其他编码器
-		//EncodeCaller:   zapcore.FullCallerEncoder, // 注意这里设置了以后，外面还是要加addCaller才行
+		//EncodeCaller:   zapcore.FullCallerEncoder, // 注意这里设置了以后，外面还是要加addCaller才行，但是我们自定义了输出方法，所以不需要了
 	}
 
 	// 注意：由于我们使用了log方法，不需要输出原本的路径了，因为不管咋输出都是loggerHelper，但是当外面使用helper.Sugar输出就有效
@@ -264,7 +265,7 @@ func getEncoder(json, color, isFullPath bool) (encoder zapcore.Encoder) {
 		encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}
 
-	if json {
+	if config.Json {
 		encoder = zapcore.NewJSONEncoder(encoderConfig) // json格式
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
