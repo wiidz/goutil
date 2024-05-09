@@ -104,14 +104,14 @@ func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *Go
 			errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
 			traceStr = Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
 			traceWarnStr = Yellow + "%s\n" + Reset + RedBold + "[%.3fms] " + Yellow + "[rows:%v]" + Magenta + " %s" + Reset
-			traceErrStr = RedBold + "%s " + MagentaBold + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+			traceErrStr = RedBold + "%s " + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
 		} else {
 			infoStr = "[info] "
 			warnStr = "[warn] "
 			errStr = "[error] "
 			traceStr = "[%.3fms] [rows:%v] %s"
-			traceWarnStr = "%s %s\n[%.3fms] [rows:%v] %s"
-			traceErrStr = "%s %s\n[%.3fms] [rows:%v] %s"
+			traceWarnStr = "%s\n[%.3fms] [rows:%v] %s"
+			traceErrStr = "%s\n[%.3fms] [rows:%v] %s"
 		}
 	}
 
