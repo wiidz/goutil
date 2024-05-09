@@ -7,6 +7,7 @@ import (
 	"github.com/wiidz/goutil/helpers/loggerHelper"
 	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
+	"log"
 	"time"
 )
 
@@ -25,6 +26,7 @@ func NewGormZapLogger(config *loggerHelper.Config, gormConfig gormLogger.Config)
 		GormConfig: gormConfig,
 	}
 	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
+	log.Println("l.Sugar", helper.Sugar)
 	return
 }
 
@@ -37,6 +39,7 @@ func (l *GormZapLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface 
 
 // Info print info
 func (l *GormZapLogger) Info(ctx context.Context, msg string, data ...interface{}) {
+	log.Println("l.Sugar", l.Sugar)
 	if l.GormConfig.LogLevel >= gormLogger.Info {
 		l.Sugar.Infof(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
@@ -44,6 +47,7 @@ func (l *GormZapLogger) Info(ctx context.Context, msg string, data ...interface{
 
 // Warn print warn messages
 func (l *GormZapLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
+	log.Println("l.Sugar", l.Sugar)
 	if l.GormConfig.LogLevel >= gormLogger.Warn {
 		l.Sugar.Warnf(l.warnStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
@@ -51,6 +55,7 @@ func (l *GormZapLogger) Warn(ctx context.Context, msg string, data ...interface{
 
 // Error print error messages
 func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface{}) {
+	log.Println("l.Sugar", l.Sugar)
 	if l.GormConfig.LogLevel >= gormLogger.Error {
 		l.Sugar.Errorf(l.errStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
@@ -60,6 +65,7 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 //
 //nolint:cyclop
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+	log.Println("l.Sugar", l.Sugar)
 	if l.GormConfig.LogLevel <= gormLogger.Silent {
 		return
 	}
