@@ -11,22 +11,65 @@ import (
 	"time"
 )
 
+// Colors
+const (
+	Reset       = "\033[0m"
+	Red         = "\033[31m"
+	Green       = "\033[32m"
+	Yellow      = "\033[33m"
+	Blue        = "\033[34m"
+	Magenta     = "\033[35m"
+	Cyan        = "\033[36m"
+	White       = "\033[37m"
+	BlueBold    = "\033[34;1m"
+	MagentaBold = "\033[35;1m"
+	RedBold     = "\033[31;1m"
+	YellowBold  = "\033[33;1m"
+)
+
 // GormZapLogger 此包为重写logger中的方法，以适用于gorm使用
 // 是一个新的结构体，嵌入了 example 包中的 StructA 结构体
 type GormZapLogger struct {
 	*loggerHelper.LoggerHelper // 嵌入 example 包中的 StructA 结构体
 
-	GormConfig                          gormLogger.Config
+	GormConfig                          *gormLogger.Config
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
 }
 
-func NewGormZapLogger(config *loggerHelper.Config, gormConfig gormLogger.Config) (helper *GormZapLogger, err error) {
+func NewGormZapLogger(config *loggerHelper.Config, gormConfig *gormLogger.Config) (helper *GormZapLogger, err error) {
 	helper = &GormZapLogger{
 		GormConfig: gormConfig,
 	}
 	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
-	log.Println("l.LoggerHelper.Sugar", helper.Sugar)
+
+	var (
+		infoStr      = "%s\n[info] "
+		warnStr      = "%s\n[warn] "
+		errStr       = "%s\n[error] "
+		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
+		traceWarnStr = "%s %s\n[%.3fms] [rows:%v] %s"
+		traceErrStr  = "%s %s\n[%.3fms] [rows:%v] %s"
+	)
+
+	if gormConfig.Colorful {
+		infoStr = Green + "%s\n" + Reset + Green + "[info] " + Reset
+		warnStr = BlueBold + "%s\n" + Reset + Magenta + "[warn] " + Reset
+		errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
+		traceStr = Green + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+		traceWarnStr = Green + "%s " + Yellow + "%s\n" + Reset + RedBold + "[%.3fms] " + Yellow + "[rows:%v]" + Magenta + " %s" + Reset
+		traceErrStr = RedBold + "%s " + MagentaBold + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+	}
+
+	//helper.Writer = writer
+	helper.Config = config
+	helper.infoStr = infoStr
+	helper.warnStr = warnStr
+	helper.errStr = errStr
+	helper.traceStr = traceStr
+	helper.traceWarnStr = traceWarnStr
+	helper.traceErrStr = traceErrStr
+
 	return
 }
 
