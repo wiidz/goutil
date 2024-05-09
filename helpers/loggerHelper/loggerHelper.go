@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 )
 
 // Config 配置项
@@ -38,6 +39,11 @@ type LoggerHelper struct {
 	Sugar *zap.SugaredLogger // 短小精悍
 
 	consoleSugar *zap.SugaredLogger // 主要用于文本log的时候，同步输出到控制台
+}
+
+// MyTimeEncoder 自定义的时间encoder
+func MyTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("2006/01/02 15:04:05"))
 }
 
 // NewLoggerHelper 返回日志榜首
