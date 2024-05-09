@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap/zapcore"
 	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
-	"log"
 	"time"
 )
 
@@ -138,10 +137,6 @@ func (l *GormZapLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface 
 
 // Info print info
 func (l *GormZapLogger) Info(ctx context.Context, msg string, data ...interface{}) {
-
-	log.Println("msg", msg)
-	log.Println("data", data)
-
 	if l.Config.LogLevel >= gormLogger.Info {
 		l.LoggerHelper.Infof(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
@@ -182,8 +177,6 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 			}
 
 		} else {
-			log.Println("l.traceErrStr", l.traceErrStr)
-			log.Println("l.Config.ShowFileAndLine", l.Config.ShowFileAndLine)
 			if l.Config.ShowFileAndLine {
 				l.LoggerHelper.Errorf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			} else {
