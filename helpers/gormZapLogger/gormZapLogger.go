@@ -33,7 +33,8 @@ const (
 type GormZapLogger struct {
 	*loggerHelper.LoggerHelper // 嵌入 example 包中的 StructA 结构体
 
-	GormConfig *gormLogger.Config
+	//GormConfig *gormLogger.Config
+	Config *Config
 
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
@@ -69,13 +70,14 @@ func GetDefault() (helper *GormZapLogger, err error) {
 
 func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *GormZapLogger, err error) {
 	helper = &GormZapLogger{
-		GormConfig: &gormLogger.Config{
-			SlowThreshold:             myConfig.SlowThreshold,
-			Colorful:                  myConfig.Colorful,
-			IgnoreRecordNotFoundError: myConfig.IgnoreRecordNotFoundError,
-			ParameterizedQueries:      myConfig.ParameterizedQueries,
-			LogLevel:                  myConfig.LogLevel,
-		},
+		Config: myConfig,
+		//GormConfig: &gormLogger.Config{
+		//	SlowThreshold:             myConfig.SlowThreshold,
+		//	Colorful:                  myConfig.Colorful,
+		//	IgnoreRecordNotFoundError: myConfig.IgnoreRecordNotFoundError,
+		//	ParameterizedQueries:      myConfig.ParameterizedQueries,
+		//	LogLevel:                  myConfig.LogLevel,
+		//},
 	}
 	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
 
@@ -116,7 +118,7 @@ func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *Go
 	}
 
 	//helper.Writer = writer
-	helper.Config = config
+	helper.Config = myConfig
 	helper.infoStr = infoStr
 	helper.warnStr = warnStr
 	helper.errStr = errStr
@@ -130,7 +132,7 @@ func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *Go
 // LogMode log mode
 func (l *GormZapLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface {
 	newLogger := *l
-	newLogger.GormConfig.LogLevel = level
+	newLogger.Config.LogLevel = level
 	return &newLogger
 }
 
@@ -140,21 +142,21 @@ func (l *GormZapLogger) Info(ctx context.Context, msg string, data ...interface{
 	log.Println("msg", msg)
 	log.Println("data", data)
 
-	if l.GormConfig.LogLevel >= gormLogger.Info {
+	if l.Config.LogLevel >= gormLogger.Info {
 		l.LoggerHelper.Infof(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
 // Warn print warn messages
 func (l *GormZapLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
-	if l.GormConfig.LogLevel >= gormLogger.Warn {
+	if l.Config.LogLevel >= gormLogger.Warn {
 		l.LoggerHelper.Warnf(l.warnStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
 // Error print error messages
 func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface{}) {
-	if l.GormConfig.LogLevel >= gormLogger.Error {
+	if l.Config.LogLevel >= gormLogger.Error {
 		l.LoggerHelper.Errorf(l.errStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
@@ -163,13 +165,13 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 //
 //nolint:cyclop
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-	if l.GormConfig.LogLevel <= gormLogger.Silent {
+	if l.Config.LogLevel <= gormLogger.Silent {
 		return
 	}
 
 	elapsed := time.Since(begin)
 	switch {
-	case err != nil && l.GormConfig.LogLevel >= gormLogger.Error && (!errors.Is(err, gormLogger.ErrRecordNotFound) || !l.GormConfig.IgnoreRecordNotFoundError):
+	case err != nil && l.Config.LogLevel >= gormLogger.Error && (!errors.Is(err, gormLogger.ErrRecordNotFound) || !l.Config.IgnoreRecordNotFoundError):
 		sql, rows := fc()
 		if rows == -1 {
 
@@ -180,6 +182,8 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 			}
 
 		} else {
+			log.Println("l.traceErrStr", l.traceErrStr)
+			log.Println("l.Config.ShowFileAndLine", l.Config.ShowFileAndLine)
 			if l.Config.ShowFileAndLine {
 				l.LoggerHelper.Errorf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			} else {
@@ -187,9 +191,9 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 			}
 
 		}
-	case elapsed > l.GormConfig.SlowThreshold && l.GormConfig.SlowThreshold != 0 && l.GormConfig.LogLevel >= gormLogger.Warn:
+	case elapsed > l.Config.SlowThreshold && l.Config.SlowThreshold != 0 && l.Config.LogLevel >= gormLogger.Warn:
 		sql, rows := fc()
-		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.GormConfig.SlowThreshold)
+		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.Config.SlowThreshold)
 		if rows == -1 {
 			if l.Config.ShowFileAndLine {
 				l.LoggerHelper.Warnf(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
@@ -203,7 +207,7 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 				l.LoggerHelper.Warnf(l.traceWarnStr, slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			}
 		}
-	case l.GormConfig.LogLevel == gormLogger.Info:
+	case l.Config.LogLevel == gormLogger.Info:
 		sql, rows := fc()
 		if rows == -1 {
 			if l.Config.ShowFileAndLine {
