@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/wiidz/goutil/helpers/loggerHelper"
+	"go.uber.org/zap/zapcore"
 	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
 	"log"
@@ -35,6 +36,23 @@ type GormZapLogger struct {
 	GormConfig                          *gormLogger.Config
 	infoStr, warnStr, errStr            string
 	traceStr, traceErrStr, traceWarnStr string
+}
+
+func GetDefault() (helper *GormZapLogger, err error) {
+	return NewGormZapLogger(&loggerHelper.Config{
+		Filename:        "",
+		IsFullPath:      false,
+		ShowFileAndLine: false,
+		Json:            false,
+		Level:           zapcore.InfoLevel,
+		EncodeTime:      loggerHelper.MyTimeEncoder,
+		SyncToConsole:   true,
+	}, &gormLogger.Config{
+		SlowThreshold:             time.Microsecond * 500, // 慢查询阈值（单位：ns），超过此阈值的查询将被记录
+		LogLevel:                  gormLogger.Info,        // 日志级别，可选的级别有 Silent、Error、Warn、Info
+		IgnoreRecordNotFoundError: true,                   // 是否忽略 RecordNotFoundError 错误
+		Colorful:                  true,                   // 是否启用彩色日志
+	})
 }
 
 func NewGormZapLogger(config *loggerHelper.Config, gormConfig *gormLogger.Config) (helper *GormZapLogger, err error) {
@@ -109,9 +127,6 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 //
 //nolint:cyclop
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-
-	log.Println("trace")
-
 	if l.GormConfig.LogLevel <= gormLogger.Silent {
 		return
 	}

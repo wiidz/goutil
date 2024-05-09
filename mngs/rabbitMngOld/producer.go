@@ -61,7 +61,7 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 		defer producer.confirmOne(confirms)
 	}
 
-	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
+	//log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
 
 	err = ch.Publish(
 		producer.ExchangeName, // publish to an exchange
@@ -91,11 +91,11 @@ func (producer *Producer) Publish(routingKey string, body string, expiration int
 // 这个插件的作用是发挥在exchange上的，到时间了，分发到队列里去
 func (producer *Producer) PublishDelay(routingKey, body string, expiration int64, reliable bool) (err error) {
 
-	log.Printf("declared Exchange, publishing %dB body (%q)", len(body), body)
+	log.Printf("new delay publicing : %dB body (%q)", len(body), body)
 
 	// Reliable publisher confirms require confirm.select support from the connection.
 	if reliable {
-		log.Printf("enabling publishing confirms.")
+		//log.Printf("enabling publishing confirms.")
 		if err := producer.Channel.Confirm(false); err != nil {
 			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
 		}
