@@ -82,27 +82,25 @@ func (l *GormZapLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface 
 
 // Info print info
 func (l *GormZapLogger) Info(ctx context.Context, msg string, data ...interface{}) {
-	log.Println("l.LoggerHelper.Sugar", l.LoggerHelper.Sugar)
+
+	log.Println("msg", msg)
+	log.Println("data", data)
+
 	if l.GormConfig.LogLevel >= gormLogger.Info {
-		//l.LoggerHelper.Sugar.Infof(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 		l.LoggerHelper.Infof(l.infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
 // Warn print warn messages
 func (l *GormZapLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
-	log.Println("l.LoggerHelper.Sugar", l.LoggerHelper.Sugar)
 	if l.GormConfig.LogLevel >= gormLogger.Warn {
-		//l.LoggerHelper.Sugar.Warnf(l.warnStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 		l.LoggerHelper.Warnf(l.warnStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
 // Error print error messages
 func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface{}) {
-	log.Println("l.LoggerHelper.Sugar", l.LoggerHelper.Sugar)
 	if l.GormConfig.LogLevel >= gormLogger.Error {
-		//l.LoggerHelper.Sugar.Errorf(l.errStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 		l.LoggerHelper.Errorf(l.errStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
@@ -111,7 +109,6 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 //
 //nolint:cyclop
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-	log.Println("l.LoggerHelper.Sugar", l.LoggerHelper.Sugar)
 	if l.GormConfig.LogLevel <= gormLogger.Silent {
 		return
 	}
@@ -121,31 +118,23 @@ func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (s
 	case err != nil && l.GormConfig.LogLevel >= gormLogger.Error && (!errors.Is(err, gormLogger.ErrRecordNotFound) || !l.GormConfig.IgnoreRecordNotFoundError):
 		sql, rows := fc()
 		if rows == -1 {
-			//l.Printf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
-			//l.LoggerHelper.Sugar.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 		} else {
-			//l.Printf(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
-			//l.LoggerHelper.Sugar.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			l.LoggerHelper.Infof(l.traceErrStr, utils.FileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		}
 	case elapsed > l.GormConfig.SlowThreshold && l.GormConfig.SlowThreshold != 0 && l.GormConfig.LogLevel >= gormLogger.Warn:
 		sql, rows := fc()
 		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.GormConfig.SlowThreshold)
 		if rows == -1 {
-			//l.LoggerHelper.Sugar.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
 		} else {
-			//l.LoggerHelper.Sugar.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			l.LoggerHelper.Infof(l.traceWarnStr, utils.FileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		}
 	case l.GormConfig.LogLevel == gormLogger.Info:
 		sql, rows := fc()
 		if rows == -1 {
-			//l.LoggerHelper.Sugar.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, "-", sql)
 			l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, "-", sql)
 		} else {
-			//l.LoggerHelper.Sugar.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
 			l.LoggerHelper.Infof(l.traceStr, utils.FileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
 		}
 	}
