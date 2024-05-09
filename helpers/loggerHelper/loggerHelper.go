@@ -101,6 +101,35 @@ func (helper *LoggerHelper) log(sugar *zap.SugaredLogger, level zapcore.Level, a
 	}
 }
 
+// log 输出信息
+// 在 Zap 中，Panic 级别的日志消息确实比 Fatal 级别更严重。这可能有些让人困惑，因为通常我们认为 Panic 表示程序遇到了无法恢复的严重错误，会立即终止程序的执行，而 Fatal 表示程序遇到了严重错误，但还有可能继续执行。
+// Zap 设计 Panic 级别的日志消息比 Fatal 更严重，是因为 Panic 级别的日志消息触发了程序的 panic 行为，这可能会导致程序在运行时出现崩溃，因此被视为更为严重的错误。
+// 在 Zap 中，Panic 级别的日志消息通常用于标识一些非常严重的、无法恢复的错误，即使这些错误可能并不需要导致程序立即终止。而 Fatal 级别的日志消息则表示程序遇到了严重错误，但仍有可能继续执行，因此其严重性略低于 Panic。
+func (helper *LoggerHelper) logf(sugar *zap.SugaredLogger, level zapcore.Level, template string, args ...interface{}) {
+	_, file, line, _ := runtime.Caller(2) // 获取调用方法的文件名和行号
+	if !helper.Config.IsFullPath {
+		file = filepath.Base(file)
+	}
+	msg := fmt.Sprintf(template, args...)
+	switch level {
+	// 以下也代表了level层级
+	case zapcore.PanicLevel:
+		sugar.Panicw(msg, "file", file, "line", line) // 会导致程序退出（用于生产环境），当发生严重错误但程序仍然有可能继续执行时，可以选择使用 Panic 级别。记录 Panic 级别的日志消息会导致程序 panic，并终止程序的执行，但与 Fatal 不同的是，Panic 可以提供更多的上下文信息和调试信息，有助于排查问题。
+	case zapcore.FatalLevel:
+		sugar.Fatalw(msg, "file", file, "line", line) // 会导致程序退出（用于生产环境），当发生严重错误并且程序无法继续执行时，可以选择使用 Fatal 级别。记录 Fatal 级别的日志消息将导致程序立即退出，这在生产环境中可以帮助及时发现并解决一些无法修复的严重问题。
+	case zapcore.DPanicLevel:
+		sugar.DPanicw(msg, "file", file, "line", line) // 不会退出（用户开发环境）
+	case zapcore.ErrorLevel:
+		sugar.Errorw(msg, "file", file, "line", line)
+	case zapcore.WarnLevel:
+		sugar.Warnw(msg, "file", file, "line", line)
+	case zapcore.InfoLevel:
+		sugar.Infow(msg, "file", file, "line", line)
+	case zapcore.DebugLevel:
+		sugar.Debugw(msg, "file", file, "line", line)
+	}
+}
+
 // Info 简单方法，用sugar输出
 func (helper *LoggerHelper) Info(args ...interface{}) {
 	if helper.Config.ShowFileAndLine {
@@ -204,6 +233,112 @@ func (helper *LoggerHelper) Warn(args ...interface{}) {
 		helper.Sugar.Warn(args)
 		if helper.consoleSugar != nil {
 			helper.consoleSugar.Warn(args)
+		}
+	}
+}
+
+func (helper *LoggerHelper) Infof(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.InfoLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.InfoLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Infof(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Infof(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) Errorf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.ErrorLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.ErrorLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Errorf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Errorf(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) Debugf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.DebugLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.DebugLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Debugf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Debugf(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) Fatalf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.FatalLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.FatalLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Fatalf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Fatalf(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) Panicf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.PanicLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.PanicLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Panicf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Panicf(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) DPanicf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.DPanicLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.DPanicLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.DPanicf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.DPanicf(template, args)
+		}
+	}
+}
+func (helper *LoggerHelper) Warnf(template string, args ...interface{}) {
+	if helper.Config.ShowFileAndLine {
+		// 用补充数据输出行数
+		helper.logf(helper.Sugar, zapcore.WarnLevel, template, args...)
+		if helper.consoleSugar != nil {
+			helper.logf(helper.consoleSugar, zapcore.WarnLevel, template, args...)
+		}
+	} else {
+		// 不用补充数据输出行数
+		helper.Sugar.Warnf(template, args)
+		if helper.consoleSugar != nil {
+			helper.consoleSugar.Warnf(template, args)
 		}
 	}
 }
