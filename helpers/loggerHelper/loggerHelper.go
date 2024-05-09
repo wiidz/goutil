@@ -140,9 +140,9 @@ func (helper *LoggerHelper) Info(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Info(args)
+		helper.Sugar.Info(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Info(args)
+			helper.consoleSugar.Info(args...)
 		}
 	}
 }
@@ -155,9 +155,9 @@ func (helper *LoggerHelper) Error(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Error(args)
+		helper.Sugar.Error(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Error(args)
+			helper.consoleSugar.Error(args...)
 		}
 	}
 }
@@ -170,9 +170,9 @@ func (helper *LoggerHelper) Debug(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Debug(args)
+		helper.Sugar.Debug(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Debug(args)
+			helper.consoleSugar.Debug(args...)
 		}
 	}
 }
@@ -185,9 +185,9 @@ func (helper *LoggerHelper) Fatal(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Fatal(args)
+		helper.Sugar.Fatal(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Fatal(args)
+			helper.consoleSugar.Fatal(args...)
 		}
 	}
 }
@@ -200,9 +200,9 @@ func (helper *LoggerHelper) Panic(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Panic(args)
+		helper.Sugar.Panic(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Panic(args)
+			helper.consoleSugar.Panic(args...)
 		}
 	}
 }
@@ -215,9 +215,9 @@ func (helper *LoggerHelper) DPanic(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.DPanic(args)
+		helper.Sugar.DPanic(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.DPanic(args)
+			helper.consoleSugar.DPanic(args...)
 		}
 	}
 }
@@ -230,9 +230,9 @@ func (helper *LoggerHelper) Warn(args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Warn(args)
+		helper.Sugar.Warn(args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Warn(args)
+			helper.consoleSugar.Warn(args...)
 		}
 	}
 }
@@ -246,9 +246,9 @@ func (helper *LoggerHelper) Infof(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Infof(template, args)
+		helper.Sugar.Infof(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Infof(template, args)
+			helper.consoleSugar.Infof(template, args...)
 		}
 	}
 }
@@ -261,9 +261,9 @@ func (helper *LoggerHelper) Errorf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Errorf(template, args)
+		helper.Sugar.Errorf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Errorf(template, args)
+			helper.consoleSugar.Errorf(template, args...)
 		}
 	}
 }
@@ -276,9 +276,9 @@ func (helper *LoggerHelper) Debugf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Debugf(template, args)
+		helper.Sugar.Debugf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Debugf(template, args)
+			helper.consoleSugar.Debugf(template, args...)
 		}
 	}
 }
@@ -291,9 +291,9 @@ func (helper *LoggerHelper) Fatalf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Fatalf(template, args)
+		helper.Sugar.Fatalf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Fatalf(template, args)
+			helper.consoleSugar.Fatalf(template, args...)
 		}
 	}
 }
@@ -306,9 +306,9 @@ func (helper *LoggerHelper) Panicf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Panicf(template, args)
+		helper.Sugar.Panicf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Panicf(template, args)
+			helper.consoleSugar.Panicf(template, args...)
 		}
 	}
 }
@@ -321,9 +321,9 @@ func (helper *LoggerHelper) DPanicf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.DPanicf(template, args)
+		helper.Sugar.DPanicf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.DPanicf(template, args)
+			helper.consoleSugar.DPanicf(template, args...)
 		}
 	}
 }
@@ -336,9 +336,9 @@ func (helper *LoggerHelper) Warnf(template string, args ...interface{}) {
 		}
 	} else {
 		// 不用补充数据输出行数
-		helper.Sugar.Warnf(template, args)
+		helper.Sugar.Warnf(template, args...)
 		if helper.consoleSugar != nil {
-			helper.consoleSugar.Warnf(template, args)
+			helper.consoleSugar.Warnf(template, args...)
 		}
 	}
 }

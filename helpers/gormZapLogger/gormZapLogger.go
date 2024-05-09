@@ -109,6 +109,9 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 //
 //nolint:cyclop
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+
+	log.Println("trace")
+
 	if l.GormConfig.LogLevel <= gormLogger.Silent {
 		return
 	}
