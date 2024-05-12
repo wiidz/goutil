@@ -851,6 +851,14 @@ func handleParams(params networkStruct.ParamsInterface) (err error) {
 			//	log.Println("Slice zero")
 			//}
 			//continue // 结构体类型和切片类型 默认不予填充和计算
+		} else if fieldType.Kind() == reflect.Map {
+			//log.Println("Slice")
+			//log.Println(reflect.Zero(fieldType).Interface())
+			//log.Println("slice")
+			//if len(currentValue.Interface()) == 0 {
+			//	log.Println("Slice zero")
+			//}
+			//continue // 结构体类型和切片类型 默认不予填充和计算
 		} else if currentValue.Interface() == reflect.Zero(fieldType).Interface() {
 			if defaultValue != "" {
 				var formattedDefaultValue interface{}
