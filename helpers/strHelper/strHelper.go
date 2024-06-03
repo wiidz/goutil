@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/mozillazg/go-pinyin"
 	"math"
 	"math/rand"
 	"regexp"
@@ -253,4 +254,63 @@ func GetAlphabetRank(letter string) (rank int, err error) {
 func GetUUID() uuid.UUID {
 	uid := uuid.New()
 	return uid
+}
+
+// GetPinyinFirstLetter 获取首字母
+func GetPinyinFirstLetter(zhStr string) (result string) {
+
+	// 设置拼音转换的选项
+	a := pinyin.NewArgs()
+	a.Style = pinyin.FirstLetter // 提取首字母
+
+	// 将中文字符串转换为拼音首字母
+	firstLetters := pinyin.Pinyin(zhStr, a)
+
+	// 拼接首字母
+	result = ""
+	for _, s := range firstLetters {
+		result += s[0]
+	}
+
+	return
+
+}
+
+// GetPinyinFull 获取拼音全拼
+func GetPinyinFull(zhStr string) (result string) {
+
+	// 设置拼音转换的选项
+	a := pinyin.NewArgs()
+	a.Style = pinyin.Normal // 带空格
+
+	// 将中文字符串转换为拼音首字母
+	firstLetters := pinyin.Pinyin(zhStr, a)
+
+	// 拼接首字母
+	result = ""
+	for _, s := range firstLetters {
+		result += s[0]
+	}
+
+	return
+
+}
+
+// GetPinyin 这里的pinyin取pinyin.FirstLetter 之类的
+func GetPinyin(zhStr string, style int) (result string) {
+
+	// 设置拼音转换的选项
+	a := pinyin.NewArgs()
+	a.Style = style // 提取首字母
+
+	// 将中文字符串转换为拼音首字母
+	firstLetters := pinyin.Pinyin(zhStr, a)
+
+	// 拼接首字母
+	result = ""
+	for _, s := range firstLetters {
+		result += s[0]
+	}
+
+	return result
 }
