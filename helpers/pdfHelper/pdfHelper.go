@@ -1026,5 +1026,5 @@ func (helper *PDFHelper) AddTableBodyRow(widthSlice []float64, contentSlice []st
 		x += widthSlice[k]
 		helper.PDF.SetXY(x, y)
 	}
-	helper.PDF.SetXY(float64(Margin), y+lineHeight*float64(maxLines-1))
+	helper.PDF.SetXY(float64(Margin), y+lineHeight*float64(maxLines))
 }
