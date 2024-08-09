@@ -9,8 +9,9 @@ import (
 	"strings"
 )
 
-// ReadMapSliceFromFile 从lua文件中读取数据并转换为[]map[string]interface{}
-func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSlice []map[string]lua.LValue, err error) {
+// ReadMapSliceFromFile 从lua文件中读取数据并转换为[]map[string]interface{}'
+// 记得在外面关闭 defer L.Close()
+func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (L *lua.LState, mapSlice []map[string]lua.LValue, err error) {
 
 	//【1】读byte
 	file, _ := os.Open(filePath)
@@ -21,8 +22,7 @@ func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (mapSl
 	}
 
 	//【2】创建 Lua 解释器
-	L := lua.NewState()
-	defer L.Close()
+	L = lua.NewState()
 
 	//【3】执行 Lua 脚本，判断有无错误
 	if err = L.DoString(string(byteData)); err != nil {
@@ -99,7 +99,7 @@ func LuaValueToInterface(lv lua.LValue) interface{} {
 }
 
 // LuaValueToInterfaceNoTable 将 Lua 值转换为对应的 Go 数据类型(舍弃table)
-func LuaValueToInterfaceNoTable(lv lua.LValue) interface{} {
+func LuaValueToInterfaceNoTable(L *lua.LState, lv lua.LValue) interface{} {
 	switch lv.Type() {
 	case lua.LTString:
 		return lv.String()
@@ -108,7 +108,17 @@ func LuaValueToInterfaceNoTable(lv lua.LValue) interface{} {
 	case lua.LTBool:
 		return lv.(lua.LBool)
 	case lua.LTTable:
-		return lv.(*lua.LTable).String
+		// 使用 Lua 的 tostring 函数获取表的原始字符串表示
+		toStringFn := L.GetGlobal("tostring")
+		err := L.CallByParam(lua.P{
+			Fn:      toStringFn,
+			NRet:    1,
+			Protect: true,
+		}, lv)
+		if err != nil {
+			return fmt.Sprintf("Error converting table to string: %v", err)
+		}
+		return L.Get(-1).String() // 获取栈顶的返回值
 	default:
 		return lv.String()
 	}
