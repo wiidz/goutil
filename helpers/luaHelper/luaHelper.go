@@ -97,3 +97,17 @@ func LuaValueToInterface(lv lua.LValue) interface{} {
 		return lv.String()
 	}
 }
+
+// LuaValueToInterfaceNoTable 将 Lua 值转换为对应的 Go 数据类型(舍弃table)
+func LuaValueToInterfaceNoTable(lv lua.LValue) interface{} {
+	switch lv.Type() {
+	case lua.LTString:
+		return lv.String()
+	case lua.LTNumber:
+		return lv.(lua.LNumber)
+	case lua.LTBool:
+		return lv.(lua.LBool)
+	default:
+		return lv.String()
+	}
+}
