@@ -107,6 +107,8 @@ func LuaValueToInterfaceNoTable(lv lua.LValue) interface{} {
 		return lv.(lua.LNumber)
 	case lua.LTBool:
 		return lv.(lua.LBool)
+	case lua.LTTable:
+		return lv.(*lua.LTable).String
 	default:
 		return lv.String()
 	}
