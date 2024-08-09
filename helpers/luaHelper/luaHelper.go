@@ -1,6 +1,7 @@
 package luaHelper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	lua "github.com/yuin/gopher-lua"
@@ -108,18 +109,22 @@ func LuaValueToInterfaceNoTable(L *lua.LState, lv lua.LValue) interface{} {
 	case lua.LTBool:
 		return lv.(lua.LBool)
 	case lua.LTTable:
-		return tableToMap(L, lv.(*lua.LTable))
+		return tableToJSON(L, lv.(*lua.LTable))
 	default:
 		return lv.String()
 	}
 }
 
-// tableToMap 将 Lua 表转换为 Go 的 map
-func tableToMap(L *lua.LState, table *lua.LTable) map[string]interface{} {
+// tableToJSON 将 Lua 表转换为 JSON 格式的字符串
+func tableToJSON(L *lua.LState, table *lua.LTable) string {
 	result := make(map[string]interface{})
 	table.ForEach(func(key, value lua.LValue) {
-		keyStr := fmt.Sprint(LuaValueToInterfaceNoTable(L, key))
+		keyStr := fmt.Sprintf("%v", key)
 		result[keyStr] = LuaValueToInterfaceNoTable(L, value)
 	})
-	return result
+	jsonBytes, err := json.Marshal(result)
+	if err != nil {
+		return fmt.Sprintf("Error converting table to JSON: %v", err)
+	}
+	return string(jsonBytes)
 }
