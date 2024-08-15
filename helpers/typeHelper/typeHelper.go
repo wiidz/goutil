@@ -487,6 +487,16 @@ func JsonDecodeMapStr(jsonStr string) (parsedData map[string]string) {
 	return
 }
 
+// JsonDecodeFloat64Slice json解码至float6464切片
+func JsonDecodeFloat64Slice(jsonStr string) []float64 {
+
+	var data []float64
+
+	_ = json.Unmarshal([]byte(jsonStr), &data)
+
+	return data
+}
+
 // JsonDecodeInt64Slice json解码至int64切片
 func JsonDecodeInt64Slice(jsonStr string) []int64 {
 
