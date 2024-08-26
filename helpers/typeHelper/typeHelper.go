@@ -481,6 +481,12 @@ func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
 	return
 }
 
+func JsonDecodeSliceMap(jsonStr string) (parsedData []map[string]interface{}) {
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
+	return
+}
+
 func JsonDecodeMapStr(jsonStr string) (parsedData map[string]string) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
