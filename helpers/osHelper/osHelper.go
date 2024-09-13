@@ -51,15 +51,11 @@ func ExistSameSizeFile(filename string, filesize int64) bool {
 }
 
 // ReadJsonFile 读取json格式的文件
-func ReadJsonFile(filePath string, targetStruct interface{}) (interface{}, error) {
+func ReadJsonFile(filePath string, targetStruct interface{}) error {
 	file, _ := os.Open(filePath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	err := decoder.Decode(&targetStruct)
-	if err != nil {
-		return nil, err
-	}
-	return targetStruct, err
+	return decoder.Decode(&targetStruct)
 }
 
 // ReadJsonFileMap 读取json格式的文件
