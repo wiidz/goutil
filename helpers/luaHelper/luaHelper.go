@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// ReadMapSliceFromFile 从lua文件中读取数据并转换为[]map[string]interface{}'
+// ReadMapSliceFromFile 从lua文件中读取数据并转换为[]map[string]interface{}
 // 记得在外面关闭 defer L.Close()
 func ReadMapSliceFromFile(filePath string, dataName string, doCamel bool) (L *lua.LState, mapSlice []map[string]lua.LValue, err error) {
 
@@ -127,4 +127,60 @@ func tableToJSON(L *lua.LState, table *lua.LTable) string {
 		return fmt.Sprintf("Error converting table to JSON: %v", err)
 	}
 	return string(jsonBytes)
+}
+
+// ReadMapStringSliceFromFile 从lua文件中读取数据并转换为[]map[string]string
+// 记得在外面关闭 defer L.Close()
+func ReadMapStringSliceFromFile(filePath string, dataName string, doCamel bool) (L *lua.LState, mapSlice []map[string]string, err error) {
+
+	//【1】读byte
+	file, _ := os.Open(filePath)
+	defer file.Close()
+	byteData, err := os.ReadFile(filePath)
+	if err != nil {
+		return
+	}
+
+	//【2】创建 Lua 解释器
+	L = lua.NewState()
+
+	//【3】执行 Lua 脚本，判断有无错误
+	if err = L.DoString(string(byteData)); err != nil {
+		fmt.Println("Error executing Lua script:", err)
+		return
+	}
+
+	//【4】获取 Lua 全局变量
+	tableItem := L.GetGlobal(dataName)
+	if tableItem == lua.LNil {
+		err = errors.New("Lua global variable " + dataName + " not found")
+		return
+	}
+
+	//【5】解析 Lua 表格数据
+	luaTable := tableItem.(*lua.LTable)
+
+	//【6】转换
+	mapSlice = []map[string]string{}
+	luaTable.ForEach(func(_, value lua.LValue) {
+		if tbl, ok := value.(*lua.LTable); ok {
+			row := extractRowString(tbl, doCamel)
+			mapSlice = append(mapSlice, row)
+		}
+	})
+
+	return
+}
+
+// extractRowString 提取一行数据为map[string]string
+func extractRowString(tbl *lua.LTable, doCamel bool) map[string]string {
+	row := make(map[string]string)
+	tbl.ForEach(func(key, value lua.LValue) {
+		var columnName = key.String()
+		if doCamel {
+			columnName = camelToSnake(key.String())
+		}
+		row[columnName] = value.String()
+	})
+	return row
 }
