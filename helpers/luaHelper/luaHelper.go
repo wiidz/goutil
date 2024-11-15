@@ -180,7 +180,7 @@ func extractRowString(tbl *lua.LTable, doCamel bool) map[string]string {
 		if doCamel {
 			columnName = camelToSnake(key.String())
 		}
-		row[columnName] = value.String()
+		row[columnName] = value
 	})
 	return row
 }
