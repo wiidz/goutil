@@ -182,6 +182,26 @@ func (ossApi *OssApi) Upload(filePath, objectName string) (remoteURL string, err
 	return
 }
 
+// UploadPublic 上传本地文件
+func (ossApi *OssApi) UploadPublic(filePath, objectName string) (remoteURL string, err error) {
+
+	// 读取本地文件。
+	fd, err := os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer fd.Close()
+
+	// 上传文件流。
+	err = ossApi.Bucket.PutObject(objectName, fd)
+	if err != nil {
+		return
+	}
+
+	remoteURL = ossApi.GetHost() + "/" + objectName
+	return
+}
+
 // GetRemotePath 组合远程文件夹路径（目录+时间+用户名+随机数）
 func (ossApi *OssApi) GetRemotePath(object string) (remotePath string) {
 	now := time.Now().Unix()
