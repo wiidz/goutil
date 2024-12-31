@@ -1,6 +1,7 @@
 package systemHelper
 
 import (
+	"fmt"
 	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/shirou/gopsutil/v3/process"
 	"os"
@@ -80,17 +81,24 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 // KillProgress 杀死进程
 func KillProgress(pid int, force bool) (err error) {
 
-	// 查找进程并发送 SIGTERM 信号
+	// 查找进程
 	process, err := os.FindProcess(pid)
 	if err != nil {
-		return
+		return fmt.Errorf("failed to find process with PID %d: %w", pid, err)
 	}
 
-	// 发送 SIGTERM 信号
+	// 选择信号
 	signal := syscall.SIGTERM
 	if force {
 		signal = syscall.SIGKILL
 	}
+
+	// 发送信号
 	err = process.Signal(signal)
-	return
+	if err != nil {
+		return fmt.Errorf("failed to send signal to process with PID %d: %w", pid, err)
+	}
+
+	fmt.Printf("Signal %v sent to process %d\n", signal, pid)
+	return nil
 }
