@@ -49,7 +49,7 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 
 		// 内存占用
 		memInfo, _ := progress.MemoryInfo()
-		progressData.MemoryUsageMB = float64(memInfo.RSS) / 1024 / 1024
+		progressData.MemoryUsedMB = float64(memInfo.RSS) / 1024 / 1024
 		progressData.MemoryPer = (float64(memInfo.RSS) / float64(vmStat.Total)) * 100
 
 		// 获取命令行参数
