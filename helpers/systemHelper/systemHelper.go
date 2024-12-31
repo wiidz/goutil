@@ -55,17 +55,21 @@ func GetDiskData(getLogicalDisk bool) (diskData []DiskData, err error) {
 			return
 		}
 
+		if usage.Total == 0 || usage.Used == 0 {
+			continue
+		}
+
 		// getLogicalDisk 如果不获取逻辑盘，过滤一下
 		if !getLogicalDisk {
-			if usage.Total == 0 || usage.Used == 0 {
+			if partition.Fstype == "tmpfs" {
 				continue
 			}
-			if usage.Fstype == "/dev/shm" || usage.Fstype == "/run" {
-				// /dev/shm: 这是一个常见的 tmpfs 挂载点，用于共享内存。它通常用于进程间通信或需要快速读写的小文件的场景。
-				// /run: 这是另一个 tmpfs 挂载点，通常用于存储系统运行时数据，比如进程 ID 文件、套接字文件等。这些数据在系统重启后不需要保留，因此适合使用 tmpfs。
-				// 这两个挂载点的 tmpfs 文件系统都利用了系统的内存来存储数据，因此它们的总容量和使用情况会随着系统内存的变化而变化。
-				continue
-			}
+			//if usage.Fstype == "/dev/shm" || usage.Fstype == "/run" {
+			//	// /dev/shm: 这是一个常见的 tmpfs 挂载点，用于共享内存。它通常用于进程间通信或需要快速读写的小文件的场景。
+			//	// /run: 这是另一个 tmpfs 挂载点，通常用于存储系统运行时数据，比如进程 ID 文件、套接字文件等。这些数据在系统重启后不需要保留，因此适合使用 tmpfs。
+			//	// 这两个挂载点的 tmpfs 文件系统都利用了系统的内存来存储数据，因此它们的总容量和使用情况会随着系统内存的变化而变化。
+			//	continue
+			//}
 		}
 
 		temp.Usage.Total = float64(usage.Total) / 1024 / 1024 / 1024
