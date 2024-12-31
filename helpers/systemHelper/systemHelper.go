@@ -4,9 +4,6 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
-	"github.com/shirou/gopsutil/v3/process"
-	"sort"
-	"strings"
 	"time"
 )
 
@@ -119,62 +116,4 @@ func GetMemoryData() (memoryData MemoryData, err error) {
 	memoryData.UsedPercent = vmStat.UsedPercent
 
 	return
-}
-
-type SequenceFlag int
-
-const CpuUsage SequenceFlag = 1
-const MemoryUsage SequenceFlag = 2
-
-// GetProgressRank 获取cpu占用进程排行榜
-func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (processInfos []ProgressData, err error) {
-
-	// 获取所有进程
-	processes, err := process.Processes()
-	if err != nil {
-		return
-	}
-
-	processInfos = []ProgressData{}
-
-	// 遍历每个进程，获取其CPU和内存使用率
-	for _, progress := range processes {
-
-		var progressData = ProgressData{
-			PID: progress.Pid,
-		}
-		progressData.Name, _ = progress.Name()
-
-		// 如果名字筛选不为空，筛选一下检查进程名称是否包含指定关键字
-		if nameFilter != "" && !strings.Contains(progressData.Name, nameFilter) {
-			continue
-		}
-
-		// cpu占用
-		progressData.CpuPercent, _ = progress.CPUPercent()
-
-		// 内存占用
-		memInfo, _ := progress.MemoryInfo()
-		progressData.MemoryUsage = memInfo.RSS
-
-		processInfos = append(processInfos, progressData)
-	}
-
-	// 确定排序规则
-	if sequenceFlag == CpuUsage {
-		// 按 CPU 使用率排序
-		sort.Slice(processInfos, func(i, j int) bool {
-			return processInfos[i].CpuPercent > processInfos[j].CpuPercent
-		})
-	} else if sequenceFlag == MemoryUsage {
-		// 按内存使用量排序
-		sort.Slice(processInfos, func(i, j int) bool {
-			return processInfos[i].MemoryUsage > processInfos[j].MemoryUsage
-		})
-	}
-
-	if len(processInfos) > topNum {
-		return processInfos[0:topNum], nil
-	}
-	return processInfos, nil
 }
