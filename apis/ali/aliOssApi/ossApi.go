@@ -185,6 +185,12 @@ func (ossApi *OssApi) Upload(filePath, objectName string) (remoteURL string, err
 // UploadPublic 上传本地文件
 func (ossApi *OssApi) UploadPublic(filePath, objectName string) (remoteURL string, err error) {
 
+	//【1】重启一下服务器（可能token过期了）
+	err = ossApi.refreshClient()
+	if err != nil {
+		return
+	}
+
 	// 读取本地文件。
 	fd, err := os.Open(filePath)
 	if err != nil {
