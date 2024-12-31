@@ -4,6 +4,9 @@ import (
 	"os/exec"
 )
 
+// ExecCmd
+// exec.Command 的第一个参数应该是命令，后续参数是命令的参数。如果 restart 是一个脚本文件，你可能需要使用 bash 或 sh 来执行它。例如：
+// cmd := exec.Command("/bin/bash", "-c", "/home/hujiayilu/ros/RoServercode/bin/Release/restart")
 func ExecCmd(name string, arg ...string) (res string, err error) {
 
 	// 定义要执行的命令
