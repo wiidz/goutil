@@ -29,9 +29,9 @@ type DiskData struct {
 type DiskUsage struct {
 	Path              string  `json:"path"`
 	FsType            string  `json:"fs_type"`
-	TotalGB           float64 `json:"total_bg"`
-	FreeGB            float64 `json:"free_bg"`
-	UsedGB            float64 `json:"used_bg"`
+	TotalGB           float64 `json:"total_gb"`
+	FreeGB            float64 `json:"free_gb"`
+	UsedGB            float64 `json:"used_gb"`
 	UsedPercent       float64 `json:"used_percent"`
 	InodesTotal       uint64  `json:"inodes_total"`
 	InodesUsed        uint64  `json:"inodes_used"`
