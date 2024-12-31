@@ -72,9 +72,9 @@ func GetDiskData(getLogicalDisk bool) (diskData []DiskData, err error) {
 			//}
 		}
 
-		temp.Usage.Total = float64(usage.Total) / 1024 / 1024 / 1024
-		temp.Usage.Used = float64(usage.Used) / 1024 / 1024 / 1024
-		temp.Usage.Free = float64(usage.Free) / 1024 / 1024 / 1024
+		temp.Usage.TotalGB = float64(usage.Total) / 1024 / 1024 / 1024
+		temp.Usage.UsedGB = float64(usage.Used) / 1024 / 1024 / 1024
+		temp.Usage.FreeGB = float64(usage.Free) / 1024 / 1024 / 1024
 		temp.Usage.UsedPercent = usage.UsedPercent
 
 		diskData = append(diskData, temp)

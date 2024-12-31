@@ -29,14 +29,14 @@ type DiskData struct {
 type DiskUsage struct {
 	Path              string  `json:"path"`
 	FsType            string  `json:"fs_type"`
-	Total             float64 `json:"total"`
-	Free              float64 `json:"free"`
-	Used              float64 `json:"used"`
-	UsedPercent       float64 `json:"usedPercent"`
-	InodesTotal       uint64  `json:"inodesTotal"`
-	InodesUsed        uint64  `json:"inodesUsed"`
-	InodesFree        uint64  `json:"inodesFree"`
-	InodesUsedPercent float64 `json:"inodesUsedPercent"`
+	TotalGB           float64 `json:"total_bg"`
+	FreeGB            float64 `json:"free_bg"`
+	UsedGB            float64 `json:"used_bg"`
+	UsedPercent       float64 `json:"used_percent"`
+	InodesTotal       uint64  `json:"inodes_total"`
+	InodesUsed        uint64  `json:"inodes_used"`
+	InodesFree        uint64  `json:"inodes_free"`
+	InodesUsedPercent float64 `json:"inodes_used_percent"`
 }
 
 type ProgressData struct {
