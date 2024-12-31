@@ -1,6 +1,7 @@
 package systemHelper
 
 import (
+	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/shirou/gopsutil/v3/process"
 	"os"
 	"sort"
@@ -16,7 +17,13 @@ const MemoryUsage SequenceFlag = 2
 // GetProgressRank 获取cpu占用进程排行榜
 func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (processInfos []ProgressData, err error) {
 
-	// 获取所有进程
+	//【1】获取系统总内存信息，用于计算内存占用
+	vmStat, err := mem.VirtualMemory()
+	if err != nil {
+		return
+	}
+
+	//【2】获取所有进程
 	processes, err := process.Processes()
 	if err != nil {
 		return
@@ -24,7 +31,7 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 
 	processInfos = []ProgressData{}
 
-	// 遍历每个进程，获取其CPU和内存使用率
+	//【3】遍历每个进程，获取其CPU和内存使用率
 	for _, progress := range processes {
 
 		var progressData = ProgressData{
@@ -42,7 +49,8 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 
 		// 内存占用
 		memInfo, _ := progress.MemoryInfo()
-		progressData.MemoryUsage = memInfo.RSS
+		progressData.MemoryUsageMB = float64(memInfo.RSS) / 1024 / 1024
+		progressData.MemoryPer = (float64(memInfo.RSS) / float64(vmStat.Total)) * 100
 
 		processInfos = append(processInfos, progressData)
 	}
@@ -56,7 +64,7 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 	} else if sequenceFlag == MemoryUsage {
 		// 按内存使用量排序
 		sort.Slice(processInfos, func(i, j int) bool {
-			return processInfos[i].MemoryUsage > processInfos[j].MemoryUsage
+			return processInfos[i].MemoryUsageMB > processInfos[j].MemoryUsageMB
 		})
 	}
 
