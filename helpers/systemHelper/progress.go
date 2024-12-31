@@ -67,7 +67,7 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 	} else if sequenceFlag == MemoryUsage {
 		// 按内存使用量排序
 		sort.Slice(processInfos, func(i, j int) bool {
-			return processInfos[i].MemoryUsageMB > processInfos[j].MemoryUsageMB
+			return processInfos[i].MemoryUsedMB > processInfos[j].MemoryUsedMB
 		})
 	}
 
