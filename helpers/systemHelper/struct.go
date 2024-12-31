@@ -40,9 +40,10 @@ type DiskUsage struct {
 }
 
 type ProgressData struct {
-	PID           int32   `json:"pid"`
-	Name          string  `json:"name"`
-	CpuPercent    float64 `json:"cpu_percent"`     // cpu占用
-	MemoryUsageMB float64 `json:"memory_usage_mb"` // 内存使用MB（常驻集）
-	MemoryPer     float64 `json:"memory_per"`      // 内存占用
+	PID           int32    `json:"pid"`
+	Name          string   `json:"name"`
+	CpuPercent    float64  `json:"cpu_percent"`     // cpu占用
+	MemoryUsageMB float64  `json:"memory_usage_mb"` // 内存使用MB（常驻集）
+	MemoryPer     float64  `json:"memory_per"`      // 内存占用
+	CmdLines      []string `json:"cmd_lines"`       // 命令参数
 }

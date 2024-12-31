@@ -52,6 +52,9 @@ func GetProgressRank(topNum int, sequenceFlag SequenceFlag, nameFilter string) (
 		progressData.MemoryUsageMB = float64(memInfo.RSS) / 1024 / 1024
 		progressData.MemoryPer = (float64(memInfo.RSS) / float64(vmStat.Total)) * 100
 
+		// 获取命令行参数
+		progressData.CmdLines, _ = progress.CmdlineSlice()
+
 		processInfos = append(processInfos, progressData)
 	}
 
