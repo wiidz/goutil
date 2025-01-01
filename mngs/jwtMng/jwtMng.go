@@ -151,8 +151,11 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			networkHelper.ReturnResult(ctx, "登陆信息已过期", nil, 401)
 			return
+		} else if errors.Is(err, jwt.ErrTokenMalformed) {
+			networkHelper.ReturnResult(ctx, "身份令牌格式错误", nil, 401)
+			return
 		}
-		networkHelper.ReturnError(ctx, err.Error())
+		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
 		return
 	}
 
