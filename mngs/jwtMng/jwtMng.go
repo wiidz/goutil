@@ -99,6 +99,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	//【1】从头部获取jwt
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
+		// 全都视作未登录
 		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
 		return
 	}
