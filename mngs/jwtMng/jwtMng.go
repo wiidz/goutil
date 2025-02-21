@@ -99,7 +99,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	//【1】从头部获取jwt
 	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
 	if err != nil {
-		networkHelper.ReturnError(ctx, err.Error())
+		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
 		return
 	}
 
@@ -201,14 +201,14 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 // FromAuthHeader 从header头中获取jwt
 func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 	if authHeader == "" {
-		return "", errors.New("Authorization header is empty") // No error, just no token
+		return "", errors.New("您尚未登陆") // No error, just no token
 	}
 
 	// TODO: Make this a bit more robust, parsing-wise
 	authHeaderParts := strings.Split(authHeader, " ")
 	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
 		//return "", fmt.Errorf("Authorization header format must be Bearer {token}")
-		return "", fmt.Errorf("token格式错误")
+		return "", fmt.Errorf("密钥格式错误")
 	}
 
 	return authHeaderParts[1], nil
