@@ -475,8 +475,22 @@ func JsonDecode(jsonStr string) (parsedData interface{}) {
 	return
 }
 
+//func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
+//	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+//	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
+//	return
+//}
+
+// JsonDecodeMap 修复
+// 1.JSON 数值类型的默认解析规则
+// Go 的 encoding/json 库（以及兼容模式的 jsoniter）在解析 JSON 数值时，若数值较大（超过 int64 范围），会优先解析为 float64 类型
+// 。例如，10000001 会被解析为 1.0000001e+07，这是浮点数的科学计数法表示。
+// 2.map[string]interface{} 的类型推断
+// 使用 map[string]interface{} 接收 JSON 数据时，解析器会根据数值大小自动选择 float64 或 int 类型。由于 10000001 在 Go 的 int 类型范围内（32 位系统下可能超出），解析器可能仍选择 float64 以避免溢出风险。
 func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
-	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	var json2 = jsoniter.Config{
+		UseNumber: true,
+	}.Froze()
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
 	return
 }
