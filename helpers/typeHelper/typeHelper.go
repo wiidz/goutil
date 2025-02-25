@@ -488,9 +488,13 @@ func JsonDecode(jsonStr string) (parsedData interface{}) {
 // 2.map[string]interface{} 的类型推断
 // 使用 map[string]interface{} 接收 JSON 数据时，解析器会根据数值大小自动选择 float64 或 int 类型。由于 10000001 在 Go 的 int 类型范围内（32 位系统下可能超出），解析器可能仍选择 float64 以避免溢出风险。
 func JsonDecodeMap(jsonStr string) (parsedData map[string]interface{}) {
-	var json2 = jsoniter.Config{
-		UseNumber: true,
-	}.Froze()
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
+	return
+}
+
+func JsonDecodeMapWithConfig(jsonStr string, config jsoniter.Config) (parsedData map[string]interface{}) {
+	var json2 = config.Froze()
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
 	return
 }
