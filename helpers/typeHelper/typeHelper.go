@@ -524,12 +524,14 @@ func JsonDecodeFloat64Slice(jsonStr string) []float64 {
 }
 
 // JsonDecodeInt64Slice json解码至int64切片
-func JsonDecodeInt64Slice(jsonStr string) []int64 {
-
+func JsonDecodeInt64Slice(jsonStr string, config *jsoniter.Config) []int64 {
 	var data []int64
-
-	_ = json.Unmarshal([]byte(jsonStr), &data)
-
+	if config != nil {
+		var json2 = config.Froze()
+		_ = json2.Unmarshal([]byte(jsonStr), &data)
+	} else {
+		_ = json.Unmarshal([]byte(jsonStr), &data)
+	}
 	return data
 }
 
@@ -554,11 +556,16 @@ func JsonDecodeStrSlice(jsonStr string) []string {
 }
 
 // JsonDecodeIntSlice json解码至int切片
-func JsonDecodeIntSlice(jsonStr string) []int {
+func JsonDecodeIntSlice(jsonStr string, config *jsoniter.Config) []int {
 
 	var data []int
 
-	_ = json.Unmarshal([]byte(jsonStr), &data)
+	if config != nil {
+		var json2 = config.Froze()
+		_ = json2.Unmarshal([]byte(jsonStr), &data)
+	} else {
+		_ = json.Unmarshal([]byte(jsonStr), &data)
+	}
 
 	return data
 }
