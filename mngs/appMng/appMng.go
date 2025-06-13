@@ -1,6 +1,7 @@
 package appMng
 
 import (
+	"context"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
@@ -66,7 +67,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 
 	//【3】初始化redis
 	if checkStart.Redis {
-		err = redisMng.Init(mng.BaseConfig.RedisConfig)
+		err = redisMng.Init(context.Background(), mng.BaseConfig.RedisConfig)
 		if err != nil {
 			return
 		}

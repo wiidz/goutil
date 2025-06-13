@@ -82,7 +82,7 @@ func (mng *CaptchaMng) GetNumberCaptcha(ctx context.Context, identify string) (i
 func (mng *CaptchaMng) VerifyNumberCaptcha(ctx context.Context, identifyKey, id, captchaStr string) (err error) {
 
 	keyName := identifyKey + id
-	captchaCache, err := mng.GetCache(keyName)
+	captchaCache, err := mng.GetCache(ctx, keyName)
 	if err != nil {
 		return
 	}
