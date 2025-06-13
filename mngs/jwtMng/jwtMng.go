@@ -1,6 +1,7 @@
 package jwtMng
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
@@ -121,7 +122,7 @@ func (mng *JwtMng) Serve(ctx iris.Context) {
 	//【3】判断和缓存中的数据
 	if mng.IsSingletonMode {
 
-		err = mng.CompareJwtCache(mng.AppID, typeHelper.Uint64ToStr(id), tokenStr)
+		err = mng.CompareJwtCache(ctx, mng.AppID, typeHelper.Uint64ToStr(id), tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
 			return
@@ -186,7 +187,7 @@ func (mng *JwtMng) ServeMixed(ctx iris.Context) {
 	//【3】判断和缓存中的数据
 	if mng.IsSingletonMode {
 		cacheKeyName := typeHelper.ImplodeInt(routerKeySlice, "-")
-		err = mng.CompareJwtCache(mng.AppID, cacheKeyName, tokenStr)
+		err = mng.CompareJwtCache(ctx, mng.AppID, cacheKeyName, tokenStr)
 		if err != nil {
 			networkHelper.ReturnError(ctx, err.Error())
 			return
@@ -255,30 +256,30 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 }
 
 // SetCache StorageJWT 存储kwt至redis中
-func (mng *JwtMng) SetCache(appID uint64, routerKeyName, token string) (bool, error) {
+func (mng *JwtMng) SetCache(ctx context.Context, appID uint64, routerKeyName, token string) (bool, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HSetNX(typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName, token)
+	res, err := redis.HSetNX(ctx, typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName, token)
 	return res, err
 }
 
 // GetCache GetJwtCache 从缓存中读取jwt
-func (mng *JwtMng) GetCache(appID uint64, routerKeyName string) (string, error) {
+func (mng *JwtMng) GetCache(ctx context.Context, appID uint64, routerKeyName string) (string, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HGetString(typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName)
+	res, err := redis.HGetString(ctx, typeHelper.Uint64ToStr(appID)+"-jwt", routerKeyName)
 	return res, err
 }
 
 // DeleteCache 从缓存中删除jwt
-func (mng *JwtMng) DeleteCache(appID, userID uint64) (int64, error) {
+func (mng *JwtMng) DeleteCache(ctx context.Context, appID, userID uint64) (int64, error) {
 	redis := redisMng.NewRedisMng()
-	res, err := redis.HDel(typeHelper.Uint64ToStr(appID)+"-jwt", []string{typeHelper.Uint64ToStr(userID)})
+	res, err := redis.HDel(ctx, typeHelper.Uint64ToStr(appID)+"-jwt", []string{typeHelper.Uint64ToStr(userID)})
 	return res, err
 }
 
 // CompareJwtCache 判断jwtToken
-func (mng *JwtMng) CompareJwtCache(appID uint64, routerKeyName, token string) error {
+func (mng *JwtMng) CompareJwtCache(ctx context.Context, appID uint64, routerKeyName, token string) error {
 	//【1】从缓存中读取jwt
-	cacheToken, err := mng.GetCache(appID, routerKeyName)
+	cacheToken, err := mng.GetCache(ctx, appID, routerKeyName)
 	if err != nil {
 		return err
 	}
