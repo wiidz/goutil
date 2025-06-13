@@ -1,6 +1,7 @@
 package captchaMng
 
 import (
+	"context"
 	"errors"
 	cp "github.com/mojocn/base64Captcha"
 	"github.com/wiidz/goutil/helpers/mathHelper"
@@ -44,7 +45,7 @@ func (mng *CaptchaMng) VerifyGraphCaptcha(id, answer string) bool {
 	if strings.ToLower(strings.TrimSpace(answer)) != strings.ToLower(get) {
 		return false
 	}
-	
+
 	// 手动删除
 	cp.DefaultMemStore.Get(id, true)
 	return true
@@ -67,18 +68,18 @@ func (mng *CaptchaMng) GenerateNumberGraphCaptcha(width, height, noiseCount, len
 }
 
 // GetNumberCaptcha 获取数字验证码
-func (mng *CaptchaMng) GetNumberCaptcha(identify string) (id, captchaStr string, err error) {
+func (mng *CaptchaMng) GetNumberCaptcha(ctx context.Context, identify string) (id, captchaStr string, err error) {
 
 	captcha := mathHelper.GetRandomInt(100000, 999999) // 默认六位
 	captchaStr = typeHelper.Int2Str(captcha)
 	id = strHelper.GetRandomString(10)
 
-	_ = mng.SetCache(identify+id, captchaStr, time.Second*300) // 300秒有效
+	_ = mng.SetCache(ctx, identify+id, captchaStr, time.Second*300) // 300秒有效
 	return
 }
 
 // VerifyNumberCaptcha 验证数字验证码
-func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey, id, captchaStr string) (err error) {
+func (mng *CaptchaMng) VerifyNumberCaptcha(ctx context.Context, identifyKey, id, captchaStr string) (err error) {
 
 	keyName := identifyKey + id
 	captchaCache, err := mng.GetCache(keyName)
@@ -93,15 +94,15 @@ func (mng *CaptchaMng) VerifyNumberCaptcha(identifyKey, id, captchaStr string) (
 		return errors.New("验证码错误")
 	}
 
-	_ = mng.SetCache(keyName, "0", 0)
+	_ = mng.SetCache(ctx, keyName, "0", 0)
 
 	return nil
 }
 
 // SetCache 记录缓存
-func (mng *CaptchaMng) SetCache(keyName, value string, expire time.Duration) (err error) {
+func (mng *CaptchaMng) SetCache(ctx context.Context, keyName, value string, expire time.Duration) (err error) {
 	if mng.DataSource == dataSourceStruct.Redis {
-		err = mng.RedisMng.Set(keyName, value, expire)
+		err = mng.RedisMng.Set(ctx, keyName, value, expire)
 	} else if mng.DataSource == dataSourceStruct.Memory {
 		mng.MemoryMng.Set(keyName, value, expire)
 	}
@@ -113,10 +114,10 @@ func (mng *CaptchaMng) SetCache(keyName, value string, expire time.Duration) (er
 }
 
 // GetCache 读取缓存
-func (mng *CaptchaMng) GetCache(keyName string) (string, error) {
+func (mng *CaptchaMng) GetCache(ctx context.Context, keyName string) (string, error) {
 	log.Println("keyName", keyName)
 	if mng.DataSource == dataSourceStruct.Redis {
-		return mng.RedisMng.GetString(keyName)
+		return mng.RedisMng.GetString(ctx, keyName)
 	} else if mng.DataSource == dataSourceStruct.Memory {
 		value, exist := mng.MemoryMng.GetString(keyName)
 		if exist == false {
