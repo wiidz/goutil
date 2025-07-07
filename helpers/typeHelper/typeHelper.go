@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"log"
 	"reflect"
@@ -340,29 +341,50 @@ func IsType(needle interface{}, type_name string) bool {
  * @date   2019-11-16
  */
 func ToString(data interface{}) string {
-	switch data.(type) {
+	switch v := data.(type) {
 	case int:
-		return strconv.Itoa(data.(int))
+		return strconv.Itoa(v)
 	case int8:
-		return strconv.Itoa(int(data.(int8)))
-	case int64:
-		return strconv.FormatInt(data.(int64), 10)
+		return strconv.Itoa(int(v))
+	case int16:
+		return strconv.Itoa(int(v))
 	case int32:
-		return strconv.FormatInt(int64(data.(int32)), 10)
+		return strconv.FormatInt(int64(v), 10)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case uint:
+		return strconv.FormatUint(uint64(v), 10)
+	case uint8:
+		return strconv.FormatUint(uint64(v), 10)
+	case uint16:
+		return strconv.FormatUint(uint64(v), 10)
 	case uint32:
-		return strconv.FormatUint(uint64(data.(uint32)), 10)
+		return strconv.FormatUint(uint64(v), 10)
 	case uint64:
-		return strconv.FormatUint(data.(uint64), 10)
+		return strconv.FormatUint(v, 10)
 	case float32:
-		return strconv.FormatFloat(float64(data.(float32)), 'f', -1, 32)
+		return strconv.FormatFloat(float64(v), 'f', -1, 32)
 	case float64:
-		return strconv.FormatFloat(data.(float64), 'f', -1, 64)
+		return strconv.FormatFloat(v, 'f', -1, 64)
 	case string:
-		return data.(string)
+		return v
+	case []byte:
+		return string(v)
+	case bool:
+		return strconv.FormatBool(v)
 	case time.Time:
-		return data.(time.Time).Format("2006-01-02 15:04:05")
-	default:
+		return v.Format("2006-01-02 15:04:05")
+	case map[string]interface{}:
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
 		return ""
+	default:
+		// 尝试通过json序列化其他类型
+		if b, err := json.Marshal(v); err == nil && string(b) != "{}" {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", data)
 	}
 }
 
