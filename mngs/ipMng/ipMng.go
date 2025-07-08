@@ -28,7 +28,7 @@ func (mng *IPMng) GetRegionInfo(ip string) (data *RespData, err error) {
 		"ip": ip,
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	}, &Resp{})
+	}, &Resp{}, false)
 
 	if err != nil {
 		return nil, err
