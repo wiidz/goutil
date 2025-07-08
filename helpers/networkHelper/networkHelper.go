@@ -388,137 +388,115 @@ func RequestJson(method networkStruct.Method, targetURL string, params map[strin
 
 }
 
-func RequestJsonWithStruct(method networkStruct.Method, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
+func RequestJsonWithStruct(
+	method networkStruct.Method,
+	targetURL string,
+	params interface{}, // 可结构体/Map
+	headers map[string]string,
+	iStruct interface{},
+	debug bool, // 新增调试开关
+) (interface{}, *http.Header, int, error) {
+	if debug {
+		fmt.Println("【method】", method.String())
+		fmt.Println("【targetURL】", targetURL)
+		fmt.Printf("【params】 %+v\n", params)
+		fmt.Println("【headers】", headers)
+	}
 
-	//【1】解析URL
-	var parsedURL *url.URL
+	// 1. 解析URL
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
-		fmt.Printf("解析url错误:\r\n%v", err)
+		if debug {
+			fmt.Printf("解析url错误: %v\n", err)
+		}
 		return nil, nil, 0, err
 	}
 
-	//【2】创建client
-	client := &http.Client{}
-
-	//【3】构造参数
-	param := url.Values{}
-	for key, value := range params {
-		k := typeHelper.ToString(key)
-		v := typeHelper.ToString(value)
-		param.Set(k, v)
-	}
-
 	var body io.Reader
+	var reqBodyJson string
+
 	if method == networkStruct.Get {
-		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
+		// GET: params拼URL
+		if params != nil {
+			m := map[string]interface{}{}
+			switch v := params.(type) {
+			case map[string]interface{}:
+				m = v
+			default:
+				b, _ := json.Marshal(v)
+				json.Unmarshal(b, &m)
+			}
+			q := parsedURL.Query()
+			for k, v := range m {
+				// 建议可以用 ToString
+				q.Set(k, fmt.Sprintf("%v", v))
+			}
+			parsedURL.RawQuery = q.Encode()
+		}
 	} else {
-		body = strings.NewReader(param.Encode())
-	}
-
-	//【4】创建请求
-	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
-	if err != nil {
-		panic(err)
-	}
-
-	//【5】增加header选项
-	if len(headers) > 0 {
-		for k, v := range headers {
-			request.Header.Add(k, v)
+		// POST/PUT: params转json做body
+		if params != nil {
+			jsonBytes, err := json.Marshal(params)
+			if err != nil {
+				if debug {
+					fmt.Println("【marshal params error】", err)
+				}
+				return nil, nil, 0, err
+			}
+			reqBodyJson = string(jsonBytes)
+			body = bytes.NewReader(jsonBytes)
 		}
 	}
 
-	//【5-1】增加content-Length
-	if method != networkStruct.Get {
-		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
-		request.Header.Add("Content-type", "application/json;charset=utf-8")
+	if debug {
+		fmt.Println("【parsedURL】", parsedURL.String())
+		if method != networkStruct.Get {
+			fmt.Println("【body】", body != nil)
+			fmt.Println("【reqBodyJson】", reqBodyJson)
+		}
 	}
 
-	//【6】发送请求
-	resp, _ := client.Do(request)
-	defer resp.Body.Close()
-
-	//【7】读取body
-	resStr, err := ioutil.ReadAll(resp.Body)
-
-	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
-	err = json2.Unmarshal(resStr, iStruct)
-
-	//【8】返回
-	return iStruct, &resp.Header, resp.StatusCode, err
-}
-
-func RequestJsonWithStructTest(method networkStruct.Method, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
-
-	log.Println("【method】", method.String())
-	log.Println("【targetURL】", targetURL)
-	log.Println("【params】", params)
-	log.Println("【headers】", headers)
-	log.Println("【iStruct】", iStruct)
-
-	//【1】解析URL
-	var parsedURL *url.URL
-	parsedURL, err := url.Parse(targetURL)
+	// 构建请求
+	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
 	if err != nil {
-		fmt.Printf("解析url错误:\r\n%v", err)
+		if debug {
+			fmt.Printf("创建http请求失败: %v\n", err)
+		}
 		return nil, nil, 0, err
 	}
+	// 设置headers
+	for k, v := range headers {
+		request.Header.Set(k, v)
+	}
+	if method != networkStruct.Get && params != nil {
+		request.Header.Set("Content-Type", "application/json;charset=utf-8")
+	}
 
-	//【2】创建client
+	// 发送请求
 	client := &http.Client{}
-
-	//【3】构造参数
-	param := url.Values{}
-	for key, value := range params {
-		k := typeHelper.ToString(key)
-		v := typeHelper.ToString(value)
-		param.Set(k, v)
-	}
-
-	var body io.Reader
-	if method == networkStruct.Get {
-		parsedURL.RawQuery = param.Encode() //如果参数中有中文参数,这个方法会进行URLEncode
-	} else {
-		body = strings.NewReader(param.Encode())
-	}
-
-	log.Println("【parsedURL】", parsedURL.String())
-	log.Println("【body】", body)
-
-	//【4】创建请求
-	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
+	resp, err := client.Do(request)
 	if err != nil {
-		panic(err)
-	}
-
-	//【5】增加header选项
-	if len(headers) > 0 {
-		for k, v := range headers {
-			request.Header.Add(k, v)
+		if debug {
+			fmt.Printf("http请求失败: %v\n", err)
 		}
+		return nil, nil, 0, err
 	}
-
-	//【5-1】增加content-Length
-	if method != networkStruct.Get {
-		request.Header.Add("Content-Length", strconv.Itoa(len(param)))
-		request.Header.Add("Content-type", "application/json;charset=utf-8")
-	}
-
-	//【6】发送请求
-	resp, _ := client.Do(request)
 	defer resp.Body.Close()
 
-	//【7】读取body
-	resStr, err := ioutil.ReadAll(resp.Body)
+	// 读取返回结果
+	resBytes, err := io.ReadAll(resp.Body)
+	if debug {
+		fmt.Println("【StatusCode】", resp.StatusCode)
+		fmt.Println("【resStr】", string(resBytes))
+	}
+	if err != nil {
+		return nil, &resp.Header, resp.StatusCode, err
+	}
 
-	log.Println("【StatusCode】", resp.StatusCode)
-	log.Println("【resStr】", string(resStr))
-
+	// 反序列化
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
-	err = json2.Unmarshal(resStr, iStruct)
+	err = json2.Unmarshal(resBytes, iStruct)
 
-	//【8】返回
 	return iStruct, &resp.Header, resp.StatusCode, err
 }
 
