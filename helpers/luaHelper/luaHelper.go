@@ -116,7 +116,6 @@ func LuaValueToInterfaceNoTable(L *lua.LState, lv lua.LValue) interface{} {
 	}
 }
 
-// LuaValueToGoValue 将 Lua 值转换为对应的 Go reflect.Value 类型
 func LuaValueToGoValue(lv lua.LValue) reflect.Value {
 	switch lv.Type() {
 	case lua.LTString:
@@ -127,19 +126,21 @@ func LuaValueToGoValue(lv lua.LValue) reflect.Value {
 		return reflect.ValueOf(bool(lv.(lua.LBool)))
 	case lua.LTTable:
 		tbl := lv.(*lua.LTable)
-		// 判定是否是数组（即整数key从1开始连续）
+		// 判断是否为标准数组（key为1..N且没有别的key）
 		arrayLen := tbl.Len()
-		if arrayLen == 0 {
-			return reflect.ValueOf(make(map[string]interface{}))
-		}
+		// 记录表项总数（用于区分kv类型table和稀疏/混合型table）
+		itemCount := 0
 		isArray := true
-		resultArray := make([]interface{}, arrayLen)
+		arrayValues := make([]interface{}, arrayLen)
+
 		tbl.ForEach(func(key, value lua.LValue) {
+			itemCount++
 			if key.Type() == lua.LTNumber {
-				k := int(key.(lua.LNumber))
-				if k >= 1 && k <= arrayLen {
-					// Lua 数组下标从1开始
-					resultArray[k-1] = LuaValueToGoValue(value).Interface()
+				kf := float64(key.(lua.LNumber))
+				ki := int(key.(lua.LNumber))
+				// 检查key必须是1~arrayLen的整数，并且没有小数部分
+				if kf == float64(ki) && ki >= 1 && ki <= arrayLen {
+					arrayValues[ki-1] = LuaValueToGoValue(value).Interface()
 				} else {
 					isArray = false
 				}
@@ -147,10 +148,11 @@ func LuaValueToGoValue(lv lua.LValue) reflect.Value {
 				isArray = false
 			}
 		})
-		if isArray {
-			return reflect.ValueOf(resultArray)
+
+		// 必须所有key都是连续1..N 且数量等于Len才认定为数组
+		if isArray && itemCount == arrayLen && arrayLen > 0 {
+			return reflect.ValueOf(arrayValues)
 		} else {
-			// fallback: 普通map
 			goMap := make(map[string]interface{})
 			tbl.ForEach(func(key, value lua.LValue) {
 				goMap[key.String()] = LuaValueToGoValue(value).Interface()
