@@ -6,6 +6,7 @@ import (
 	"fmt"
 	lua "github.com/yuin/gopher-lua"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -112,6 +113,35 @@ func LuaValueToInterfaceNoTable(L *lua.LState, lv lua.LValue) interface{} {
 		return tableToJSON(L, lv.(*lua.LTable))
 	default:
 		return lv.String()
+	}
+}
+
+// LuaValueToGoValue 将 Lua 值转换为对应的 Go reflect.Value 类型
+func LuaValueToGoValue(lv lua.LValue) reflect.Value {
+	switch lv.Type() {
+	case lua.LTString:
+		return reflect.ValueOf(lv.String())
+	case lua.LTNumber:
+		// lua.LNumber 实际上等价于 float64
+		return reflect.ValueOf(float64(lv.(lua.LNumber)))
+	case lua.LTBool:
+		return reflect.ValueOf(bool(lv.(lua.LBool)))
+	case lua.LTTable:
+		tbl := lv.(*lua.LTable)
+		// 空表 -> 空 map[string]interface{}
+		if tbl.Len() == 0 {
+			return reflect.ValueOf(make(map[string]interface{}))
+		}
+		goMap := make(map[string]interface{})
+		tbl.ForEach(func(key, value lua.LValue) {
+			goMap[key.String()] = LuaValueToGoValue(value).Interface()
+		})
+		return reflect.ValueOf(goMap)
+	case lua.LTNil:
+		return reflect.Zero(reflect.TypeOf((*interface{})(nil)).Elem()) // 返回nil的Value
+	default:
+		// 其他类型（如函数、用户数据等），默认转为字符串
+		return reflect.ValueOf(lv.String())
 	}
 }
 
