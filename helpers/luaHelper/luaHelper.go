@@ -122,25 +122,44 @@ func LuaValueToGoValue(lv lua.LValue) reflect.Value {
 	case lua.LTString:
 		return reflect.ValueOf(lv.String())
 	case lua.LTNumber:
-		// lua.LNumber 实际上等价于 float64
 		return reflect.ValueOf(float64(lv.(lua.LNumber)))
 	case lua.LTBool:
 		return reflect.ValueOf(bool(lv.(lua.LBool)))
 	case lua.LTTable:
 		tbl := lv.(*lua.LTable)
-		// 空表 -> 空 map[string]interface{}
-		if tbl.Len() == 0 {
+		// 判定是否是数组（即整数key从1开始连续）
+		arrayLen := tbl.Len()
+		if arrayLen == 0 {
 			return reflect.ValueOf(make(map[string]interface{}))
 		}
-		goMap := make(map[string]interface{})
+		isArray := true
+		resultArray := make([]interface{}, arrayLen)
 		tbl.ForEach(func(key, value lua.LValue) {
-			goMap[key.String()] = LuaValueToGoValue(value).Interface()
+			if key.Type() == lua.LTNumber {
+				k := int(key.(lua.LNumber))
+				if k >= 1 && k <= arrayLen {
+					// Lua 数组下标从1开始
+					resultArray[k-1] = LuaValueToGoValue(value).Interface()
+				} else {
+					isArray = false
+				}
+			} else {
+				isArray = false
+			}
 		})
-		return reflect.ValueOf(goMap)
+		if isArray {
+			return reflect.ValueOf(resultArray)
+		} else {
+			// fallback: 普通map
+			goMap := make(map[string]interface{})
+			tbl.ForEach(func(key, value lua.LValue) {
+				goMap[key.String()] = LuaValueToGoValue(value).Interface()
+			})
+			return reflect.ValueOf(goMap)
+		}
 	case lua.LTNil:
-		return reflect.Zero(reflect.TypeOf((*interface{})(nil)).Elem()) // 返回nil的Value
+		return reflect.Zero(reflect.TypeOf((*interface{})(nil)).Elem())
 	default:
-		// 其他类型（如函数、用户数据等），默认转为字符串
 		return reflect.ValueOf(lv.String())
 	}
 }
