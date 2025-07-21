@@ -63,7 +63,7 @@ func (mng *MysqlMng) Init() (err error) {
 
 	//【4】构建从库
 	if mng.Slaves != nil && len(mng.Slaves) > 0 {
-
+		log.Println("【mysql-slaves】", len(mng.Slaves))
 		dialectors := []gorm.Dialector{}
 		for _, v := range mng.Slaves {
 			dialectors = append(dialectors, mysql.Open(getDsn(v)))
@@ -83,6 +83,7 @@ func (mng *MysqlMng) Init() (err error) {
 				SetMaxIdleConns(mng.Slaves[0].MaxIdle).
 				SetMaxOpenConns(mng.Slaves[0].MaxOpenConns),
 		)
+		log.Println("【mysql-slaves-init】", err)
 	}
 
 	return
