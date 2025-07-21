@@ -6,6 +6,7 @@ import (
 	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/dbresolver"
 	"log"
 	"net/url"
 	"strconv"
@@ -14,36 +15,43 @@ import (
 
 type MysqlMng struct {
 	db        *gorm.DB
-	config    *configStruct.MysqlConfig // 配置项
-	Conn      *gorm.DB                  // 普通会话
-	TransConn *gorm.DB                  // 事务会话
+	config    *configStruct.MysqlConfig   // 配置项
+	Conn      *gorm.DB                    // 普通会话
+	TransConn *gorm.DB                    // 事务会话
+	Slaves    []*configStruct.MysqlConfig // 从库配置项
 }
 
 // NewMysqlMng 获取一个mysql实例
-func NewMysqlMng(config *configStruct.MysqlConfig) (mysqlMng *MysqlMng, err error) {
+func NewMysqlMng(master *configStruct.MysqlConfig, slaves []*configStruct.MysqlConfig) (mysqlMng *MysqlMng, err error) {
 	mysqlMng = &MysqlMng{
-		config: config,
+		config: master,
+		Slaves: slaves,
 	}
 
 	err = mysqlMng.Init()
 	return
 }
 
-func (mng *MysqlMng) Init() (err error) {
-	//【1】构建DSN
-	dsn := mng.config.Username + ":" + mng.config.Password +
-		"@tcp(" + mng.config.Host + ":" + mng.config.Port + ")/" + mng.config.DbName +
-		"?charset=" + mng.config.Charset +
-		"&collation=" + mng.config.Collation +
-		"&loc=" + url.QueryEscape(mng.config.TimeZone) +
-		"&parseTime=" + strconv.FormatBool(mng.config.ParseTime)
+// getDsn 从配置项获取dsn
+func getDsn(config *configStruct.MysqlConfig) string {
+	return config.Username + ":" + config.Password +
+		"@tcp(" + config.Host + ":" + config.Port + ")/" + config.DbName +
+		"?charset=" + config.Charset +
+		"&collation=" + config.Collation +
+		"&loc=" + url.QueryEscape(config.TimeZone) +
+		"&parseTime=" + strconv.FormatBool(config.ParseTime)
+}
 
-	//【3】构建DB对象
+func (mng *MysqlMng) Init() (err error) {
+
+	//【1】构建DSN
+	dsn := getDsn(mng.config)
+
+	//【3】构建主库DB对象
 	log.Println("【mysql-dsn】", dsn)
 	mng.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: mng.config.Logger,
 	})
-
 	if err != nil {
 		log.Println("【mysql-init-err】", err)
 		return
@@ -52,6 +60,31 @@ func (mng *MysqlMng) Init() (err error) {
 	sqlDB.SetMaxIdleConns(mng.config.MaxIdle)                                     //最大空闲连接数
 	sqlDB.SetMaxOpenConns(mng.config.MaxOpenConns)                                //最大连接数
 	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(mng.config.MaxLifeTime)) //设置连接空闲超时
+
+	//【4】构建从库
+	if mng.Slaves != nil && len(mng.Slaves) > 0 {
+
+		dialectors := []gorm.Dialector{}
+		for _, v := range mng.Slaves {
+			dialectors = append(dialectors, mysql.Open(getDsn(v)))
+		}
+
+		// 配置主从（读写分离）
+		err = mng.db.Use(
+			dbresolver.Register(
+				// 指定源（主库）和 replicas（从库）
+				dbresolver.Config{
+					Replicas: dialectors,
+				},
+				// 指定作用于哪些表，可选
+				// &User{},
+			).
+				// 配置读写连接池参数（可选）
+				SetMaxIdleConns(mng.Slaves[0].MaxIdle).
+				SetMaxOpenConns(mng.Slaves[0].MaxOpenConns),
+		)
+	}
+
 	return
 }
 

@@ -46,7 +46,7 @@ func (mng *AppMng) SetConfigCache(mysqlConfig *configStruct.MysqlConfig, checkSt
 	//【1】初始化mysql
 	if checkStart.Mysql {
 		//【2-1】基础配置
-		mysqlM, err = mysqlMng.NewMysqlMng(mysqlConfig)
+		mysqlM, err = mysqlMng.NewMysqlMng(mysqlConfig, nil)
 		if err != nil {
 			return
 		}

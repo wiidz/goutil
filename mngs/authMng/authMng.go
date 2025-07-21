@@ -48,7 +48,7 @@ func (mng *AuthMng) Serve(ctx iris.Context) {
 	}
 
 	//【2】初始化数据库
-	mysql, _ := mysqlMng.NewMysqlMng(mng.mysqlConfig)
+	mysql, _ := mysqlMng.NewMysqlMng(mng.mysqlConfig, nil)
 	conn := mysql.GetConn()
 
 	//【3】获取用户资料并判断
