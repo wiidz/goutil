@@ -491,6 +491,19 @@ func JsonEncode(data interface{}) (string, error) {
 	return string(res), err
 }
 
+// JsonEncodeDecodeMap 将任何数据转换成map[string]interface{}
+func JsonEncodeDecodeMap(data interface{}) (map[string]interface{}, error) {
+	res, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var parsedData map[string]interface{}
+	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
+	_ = json2.Unmarshal(res, &parsedData)
+	return parsedData, err
+}
+
 func JsonDecode(jsonStr string) (parsedData interface{}) {
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	_ = json2.Unmarshal([]byte(jsonStr), &parsedData)
