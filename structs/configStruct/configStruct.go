@@ -230,7 +230,7 @@ type TcpConfig struct {
 type KookConfig struct {
 	Debug bool
 
-	GuidID      string
+	GuildID     string
 	Token       string
 	EncryptKey  string
 	VerifyToken string
