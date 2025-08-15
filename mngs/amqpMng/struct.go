@@ -2,7 +2,6 @@ package amqpMng
 
 import (
 	"github.com/streadway/amqp"
-	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 // RabbitMQ Exchange 类型
@@ -18,6 +17,10 @@ const (
 
 // Core 配置结构体（可和你的 configStruct 对接）
 type Config struct {
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+
 	IsDurable bool
 
 	ExchangeName        string
@@ -40,6 +43,6 @@ type Config struct {
 
 // 管理器
 type RabbitMQ struct {
-	Config *configStruct.RabbitMQConfig
+	Config *Config
 	Conn   *amqp.Connection
 }

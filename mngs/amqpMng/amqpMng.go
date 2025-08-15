@@ -28,7 +28,7 @@ func Init(config *configStruct.RabbitMQConfig) (err error) {
 }
 
 // NewRabbitMQ 新建管理对象
-func NewRabbitMQ(cfg *configStruct.RabbitMQConfig) (*RabbitMQ, error) {
+func NewRabbitMQ(cfg *Config) (*RabbitMQ, error) {
 	if conn == nil {
 		return nil, errors.New("[RabbitMQ] conn not initialized, call Init first")
 	}
@@ -44,7 +44,7 @@ func (mng *RabbitMQ) SetExchange(channel *amqp.Channel) error {
 	if args == nil {
 		args = amqp.Table{}
 	}
-	if mng.Config.ExchangeType == configStruct.XDelayedMessage {
+	if mng.Config.ExchangeType == XDelayedMessage {
 		args["x-delayed-type"] = "direct" // 或者用 mng.Config.ExchangeType
 	}
 	return channel.ExchangeDeclare(
@@ -66,9 +66,9 @@ func (mng *RabbitMQ) DeclareQueue(channel *amqp.Channel) (*amqp.Queue, error) {
 	}
 
 	switch mng.Config.ExchangeType {
-	case configStruct.XDelayedMessage:
+	case XDelayedMessage:
 		// x-delayed-message机制，不用设置 TTL 和死信
-	case configStruct.DeadLetterDelay:
+	case DeadLetterDelay:
 		if mng.Config.QueueTTL <= 0 {
 			return nil, errors.New("dead letter delay QueueTTL 必须大于0（单位ms）")
 		}
@@ -141,7 +141,7 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) error {
 	var pub amqp.Publishing
 	bodyBytes := []byte(body)
 	switch mng.Config.ExchangeType {
-	case configStruct.XDelayedMessage:
+	case XDelayedMessage:
 		pub = amqp.Publishing{
 			Headers:      amqp.Table{"x-delay": expiration},
 			ContentType:  "text/plain",

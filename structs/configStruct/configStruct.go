@@ -1,7 +1,6 @@
 package configStruct
 
 import (
-	"github.com/streadway/amqp"
 	"gorm.io/gorm/logger"
 	"time"
 )
@@ -108,25 +107,6 @@ type RabbitMQConfig struct {
 	Host     string `json:"host"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-
-	IsDurable bool
-
-	ExchangeName        string
-	ExchangeType        ExchangeType
-	ExchangeDeclareArgs amqp.Table
-
-	QueueName        string
-	QueueTTL         int // 毫秒
-	QueueDeclareArgs amqp.Table
-	QueueBindArgs    amqp.Table
-
-	BindingKey string
-	RoutingKey string
-
-	TargetExchangeName string // 用于死信延迟和普通死信
-	TargetRoutingKey   string
-
-	// 可扩展更多参数
 }
 
 // WechatMiniConfig 微信小程序参数
