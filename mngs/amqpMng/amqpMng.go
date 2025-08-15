@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/streadway/amqp"
+	"github.com/wiidz/goutil/structs/configStruct"
 	"log"
 	"strconv"
 )
@@ -11,18 +12,23 @@ import (
 var conn *amqp.Connection // 全局 Connection
 
 // Init 初始化 Connection
-func Init(amqpURL string) error {
-	var err error
-	conn, err = amqp.Dial(amqpURL)
+func Init(config *configStruct.RabbitMQConfig) (err error) {
+
+	//【1】构建DSN
+	dsn := "amqp://" + config.Username + ":" + config.Password + "@" + config.Host + "/"
+
+	//【2】构建DB对象
+	log.Println("【rabbitMq-dsn】", dsn)
+	conn, err = amqp.Dial(dsn)
 	if err != nil {
-		log.Println("[RabbitMQ] Connection init failed:", err)
-		return err
+		log.Println("【rabbit-mq-init-err】", err)
+		return
 	}
-	return nil
+	return
 }
 
 // NewRabbitMQ 新建管理对象
-func NewRabbitMQ(cfg *Config) (*RabbitMQ, error) {
+func NewRabbitMQ(cfg *configStruct.RabbitMQConfig) (*RabbitMQ, error) {
 	if conn == nil {
 		return nil, errors.New("[RabbitMQ] conn not initialized, call Init first")
 	}
@@ -38,7 +44,7 @@ func (mng *RabbitMQ) SetExchange(channel *amqp.Channel) error {
 	if args == nil {
 		args = amqp.Table{}
 	}
-	if mng.Config.ExchangeType == XDelayedMessage {
+	if mng.Config.ExchangeType == configStruct.XDelayedMessage {
 		args["x-delayed-type"] = "direct" // 或者用 mng.Config.ExchangeType
 	}
 	return channel.ExchangeDeclare(
@@ -60,9 +66,9 @@ func (mng *RabbitMQ) DeclareQueue(channel *amqp.Channel) (*amqp.Queue, error) {
 	}
 
 	switch mng.Config.ExchangeType {
-	case XDelayedMessage:
+	case configStruct.XDelayedMessage:
 		// x-delayed-message机制，不用设置 TTL 和死信
-	case DeadLetterDelay:
+	case configStruct.DeadLetterDelay:
 		if mng.Config.QueueTTL <= 0 {
 			return nil, errors.New("dead letter delay QueueTTL 必须大于0（单位ms）")
 		}
@@ -135,7 +141,7 @@ func (mng *RabbitMQ) Publish(body string, expiration int, reliable bool) error {
 	var pub amqp.Publishing
 	bodyBytes := []byte(body)
 	switch mng.Config.ExchangeType {
-	case XDelayedMessage:
+	case configStruct.XDelayedMessage:
 		pub = amqp.Publishing{
 			Headers:      amqp.Table{"x-delay": expiration},
 			ContentType:  "text/plain",

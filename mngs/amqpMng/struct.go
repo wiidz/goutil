@@ -1,6 +1,9 @@
 package amqpMng
 
-import "github.com/streadway/amqp"
+import (
+	"github.com/streadway/amqp"
+	"github.com/wiidz/goutil/structs/configStruct"
+)
 
 // RabbitMQ Exchange 类型
 type ExchangeType string
@@ -37,6 +40,6 @@ type Config struct {
 
 // 管理器
 type RabbitMQ struct {
-	Config *Config
+	Config *configStruct.RabbitMQConfig
 	Conn   *amqp.Connection
 }
