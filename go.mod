@@ -38,6 +38,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.23.10
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/streadway/amqp v1.0.0
+	github.com/volcengine/volcengine-go-sdk v1.1.28
 	github.com/xuri/excelize/v2 v2.5.0
 	github.com/yuin/gopher-lua v1.1.1
 	go.uber.org/zap v1.27.0
@@ -127,6 +128,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	github.com/volcengine/volc-sdk-golang v1.0.23 // indirect
 	github.com/xuri/efp v0.0.0-20210322160811-ab561f5b45e3 // indirect
 	github.com/yosssi/ace v0.0.5 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
@@ -138,5 +140,6 @@ require (
 	golang.org/x/time v0.4.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

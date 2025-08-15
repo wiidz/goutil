@@ -226,3 +226,24 @@ type TcpConfig struct {
 	ReadTimeOut  time.Duration // 读取超时时间
 	WriteTimeOut time.Duration // 写入超时时间
 }
+
+type KookConfig struct {
+	Debug bool
+
+	GuidID      string
+	Token       string
+	EncryptKey  string
+	VerifyToken string
+	CallbackURL string
+	RobotID     string
+
+	VerifiedPlayerRoleID uint64 // 认证角色ID
+	BanRoleID            uint64 // 禁言角色ID
+}
+
+// VolcengineConfig 火山引擎
+type VolcengineConfig struct {
+	Debug bool
+
+	ApiKey string
+}
