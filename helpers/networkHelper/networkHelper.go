@@ -778,6 +778,15 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		params.SetRawMap(formMap)
 
 		break
+	case networkStruct.XWWWForm:
+		err = ctx.ReadForm(params)
+		if err != nil {
+			return
+		}
+
+		// params.SetRawMap(typeHelper.StrMapToInterface(temp))
+		break
+
 	default:
 		err = errors.New("未能匹配数据类型")
 	}

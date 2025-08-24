@@ -11,6 +11,7 @@ const (
 	BodyJson ContentType = 2
 	BodyForm ContentType = 3
 	BodyXML  ContentType = 4
+	XWWWForm ContentType = 5
 )
 
 func (contentType ContentType) GetContentTypeStr() string {
