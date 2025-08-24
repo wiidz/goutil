@@ -764,6 +764,19 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 		break
 	case networkStruct.BodyForm:
+		formMap := make(map[string]interface{})
+
+		// PostForm 包含 body form 的字段（不包含 URL 查询参数）
+		for k, v := range ctx.Request().PostForm {
+			if len(v) == 1 {
+				formMap[k] = v[0]
+			} else {
+				formMap[k] = v
+			}
+		}
+
+		params.SetRawMap(formMap)
+
 		break
 	default:
 		err = errors.New("未能匹配数据类型")
