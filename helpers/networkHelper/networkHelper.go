@@ -999,7 +999,7 @@ func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRo
 			return
 		}
 
-		if routerFlag == requestRouterFlag {
+		if routerFlag.(string) == requestRouterFlag {
 			// 查找slice里面有没有requestRouterKey
 			if !sliceHelper.Exist(requestRouterKey, routerKeySlice) {
 				ReturnError(ctx, "越界操作")
@@ -1007,6 +1007,27 @@ func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRo
 			}
 		}
 		ctx.Next()
+	})
+}
+
+// CheckMixedRouterWithHandler 检查混合项目的路由准入(自定义方法)
+func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string, handler func(ctx iris.Context, routerFlag string, routerKeys []int)) {
+	app.Use(func(ctx iris.Context) {
+		routerFlag := ctx.Values().Get("router_flag")
+		routerKeys := ctx.Values().Get("router_keys") // 注意 这里已经改成了slice
+		routerKeySlice, flag := routerKeys.([]int)
+		if !flag {
+			// 这里不返回错误，因为可能不存在
+			//ReturnError(ctx, "登陆体结构有误")
+			//return
+			routerKeySlice = []int{}
+		}
+		//if len(routerKeySlice) == 0 {
+		//ReturnError(ctx, "登陆主体为空")
+		//return
+		//}
+		handler(ctx, routerFlag.(string), routerKeySlice)
+		//ctx.Next()
 	})
 }
 
