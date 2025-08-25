@@ -1011,7 +1011,7 @@ func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRo
 }
 
 // CheckMixedRouterWithHandler 检查混合项目的路由准入(自定义方法)
-func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string, handler func(ctx iris.Context, routerFlag string, routerKeys []int)) {
+func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string, handler func(ctx iris.Context, routerFlag string, routerKeys []int) error) {
 	app.Use(func(ctx iris.Context) {
 		routerFlag := ctx.Values().Get("router_flag")
 		routerKeys := ctx.Values().Get("router_keys") // 注意 这里已经改成了slice
@@ -1026,8 +1026,15 @@ func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string
 		//ReturnError(ctx, "登陆主体为空")
 		//return
 		//}
-		handler(ctx, routerFlag.(string), routerKeySlice)
-		//ctx.Next()
+		if routerFlag.(string) == requestRouterFlag {
+			err := handler(ctx, routerFlag.(string), routerKeySlice)
+			if err != nil {
+				return
+			}
+			ctx.Next()
+		} else {
+			ctx.Next()
+		}
 	})
 }
 
