@@ -1026,7 +1026,7 @@ func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string
 		//ReturnError(ctx, "登陆主体为空")
 		//return
 		//}
-		if routerFlag.(string) == requestRouterFlag {
+		if routerFlag == requestRouterFlag {
 			err := handler(ctx, routerFlag.(string), routerKeySlice)
 			if err != nil {
 				return
