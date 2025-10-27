@@ -2,9 +2,10 @@ package bemfaMng
 
 import (
 	"errors"
+	"log"
+
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/structs/networkStruct"
-	"log"
 )
 
 //const Domain = "https://apis.bemfa.com"
@@ -124,7 +125,7 @@ func (mng *BemfaMng) GetAllTopic() (data *AllTopicResult, err error) {
 	res, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, url, map[string]interface{}{
 		"uid":  mng.UID, // 必填，用户私钥，巴法云控制台获取
 		"type": 3,       // 必填，主题类型，当type=1时是MQTT协议，3是TCP协议
-	}, map[string]string{}, &GetMsgResult{})
+	}, map[string]string{}, &GetMsgResult{}, false)
 	return res.(*AllTopicResult), err
 }
 

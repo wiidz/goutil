@@ -1,11 +1,12 @@
 package lbsMng
 
 import (
+	"log"
+
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
-	"log"
 )
 
 const ReGeoURL = "https://restapi.amap.com/v3/geocode/regeo"
@@ -64,7 +65,7 @@ func (mng *AmapMng) Geo(address string) (*ReGeoData, error) {
 	resStr, _, _, err := networkHelper.RequestJsonWithStruct(networkStruct.Get, GeoURL, map[string]interface{}{
 		"key":     mng.Config.Key,
 		"address": address,
-	}, nil, &ReGeoRes{})
+	}, nil, &ReGeoRes{}, false)
 
 	if err != nil {
 		return nil, err
