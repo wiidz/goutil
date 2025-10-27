@@ -1,4 +1,4 @@
-package authMng
+package authMngOld
 
 import (
 	"errors"

@@ -2,13 +2,14 @@ package loggerHelper
 
 import (
 	"fmt"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // Config 配置项
@@ -19,9 +20,15 @@ type Config struct {
 	SyncToConsole bool                // 是否同步到控制台（仅文本时生效）
 	EncodeTime    zapcore.TimeEncoder // 时间格式 如 zapcore.ISO8601TimeEncoder
 
-	IsFullPath      bool // 输出的复杂度，true的时候只输出文件名，false就输出复杂一点
+	IsFullPath      bool // 是否输出完整路径：true=完整路径，false=仅文件名
 	AddCaller       bool // 是否输出调用文件和行数，目前这个caller只会输出loggerHelper调用，所以可以不要，我们已经默认输出行数了
 	ShowFileAndLine bool // 我们用这个来控制是否输出行数
+
+	// 轮转配置（针对文件输出）
+	MaxSize    int  // 单个文件最大MB，默认10
+	MaxBackups int  // 保留个数，默认3
+	MaxAge     int  // 保留天数，默认28
+	Compress   bool // 是否压缩，默认true
 }
 
 type LoggerHelper struct {
@@ -38,7 +45,7 @@ type LoggerHelper struct {
 	// 然后使用SugaredLogger以printf格式记录语句
 	Sugar *zap.SugaredLogger // 短小精悍
 
-	consoleSugar *zap.SugaredLogger // 主要用于文本log的时候，同步输出到控制台
+	// 统一通过 zapcore.NewTee 输出到多个目标
 }
 
 // MyTimeEncoder 自定义的时间encoder
@@ -52,20 +59,41 @@ func NewLoggerHelper(config *Config) (helper *LoggerHelper, err error) {
 		Config: config,
 	}
 
-	var isFileLogger bool
-	helper.Normal, isFileLogger, err = GetLogger(config.Filename, config)
-	if err != nil {
-		return
+	// 默认时间编码
+	if helper.Config.EncodeTime == nil {
+		helper.Config.EncodeTime = MyTimeEncoder
 	}
 
-	//【2】如果是文件logger，同步做一个输出到控制台
-	if config.SyncToConsole && isFileLogger {
-		var tempLogger *zap.Logger
-		tempLogger, _, err = GetLogger("", config)
-		if err != nil {
-			return
-		}
-		helper.consoleSugar = tempLogger.Sugar()
+	// 构建 cores（文件 + 控制台）
+	var cores []zapcore.Core
+
+	if config.Filename != "" {
+		fileEncoder := getEncoder(config, false, config.IsFullPath)
+		fileWrite := getLogWriter(config.Filename, config)
+		cores = append(cores, getCore(fileEncoder, fileWrite, config.Level))
+	}
+
+	if config.Filename == "" || config.SyncToConsole {
+		// 控制台强制使用 ConsoleEncoder 且彩色、非JSON
+		consCfg := *config
+		consCfg.Json = false
+		consoleEncoder := getEncoder(&consCfg, true, consCfg.IsFullPath)
+		cores = append(cores, getCore(consoleEncoder, zapcore.AddSync(os.Stdout), consCfg.Level))
+	}
+
+	// 合并核心
+	var core zapcore.Core
+	if len(cores) == 1 {
+		core = cores[0]
+	} else {
+		core = zapcore.NewTee(cores...)
+	}
+
+	// Caller 配置：当需要显示文件行号时开启；Skip(1) 指向真实调用者
+	if config.AddCaller || config.ShowFileAndLine {
+		helper.Normal = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
+	} else {
+		helper.Normal = zap.New(core)
 	}
 
 	helper.Sugar = helper.Normal.Sugar()
@@ -131,216 +159,34 @@ func (helper *LoggerHelper) logf(sugar *zap.SugaredLogger, level zapcore.Level, 
 }
 
 // Info 简单方法，用sugar输出
-func (helper *LoggerHelper) Info(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.InfoLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.InfoLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Info(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Info(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) Error(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.ErrorLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.ErrorLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Error(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Error(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) Debug(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.DebugLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.DebugLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Debug(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Debug(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) Fatal(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.FatalLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.FatalLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Fatal(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Fatal(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) Panic(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.PanicLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.PanicLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Panic(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Panic(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) DPanic(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.DPanicLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.DPanicLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.DPanic(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.DPanic(args...)
-		}
-	}
-}
-func (helper *LoggerHelper) Warn(args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.log(helper.Sugar, zapcore.WarnLevel, args...)
-		if helper.consoleSugar != nil {
-			helper.log(helper.consoleSugar, zapcore.WarnLevel, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Warn(args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Warn(args...)
-		}
-	}
-}
+func (helper *LoggerHelper) Info(args ...interface{})   { helper.Sugar.Info(args...) }
+func (helper *LoggerHelper) Error(args ...interface{})  { helper.Sugar.Error(args...) }
+func (helper *LoggerHelper) Debug(args ...interface{})  { helper.Sugar.Debug(args...) }
+func (helper *LoggerHelper) Fatal(args ...interface{})  { helper.Sugar.Fatal(args...) }
+func (helper *LoggerHelper) Panic(args ...interface{})  { helper.Sugar.Panic(args...) }
+func (helper *LoggerHelper) DPanic(args ...interface{}) { helper.Sugar.DPanic(args...) }
+func (helper *LoggerHelper) Warn(args ...interface{})   { helper.Sugar.Warn(args...) }
 
 func (helper *LoggerHelper) Infof(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.InfoLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.InfoLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Infof(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Infof(template, args...)
-		}
-	}
+	helper.Sugar.Infof(template, args...)
 }
 func (helper *LoggerHelper) Errorf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.ErrorLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.ErrorLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Errorf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Errorf(template, args...)
-		}
-	}
+	helper.Sugar.Errorf(template, args...)
 }
 func (helper *LoggerHelper) Debugf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.DebugLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.DebugLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Debugf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Debugf(template, args...)
-		}
-	}
+	helper.Sugar.Debugf(template, args...)
 }
 func (helper *LoggerHelper) Fatalf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.FatalLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.FatalLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Fatalf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Fatalf(template, args...)
-		}
-	}
+	helper.Sugar.Fatalf(template, args...)
 }
 func (helper *LoggerHelper) Panicf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.PanicLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.PanicLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Panicf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Panicf(template, args...)
-		}
-	}
+	helper.Sugar.Panicf(template, args...)
 }
 func (helper *LoggerHelper) DPanicf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.DPanicLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.DPanicLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.DPanicf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.DPanicf(template, args...)
-		}
-	}
+	helper.Sugar.DPanicf(template, args...)
 }
 func (helper *LoggerHelper) Warnf(template string, args ...interface{}) {
-	if helper.Config.ShowFileAndLine {
-		// 用补充数据输出行数
-		helper.logf(helper.Sugar, zapcore.WarnLevel, template, args...)
-		if helper.consoleSugar != nil {
-			helper.logf(helper.consoleSugar, zapcore.WarnLevel, template, args...)
-		}
-	} else {
-		// 不用补充数据输出行数
-		helper.Sugar.Warnf(template, args...)
-		if helper.consoleSugar != nil {
-			helper.consoleSugar.Warnf(template, args...)
-		}
-	}
+	helper.Sugar.Warnf(template, args...)
 }
 
 // GetLogger 获取logger
@@ -349,20 +195,15 @@ func GetLogger(fileName string, config *Config) (logger *zap.Logger, isFileLogge
 	var core zapcore.Core
 	if fileName != "" {
 		// 输出到文本
-		encoder := getEncoder(config, false, config.IsFullPath) // 文本中强制不要颜色
-		writeSyncer := getLogWriter(fileName)
+		encoder := getEncoder(config, false, config.IsFullPath) // 文件是否 JSON 取决于 config.Json
+		writeSyncer := getLogWriter(fileName, config)
 		core = getCore(encoder, writeSyncer, config.Level)
 		isFileLogger = true
 	} else {
 		// 输出到控制台(json输出到控制台可读性太差了，强制不要)
-		var encoder zapcore.Encoder
-		if config.Json {
-			//【1】如果是json输出就不要颜色
-			encoder = getEncoder(config, false, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
-		} else {
-			//【2】如果是控制台就强制要颜色
-			encoder = getEncoder(config, true, config.IsFullPath) // 控制台输出强制有颜色，json其实没啥意义，先强制不要
-		}
+		consCfg := *config
+		consCfg.Json = false
+		encoder := getEncoder(&consCfg, true, consCfg.IsFullPath) // 控制台强制彩色文本
 
 		//consoleDebugging := zapcore.Lock(zapcore.AddSync(os.Stdout))
 		//core = getCore(encoder, consoleDebugging, level) // 直接使用 os.Stdout 输出到控制台
@@ -416,13 +257,29 @@ func getEncoder(config *Config, color, isFullPath bool) (encoder zapcore.Encoder
 	return
 }
 
-func getLogWriter(filename string) zapcore.WriteSyncer {
+func getLogWriter(filename string, cfg *Config) zapcore.WriteSyncer {
+	maxSize := cfg.MaxSize
+	if maxSize <= 0 {
+		maxSize = 10
+	}
+	maxBackups := cfg.MaxBackups
+	if maxBackups <= 0 {
+		maxBackups = 3
+	}
+	maxAge := cfg.MaxAge
+	if maxAge <= 0 {
+		maxAge = 28
+	}
+	compress := cfg.Compress
+	if !cfg.Compress {
+		compress = true
+	}
 	l := &lumberjack.Logger{
 		Filename:   filename, // 指定新的文件名
-		MaxSize:    10,       // 每个日志文件的大小限制，单位MB
-		MaxBackups: 3,        // 保留旧日志文件的个数
-		MaxAge:     28,       // 文件最多保存多少天
-		Compress:   true,     // 是否压缩/归档旧文件
+		MaxSize:    maxSize,  // 每个日志文件的大小限制，单位MB
+		MaxBackups: maxBackups,
+		MaxAge:     maxAge,
+		Compress:   compress,
 	}
 	return zapcore.AddSync(l)
 }
@@ -432,3 +289,6 @@ func getCore(encoder zapcore.Encoder, write zapcore.WriteSyncer, zapLevel zapcor
 	core = zapcore.NewCore(encoder, write, level)
 	return
 }
+
+// Close 刷盘
+func (helper *LoggerHelper) Close() { _ = helper.Normal.Sync() }

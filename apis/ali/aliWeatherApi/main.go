@@ -2,6 +2,7 @@ package aliWeatherApi
 
 import (
 	"errors"
+
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"github.com/wiidz/goutil/structs/networkStruct"
@@ -31,7 +32,7 @@ func (api *WeatherApi) QueryByPostCode(postCode string) (resStruct *QueryByPostC
 		"post_code": postCode, // 邮编，比如上海200000
 	}, map[string]string{
 		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, &QueryByPostCodeRes{})
+	}, &QueryByPostCodeRes{}, false)
 
 	if err != nil {
 		return nil, err

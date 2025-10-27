@@ -1,4 +1,4 @@
-package authMng
+package authMngOld
 
 import "github.com/wiidz/goutil/helpers/timeHelper"
 

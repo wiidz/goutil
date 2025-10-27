@@ -30,7 +30,7 @@ func (api *ExpressApi) GetDetailInfo(expressNo, expressType string) (*DetailRes,
 		"type": expressType, // 快递公司字母简写：不知道可不填 95%能自动识别，填写查询速度会更快【见产品详情】
 	}, map[string]string{
 		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, &DetailRes{})
+	}, &DetailRes{}, false)
 
 	if err != nil {
 		return nil, err
