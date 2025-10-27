@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/kataras/iris/v12"
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"golang.org/x/xerrors"
-	"reflect"
-	"strings"
-	"time"
 )
 
 const TokenKeyName = "token_data"
@@ -94,111 +95,105 @@ func (mng *JwtMng) DecryptWithoutValidation(claims jwt.Claims, tokenStr string) 
 	return err
 }
 
-// Serve 注入服务
-func (mng *JwtMng) Serve(ctx iris.Context) {
+// Serve 注入服务（net/http中间件）
+func (mng *JwtMng) Serve(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	//【1】从头部获取jwt
-	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
-	if err != nil {
-		// 全都视作未登录
-		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
-		return
-	}
-
-	//【2】尝试解密
-	if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
-		networkHelper.ReturnError(ctx, err.Error())
-		return
-	}
-
-	//【】取出ID
-	immutable := reflect.ValueOf(mng.TokenStruct)
-	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
-	if id == 0 {
-		networkHelper.ReturnError(ctx, "登陆主体为空")
-		return
-	}
-
-	//【3】判断和缓存中的数据
-	if mng.IsSingletonMode {
-
-		err = mng.CompareJwtCache(ctx, mng.AppID, typeHelper.Uint64ToStr(id), tokenStr)
+		//【1】从头部获取jwt
+		tokenStr, err := mng.FromAuthHeader(r.Header.Get("Authorization"))
 		if err != nil {
-			networkHelper.ReturnError(ctx, err.Error())
+			networkHelper.ReturnResult(w, err.Error(), nil, http.StatusUnauthorized)
 			return
 		}
-	}
 
-	//【4】写入value
-	ctx.Values().Set(TokenKeyName, mng.TokenStruct)
+		//【2】尝试解密
+		if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
+			networkHelper.ReturnError(w, err.Error())
+			return
+		}
 
-	//【5】继续下一步处理
-	ctx.Next()
+		//【】取出ID
+		immutable := reflect.ValueOf(mng.TokenStruct)
+		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+		if id == 0 {
+			networkHelper.ReturnError(w, "登陆主体为空")
+			return
+		}
+
+		//【3】判断和缓存中的数据
+		if mng.IsSingletonMode {
+			if err = mng.CompareJwtCache(r.Context(), mng.AppID, typeHelper.Uint64ToStr(id), tokenStr); err != nil {
+				networkHelper.ReturnError(w, err.Error())
+				return
+			}
+		}
+
+		//【4】写入到请求上下文
+		ctx := context.WithValue(r.Context(), TokenKeyName, mng.TokenStruct)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 // ServeMixed 注入服务（混合体）
 // SetRouterKey 也在这一步，SetRouterFlag请在networkHelper中另外调用
 // 注意这里的key是比数组下标大1的数值
-func (mng *JwtMng) ServeMixed(ctx iris.Context) {
+func (mng *JwtMng) ServeMixed(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	//【1】从头部获取jwt
-	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
-	if err != nil {
-		// 全都视作未登录
-		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
-		return
-	}
-
-	//【2】尝试解密
-	if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
-			networkHelper.ReturnResult(ctx, "登陆信息已过期", nil, 401)
-			return
-		} else if errors.Is(err, jwt.ErrTokenMalformed) {
-			networkHelper.ReturnResult(ctx, "身份令牌格式错误", nil, 401)
-			return
-		}
-		networkHelper.ReturnResult(ctx, err.Error(), nil, 401)
-		return
-	}
-
-	//【3】取出ID
-	immutable := reflect.ValueOf(mng.TokenStruct)
-
-	// 注意有些项目是混合在一起，有多个router_keys的情况
-	// 例如客户端包含了推介员功能
-	// 那么userID和promoterID都不为空
-	// 所以这里的router_keys采用数组的形式
-	routerKeySlice := []int{}
-	for k, v := range mng.IdentifyKeys {
-		id := immutable.Elem().FieldByName(v).Interface().(uint64)
-		if id != 0 {
-			//mng.RouterKey = int8(k) // 这一步没有意义
-			routerKeySlice = append(routerKeySlice, k+1)
-		}
-	}
-	ctx.Values().Set("router_keys", routerKeySlice)
-
-	if len(routerKeySlice) == 0 {
-		networkHelper.ReturnError(ctx, "登陆主体为空")
-		return
-	}
-
-	//【3】判断和缓存中的数据
-	if mng.IsSingletonMode {
-		cacheKeyName := typeHelper.ImplodeInt(routerKeySlice, "-")
-		err = mng.CompareJwtCache(ctx, mng.AppID, cacheKeyName, tokenStr)
+		//【1】从头部获取jwt
+		tokenStr, err := mng.FromAuthHeader(r.Header.Get("Authorization"))
 		if err != nil {
-			networkHelper.ReturnError(ctx, err.Error())
+			networkHelper.ReturnResult(w, err.Error(), nil, http.StatusUnauthorized)
 			return
 		}
-	}
 
-	//【4】写入value
-	ctx.Values().Set(TokenKeyName, mng.TokenStruct)
+		//【2】尝试解密
+		if err = mng.Decrypt(mng.TokenStruct, tokenStr); err != nil {
+			if errors.Is(err, jwt.ErrTokenExpired) {
+				networkHelper.ReturnResult(w, "登陆信息已过期", nil, http.StatusUnauthorized)
+				return
+			} else if errors.Is(err, jwt.ErrTokenMalformed) {
+				networkHelper.ReturnResult(w, "身份令牌格式错误", nil, http.StatusUnauthorized)
+				return
+			}
+			networkHelper.ReturnResult(w, err.Error(), nil, http.StatusUnauthorized)
+			return
+		}
 
-	//【5】继续下一步处理
-	ctx.Next()
+		//【3】取出ID
+		immutable := reflect.ValueOf(mng.TokenStruct)
+
+		// 注意有些项目是混合在一起，有多个router_keys的情况
+		// 例如客户端包含了推介员功能
+		// 那么userID和promoterID都不为空
+		// 所以这里的router_keys采用数组的形式
+		routerKeySlice := []int{}
+		for k, v := range mng.IdentifyKeys {
+			id := immutable.Elem().FieldByName(v).Interface().(uint64)
+			if id != 0 {
+				routerKeySlice = append(routerKeySlice, k+1)
+			}
+		}
+		ctx := context.WithValue(r.Context(), "router_keys", routerKeySlice)
+
+		if len(routerKeySlice) == 0 {
+			networkHelper.ReturnError(w, "登陆主体为空")
+			return
+		}
+
+		//【3】判断和缓存中的数据
+		if mng.IsSingletonMode {
+			cacheKeyName := typeHelper.ImplodeInt(routerKeySlice, "-")
+			if err = mng.CompareJwtCache(r.Context(), mng.AppID, cacheKeyName, tokenStr); err != nil {
+				networkHelper.ReturnError(w, err.Error())
+				return
+			}
+		}
+
+		//【4】写入value
+		ctx = context.WithValue(ctx, TokenKeyName, mng.TokenStruct)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 // FromAuthHeader 从header头中获取jwt
@@ -218,11 +213,11 @@ func (mng *JwtMng) FromAuthHeader(authHeader string) (string, error) {
 }
 
 // RefreshToken 刷新token
-func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
+func (mng *JwtMng) RefreshToken(w http.ResponseWriter, r *http.Request, validDuration float64) {
 
-	tokenStr, err := mng.FromAuthHeader(ctx.GetHeader("Authorization"))
+	tokenStr, err := mng.FromAuthHeader(r.Header.Get("Authorization"))
 	if err != nil {
-		networkHelper.ReturnError(ctx, err.Error())
+		networkHelper.ReturnError(w, err.Error())
 		return
 	}
 
@@ -237,22 +232,21 @@ func (mng *JwtMng) RefreshToken(ctx iris.Context, validDuration float64) {
 		expiredBy := immutable.Elem().FieldByName("ExpiredBy")
 
 		if expiredBy.Interface().(time.Duration) > (time.Duration(validDuration) * time.Second) {
-			networkHelper.ReturnError(ctx, "已超出预定时长")
+			networkHelper.ReturnError(w, "已超出预定时长")
 			return
 		}
 
 		newToken, err := mng.GetTokenStr(mng.TokenStruct)
 		if err != nil {
-			networkHelper.ReturnError(ctx, err.Error())
+			networkHelper.ReturnError(w, err.Error())
 			return
 		}
 
-		networkHelper.ReturnResult(ctx, "success", newToken, 200)
+		networkHelper.ReturnResult(w, "success", newToken, 200)
 		return
 	}
 
-	networkHelper.ReturnError(ctx, err.Error())
-	return
+	networkHelper.ReturnError(w, err.Error())
 }
 
 // SetCache StorageJWT 存储kwt至redis中
@@ -315,8 +309,8 @@ func (mng *JwtMng) IsPkSet(tokenData jwt.Claims) bool {
 }
 
 // GetTokenData 获取token
-func (mng *JwtMng) GetTokenData(ctx iris.Context) (data jwt.Claims, err error) {
-	tempData := ctx.Values().Get(TokenKeyName)
+func (mng *JwtMng) GetTokenData(r *http.Request) (data jwt.Claims, err error) {
+	tempData := r.Context().Value(TokenKeyName)
 	if tempData == nil {
 		err = errors.New("token数据为空")
 		return

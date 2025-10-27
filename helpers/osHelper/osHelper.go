@@ -4,10 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/helpers/networkHelper"
-	"github.com/wiidz/goutil/helpers/strHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,6 +12,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/wiidz/goutil/helpers/networkHelper"
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
 )
 
 // ExistSameNameFile 判断是否已存在同名文件
@@ -82,10 +82,10 @@ func GetFileString(uri string) string {
 }
 
 // DownloadFileFromContext 从请求体中保存文件
-func DownloadFileFromContext(ctx iris.Context, fieldName, targetPath string) (fileName, filePath string, err error) {
+func DownloadFileFromContext(r *http.Request, fieldName, targetPath string) (fileName, filePath string, err error) {
 
 	// Get the file from the request.
-	file, info, err := ctx.FormFile(fieldName)
+	file, info, err := r.FormFile(fieldName)
 	if err != nil {
 		err = errors.New("上传文件为空")
 		return

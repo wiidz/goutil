@@ -1,8 +1,10 @@
 package wechatMng
 
 import (
+	"context"
 	"errors"
-	"github.com/kataras/iris/v12"
+	"unicode/utf8"
+
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/miniprogram"
@@ -14,7 +16,6 @@ import (
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/osHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"unicode/utf8"
 )
 
 // MiniMng 微信小程序管理器
@@ -26,7 +27,7 @@ type MiniMng struct {
 }
 
 // NewMiniMng 获取小程序管理器
-func NewMiniMng(context iris.Context, redisC *configStruct.RedisConfig, miniC *configStruct.WechatMiniConfig) *MiniMng {
+func NewMiniMng(ctx context.Context, redisC *configStruct.RedisConfig, miniC *configStruct.WechatMiniConfig) *MiniMng {
 
 	//【1】使用redis缓存accessToken
 	// memory := cache.NewMemory() // accessToken存在内存中
@@ -34,7 +35,7 @@ func NewMiniMng(context iris.Context, redisC *configStruct.RedisConfig, miniC *c
 		Host:     redisC.Host + ":" + redisC.Port,
 		Password: redisC.Password,
 	}
-	redisCache := cache.NewRedis(context, redisOpts)
+	redisCache := cache.NewRedis(ctx, redisOpts)
 
 	//【2】创建mini实例
 	cfg := &miniConfig.Config{

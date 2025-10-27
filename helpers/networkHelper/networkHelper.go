@@ -2,16 +2,10 @@ package networkHelper
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/kataras/iris/v12"
-	"github.com/wiidz/goutil/helpers/sliceHelper"
-	"github.com/wiidz/goutil/helpers/strHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
-	"github.com/wiidz/goutil/mngs/validatorMng"
-	"github.com/wiidz/goutil/structs/networkStruct"
 	"io"
 	"io/ioutil"
 	"log"
@@ -23,6 +17,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
+	"github.com/wiidz/goutil/helpers/sliceHelper"
+	"github.com/wiidz/goutil/helpers/strHelper"
+	"github.com/wiidz/goutil/helpers/typeHelper"
+	"github.com/wiidz/goutil/mngs/validatorMng"
+	"github.com/wiidz/goutil/structs/networkStruct"
 )
 
 /**
@@ -211,13 +212,12 @@ func DownloadFileWithFormat(targetURL, localPath, format string, headers map[str
 	}
 
 	resp, err := client.Do(request)
-	defer resp.Body.Close()
-
-	header = &resp.Header
-
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
+
+	header = &resp.Header
 
 	//【2】创建一个文件用于保存
 	fileName = strHelper.GetRandomString(10) + "." + format
@@ -309,7 +309,10 @@ func RequestRaw(method networkStruct.Method, targetURL string, params map[string
 	}
 
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return "", nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	//【7】读取body
@@ -367,7 +370,10 @@ func RequestJson(method networkStruct.Method, targetURL string, params map[strin
 	}
 
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	b, err := httputil.DumpResponse(resp, true)
@@ -553,7 +559,10 @@ func RequestRawTest(method networkStruct.Method, targetURL string, params map[st
 	fmt.Println("【body】", body)
 	fmt.Println("【header】", request.Header)
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return "", nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	//【7】读取body
@@ -619,7 +628,10 @@ func RequestJsonTest(method networkStruct.Method, targetURL string, params map[s
 	fmt.Println("【body】", body)
 	fmt.Println("【header】", request.Header)
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	//【7】读取body
@@ -637,15 +649,13 @@ func RequestJsonTest(method networkStruct.Method, targetURL string, params map[s
 
 }
 
-func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode int) {
-
-	ctx.StatusCode(statusCode)
-
-	ctx.JSON(iris.Map{
+func ReturnResult(w http.ResponseWriter, message string, data interface{}, statusCode int) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"msg":  message,
 		"data": data,
 	})
-	return
 }
 
 /**
@@ -653,50 +663,47 @@ func ReturnResult(ctx iris.Context, message string, data interface{}, statusCode
  * @author Wiidz
  * @date   2019-11-16
  */
-func ReturnError(ctx iris.Context, msg string) {
-
-	ctx.StatusCode(400)
-
-	ctx.JSON(iris.Map{
+func ReturnError(w http.ResponseWriter, msg string) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusBadRequest)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"msg":  msg,
 		"data": nil,
 	})
-	return
 }
 
 // ParamsInvalid json格式返回参数错误
-func ParamsInvalid(ctx iris.Context, err error) {
-
-	ctx.StatusCode(400)
-
-	_ = ctx.JSON(iris.Map{
+func ParamsInvalid(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusBadRequest)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"msg":  err.Error(),
 		"data": nil,
 	})
-	return
 }
 
 // GetValidatedJson 获取通过validatMng验证过的json数据
-func GetValidatedJson(ctx iris.Context, target interface{}) error {
-	err := ctx.ReadJSON(target)
-	if err != nil {
+func GetValidatedJson(r *http.Request, target interface{}) error {
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(target); err != nil {
 		return err
 	}
-	err = validatorMng.GetError(target)
-	return err
+	return validatorMng.GetError(target)
 }
 
 // GetJson 获取body体中的json数据
-func GetJson(ctx iris.Context, target interface{}) error {
-	err := ctx.ReadJSON(target)
-	return err
+func GetJson(r *http.Request, target interface{}) error {
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	return decoder.Decode(target)
 }
 
 // BuildParams 构建参数
-func BuildParams(ctx iris.Context, params networkStruct.ParamsInterface, contentType networkStruct.ContentType) (err error) {
+func BuildParams(r *http.Request, params networkStruct.ParamsInterface, contentType networkStruct.ContentType) (err error) {
 
 	//【1】把值填充进结构体
-	err = fillParams(ctx, params, contentType)
+	err = fillParams(r, params, contentType)
 	if err != nil {
 		return
 	}
@@ -718,27 +725,31 @@ func BuildParams(ctx iris.Context, params networkStruct.ParamsInterface, content
 }
 
 // getValueFromCtx 获取参数
-func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentType networkStruct.ContentType) (err error) {
+func fillParams(r *http.Request, params networkStruct.ParamsInterface, contentType networkStruct.ContentType) (err error) {
 	switch contentType {
 	case networkStruct.Query:
 
-		//【1】写入结构体
-		err = ctx.ReadQuery(params)
-		if err != nil {
+		//【1】写入结构体: 将 URL 查询参数解析并映射到结构体
+		if err = r.ParseForm(); err != nil {
 			return
 		}
-
-		//【2】获取RawMap
-		temp := ctx.URLParams()
-		params.SetRawMap(typeHelper.StrMapToInterface(temp))
-		break
+		queryMap := map[string]interface{}{}
+		for k, v := range r.URL.Query() {
+			if len(v) == 1 {
+				queryMap[k] = v[0]
+			} else {
+				queryMap[k] = v
+			}
+		}
+		params.SetRawMap(queryMap)
+		// 将查询参数解码到结构体（使用 json 进行简单映射）
+		b, _ := json.Marshal(queryMap)
+		err = json.Unmarshal(b, params)
 
 	case networkStruct.BodyJson:
 
 		//【1】写入结构体
-
-		body := ctx.Request().Body
-		buf, _ := ioutil.ReadAll(body)
+		buf, _ := ioutil.ReadAll(r.Body)
 		jsonStr := string(buf)
 		//log.Println("【jsonStr】",jsonStr)
 		jsonMap := typeHelper.JsonDecodeMap(jsonStr) // 映射到map
@@ -762,12 +773,14 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 
 		//【2-2】写入到结构体
 
-		break
 	case networkStruct.BodyForm:
 		formMap := make(map[string]interface{})
 
 		// PostForm 包含 body form 的字段（不包含 URL 查询参数）
-		for k, v := range ctx.Request().PostForm {
+		if err = r.ParseForm(); err != nil {
+			return
+		}
+		for k, v := range r.PostForm {
 			if len(v) == 1 {
 				formMap[k] = v[0]
 			} else {
@@ -776,16 +789,21 @@ func fillParams(ctx iris.Context, params networkStruct.ParamsInterface, contentT
 		}
 
 		params.SetRawMap(formMap)
-
-		break
 	case networkStruct.XWWWForm:
-		err = ctx.ReadForm(params)
-		if err != nil {
+		if err = r.ParseForm(); err != nil {
 			return
 		}
-
-		// params.SetRawMap(typeHelper.StrMapToInterface(temp))
-		break
+		formMap := make(map[string]interface{})
+		for k, v := range r.PostForm {
+			if len(v) == 1 {
+				formMap[k] = v[0]
+			} else {
+				formMap[k] = v
+			}
+		}
+		params.SetRawMap(formMap)
+		b, _ := json.Marshal(formMap)
+		err = json.Unmarshal(b, params)
 
 	default:
 		err = errors.New("未能匹配数据类型")
@@ -973,64 +991,54 @@ func getFormattedValue(t string, value interface{}) (data interface{}, err error
 
 // SetRouterFlag 根据第一个斜线内的自符，记录模块（例如 v1,v2）
 // router_flag 和 router_key 来共同判断路由是否合法
-func SetRouterFlag(app *iris.Application) {
-	app.Use(func(ctx iris.Context) {
-		requestURL := ctx.Request().RequestURI
+func SetRouterFlag(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestURL := r.RequestURI
 		reg := regexp.MustCompile(`/([a-z][0-9]*)/`)
 		result := reg.FindAllStringSubmatch(requestURL, -1)
-		//log.Println("result", result[0][1])
-		ctx.Values().Set("router_flag", result[0][1])
-		ctx.Next()
+		if len(result) > 0 && len(result[0]) > 1 {
+			r = r.WithContext(context.WithValue(r.Context(), "router_flag", result[0][1]))
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 
 // CheckMixedRouter 检查混合项目的路由准入
-func CheckMixedRouter(app *iris.Application, requestRouterFlag string, requestRouterKey int) {
-	app.Use(func(ctx iris.Context) {
-		routerFlag := ctx.Values().Get("router_flag")
-		routerKeys := ctx.Values().Get("router_keys") // 注意 这里已经改成了slice
-		routerKeySlice, flag := routerKeys.([]int)
-		if !flag {
-			ReturnError(ctx, "登陆体结构有误")
+func CheckMixedRouter(requestRouterFlag string, requestRouterKey int, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		routerFlag, _ := r.Context().Value("router_flag").(string)
+		routerKeys, _ := r.Context().Value("router_keys").([]int)
+		if len(routerKeys) == 0 {
+			ReturnError(w, "登陆主体为空")
 			return
 		}
-		if len(routerKeySlice) == 0 {
-			ReturnError(ctx, "登陆主体为空")
-			return
-		}
-
-		if routerFlag.(string) == requestRouterFlag {
-			// 查找slice里面有没有requestRouterKey
-			if !sliceHelper.Exist(requestRouterKey, routerKeySlice) {
-				ReturnError(ctx, "越界操作")
+		if routerFlag == requestRouterFlag {
+			if !sliceHelper.Exist(requestRouterKey, routerKeys) {
+				ReturnError(w, "越界操作")
 				return
 			}
 		}
-		ctx.Next()
+		next.ServeHTTP(w, r)
 	})
 }
 
 // CheckMixedRouterWithHandler 检查混合项目的路由准入(自定义方法)
-func CheckMixedRouterWithHandler(app *iris.Application, requestRouterFlag string, handler func(ctx iris.Context, routerFlag string, routerKeys []int) error) {
-	app.Use(func(ctx iris.Context) {
-		routerFlag := ctx.Values().Get("router_flag")
-		routerKeys := ctx.Values().Get("router_keys") // 注意 这里已经改成了slice
-		routerKeySlice, flag := routerKeys.([]int)
-		if !flag {
-			// 这里不返回错误，因为可能不存在
-			//ReturnError(ctx, "登陆体结构有误")
-			//return
-			routerKeySlice = []int{}
+func CheckMixedRouterWithHandler(requestRouterFlag string, handler func(r *http.Request, routerFlag string, routerKeys []int) error, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		routerFlag, _ := r.Context().Value("router_flag").(string)
+		routerKeys, _ := r.Context().Value("router_keys").([]int)
+		if routerKeys == nil {
+			routerKeys = []int{}
 		}
 		if routerFlag == requestRouterFlag {
-			err := handler(ctx, routerFlag.(string), routerKeySlice)
-			if err != nil {
+			if err := handler(r, routerFlag, routerKeys); err != nil {
+				ReturnError(w, err.Error())
 				return
 			}
-			ctx.Next()
-		} else {
-			ctx.Next()
+			next.ServeHTTP(w, r)
+			return
 		}
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -1100,7 +1108,10 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	//log.Println("【outBodyStr】", string(outBodyStr))
 
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	//【7】读取body
@@ -1170,7 +1181,10 @@ func RequestWithStruct(method networkStruct.Method, contentType networkStruct.Co
 	//log.Println("【outBodyStr】", string(outBodyStr))
 
 	//【6】发送请求
-	resp, _ := client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, nil, 0, err
+	}
 	defer resp.Body.Close()
 
 	//【7】读取body
@@ -1232,10 +1246,10 @@ func MyRequest(params *networkStruct.MyRequestParams) (resData *networkStruct.My
 
 	//【6】发送请求
 	resp, err := client.Do(request)
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	resData.StatusCode = resp.StatusCode
 	resData.Headers = resp.Header

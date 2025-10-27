@@ -2,14 +2,15 @@ package authMng
 
 import (
 	"errors"
-	"github.com/kataras/iris/v12"
+	"net/http"
+	"reflect"
+
 	"github.com/wiidz/goutil/helpers/networkHelper"
 	"github.com/wiidz/goutil/helpers/sliceHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/gorm"
-	"reflect"
 )
 
 type AuthMng struct {
@@ -29,63 +30,64 @@ func New(mysqlConfig *configStruct.MysqlConfig, ownerTableName, authTableName, i
 	}
 }
 
-// Serve 注入服务
-func (mng *AuthMng) Serve(ctx iris.Context) {
+// Serve 注入服务（net/http中间件）
+func (mng *AuthMng) Serve(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	//【1】获取主键
-	tokenData := ctx.Values().Get("token_data")
+		//【1】获取主键
+		tokenData := r.Context().Value("token_data")
 
-	immutable := reflect.ValueOf(tokenData)
-	if immutable.Elem().FieldByName(mng.IdentifyKey).IsValid() == false {
-		networkHelper.ReturnError(ctx, "无效的token")
-		return
-	}
-
-	id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
-	if id == 0 {
-		networkHelper.ReturnError(ctx, "登陆主体为空")
-		return
-	}
-
-	//【2】初始化数据库
-	mysql, _ := mysqlMng.NewMysqlMng(mng.mysqlConfig, nil)
-	conn := mysql.GetConn()
-
-	//【3】获取用户资料并判断
-	owner, err := mng.getOwnerFromDB(conn, id)
-	if err != nil {
-		if mysqlMng.IsNotFound(err) {
-			networkHelper.ReturnError(ctx, "找不到您的账户")
+		immutable := reflect.ValueOf(tokenData)
+		if immutable.Elem().FieldByName(mng.IdentifyKey).IsValid() == false {
+			networkHelper.ReturnError(w, "无效的token")
 			return
 		}
-		networkHelper.ReturnError(ctx, err.Error())
-		return
-	} else if owner.Status == 0 {
-		//判断用户是否被禁用
-		networkHelper.ReturnError(ctx, "账户禁用中")
-		return
-	}
 
-	//【4】查询当前请求地址的authID
-	route := ctx.GetCurrentRoute()
-	authID, err := mng.getAuthIDFromDB(conn, route.Method(), route.Path())
-	if err != nil {
-		networkHelper.ReturnError(ctx, err.Error())
-		return
-	}
-
-	//【4】判断客户的权限集是否包括
-	if owner.Grouping != SuperManager {
-		authIDs := typeHelper.ExplodeUint64(owner.AuthIDs, ",")
-		exist := sliceHelper.ExistUint64(authID, authIDs)
-		if !exist {
-			networkHelper.ReturnError(ctx, "您没有权限操作")
+		id := immutable.Elem().FieldByName(mng.IdentifyKey).Interface().(uint64)
+		if id == 0 {
+			networkHelper.ReturnError(w, "登陆主体为空")
 			return
 		}
-	}
 
-	//【5】继续下一步处理
-	ctx.Next()
+		//【2】初始化数据库
+		mysql, _ := mysqlMng.NewMysqlMng(mng.mysqlConfig, nil)
+		conn := mysql.GetConn()
+
+		//【3】获取用户资料并判断
+		owner, err := mng.getOwnerFromDB(conn, id)
+		if err != nil {
+			if mysqlMng.IsNotFound(err) {
+				networkHelper.ReturnError(w, "找不到您的账户")
+				return
+			}
+			networkHelper.ReturnError(w, err.Error())
+			return
+		} else if owner.Status == 0 {
+			//判断用户是否被禁用
+			networkHelper.ReturnError(w, "账户禁用中")
+			return
+		}
+
+		//【4】查询当前请求地址的authID
+		authID, err := mng.getAuthIDFromDB(conn, r.Method, r.URL.Path)
+		if err != nil {
+			networkHelper.ReturnError(w, err.Error())
+			return
+		}
+
+		//【4】判断客户的权限集是否包括
+		if owner.Grouping != SuperManager {
+			authIDs := typeHelper.ExplodeUint64(owner.AuthIDs, ",")
+			exist := sliceHelper.ExistUint64(authID, authIDs)
+			if !exist {
+				networkHelper.ReturnError(w, "您没有权限操作")
+				return
+			}
+		}
+
+		//【5】继续下一步处理
+		next.ServeHTTP(w, r)
+	})
 }
 
 // getAuthFromDB 根据方法和路由地址获取对应权限的主键
