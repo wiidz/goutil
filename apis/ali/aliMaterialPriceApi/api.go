@@ -29,7 +29,7 @@ func (api *AliMaterialPriceApi) GetPrice(param *PriceParam) (resp *PriceResp, er
 		"symbol": param.Symbol,
 	}, map[string]string{
 		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, &PriceResp{})
+	}, &PriceResp{}, false)
 
 	if err != nil {
 		return
@@ -47,7 +47,7 @@ func (api *AliMaterialPriceApi) GetKLine(param *KLineParam) (resp *PriceResp, er
 		"limit":  param.Limit,     // 返回条数 默认10
 	}, map[string]string{
 		"Authorization": "APPCODE " + api.Config.AppCode,
-	}, &PriceResp{})
+	}, &PriceResp{}, false)
 
 	if err != nil {
 		return
