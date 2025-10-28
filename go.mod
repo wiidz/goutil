@@ -16,7 +16,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fogleman/gg v1.3.0
 	github.com/gen2brain/go-fitz v1.20.0
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.0 // indirect
 	github.com/go-pay/crypto v0.0.1
 	github.com/go-pay/gopay v1.5.100
 	github.com/go-pay/util v0.0.2
@@ -52,6 +52,7 @@ require (
 )
 
 require (
+	github.com/click33/sa-token-go/core v0.1.2
 	github.com/click33/sa-token-go/integrations/gin v0.1.2
 	github.com/click33/sa-token-go/storage/memory v0.1.2
 	github.com/click33/sa-token-go/stputil v0.1.2
@@ -77,7 +78,6 @@ require (
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/click33/sa-token-go/core v0.1.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
