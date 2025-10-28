@@ -49,7 +49,7 @@ func generateSaConfig(cfg *Config) (*config.Config, error) {
 		if cfg.Salt == "" {
 			return nil, errors.New("token salt is required for JWT")
 		}
-		sa.JwtSecretKey = []byte(cfg.Salt)
+		sa.JwtSecretKey = cfg.Salt
 	}
 	if cfg.Timeout > 0 {
 		sa.Timeout = int64(cfg.Timeout / time.Second)
