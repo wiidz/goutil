@@ -1,0 +1,11 @@
+./adjust.go
+./convolution.go
+./doc.go
+./effects.go
+./histogram.go
+./io.go
+./resize.go
+./scanner.go
+./tools.go
+./transform.go
+./utils.go

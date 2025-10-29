@@ -22,6 +22,7 @@ type CheckStart struct {
 	Redis    bool
 	Es       bool
 	RabbitMQ bool
+	Postgres bool
 }
 
 // BaseConfig 参数
@@ -30,8 +31,9 @@ type BaseConfig struct {
 
 	Location *time.Location `gorm:"-" json:"-"` // 时区
 
-	MysqlConfig *MysqlConfig // 数据库设定
-	RedisConfig *RedisConfig // redis设定
+	MysqlConfig    *MysqlConfig    // 数据库设定
+	PostgresConfig *PostgresConfig // Postgres 设定
+	RedisConfig    *RedisConfig    // redis设定
 
 	EsConfig       *EsConfig       // es设定
 	RabbitMQConfig *RabbitMQConfig // es设定
@@ -89,6 +91,13 @@ type RedisConfig struct {
 	Database    int    `json:"datebase"`     // 默认0
 	MaxActive   int    `json:"max_active"`   // 默认10
 	MaxIdle     int    `json:"max_idle"`     // 默认10
+}
+
+type PostgresConfig struct {
+	DSN             string        `json:"dsn"`
+	ConnMaxIdle     int           `json:"conn_max_idle"`
+	ConnMaxOpen     int           `json:"conn_max_open"`
+	ConnMaxLifetime time.Duration `json:"conn_max_lifetime"`
 }
 
 // RabbitMQ Exchange 类型

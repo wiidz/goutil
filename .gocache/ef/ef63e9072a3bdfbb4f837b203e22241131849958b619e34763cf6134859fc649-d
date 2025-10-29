@@ -1,0 +1,5 @@
+./alipayMng.go
+./structs.go
+./wechatPayMngV2.go
+./wechatPayMngV3.go
+./wechatStruct.go

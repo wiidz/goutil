@@ -1,0 +1,4 @@
+./amapMng.go
+./lbsMng_aliamap.go
+./structs.go
+./lbsMng_aliamap_test.go

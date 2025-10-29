@@ -15,3 +15,4 @@
 2024-04-26T17:01:42.156+0800	INFO	test	{"file": "/Users/本地/Code-local/goutil/helpers/loggerHelper/loggerHelper_test.go", "line": 20}
 2024-04-26T17:01:47.791+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 20}
 2024-04-26T17:04:23.385+0800	INFO	test	{"file": "loggerHelper_test.go", "line": 20}
+2025/10/29 11:24:09	INFO	loggerHelper/loggerHelper_test.go:20	test

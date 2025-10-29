@@ -1,0 +1,5 @@
+./authorize.go
+./bind.go
+./device.go
+./message.go
+./qrcode.go

@@ -1,0 +1,5 @@
+./map.go
+./single.go
+./slice.go
+./struct.go
+./typeHelper.go

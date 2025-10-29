@@ -1,0 +1,7 @@
+./add.go
+./api.go
+./delete.go
+./getFriends.go
+./getSpecialRelations.go
+./setSpecialRelation.go
+./update.go

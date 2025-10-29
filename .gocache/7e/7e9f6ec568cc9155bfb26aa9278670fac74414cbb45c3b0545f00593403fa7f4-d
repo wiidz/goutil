@@ -1,0 +1,9 @@
+./api.go
+./delBroadcastMsgById.go
+./deleteHistoryMessage.go
+./queryBroadcastMsg.go
+./queryBroadcastMsgById.go
+./querySessionList.go
+./querySessionMsg.go
+./queryTeamMsg.go
+./queryUserEvents.go

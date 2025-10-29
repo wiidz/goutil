@@ -1,0 +1,5 @@
+./fitz_content_types.go
+_cgo_gotypes.go
+fitz.cgo1.go
+fitz_cgo.cgo1.go
+_cgo_import.go

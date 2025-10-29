@@ -1,0 +1,8 @@
+./process.go
+./process_bsd.go
+./process_darwin.go
+./process_darwin_arm64.go
+./process_posix.go
+_cgo_gotypes.go
+process_darwin_cgo.cgo1.go
+_cgo_import.go

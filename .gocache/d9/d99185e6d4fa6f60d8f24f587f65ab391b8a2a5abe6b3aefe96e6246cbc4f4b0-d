@@ -1,0 +1,12 @@
+./customer_message.go
+./image.go
+./message.go
+./music.go
+./news.go
+./reply.go
+./subscribe.go
+./template.go
+./text.go
+./transfer_customer.go
+./video.go
+./voice.go
