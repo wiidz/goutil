@@ -16,4 +16,3 @@ func StaticLoader(cfg *configStruct.BaseConfig) Loader {
 		return &Result{BaseConfig: cfg}, nil
 	})
 }
-

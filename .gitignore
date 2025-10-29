@@ -44,3 +44,6 @@ go.work
 # 字体文件
 *.ttf
 *.otf
+
+# Go build cache
+.gocache/
