@@ -12,7 +12,6 @@ require (
 	github.com/alibabacloud-go/tea-utils v1.4.3
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
-	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/disintegration/imaging v1.6.2
 	github.com/fogleman/gg v1.3.0
 	github.com/gen2brain/go-fitz v1.20.0
