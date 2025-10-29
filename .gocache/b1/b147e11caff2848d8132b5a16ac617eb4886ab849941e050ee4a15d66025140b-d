@@ -1,6 +1,0 @@
-./complex_reader.go
-./config.go
-./crc.go
-./limit_reader.go
-./service.go
-./tee_reader.go

@@ -1,4 +1,0 @@
-./client_error.go
-./error.go
-./server_error.go
-./signature_does_not_match_wrapper.go

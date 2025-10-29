@@ -1,4 +1,0 @@
-./cache.go
-./memcache.go
-./memory.go
-./redis.go

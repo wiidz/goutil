@@ -1,4 +1,0 @@
-./aes_cbc.go
-./aes_ecb.go
-./aes_gcm.go
-./pkcs_padding.go

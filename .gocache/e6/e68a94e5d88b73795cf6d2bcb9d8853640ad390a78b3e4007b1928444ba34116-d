@@ -1,8 +1,0 @@
-./callbacks.go
-./clauses.go
-./database.go
-./dbresolver.go
-./logger.go
-./policy.go
-./resolver.go
-./utils.go

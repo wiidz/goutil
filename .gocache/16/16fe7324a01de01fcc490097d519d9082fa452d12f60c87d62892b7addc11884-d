@@ -1,6 +1,0 @@
-./broadcast.go
-./datacube.go
-./interface.go
-./message.go
-./publisher.go
-./user.go

@@ -1,6 +1,0 @@
-./color.go
-./debug_logger.go
-./error_logger.go
-./info_logger.go
-./log.go
-./warn_logger.go

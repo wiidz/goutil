@@ -1,6 +1,0 @@
-./appMng.go
-./config_builder.go
-./demo.go
-./loader_gorm.go
-./loader_static.go
-./structs.go

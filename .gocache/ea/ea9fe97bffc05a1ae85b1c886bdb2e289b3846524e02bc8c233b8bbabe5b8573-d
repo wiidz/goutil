@@ -1,5 +1,0 @@
-./acs_request.go
-./common_request.go
-./roa_request.go
-./rpc_request.go
-./types.go

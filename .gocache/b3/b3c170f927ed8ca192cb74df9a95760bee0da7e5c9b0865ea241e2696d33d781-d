@@ -1,6 +1,0 @@
-./disk.go
-./disk_darwin.go
-./disk_unix.go
-_cgo_gotypes.go
-disk_darwin_cgo.cgo1.go
-_cgo_import.go

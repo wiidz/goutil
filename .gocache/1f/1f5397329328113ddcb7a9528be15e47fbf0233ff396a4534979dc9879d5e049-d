@@ -1,6 +1,0 @@
-./aes.go
-./client.go
-./model.go
-./sign.go
-./utils.go
-./version.go

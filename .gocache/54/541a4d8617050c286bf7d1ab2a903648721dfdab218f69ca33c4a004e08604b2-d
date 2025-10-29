@@ -1,7 +1,0 @@
-./client.go
-./contact_way.go
-./external_user.go
-./follow_user.go
-./msg.go
-./statistic.go
-./tag.go

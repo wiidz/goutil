@@ -1,5 +1,0 @@
-./api.go
-./subscribeAdd.go
-./subscribeDelete.go
-./subscribeDeleteAll.go
-./subscribeQuery.go
