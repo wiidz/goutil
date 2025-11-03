@@ -1,5 +1,25 @@
 package eyunMng
 
+import (
+	"github.com/wiidz/goutil/mngs/eyunMng/account"
+	"github.com/wiidz/goutil/mngs/eyunMng/base"
+	"github.com/wiidz/goutil/mngs/eyunMng/chatRoom"
+	"github.com/wiidz/goutil/mngs/eyunMng/login"
+	"github.com/wiidz/goutil/mngs/eyunMng/msgReceive"
+	"github.com/wiidz/goutil/mngs/eyunMng/msgSend"
+	"github.com/wiidz/goutil/mngs/redisMng"
+)
+
+type EYunMng struct {
+	Config        *base.Config
+	RedisMng      *redisMng.RedisMng
+	loginApi      *login.Api      // 登录
+	msgSendApi    *msgSend.Api    // 发送消息
+	msgReceiveApi *msgReceive.Api // 接受消息
+	chatRoom      *chatRoom.Api   // 聊天群
+	account       *account.Api    // 账号
+}
+
 type TestReturn struct {
 	Message string `json:"message"`
 	Code    string `json:"code"`
