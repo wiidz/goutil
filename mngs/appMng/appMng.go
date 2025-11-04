@@ -67,7 +67,7 @@ type Manager struct {
 	mu    sync.RWMutex
 	cache *cache.Cache
 }
-=
+
 var defaultManager = NewManager()
 
 // NewManager 创建一个新的 Manager。
