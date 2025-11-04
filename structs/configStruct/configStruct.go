@@ -1,8 +1,9 @@
 package configStruct
 
 import (
-	"gorm.io/gorm/logger"
 	"time"
+
+	"gorm.io/gorm/logger"
 )
 
 // AppProfile App资料
@@ -23,6 +24,11 @@ type CheckStart struct {
 	Es       bool
 	RabbitMQ bool
 	Postgres bool
+}
+
+type HttpConfig struct {
+	IP   string `mapstructure:"ip"`
+	Port string `mapstructure:"port"`
 }
 
 // BaseConfig 参数

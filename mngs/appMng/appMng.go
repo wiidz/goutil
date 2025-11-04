@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -21,53 +20,6 @@ const (
 	cacheCleanupCycle = 5 * time.Minute
 )
 
-// Loader 定义了如何装载应用配置的接口。
-// 返回 Result，其中至少要包含 BaseConfig。
-type Loader interface {
-	Load(ctx context.Context) (*Result, error)
-}
-
-// LoaderFunc 便于使用函数式实现 Loader。
-type LoaderFunc func(ctx context.Context) (*Result, error)
-
-// Load 实现 Loader 接口。
-func (f LoaderFunc) Load(ctx context.Context) (*Result, error) { return f(ctx) }
-
-// Result 是 Loader 返回的数据结构。
-type Result struct {
-	BaseConfig *configStruct.BaseConfig
-	Mysql      *mysqlMng.MysqlMng
-	Postgres   *psqlMng.Manager
-	Redis      *redisMng.RedisMng
-}
-
-// Options 描述了创建/获取 AppMng 时的参数。
-type Options struct {
-	ID            string
-	Loader        Loader
-	ProjectConfig configStruct.ProjectConfig
-	CheckStart    *configStruct.CheckStart
-	CacheTTL      time.Duration
-}
-
-// AppMng 表示一个应用实例，封装了基础配置以及资源句柄。
-type AppMng struct {
-	ID            string
-	BaseConfig    *configStruct.BaseConfig
-	ProjectConfig configStruct.ProjectConfig
-
-	Mysql    *mysqlMng.MysqlMng
-	Postgres *psqlMng.Manager
-	Redis    *redisMng.RedisMng
-	Es       *esMng.EsMng
-}
-
-// Manager 负责缓存和复用 AppMng 实例。
-type Manager struct {
-	mu    sync.RWMutex
-	cache *cache.Cache
-}
-
 var defaultManager = NewManager()
 
 // NewManager 创建一个新的 Manager。
@@ -76,12 +28,11 @@ func NewManager() *Manager {
 }
 
 // Get 根据 Options 获取（或创建）AppMng。
-func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
+func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
+
+	//【1】参数验证
 	if opts.Loader == nil {
-		return nil, errors.New("appMng: loader is required")
-	}
-	if opts.ProjectConfig == nil {
-		return nil, errors.New("appMng: project config is required")
+		opts.Loader = DefaultLoader()
 	}
 	if opts.CheckStart == nil {
 		opts.CheckStart = &configStruct.CheckStart{}
@@ -92,6 +43,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		key = "default"
 	}
 
+	//【2】从缓存中读取
 	m.mu.RLock()
 	if cached, ok := m.cache.Get(key); ok {
 		m.mu.RUnlock()
@@ -99,6 +51,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 	}
 	m.mu.RUnlock()
 
+	//【3】构建参数
 	res, err := opts.Loader.Load(ctx)
 	if err != nil {
 		return nil, err
@@ -107,6 +60,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		return nil, errors.New("appMng: loader returned empty base config")
 	}
 
+	//【4】初始化
 	app := &AppMng{
 		ID:            key,
 		BaseConfig:    res.BaseConfig,
@@ -116,6 +70,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		Redis:         res.Redis,
 	}
 
+	//【5】启动检查
 	if opts.CheckStart.Mysql && app.Mysql == nil {
 		if app.BaseConfig.MysqlConfig == nil {
 			return nil, fmt.Errorf("appMng: MySql config is nil")
@@ -125,7 +80,6 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
 		}
 	}
-
 	if opts.CheckStart.Postgres && app.Postgres == nil {
 		if app.BaseConfig.PostgresConfig == nil {
 			return nil, fmt.Errorf("appMng: PostgreSql config is nil")
@@ -140,7 +94,6 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 			return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
 		}
 	}
-
 	if opts.CheckStart.Redis && app.Redis == nil {
 		if app.BaseConfig.RedisConfig == nil {
 			return nil, fmt.Errorf("appMng: Redis config is nil")
@@ -149,7 +102,6 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
 		}
 	}
-
 	if opts.CheckStart.Es && app.Es == nil {
 		if app.BaseConfig.EsConfig == nil {
 			return nil, fmt.Errorf("appMng: Es config is nil")
@@ -159,7 +111,6 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 			return nil, fmt.Errorf("appMng: init es failed: %w", err)
 		}
 	}
-
 	if opts.CheckStart.RabbitMQ {
 		if app.BaseConfig.RabbitMQConfig == nil {
 			return nil, fmt.Errorf("appMng: RabbitMQ config is nil")
@@ -169,6 +120,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		}
 	}
 
+	//【6】项目独特配置
 	if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
 		return nil, fmt.Errorf("appMng: project build failed: %w", err)
 	}
@@ -197,40 +149,3 @@ func (m *Manager) Invalidate(id string) {
 
 // DefaultManager 返回全局的默认 Manager。
 func DefaultManager() *Manager { return defaultManager }
-
-// GetSingletonAppMng 兼容旧接口，通过 MySQL 表装载配置。
-func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, projectConfig configStruct.ProjectConfig, checkStart *configStruct.CheckStart) (*AppMng, error) {
-	if mysqlConfig == nil {
-		return nil, errors.New("appMng: mysql config is required")
-	}
-
-	loader := LoaderFunc(func(ctx context.Context) (*Result, error) {
-		mysqlMngInst, err := mysqlMng.NewMysqlMng(mysqlConfig, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		conn := mysqlMngInst.GetConn()
-		var rows []*DbSettingRow
-		if err = conn.WithContext(ctx).Table(mysqlConfig.SettingTableName).Where("belonging = ?", "system").Find(&rows).Error; err != nil {
-			return nil, err
-		}
-
-		baseConfig := buildBaseConfig(rows)
-		baseConfig.MysqlConfig = mysqlConfig
-
-		return &Result{
-			BaseConfig: baseConfig,
-			Mysql:      mysqlMngInst,
-		}, nil
-	})
-
-	opts := Options{
-		ID:            fmt.Sprintf("%d", appID),
-		Loader:        loader,
-		ProjectConfig: projectConfig,
-		CheckStart:    checkStart,
-	}
-
-	return defaultManager.Get(context.Background(), opts)
-}

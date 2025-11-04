@@ -36,6 +36,7 @@ require (
 	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil/v3 v3.23.10
 	github.com/silenceper/wechat/v2 v2.1.4
+	github.com/spf13/viper v1.19.0
 	github.com/streadway/amqp v1.0.0
 	github.com/volcengine/volcengine-go-sdk v1.1.28
 	github.com/xuri/excelize/v2 v2.5.0
@@ -118,7 +119,7 @@ require (
 	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	github.com/spf13/cast v1.4.1 // indirect
+	github.com/spf13/cast v1.6.0 // indirect
 	github.com/tidwall/gjson v1.14.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
@@ -135,7 +136,7 @@ require (
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/time v0.4.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

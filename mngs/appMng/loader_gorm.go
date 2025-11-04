@@ -9,8 +9,8 @@ import (
 
 // NewGormSettingLoader 基于 gorm Dialector 的装载器，多用于 MySQL/Postgres。
 // enrich 允许对生成的 BaseConfig 做额外加工（可选）。
-func NewGormSettingLoader(dialector gorm.Dialector, tableName string, enrich func(*Result) error) Loader {
-	return LoaderFunc(func(ctx context.Context) (*Result, error) {
+func NewGormSettingLoader(dialector gorm.Dialector, tableName string, enrich func(*LoaderResult) error) Loader {
+	return LoaderFunc(func(ctx context.Context) (*LoaderResult, error) {
 		db, err := gorm.Open(dialector, &gorm.Config{})
 		if err != nil {
 			return nil, err
@@ -28,7 +28,7 @@ func NewGormSettingLoader(dialector gorm.Dialector, tableName string, enrich fun
 			return nil, err
 		}
 
-		res := &Result{BaseConfig: buildBaseConfig(rows)}
+		res := &LoaderResult{BaseConfig: buildBaseConfig(rows)}
 		if enrich != nil {
 			if err := enrich(res); err != nil {
 				return nil, err
