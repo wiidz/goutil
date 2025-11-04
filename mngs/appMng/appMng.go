@@ -38,6 +38,7 @@ type Result struct {
 	BaseConfig *configStruct.BaseConfig
 	Mysql      *mysqlMng.MysqlMng
 	Postgres   *psqlMng.Manager
+	Redis      *redisMng.RedisMng
 }
 
 // Options 描述了创建/获取 AppMng 时的参数。
@@ -57,6 +58,8 @@ type AppMng struct {
 
 	Mysql    *mysqlMng.MysqlMng
 	Postgres *psqlMng.Manager
+	Redis    *redisMng.RedisMng
+	Es       *esMng.EsMng
 }
 
 // Manager 负责缓存和复用 AppMng 实例。
@@ -110,16 +113,23 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		ProjectConfig: opts.ProjectConfig,
 		Mysql:         res.Mysql,
 		Postgres:      res.Postgres,
+		Redis:         res.Redis,
 	}
 
-	if opts.CheckStart.Mysql && app.Mysql == nil && app.BaseConfig.MysqlConfig != nil {
+	if opts.CheckStart.Mysql && app.Mysql == nil {
+		if app.BaseConfig.MysqlConfig != nil {
+			return nil, fmt.Errorf("appMng: MySql config is nil")
+		}
 		app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
 		if err != nil {
 			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
 		}
 	}
 
-	if opts.CheckStart.Postgres && app.Postgres == nil && app.BaseConfig.PostgresConfig != nil {
+	if opts.CheckStart.Postgres && app.Postgres == nil {
+		if app.BaseConfig.PostgresConfig != nil {
+			return nil, fmt.Errorf("appMng: PostgreSql config is nil")
+		}
 		app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
 			DSN:             app.BaseConfig.PostgresConfig.DSN,
 			ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
@@ -131,25 +141,32 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		}
 	}
 
-	if opts.CheckStart.Redis && app.BaseConfig.RedisConfig != nil {
-		if err := redisMng.Init(ctx, app.BaseConfig.RedisConfig); err != nil {
+	if opts.CheckStart.Redis && app.Redis == nil {
+		if app.BaseConfig.RedisConfig != nil {
+			return nil, fmt.Errorf("appMng: Redis config is nil")
+		}
+		if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
 		}
 	}
 
-	if opts.CheckStart.Es && app.BaseConfig.EsConfig != nil {
-		if err := esMng.Init(app.BaseConfig.EsConfig); err != nil {
+	if opts.CheckStart.Es && app.Es == nil {
+		if app.BaseConfig.EsConfig != nil {
+			return nil, fmt.Errorf("appMng: Es config is nil")
+		}
+
+		if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init es failed: %w", err)
 		}
 	}
 
 	if opts.CheckStart.RabbitMQ && app.BaseConfig.RabbitMQConfig != nil {
-		if err := amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
+		if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
 		}
 	}
 
-	if err := app.ProjectConfig.Build(app.BaseConfig); err != nil {
+	if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
 		return nil, fmt.Errorf("appMng: project build failed: %w", err)
 	}
 
@@ -192,7 +209,7 @@ func GetSingletonAppMng(appID uint64, mysqlConfig *configStruct.MysqlConfig, pro
 
 		conn := mysqlMngInst.GetConn()
 		var rows []*DbSettingRow
-		if err := conn.WithContext(ctx).Table(mysqlConfig.SettingTableName).Where("belonging = ?", "system").Find(&rows).Error; err != nil {
+		if err = conn.WithContext(ctx).Table(mysqlConfig.SettingTableName).Where("belonging = ?", "system").Find(&rows).Error; err != nil {
 			return nil, err
 		}
 

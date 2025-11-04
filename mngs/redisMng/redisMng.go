@@ -2,9 +2,10 @@ package redisMng
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-redis/redis/v9"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"time"
 )
 
 //var pool redis.PoolStats
@@ -13,16 +14,16 @@ var client *redis.Client
 
 type RedisMng struct {
 	//config configStruct.Redis
-	Conn redis.Conn
+	Conn   redis.Conn
+	Client *redis.Client
 }
 
-// Init 初始化
-func Init(ctx context.Context, redisC *configStruct.RedisConfig) (err error) {
+// NewRedisMng 返回一个redis管理器实例
+func NewRedisMng(ctx context.Context, redisC *configStruct.RedisConfig) (mng *RedisMng, err error) {
+	redisMng := RedisMng{}
 
-	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
-	//【1】创建连接
 	redisURL := redisC.Host + ":" + redisC.Port
-	client = redis.NewClient(&redis.Options{
+	redisMng.Client = redis.NewClient(&redis.Options{
 
 		// 连接信息
 		Network:  "tcp",    // 网络类型，tcp or unix，默认tcp
@@ -69,14 +70,7 @@ func Init(ctx context.Context, redisC *configStruct.RedisConfig) (err error) {
 	return
 }
 
-// NewRedisMng 返回一个redis管理器实例
-func NewRedisMng() *RedisMng {
-	redisMng := RedisMng{}
-	return &redisMng
-}
-
 // GetString 读取指定键的字符串值
-
 func (mng *RedisMng) GetString(ctx context.Context, key string) (val string, err error) {
 	val, err = client.Get(ctx, key).Result()
 	if err == redis.Nil {
