@@ -67,7 +67,7 @@ type Manager struct {
 	mu    sync.RWMutex
 	cache *cache.Cache
 }
-
+=
 var defaultManager = NewManager()
 
 // NewManager 创建一个新的 Manager。
@@ -117,7 +117,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 	}
 
 	if opts.CheckStart.Mysql && app.Mysql == nil {
-		if app.BaseConfig.MysqlConfig != nil {
+		if app.BaseConfig.MysqlConfig == nil {
 			return nil, fmt.Errorf("appMng: MySql config is nil")
 		}
 		app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
@@ -127,7 +127,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 	}
 
 	if opts.CheckStart.Postgres && app.Postgres == nil {
-		if app.BaseConfig.PostgresConfig != nil {
+		if app.BaseConfig.PostgresConfig == nil {
 			return nil, fmt.Errorf("appMng: PostgreSql config is nil")
 		}
 		app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
@@ -142,7 +142,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 	}
 
 	if opts.CheckStart.Redis && app.Redis == nil {
-		if app.BaseConfig.RedisConfig != nil {
+		if app.BaseConfig.RedisConfig == nil {
 			return nil, fmt.Errorf("appMng: Redis config is nil")
 		}
 		if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
@@ -151,7 +151,7 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 	}
 
 	if opts.CheckStart.Es && app.Es == nil {
-		if app.BaseConfig.EsConfig != nil {
+		if app.BaseConfig.EsConfig == nil {
 			return nil, fmt.Errorf("appMng: Es config is nil")
 		}
 
@@ -160,7 +160,10 @@ func (m *Manager) Get(ctx context.Context, opts Options) (*AppMng, error) {
 		}
 	}
 
-	if opts.CheckStart.RabbitMQ && app.BaseConfig.RabbitMQConfig != nil {
+	if opts.CheckStart.RabbitMQ {
+		if app.BaseConfig.RabbitMQConfig == nil {
+			return nil, fmt.Errorf("appMng: RabbitMQ config is nil")
+		}
 		if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
 		}
