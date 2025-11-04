@@ -12,11 +12,11 @@ import (
 )
 
 // DefaultLoader 返回一个 Loader，它会读取当前工作目录下的配置文件
-// (优先 ./configs/config.yaml，其次 ./config.yaml)，并仅初始化 HttpConfig。
+// (读取 ./configs/config.yaml)，并仅初始化 HttpConfig。
 // 若找不到配置文件，则使用默认值（IP: 0.0.0.0，Port: 8080）。
 func DefaultLoader() Loader {
 	return LoaderFunc(func(ctx context.Context) (*LoaderResult, error) {
-		httpCfg, err := loadHTTPConfig()
+		httpCfg, err := SimpleLoadHTTPConfig(nil)
 		if err != nil {
 			return nil, err
 		}
@@ -36,12 +36,21 @@ func DefaultLoader() Loader {
 	})
 }
 
-func loadHTTPConfig() (*configStruct.HttpConfig, error) {
+// SimpleLoadHTTPConfig 简单读取http配置
+func SimpleLoadHTTPConfig(data *configStruct.ViperConfig) (*configStruct.HttpConfig, error) {
 	v := viper.New()
-	v.SetConfigName("config")
-	v.SetConfigType("yaml")
-	v.AddConfigPath(".")
-	v.AddConfigPath("./configs")
+
+	if data == nil {
+		data = &configStruct.ViperConfig{
+			DirPath:  "./configs",
+			FileName: "config",
+			FileType: "yaml",
+		}
+	}
+
+	v.SetConfigName(data.FileName)
+	v.SetConfigType(data.FileType)
+	v.AddConfigPath(data.DirPath)
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()

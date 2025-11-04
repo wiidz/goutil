@@ -26,6 +26,11 @@ type CheckStart struct {
 	Postgres bool
 }
 
+type ViperConfig struct {
+	DirPath  string // 例如 ./configs
+	FileName string // 例如 config
+	FileType string // 通常我们用yaml，不需要带点
+}
 type HttpConfig struct {
 	IP   string `mapstructure:"ip"`
 	Port string `mapstructure:"port"`
