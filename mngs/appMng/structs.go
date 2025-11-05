@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
@@ -11,6 +12,7 @@ import (
 	"github.com/wiidz/goutil/structs/configStruct"
 
 	"context"
+
 	"github.com/patrickmn/go-cache"
 )
 
@@ -78,6 +80,8 @@ type LoaderResult struct {
 	Mysql      *mysqlMng.MysqlMng
 	Postgres   *psqlMng.Manager
 	Redis      *redisMng.RedisMng
+	Es         *esMng.EsMng
+	RabbitMQ   *amqpMng.RabbitMQ
 }
 
 // Options 描述了创建/获取 AppMng 时的参数。
@@ -101,6 +105,7 @@ type AppMng struct {
 	Postgres *psqlMng.Manager
 	Redis    *redisMng.RedisMng
 	Es       *esMng.EsMng
+	RabbitMQ *amqpMng.RabbitMQ
 }
 
 // Manager 负责缓存和复用 AppMng 实例。

@@ -81,43 +81,59 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 		}
 	}
 	if opts.CheckStart.Postgres && app.Postgres == nil {
-		if app.BaseConfig.PostgresConfig == nil {
-			return nil, fmt.Errorf("appMng: PostgreSql config is nil")
-		}
-		app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
-			DSN:             app.BaseConfig.PostgresConfig.DSN,
-			ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
-			ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
-			ConnMaxLifetime: app.BaseConfig.PostgresConfig.ConnMaxLifetime,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
+		if res.Postgres != nil {
+			app.Postgres = res.Postgres
+		} else {
+			if app.BaseConfig.PostgresConfig == nil {
+				return nil, fmt.Errorf("appMng: PostgreSql config is nil")
+			}
+			app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
+				DSN:             app.BaseConfig.PostgresConfig.DSN,
+				ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
+				ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
+				ConnMaxLifetime: app.BaseConfig.PostgresConfig.ConnMaxLifetime,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
+			}
 		}
 	}
 	if opts.CheckStart.Redis && app.Redis == nil {
-		if app.BaseConfig.RedisConfig == nil {
-			return nil, fmt.Errorf("appMng: Redis config is nil")
-		}
-		if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
+		if res.Redis != nil {
+			app.Redis = res.Redis
+		} else {
+			if app.BaseConfig.RedisConfig == nil {
+				return nil, fmt.Errorf("appMng: Redis config is nil")
+			}
+			if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
+				return nil, fmt.Errorf("appMng: init redis failed: %w", err)
+			}
 		}
 	}
 	if opts.CheckStart.Es && app.Es == nil {
-		if app.BaseConfig.EsConfig == nil {
-			return nil, fmt.Errorf("appMng: Es config is nil")
-		}
-
-		if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init es failed: %w", err)
+		if res.Es != nil {
+			app.Es = res.Es
+		} else {
+			if app.BaseConfig.EsConfig == nil {
+				return nil, fmt.Errorf("appMng: Es config is nil")
+			}
+			if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
+				return nil, fmt.Errorf("appMng: init es failed: %w", err)
+			}
 		}
 	}
 	if opts.CheckStart.RabbitMQ {
-		if app.BaseConfig.RabbitMQConfig == nil {
-			return nil, fmt.Errorf("appMng: RabbitMQ config is nil")
+		if res.RabbitMQ != nil {
+			app.RabbitMQ = res.RabbitMQ
+		} else {
+			if app.BaseConfig.RabbitMQConfig == nil {
+				return nil, fmt.Errorf("appMng: RabbitMQ config is nil")
+			}
+			if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
+				return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
+			}
 		}
-		if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
-		}
+
 	}
 
 	//【6】项目独特配置
