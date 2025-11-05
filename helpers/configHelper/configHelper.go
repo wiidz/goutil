@@ -19,7 +19,7 @@ func GetViper(data *configStruct.ViperConfig) (viperData *viper.Viper, err error
 
 	viperData.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viperData.AutomaticEnv()
-	
+
 	if err = viperData.ReadInConfig(); err != nil {
 		var nf viper.ConfigFileNotFoundError
 		if !errors.As(err, &nf) {
@@ -30,15 +30,11 @@ func GetViper(data *configStruct.ViperConfig) (viperData *viper.Viper, err error
 }
 
 // SimpleLoadHTTPConfig 简单读取http配置
-func SimpleLoadHTTPConfig(viperData *viper.Viper, data *configStruct.ViperConfig) (*configStruct.HttpConfig, error) {
+func SimpleLoadHTTPConfig(viperData *viper.Viper) (*configStruct.HttpConfig, error) {
 	v := viper.New()
 
-	if data == nil {
-		data = &configStruct.ViperConfig{
-			DirPath:  "./configs",
-			FileName: "config",
-			FileType: "yaml",
-		}
+	if viperData == nil {
+		viperData, _ = GetViper(nil)
 	}
 
 	viperData.SetDefault("http.ip", "0.0.0.0")
@@ -63,14 +59,10 @@ func SimpleLoadHTTPConfig(viperData *viper.Viper, data *configStruct.ViperConfig
 }
 
 // SimpleLoadRepoConfig 数据仓库配置
-func SimpleLoadRepoConfig(viperData *viper.Viper, data *configStruct.ViperConfig, dbType string) (*configStruct.RepoConfig, error) {
+func SimpleLoadRepoConfig(viperData *viper.Viper, dbType string) (*configStruct.RepoConfig, error) {
 
-	if data == nil {
-		data = &configStruct.ViperConfig{
-			DirPath:  "./configs",
-			FileName: "config",
-			FileType: "yaml",
-		}
+	if viperData == nil {
+		viperData, _ = GetViper(nil)
 	}
 
 	viperData.SetDefault(dbType+".dsn", "")
