@@ -97,7 +97,6 @@ type Options struct {
 type AppMng struct {
 	ID string
 
-	HttpConfig    *configStruct.HttpConfig
 	BaseConfig    *configStruct.BaseConfig
 	ProjectConfig configStruct.ProjectConfig
 
