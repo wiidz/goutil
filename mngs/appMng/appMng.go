@@ -137,8 +137,10 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 
 	//【6】项目独特配置
-	if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
-		return nil, fmt.Errorf("appMng: project build failed: %w", err)
+	if app.ProjectConfig != nil {
+		if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
+			return nil, fmt.Errorf("appMng: project build failed: %w", err)
+		}
 	}
 
 	ttl := opts.CacheTTL
