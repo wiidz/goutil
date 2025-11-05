@@ -35,6 +35,10 @@ type HttpConfig struct {
 	IP   string `mapstructure:"ip"`
 	Port string `mapstructure:"port"`
 }
+type RepoConfig struct {
+	DSN         string `mapstructure:"dsn"`
+	AutoMigrate string `mapstructure:"auto_migrate"`
+}
 
 // BaseConfig 参数
 type BaseConfig struct {
