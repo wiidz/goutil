@@ -13,8 +13,7 @@ import (
 // 若找不到配置文件，则使用默认值（IP: 0.0.0.0，Port: 8080）。
 func DefaultLoader() Loader {
 	return LoaderFunc(func(ctx context.Context) (*LoaderResult, error) {
-		viperData, _ := configHelper.GetViper(nil)
-		httpCfg, err := configHelper.SimpleLoadHTTPConfig(viperData, nil)
+		httpCfg, err := configHelper.SimpleLoadHTTPConfig(nil)
 		if err != nil {
 			return nil, err
 		}
