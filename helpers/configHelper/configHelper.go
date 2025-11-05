@@ -60,13 +60,12 @@ func SimpleLoadHTTPConfig(viperData *viper.Viper) (*configStruct.HttpConfig, err
 
 // SimpleLoadRepoConfig 数据仓库配置
 func SimpleLoadRepoConfig(viperData *viper.Viper, dbType string) (*configStruct.RepoConfig, error) {
-
 	if viperData == nil {
 		viperData, _ = GetViper(nil)
 	}
 
-	viperData.SetDefault(dbType+".dsn", "")
-	viperData.SetDefault(dbType+"auto_migrate", "false")
+	viperData.SetDefault(fmt.Sprintf("%s.dsn", dbType), "")
+	viperData.SetDefault(fmt.Sprintf("%s.auto_migrate", dbType), false)
 
 	if err := viperData.ReadInConfig(); err != nil {
 		var nf viper.ConfigFileNotFoundError
@@ -75,13 +74,14 @@ func SimpleLoadRepoConfig(viperData *viper.Viper, dbType string) (*configStruct.
 		}
 	}
 
-	var cfg struct {
-		Repo configStruct.RepoConfig `mapstructure:"repo"`
-	}
-	if err := viperData.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("appMng: failed to unmarshal config: %w", err)
+	section := viperData.Sub(dbType)
+	if section == nil {
+		return nil, fmt.Errorf("appMng: config section %q not found", dbType)
 	}
 
-	repoCfg := cfg.Repo
+	var repoCfg configStruct.RepoConfig
+	if err := section.Unmarshal(&repoCfg); err != nil {
+		return nil, fmt.Errorf("appMng: failed to unmarshal %s config: %w", dbType, err)
+	}
 	return &repoCfg, nil
 }
