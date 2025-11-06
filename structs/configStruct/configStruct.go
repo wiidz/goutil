@@ -282,3 +282,13 @@ type VolcengineConfig struct {
 
 	ApiKey string `mapstructure:"api_key"`
 }
+
+// Config 配置信息
+type WikiConfig struct {
+	AccessKeyID string `mapstructure:"access_key_id"` // Access Key
+	SecretKey   string `mapstructure:"secret_key"`    // Secret Key
+	ApiKey      string `mapstructure:"api_key"`       // API Key
+
+	StreamTimeout time.Duration `mapstructure:"stream_timeout"` // 流式超时
+	SimpleTimeout time.Duration `mapstructure:"simple_timeout"` // 单此请求
+}
