@@ -18,10 +18,10 @@ type RedisMng struct {
 
 // NewRedisMng 返回一个redis管理器实例
 func NewRedisMng(ctx context.Context, redisC *configStruct.RedisConfig) (mng *RedisMng, err error) {
-	redisMng := RedisMng{}
+	mng = &RedisMng{}
 
 	redisURL := redisC.Host + ":" + redisC.Port
-	redisMng.Client = redis.NewClient(&redis.Options{
+	mng.Client = redis.NewClient(&redis.Options{
 
 		// 连接信息
 		Network:  "tcp",    // 网络类型，tcp or unix，默认tcp
@@ -63,7 +63,7 @@ func NewRedisMng(ctx context.Context, redisC *configStruct.RedisConfig) (mng *Re
 	})
 
 	//【2】判断一下是否连通
-	ping := redisMng.Client.Ping(ctx)
+	ping := mng.Client.Ping(ctx)
 	err = ping.Err()
 	return
 }
