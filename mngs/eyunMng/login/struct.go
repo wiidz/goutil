@@ -6,6 +6,11 @@ type Api struct {
 	Config *base.Config
 }
 
+type DeviceType string
+
+const IPad DeviceType = "ipad"
+const Mac DeviceType = "mac"
+
 // EYunLoginResp e云管家登录
 type EYunLoginResp struct {
 	Message string `json:"message"` // 反馈信息

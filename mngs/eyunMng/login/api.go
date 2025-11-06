@@ -81,11 +81,12 @@ func (api *Api) LocalIPadLogin(wcID, ttuID string) (wID, qrcodeURL string, err e
 	return
 }
 
+c
 // IPadLogin 获取二维码（第二步-方式2）
 // 本方式需要用户下载app/exe获取值并上传到接口,方可取码（虽然繁琐，但是建议使用本接口取码）
 // 开发者将本接口返回的二维码让用户去扫码，手机扫码结束后，需要调用第三步接口才会登录成功，且手机顶部显示ipad已登录
 // 此方法登录ip显示在苏州
-func (api *Api) IPadLogin(wcID string) (wID, qrcodeURL string, err error) {
+func (api *Api) IPadLogin(wcID string, deviceType DeviceType) (wID, qrcodeURL string, err error) {
 
 	//【1】组合URL
 	var URL = api.Config.Host + "/iPadLogin"
@@ -93,6 +94,7 @@ func (api *Api) IPadLogin(wcID string) (wID, qrcodeURL string, err error) {
 	//【2】请求数据
 	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wcId":          wcID,                            // 微信原始id （首次登录平台的号传空，掉线重登必须传值，否则会频繁掉线！！！） 第三步会返回此字段，记得入库保存
+		"deviceType":    string(deviceType),              // 设备类型：mac【推荐】、ipad
 		"proxy":         8,                               // 测试长效代理 8=杭州，会被覆盖不用管
 		"proxyIp":       api.Config.ProxyConfig.Host,     // 自定义长效代理IP+端口
 		"proxyUser":     api.Config.ProxyConfig.Username, // 自定义长效代理IP平台账号
