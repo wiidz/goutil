@@ -38,6 +38,27 @@ type TextData struct {
 
 type MessageType int
 
+const PersonalTextMsg MessageType = 60001   // 私聊文本
+const PersonalPic MessageType = 60002       // 私聊图片
+const PersonalVideo MessageType = 60003     // 私聊视频
+const PersonalAudio MessageType = 60004     // 私聊语音
+const PersonalIDCard MessageType = 60005    // 私聊名片
+const PersonalEmoji MessageType = 60006     // 私聊emoji
+const PersonalLink MessageType = 60007      // 私聊链接
+const PersonalFile MessageType = 60008      // 私聊文件
+const PersonalFileDone MessageType = 60009  // 私聊文件发送完成消息
+const PersonalMini MessageType = 60010      // 私聊小程序
+const PersonalChatLog MessageType = 60011   // 私聊聊天记录
+const PersonalTel MessageType = 60012       // 私聊语音请求
+const PersonalTelCancel MessageType = 60013 // 语音聊天挂断
+const PersonalQuote MessageType = 60014     // 引用消息
+const PersonalTransfer MessageType = 60015  // 转账
+const PersonalRedPack MessageType = 60016   // 红包
+const PersonalVideoAcc MessageType = 60017  // 视频号
+const PersonalCallback MessageType = 60018  // 撤回
+const PersonalPai MessageType = 60019       // 拍一拍
+const PersonalLocation MessageType = 60020  // 位置
+
 const GroupTextMsg MessageType = 80001  // 群组文本消息
 const GroupUpdate MessageType = 85001   // 群聊信息变更通知
 const GroupExit MessageType = 85015     // 退出群聊
@@ -58,7 +79,7 @@ type GroupUpdateParam struct {
 		SmallHeadImgUrl string `json:"smallHeadImgUrl"`
 		UserName        string `json:"userName"`
 		WId             string `json:"wId"`
-	} `json:"data"` // 消息体
+	} `json:"data"`                         // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }
@@ -69,7 +90,7 @@ type GroupExitParam struct {
 	Data    struct {
 		UserName string `json:"userName"` // 群聊的ID
 		WId      string `json:"wId"`
-	} `json:"data"` // 消息体
+	} `json:"data"`                         // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }
