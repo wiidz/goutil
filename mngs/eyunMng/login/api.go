@@ -81,7 +81,6 @@ func (api *Api) LocalIPadLogin(wcID, ttuID string) (wID, qrcodeURL string, err e
 	return
 }
 
-c
 // IPadLogin 获取二维码（第二步-方式2）
 // 本方式需要用户下载app/exe获取值并上传到接口,方可取码（虽然繁琐，但是建议使用本接口取码）
 // 开发者将本接口返回的二维码让用户去扫码，手机扫码结束后，需要调用第三步接口才会登录成功，且手机顶部显示ipad已登录
