@@ -31,7 +31,6 @@ func GetViper(data *configStruct.ViperConfig) (viperData *viper.Viper, err error
 
 // SimpleLoadHTTPConfig 简单读取http配置
 func SimpleLoadHTTPConfig(viperData *viper.Viper) (*configStruct.HttpConfig, error) {
-	v := viper.New()
 
 	if viperData == nil {
 		viperData, _ = GetViper(nil)
@@ -47,14 +46,10 @@ func SimpleLoadHTTPConfig(viperData *viper.Viper) (*configStruct.HttpConfig, err
 		}
 	}
 
-	var cfg struct {
-		HTTP configStruct.HttpConfig `mapstructure:"http"`
+	var httpCfg configStruct.HttpConfig
+	if err := viperData.UnmarshalKey("http", &httpCfg); err != nil {
+		return nil, err
 	}
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("appMng: failed to unmarshal config: %w", err)
-	}
-
-	httpCfg := cfg.HTTP
 	return &httpCfg, nil
 }
 
