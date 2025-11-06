@@ -10,8 +10,6 @@ import (
 
 //var pool redis.PoolStats
 
-var client *redis.Client
-
 type RedisMng struct {
 	//config configStruct.Redis
 	Conn   redis.Conn
@@ -65,14 +63,14 @@ func NewRedisMng(ctx context.Context, redisC *configStruct.RedisConfig) (mng *Re
 	})
 
 	//【2】判断一下是否连通
-	ping := client.Ping(ctx)
+	ping := redisMng.Client.Ping(ctx)
 	err = ping.Err()
 	return
 }
 
 // GetString 读取指定键的字符串值
 func (mng *RedisMng) GetString(ctx context.Context, key string) (val string, err error) {
-	val, err = client.Get(ctx, key).Result()
+	val, err = mng.Client.Get(ctx, key).Result()
 	if err == redis.Nil {
 		err = nil
 	}
@@ -82,14 +80,14 @@ func (mng *RedisMng) GetString(ctx context.Context, key string) (val string, err
 
 // Set 设置键值
 func (mng *RedisMng) Set(ctx context.Context, key string, value interface{}, expire time.Duration) (err error) {
-	return client.Set(ctx, key, value, expire).Err()
+	return mng.Client.Set(ctx, key, value, expire).Err()
 }
 
 // -------BEGIN------哈希相关的操作-----BEGIN--------
 
 // HGetAll 获取集合中所有数据
 func (mng *RedisMng) HGetAll(ctx context.Context, key string) (res map[string]string, err error) {
-	res, err = client.HGetAll(ctx, key).Result()
+	res, err = mng.Client.HGetAll(ctx, key).Result()
 	if err == redis.Nil {
 		err = nil
 	}
@@ -98,7 +96,7 @@ func (mng *RedisMng) HGetAll(ctx context.Context, key string) (res map[string]st
 
 // HDelAll 获取集合中所有数据
 func (mng *RedisMng) HDelAll(ctx context.Context, key string) (delAmount int64, err error) {
-	delAmount, err = client.Del(ctx, key).Result()
+	delAmount, err = mng.Client.Del(ctx, key).Result()
 	if err == redis.Nil {
 		err = nil
 	}
@@ -107,7 +105,7 @@ func (mng *RedisMng) HDelAll(ctx context.Context, key string) (delAmount int64, 
 
 // HGetString 集合获取
 func (mng *RedisMng) HGetString(ctx context.Context, key, field string) (res string, err error) {
-	res, err = client.HGet(ctx, key, field).Result()
+	res, err = mng.Client.HGet(ctx, key, field).Result()
 	if err == redis.Nil {
 		err = nil
 	}
@@ -117,42 +115,42 @@ func (mng *RedisMng) HGetString(ctx context.Context, key, field string) (res str
 // HSet 设置Hash
 func (mng *RedisMng) HSet(ctx context.Context, key string, value interface{}) (int64, error) {
 
-	return client.HSet(ctx, key, value).Result()
+	return mng.Client.HSet(ctx, key, value).Result()
 }
 
 // HSetNX 设置Hash一个file
 func (mng *RedisMng) HSetNX(ctx context.Context, key, field string, value interface{}) (bool, error) {
 
-	return client.HSetNX(ctx, key, field, value).Result()
+	return mng.Client.HSetNX(ctx, key, field, value).Result()
 }
 
 // HDel 删除hash里的key
 func (mng *RedisMng) HDel(ctx context.Context, key string, fields []string) (int64, error) {
 
-	return client.HDel(ctx, key, fields...).Result()
+	return mng.Client.HDel(ctx, key, fields...).Result()
 
 }
 
 // HExists 判断hash中有没有这个field
 func (mng *RedisMng) HExists(ctx context.Context, key, field string) (bool, error) {
-	return client.HExists(ctx, key, field).Result()
+	return mng.Client.HExists(ctx, key, field).Result()
 
 }
 
 // HKeys 获取hash中所有的field
 func (mng *RedisMng) HKeys(ctx context.Context, key string) ([]string, error) {
-	return client.HKeys(ctx, key).Result()
+	return mng.Client.HKeys(ctx, key).Result()
 }
 
 // HIncrBy 增加hash中的字段的值  返回的是字段被修改过后的值
 func (mng *RedisMng) HIncrBy(ctx context.Context, key, field string, increase int64) (int64, error) {
-	return client.HIncrBy(ctx, key, field, increase).Result()
+	return mng.Client.HIncrBy(ctx, key, field, increase).Result()
 }
 
 // HLen  hash 中 一个key下的数量
 func (mng *RedisMng) HLen(ctx context.Context, key string) (int64, error) {
 
-	return client.HLen(ctx, key).Result()
+	return mng.Client.HLen(ctx, key).Result()
 
 }
 
