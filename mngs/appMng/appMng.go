@@ -71,7 +71,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 
 	//【5】启动检查
-	if opts.CheckStart.Mysql && app.Mysql == nil {
+	if opts.CheckStart.Mysql {
 		if app.BaseConfig.MysqlConfig == nil {
 			return nil, fmt.Errorf("appMng: MySql config is nil")
 		}
@@ -80,7 +80,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
 		}
 	}
-	if opts.CheckStart.Postgres && app.Postgres == nil {
+	if opts.CheckStart.Postgres {
 		if res.Postgres != nil {
 			app.Postgres = res.Postgres
 		} else {
@@ -98,7 +98,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			}
 		}
 	}
-	if opts.CheckStart.Redis && app.Redis == nil {
+	if opts.CheckStart.Redis {
 		if res.Redis != nil {
 			app.Redis = res.Redis
 		} else {
@@ -110,7 +110,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			}
 		}
 	}
-	if opts.CheckStart.Es && app.Es == nil {
+	if opts.CheckStart.Es {
 		if res.Es != nil {
 			app.Es = res.Es
 		} else {
