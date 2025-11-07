@@ -3,6 +3,7 @@ package volcengineMng
 import (
 	"context"
 	"errors"
+
 	"github.com/volcengine/volcengine-go-sdk/service/arkruntime"
 	"github.com/volcengine/volcengine-go-sdk/service/arkruntime/model"
 	"github.com/volcengine/volcengine-go-sdk/volcengine"
@@ -29,8 +30,8 @@ func (mng *VolcengineMng) initClient() {
 	return
 }
 
-// CreateChatCompletionRequest 创建文本对话
-func (mng *VolcengineMng) CreateChatCompletionRequest(ctx context.Context, aiModel AIModel, thinking ThinkingType, params []*ChatParam) (response model.ChatCompletionResponse, err error) {
+// CreateChatCompletionRequestSimple 创建文本对话(简单版)
+func (mng *VolcengineMng) CreateChatCompletionRequestSimple(ctx context.Context, aiModel AIModel, thinking ThinkingType, params []*ChatParam) (response model.ChatCompletionResponse, err error) {
 
 	//【1】处理对话文本
 	var msgs = []*model.ChatCompletionMessage{}
@@ -54,6 +55,23 @@ func (mng *VolcengineMng) CreateChatCompletionRequest(ctx context.Context, aiMod
 	}
 
 	//【3】发送请求
+	response, err = mng.Client.CreateChatCompletion(ctx, req)
+	return
+}
+
+// CreateChatCompletionRequest 创建文本对话
+func (mng *VolcengineMng) CreateChatCompletionRequest(ctx context.Context, aiModel AIModel, thinking ThinkingType, params []*model.ChatCompletionMessage) (response model.ChatCompletionResponse, err error) {
+
+	//【1】组合参数
+	req := model.CreateChatCompletionRequest{
+		Model:    string(aiModel),
+		Messages: params,
+		Thinking: &model.Thinking{
+			Type: thinking.GetThinkingType(),
+		},
+	}
+
+	//【2】发送请求
 	response, err = mng.Client.CreateChatCompletion(ctx, req)
 	return
 }

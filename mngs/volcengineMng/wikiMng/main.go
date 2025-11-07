@@ -5,8 +5,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
 	"github.com/volcengine/volc-sdk-golang/base"
 	"github.com/wiidz/goutil/mngs/volcengineMng"
+	"github.com/wiidz/goutil/structs/configStruct"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -23,7 +26,7 @@ const (
 	ChatCompletionPath = "/api/knowledge/chat/completions"
 )
 
-func NewWikiMng(config *Config) *WikiMng {
+func NewWikiMng(config *configStruct.WikiConfig) *WikiMng {
 	return &WikiMng{
 		Config: config,
 	}
