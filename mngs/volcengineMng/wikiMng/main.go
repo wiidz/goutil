@@ -5,15 +5,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-
-	"github.com/volcengine/volc-sdk-golang/base"
-	"github.com/wiidz/goutil/mngs/volcengineMng"
-	"github.com/wiidz/goutil/structs/configStruct"
-
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/volcengine/volc-sdk-golang/base"
+	"github.com/wiidz/goutil/mngs/volcengineMng"
 )
 
 // 配置常量 - 请根据实际情况修改
@@ -26,7 +24,7 @@ const (
 	ChatCompletionPath = "/api/knowledge/chat/completions"
 )
 
-func NewWikiMng(config *configStruct.WikiConfig) *WikiMng {
+func NewWikiMng(config *Config) *WikiMng {
 	return &WikiMng{
 		Config: config,
 	}
@@ -190,7 +188,8 @@ func (mng *WikiMng) GeneratePrompt(model volcengineMng.AIModel, basePrompt strin
 
 	for _, point := range resp.Data.ResultList {
 		// 对vision模型需要额外处理图片链接
-		if model.IsVisionModel() && len(point.ChunkAttachmentList) > 0 {
+		//if model.IsVisionModel() && len(point.ChunkAttachmentList) > 0 {
+		if false && len(point.ChunkAttachmentList) > 0 {
 			link := point.ChunkAttachmentList[0].Link
 			if link != "" {
 				imageURLs = append(imageURLs, link)

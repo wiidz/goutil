@@ -6,11 +6,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/wiidz/goutil/mngs/volcengineMng"
-	"github.com/wiidz/goutil/structs/configStruct"
-
-	"strings"
 )
 
 // 系统字段常量定义
@@ -27,7 +26,17 @@ const (
 
 // WikiMng 火山引擎知识库管理器
 type WikiMng struct {
-	Config *configStruct.WikiConfig
+	Config *Config
+}
+
+// Config 配置信息
+type Config struct {
+	AccessKeyID string // Access Key
+	SecretKey   string // Secret Key
+	ApiKey      string // API Key
+
+	StreamTimeout time.Duration // 流式超时
+	SimpleTimeout time.Duration // 单此请求
 }
 
 type AIModelSetting struct {

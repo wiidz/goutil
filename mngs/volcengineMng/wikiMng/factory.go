@@ -5,14 +5,14 @@ package wikiMng
 // 必传参数如下：
 // 1. resourceId (也可使用resource_id 或 name + project, 二选一)
 // 2. query：用户问题
-func (mng *WikiMng) GetSearchKnowledgeReqParams(collectionName, project, query string) *CollectionSearchKnowledgeRequest {
+func (mng *WikiMng) GetSearchKnowledgeReqParams(resourceID, query string, denseWeight float32, limit int32) *CollectionSearchKnowledgeRequest {
 	return &CollectionSearchKnowledgeRequest{
-		Name:    collectionName, // 知识库名称
-		Project: project,        // 知识库项目名称
-		//ResourceId:  ResourceID,     // 知识库resource_id (二选一，查询时，可使用resource_id 或 name + project)
-		Query:       query, // 用户问题
-		Limit:       10,    // 返回数量, 不传递默认返回10条
-		DenseWeight: 0.5,   //混合搜索的权重
+		//Name:    collectionName, // 知识库名称
+		//Project: project,        // 知识库项目名称
+		ResourceId:  resourceID,  // 知识库resource_id (二选一，查询时，可使用resource_id 或 name + project)
+		Query:       query,       // 用户问题
+		Limit:       limit,       // 返回数量, 不传递默认返回10条
+		DenseWeight: denseWeight, //混合搜索的权重
 		Preprocessing: &PreProcessing{
 			NeedInstruction:  true,
 			ReturnTokenUsage: true,
