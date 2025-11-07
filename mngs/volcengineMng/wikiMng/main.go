@@ -37,7 +37,11 @@ func (mng *WikiMng) SearchKnowledge(ctx context.Context, searchKnowledgeReqParam
 		return nil, err
 	}
 	req := mng.prepareRequest("POST", SearchKnowledgePath, searchKnowledgeReqParamsBytes)
-	client := &http.Client{Timeout: mng.Config.SimpleTimeout}
+	transport := &http.Transport{Proxy: nil} // 显式禁用 ProxyFromEnvironment
+	client := &http.Client{
+		Timeout:   mng.Config.SimpleTimeout,
+		Transport: transport,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
