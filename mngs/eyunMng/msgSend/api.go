@@ -33,7 +33,7 @@ func (api *Api) SendText(wcID, content string) (data *SendMsgData, err error) {
 	}
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":     api.Config.WechatData.WID,
 		"wcId":    wcID,
 		"content": content,
@@ -108,7 +108,7 @@ func (api *Api) SendImage(wcID, url string) (data *SendMsgData, err error) {
 	var URL = api.Config.Host + "/sendImage"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":     api.Config.WechatData.WID,
 		"wcId":    wcID,
 		"content": url,
@@ -138,7 +138,7 @@ func (api *Api) SendVideo(wcID, url string) (data *SendMsgData, err error) {
 	var URL = api.Config.Host + "/sendVideo"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":       api.Config.WechatData.WID, // 登录实例标识
 		"wcId":      wcID,                      // 接收人微信id/群id
 		"path":      url,                       // 视频url链接
@@ -169,7 +169,7 @@ func (api *Api) SendURL(wcID, url, title, desc, thumbURL string) (data *SendMsgD
 	var URL = api.Config.Host + "/sendVideo"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":         api.Config.WechatData.WID, // 登录实例标识
 		"wcId":        wcID,                      // 接收人微信id/群id
 		"url":         url,                       // 链接
@@ -202,7 +202,7 @@ func (api *Api) SendNameCard(wcID, nameCardID string) (data *SendMsgData, err er
 	var URL = api.Config.Host + "/sendNameCard"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":        api.Config.WechatData.WID, // 登录实例标识
 		"wcId":       wcID,                      // 接收人微信id/群id
 		"nameCardId": nameCardID,                // 要发送的名片微信id
@@ -232,7 +232,7 @@ func (api *Api) SendEmoji(wcID, imageMd5, imgSize string) (data *SendMsgData, er
 	var URL = api.Config.Host + "/sendEmoji"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":      api.Config.WechatData.WID, // 登录实例标识
 		"wcId":     wcID,                      // 接收人微信id/群id
 		"imageMd5": imageMd5,                  // 取回调中xml中md5字段值
@@ -263,7 +263,7 @@ func (api *Api) SendApplet(wcID, content string) (data *SendMsgData, err error) 
 	var URL = api.Config.Host + "/sendApplet"
 
 	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":     api.Config.WechatData.WID, // 登录实例标识
 		"wcId":    wcID,                      // 接收人微信id/群id
 		"content": content,                   // 消息xml回调内容, (此回调的XML需要去掉部分，截取appmsg开头的，具体请看请求参数示例）
@@ -294,7 +294,7 @@ func (api *Api) SendApplets(wcID, param *SendMiniParam) (data *SendMsgData, err 
 
 	//【2】请求数据
 
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":         api.Config.WechatData.WID, // 登录实例标识
 		"wcId":        wcID,                      // 接收人微信id/群id
 		"displayName": param.DisplayName,
@@ -331,7 +331,7 @@ func (api *Api) RevokeMsg(wcID, msgID, newMsgID, createTime string) (data *SendM
 
 	//【2】请求数据
 
-	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
 		"wId":        api.Config.WechatData.WID, // 登录实例标识
 		"wcId":       wcID,                      // 接收人微信id/群id
 		"msgID":      msgID,                     // 消息msgId(发送类接口返回的msgId)
