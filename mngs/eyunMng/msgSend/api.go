@@ -2,9 +2,9 @@ package msgSend
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/wiidz/goutil/helpers/networkHelper"
-	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/mngs/eyunMng/base"
 	"github.com/wiidz/goutil/structs/networkStruct"
 )
@@ -15,313 +15,161 @@ func NewApi(config *base.Config) (api *Api) {
 	}
 }
 
+func (api *Api) SendMsg(message MessagePayload) (*SendMsgData, error) {
+	if message == nil {
+		return nil, errors.New("msgSend: message payload cannot be nil")
+	}
+	switch msg := message.(type) {
+	case *TextMessage:
+		if msg.Mention != nil && (msg.Mention.All || len(msg.Mention.IDs) > 0) {
+			return api.SendTextAt(msg.WcID, msg.Content, msg.Mention.IDs, msg.Mention.All)
+		}
+		return api.SendText(msg.WcID, msg.Content)
+	case *ImageMessage:
+		return api.SendImage(msg.WcID, msg.URL)
+	case *VideoMessage:
+		if msg.ThumbURL != "" {
+			return api.SendVideo(msg.WcID, msg.URL, msg.ThumbURL)
+		}
+		return api.SendVideo(msg.WcID, msg.URL)
+	case *LinkMessage:
+		return api.SendURL(msg.WcID, msg.URL, msg.Title, msg.Description, msg.ThumbURL)
+	case *NameCardMessage:
+		return api.SendNameCard(msg.WcID, msg.NameCardID)
+	case *EmojiMessage:
+		return api.SendEmoji(msg.WcID, msg.ImageMD5, msg.ImageSize)
+	case *AppletContentMessage:
+		return api.SendApplet(msg.WcID, msg.Content)
+	case *MiniProgramMessage:
+		return api.SendApplets(msg.WcID, msg.Param)
+	default:
+		return nil, fmt.Errorf("msgSend: unsupported message type %T", msg)
+	}
+}
+
+func (api *Api) sendWithPayload(message MessagePayload) (*SendMsgData, error) {
+
+	body, err := message.BuildBody(api.Config.WechatData.WID)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint := message.Endpoint()
+	if endpoint == "" {
+		return nil, errors.New("msgSend: endpoint is empty")
+	}
+
+	url := api.Config.Host + endpoint
+	headers := map[string]string{
+		"Authorization": api.Config.Authorization,
+	}
+
+	res, _, _, err := networkHelper.RequestWithStruct(
+		networkStruct.Post,
+		networkStruct.BodyJson,
+		url,
+		body,
+		headers,
+		&SendMsgResp{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := res.(*SendMsgResp)
+	if resp.Code != string(Success) {
+		if resp.Message != "" {
+			return nil, errors.New(resp.Message)
+		}
+		return nil, fmt.Errorf("msgSend: request failed with code %s", resp.Code)
+	}
+
+	return resp.Data, nil
+}
+
 // SendText 发送文本消息
 func (api *Api) SendText(wcID, content string) (data *SendMsgData, err error) {
-
-	if content == "" {
-		err = errors.New("发送失败，消息体为空")
-		return
-	}
-
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendText"
-
-	if wcID == "" {
-		err = errors.New("发送失败，对象主体不能为空")
-	} else if content == "" {
-		err = errors.New("发送失败，内容不能为空")
-	}
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":     api.Config.WechatData.WID,
-		"wcId":    wcID,
-		"content": content,
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&TextMessage{
+		WcID:    wcID,
+		Content: content,
+	})
 }
 
 // SendTextAt 发送文本消息带@
 func (api *Api) SendTextAt(wcID, content string, atIDs []string, atAll bool) (data *SendMsgData, err error) {
-
-	if content == "" {
-		err = errors.New("发送失败，消息体为空")
-		return
-	}
-
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendText"
-
-	//【2】组合atIDs
-	var atIDStr string
-	if atAll {
-		atIDStr = "notify@all"
-	} else {
-		atIDStr = typeHelper.ImplodeStr(atIDs, ",")
-	}
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":     api.Config.WechatData.WID,
-		"wcId":    wcID,
-		"content": content,
-		"at":      atIDStr,
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&TextMessage{
+		WcID:    wcID,
+		Content: content,
+		Mention: &Mention{
+			IDs: atIDs,
+			All: atAll,
+		},
+	})
 }
 
 // SendImage 发送图片消息
 func (api *Api) SendImage(wcID, url string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendImage"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":     api.Config.WechatData.WID,
-		"wcId":    wcID,
-		"content": url,
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&ImageMessage{
+		WcID: wcID,
+		URL:  url,
+	})
 }
 
 // SendVideo 发送视频消息
-func (api *Api) SendVideo(wcID, url string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendVideo"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":       api.Config.WechatData.WID, // 登录实例标识
-		"wcId":      wcID,                      // 接收人微信id/群id
-		"path":      url,                       // 视频url链接
-		"thumbPath": "",                        // 视频封面url链接，可自定义（也可自己服务器获取视频首帧）
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
+func (api *Api) SendVideo(wcID, url string, thumb ...string) (data *SendMsgData, err error) {
+	var thumbURL string
+	if len(thumb) > 0 {
+		thumbURL = thumb[0]
 	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&VideoMessage{
+		WcID:     wcID,
+		URL:      url,
+		ThumbURL: thumbURL,
+	})
 }
 
 // SendURL 发送链接消息
 func (api *Api) SendURL(wcID, url, title, desc, thumbURL string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendVideo"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":         api.Config.WechatData.WID, // 登录实例标识
-		"wcId":        wcID,                      // 接收人微信id/群id
-		"url":         url,                       // 链接
-		"title":       title,                     // 标题
-		"description": desc,                      // 描述
-		"thumbUrl":    thumbURL,                  // 图标url
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&LinkMessage{
+		WcID:        wcID,
+		URL:         url,
+		Title:       title,
+		Description: desc,
+		ThumbURL:    thumbURL,
+	})
 }
 
 // SendNameCard 发送名片消息
 func (api *Api) SendNameCard(wcID, nameCardID string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendNameCard"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":        api.Config.WechatData.WID, // 登录实例标识
-		"wcId":       wcID,                      // 接收人微信id/群id
-		"nameCardId": nameCardID,                // 要发送的名片微信id
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&NameCardMessage{
+		WcID:       wcID,
+		NameCardID: nameCardID,
+	})
 }
 
 // SendEmoji 发送发送emoji表情
 func (api *Api) SendEmoji(wcID, imageMd5, imgSize string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendEmoji"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":      api.Config.WechatData.WID, // 登录实例标识
-		"wcId":     wcID,                      // 接收人微信id/群id
-		"imageMd5": imageMd5,                  // 取回调中xml中md5字段值
-		"imgSize":  imgSize,                   // 取回调中xml中len字段值
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&EmojiMessage{
+		WcID:      wcID,
+		ImageMD5:  imageMd5,
+		ImageSize: imgSize,
+	})
 }
 
 // SendApplet 发送APP类消息
 func (api *Api) SendApplet(wcID, content string) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendApplet"
-
-	//【2】请求数据
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":     api.Config.WechatData.WID, // 登录实例标识
-		"wcId":    wcID,                      // 接收人微信id/群id
-		"content": content,                   // 消息xml回调内容, (此回调的XML需要去掉部分，截取appmsg开头的，具体请看请求参数示例）
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+	return api.sendWithPayload(&AppletContentMessage{
+		WcID:    wcID,
+		Content: content,
+	})
 }
 
 // SendApplets 发送小程序
-func (api *Api) SendApplets(wcID, param *SendMiniParam) (data *SendMsgData, err error) {
-	//【1】组合URL
-	var URL = api.Config.Host + "/sendApplet"
-
-	//【2】请求数据
-
-	res, _, _, err := networkHelper.RequestWithStruct(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
-		"wId":         api.Config.WechatData.WID, // 登录实例标识
-		"wcId":        wcID,                      // 接收人微信id/群id
-		"displayName": param.DisplayName,
-		"iconUrl":     param.IconUrl,
-		"appId":       param.AppId,
-		"pagePath":    param.PagePath,
-		"thumbUrl":    param.ThumbUrl,
-		"title":       param.Title,
-		"userName":    param.UserName,
-	}, map[string]string{
-		"Authorization": api.Config.Authorization,
-	}, &SendMsgResp{})
-	if err != nil {
-		return
-	}
-
-	//【3】判断
-	resp := res.(*SendMsgResp)
-	if resp.Code == string(Success) {
-
-	} else {
-		err = errors.New(resp.Message)
-	}
-
-	data = resp.Data
-
-	return
+func (api *Api) SendApplets(wcID string, param *SendMiniParam) (data *SendMsgData, err error) {
+	return api.sendWithPayload(&MiniProgramMessage{
+		WcID:  wcID,
+		Param: param,
+	})
 }
 
 // RevokeMsg 撤回消息
