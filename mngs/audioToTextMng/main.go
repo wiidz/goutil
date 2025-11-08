@@ -23,7 +23,7 @@ func (mng *AudioToTextMng) Generate(voice, voiceUrl, format string) (data *Resp,
 		"format":   format,   // 语音文件的格式，pcm/wav/amr/m4a。不区分大小写。推荐pcm文件
 	}, map[string]string{
 		"Authorization": "APPCODE " + mng.Config.AppCode,
-	}, &Resp{}, false)
+	}, &Resp{}, true)
 
 	if err != nil {
 		return nil, err
