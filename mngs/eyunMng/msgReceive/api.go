@@ -122,15 +122,15 @@ func (api *Api) GetAudioDownloadURL(data *AudioData) (url string, err error) {
 		"fromUser": data.FromUser,
 	}, map[string]string{
 		"Authorization": api.Config.Authorization,
-	}, &DownloadAudioResp{})
+	}, &base.BaseResp{})
 	if err != nil {
 		return
 	}
 
 	//【3】判断
-	resp := res.(*base.BaseResp)
+	resp := res.(*DownloadAudioResp)
 	if resp.Code == string(base.Success) {
-		url = resp.Data.(string)
+		url = resp.Data.URL
 	} else {
 		err = errors.New(resp.Message)
 	}
