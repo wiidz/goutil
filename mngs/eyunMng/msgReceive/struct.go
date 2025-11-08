@@ -35,6 +35,26 @@ type TextData struct {
 	Timestamp int    `json:"timestamp"`
 	ToUser    string `json:"toUser"` // 接收微信id
 }
+type AudioParam struct {
+	Account     string     `json:"account"`     // 账号
+	Data        *AudioData `json:"data"`        // 消息体
+	MessageType string     `json:"messageType"` // 消息类型
+	WcId        string     `json:"wcId"`        // 微信id
+}
+type AudioData struct {
+	WId string `json:"wId"`
+
+	BufId       string `json:"bufId"` // 下载语音时会用到
+	Content     string `json:"content"`
+	FromUser    string `json:"fromUser"`
+	Length      int    `json:"length"` // 语音文件大小(b)
+	MsgId       int    `json:"msgId"`
+	NewMsgId    int64  `json:"newMsgId"`
+	Self        bool   `json:"self"`
+	Timestamp   int    `json:"timestamp"`
+	ToUser      string `json:"toUser"`
+	VoiceLength int    `json:"voiceLength"` // 语音时长(ms)
+}
 
 type MessageType int
 
@@ -79,7 +99,7 @@ type GroupUpdateParam struct {
 		SmallHeadImgUrl string `json:"smallHeadImgUrl"`
 		UserName        string `json:"userName"`
 		WId             string `json:"wId"`
-	} `json:"data"` // 消息体
+	} `json:"data"`                         // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }
@@ -90,7 +110,7 @@ type GroupExitParam struct {
 	Data    struct {
 		UserName string `json:"userName"` // 群聊的ID
 		WId      string `json:"wId"`
-	} `json:"data"` // 消息体
+	} `json:"data"`                         // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }

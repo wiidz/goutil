@@ -84,6 +84,12 @@ func (api *Api) ParsedTextParam(jsonStr string) (data *TextParam, err error) {
 	return
 }
 
+// ParsedAudioParam 解析发来的消息数据
+func (api *Api) ParsedAudioParam(jsonStr string) (data *AudioParam, err error) {
+	err = typeHelper.JsonDecodeWithStruct(jsonStr, &data)
+	return
+}
+
 // ParsedGroupUpdateParam 解析发来的群聊消息修改数据
 func (api *Api) ParsedGroupUpdateParam(jsonStr string) (data *GroupUpdateParam, err error) {
 	err = typeHelper.JsonDecodeWithStruct(jsonStr, &data)
