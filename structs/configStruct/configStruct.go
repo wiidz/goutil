@@ -109,10 +109,11 @@ type RedisConfig struct {
 }
 
 type PostgresConfig struct {
-	DSN             string        `json:"dsn" mapstructure:"dsn"`
-	ConnMaxIdle     int           `json:"conn_max_idle" mapstructure:"conn_max_idle"`
-	ConnMaxOpen     int           `json:"conn_max_open" mapstructure:"conn_max_open"`
-	ConnMaxLifetime time.Duration `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
+	DSN             string           `json:"dsn" mapstructure:"dsn"`
+	ConnMaxIdle     int              `json:"conn_max_idle" mapstructure:"conn_max_idle"`
+	ConnMaxOpen     int              `json:"conn_max_open" mapstructure:"conn_max_open"`
+	ConnMaxLifetime time.Duration    `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
+	Logger          logger.Interface `json:"logger" mapstructure:"logger"`
 }
 
 // RabbitMQ Exchange 类型

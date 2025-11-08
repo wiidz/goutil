@@ -5,14 +5,16 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // Config for PostgreSQL manager
 type Config struct {
-	DSN             string        // postgres DSN
-	ConnMaxIdle     int           // idle connections
-	ConnMaxOpen     int           // open connections
-	ConnMaxLifetime time.Duration // connection max lifetime
+	DSN             string           // postgres DSN
+	ConnMaxIdle     int              // idle connections
+	ConnMaxOpen     int              // open connections
+	ConnMaxLifetime time.Duration    // connection max lifetime
+	Logger          logger.Interface `mapstructure:"logger"`
 }
 
 // Manager wraps a gorm DB for PostgreSQL

@@ -14,7 +14,9 @@ func NewMng(cfg *Config) (*Manager, error) {
 	if cfg == nil || cfg.DSN == "" {
 		return nil, errors.New("psqlMng: DSN is required")
 	}
-	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{
+		Logger: cfg.Logger,
+	})
 	if err != nil {
 		return nil, err
 	}
