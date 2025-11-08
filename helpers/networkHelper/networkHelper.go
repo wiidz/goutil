@@ -835,7 +835,7 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	return iStruct, &resp.Header, resp.StatusCode, err
 }
 
-func sendRequest(method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string) ([]byte, *http.Header, int, error) {
+func SendRequest(method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string) ([]byte, *http.Header, int, error) {
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
 		return nil, nil, 0, err
