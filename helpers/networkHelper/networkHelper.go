@@ -835,6 +835,69 @@ func RequestWithStructTest(method networkStruct.Method, contentType networkStruc
 	return iStruct, &resp.Header, resp.StatusCode, err
 }
 
+func sendRequest(method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string) ([]byte, *http.Header, int, error) {
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	var body io.Reader
+
+	if params == nil {
+		params = map[string]interface{}{}
+	}
+
+	switch {
+	case method == networkStruct.Get || method == networkStruct.Delete || contentType == networkStruct.Query:
+		query := parsedURL.Query()
+		for key, value := range params {
+			query.Set(typeHelper.ToString(key), typeHelper.ToString(value))
+		}
+		parsedURL.RawQuery = query.Encode()
+	case contentType == networkStruct.BodyJson:
+		jsonBytes, err := json.Marshal(params)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		body = bytes.NewReader(jsonBytes)
+	default:
+		form := url.Values{}
+		for key, value := range params {
+			form.Set(typeHelper.ToString(key), typeHelper.ToString(value))
+		}
+		body = strings.NewReader(form.Encode())
+	}
+
+	request, err := http.NewRequest(method.String(), parsedURL.String(), body)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	for k, v := range headers {
+		request.Header.Set(k, v)
+	}
+
+	if request.Header.Get("Content-Type") == "" {
+		if ct := contentType.GetContentTypeStr(); ct != "" {
+			request.Header.Set("Content-Type", ct)
+		}
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	defer resp.Body.Close()
+
+	resBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, &resp.Header, resp.StatusCode, err
+	}
+
+	return resBytes, &resp.Header, resp.StatusCode, nil
+}
+
 func RequestWithStruct(method networkStruct.Method, contentType networkStruct.ContentType, targetURL string, params map[string]interface{}, headers map[string]string, iStruct interface{}) (interface{}, *http.Header, int, error) {
 
 	//【1】解析URL

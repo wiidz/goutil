@@ -53,7 +53,7 @@ func (mng *AudioToTextMng) GenerateRaw(voice, voiceUrl, format string) (data str
 // Generate 语音转文字
 func (mng *AudioToTextMng) GenerateJson(voice, voiceUrl, format string) (data map[string]interface{}, err error) {
 
-	resStr, _, _, err := networkHelper.RequestJson(networkStruct.Post, URL, map[string]interface{}{
+	resStr, _, err := networkHelper.PostRequest(URL, map[string]interface{}{
 		"voice":    voice,    // 语音文件，不超过1MB，和voiceUrl二选一
 		"voiceUrl": voiceUrl, // 音频文件url，下载音频不超过1MB，和voice二选一
 		"format":   format,   // 语音文件的格式，pcm/wav/amr/m4a。不区分大小写。推荐pcm文件
