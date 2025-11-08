@@ -107,3 +107,33 @@ func (api *Api) ParsedGroupInviteParam(jsonStr string) (data *GroupInviteParam, 
 	err = typeHelper.JsonDecodeWithStruct(jsonStr, &data)
 	return
 }
+
+// GetAudioDownloadURL 获取语音文件下载地址
+func (api *Api) GetAudioDownloadURL(data *AudioData) (url string, err error) {
+	//【1】组合URL
+	var URL = api.Config.Host + "/getMsgVoice"
+
+	//【2】请求数据
+	res, _, _, err := networkHelper.RequestWithStructTest(networkStruct.Post, networkStruct.BodyJson, URL, map[string]interface{}{
+		"wId":      data.WId, // 开发者接口回调地址
+		"msgId":    data.MsgId,
+		"length":   data.Length,
+		"bufId":    data.BufId,
+		"fromUser": data.FromUser,
+	}, map[string]string{
+		"Authorization": api.Config.Authorization,
+	}, &DownloadAudioResp{})
+	if err != nil {
+		return
+	}
+
+	//【3】判断
+	resp := res.(*base.BaseResp)
+	if resp.Code == string(base.Success) {
+		url = resp.Data.(string)
+	} else {
+		err = errors.New(resp.Message)
+	}
+
+	return
+}

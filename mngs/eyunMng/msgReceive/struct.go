@@ -56,6 +56,16 @@ type AudioData struct {
 	VoiceLength int    `json:"voiceLength"` // 语音时长(ms)
 }
 
+type DownloadAudioResp struct {
+	Code    string             `json:"code"`
+	Message string             `json:"message"`
+	Data    *DownloadAudioData `json:"data"`
+}
+
+type DownloadAudioData struct {
+	URL string `json:"url"`
+}
+
 type MessageType int
 
 const PersonalTextMsg MessageType = 60001   // 私聊文本
