@@ -109,7 +109,7 @@ type GroupUpdateParam struct {
 		SmallHeadImgUrl string `json:"smallHeadImgUrl"`
 		UserName        string `json:"userName"`
 		WId             string `json:"wId"`
-	} `json:"data"`                         // 消息体
+	} `json:"data"` // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }
@@ -120,7 +120,7 @@ type GroupExitParam struct {
 	Data    struct {
 		UserName string `json:"userName"` // 群聊的ID
 		WId      string `json:"wId"`
-	} `json:"data"`                         // 消息体
+	} `json:"data"` // 消息体
 	MessageType string `json:"messageType"` // 消息类型
 	WcId        string `json:"wcId"`        // 微信id
 }
