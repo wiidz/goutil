@@ -22,6 +22,10 @@ func (contentType ContentType) GetContentTypeStr() string {
 		return "application/json;charset=utf-8"
 	case BodyForm:
 		return "application/x-www-form-urlencoded;charset=utf-8"
+	case XWWWForm:
+		return "application/x-www-form-urlencoded;charset=utf-8"
+	case BodyXML:
+		return "application/xml;charset=utf-8"
 	default:
 		return ""
 	}
