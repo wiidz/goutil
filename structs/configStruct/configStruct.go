@@ -67,6 +67,7 @@ type BaseConfig struct {
 	AmapConfig   *AmapConfig   `mapstructure:"amap_config"`    // 高德地图设定
 
 	YunxinConfig *YunxinConfig `mapstructure:"yunxin_config"` // 网易云信设定
+	XFYunConfig  *XFYunConfig  `mapstructure:"xfyun_config"`  // 科大讯飞配置
 }
 
 // MysqlConfig mysql数据库参数
@@ -282,6 +283,19 @@ type VolcengineConfig struct {
 	Debug bool `mapstructure:"debug"`
 
 	ApiKey string `mapstructure:"api_key"`
+}
+
+// XFYunConfig 科大讯飞大模型配置
+type XFYunConfig struct {
+	Debug bool `mapstructure:"debug"`
+
+	AppID     string `mapstructure:"app_id"`
+	ApiKey    string `mapstructure:"api_key"`
+	ApiSecret string `mapstructure:"api_secret"`
+
+	Scheme string `mapstructure:"scheme"` // 默认: wss
+	Host   string `mapstructure:"host"`   // 默认: iat.xf-yun.com
+	Path   string `mapstructure:"path"`   // 默认: /v1
 }
 
 // Config 配置信息
