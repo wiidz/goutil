@@ -341,19 +341,17 @@ func (b *ConfigBuilder) initDatabaseFromConfig() error {
 	}
 
 	// 如果没有 InitialConfig.DB，尝试从 YAML 加载数据库配置
-	// 根据策略中需要的数据库类型，尝试从 YAML 加载对应的配置
+	// 无论 Postgres/MySQL 策略如何，只要需要数据库连接，就尝试从 YAML 加载
 	if len(b.yamlVipers) > 0 {
-		// 如果策略要求从数据库加载 PostgreSQL 配置，尝试从 YAML 加载 PostgreSQL 配置来初始化连接
-		if b.strategy.Postgres == SourceDatabase {
-			var postgresConfig configStruct.PostgresConfig
-			if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Postgres.Key, &postgresConfig); err == nil && postgresConfig.DSN != "" {
-				return b.initPostgresFromConfig(&postgresConfig)
-			}
+		// 优先尝试从 YAML 加载 PostgreSQL 配置来初始化连接
+		var postgresConfig configStruct.PostgresConfig
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Postgres.Key, &postgresConfig); err == nil && postgresConfig.DSN != "" {
+			return b.initPostgresFromConfig(&postgresConfig)
 		}
-		// 如果策略要求从数据库加载 MySQL 配置，尝试从 YAML 加载 MySQL 配置来初始化连接
-		if b.strategy.Mysql == SourceDatabase {
-			var mysqlConfig configStruct.MysqlConfig
-			if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Mysql.Key, &mysqlConfig); err == nil {
+		// 如果 PostgreSQL 配置不存在，尝试从 YAML 加载 MySQL 配置来初始化连接
+		var mysqlConfig configStruct.MysqlConfig
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Mysql.Key, &mysqlConfig); err == nil {
+			if mysqlConfig.Host != "" && mysqlConfig.DbName != "" {
 				return b.initMysqlFromConfig(&mysqlConfig)
 			}
 		}
