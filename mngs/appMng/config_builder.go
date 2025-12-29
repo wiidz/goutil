@@ -965,8 +965,8 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	}
 }
 
-func getServerConfig(rows []*DbSettingRow, serverLabel string) *configStruct.ServerConfig {
-	return &configStruct.ServerConfig{
+func getServerConfig(rows []*DbSettingRow, serverLabel string) *configStruct.HttpServerConfig {
+	return &configStruct.HttpServerConfig{
 		Label:  GetValueFromRow(rows, ConfigKeyServer, serverLabel, "label", "", false),
 		Host:   GetValueFromRow(rows, ConfigKeyServer, serverLabel, "host", "", false),
 		Port:   GetValueFromRow(rows, ConfigKeyServer, serverLabel, "port", "", false),
