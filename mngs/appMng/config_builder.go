@@ -399,7 +399,7 @@ func (b *ConfigBuilder) loadRedisConfig(cfg *configStruct.BaseConfig, dbRows []*
 			return fmt.Errorf("策略要求从 YAML 加载 Redis 配置，但 YAML 配置未初始化")
 		}
 		var redisConfig configStruct.RedisConfig
-		if err := b.yamlVipers[0].UnmarshalKey("redis_config", &redisConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("redis", &redisConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 Redis 配置失败: %w", err)
 		}
 		cfg.RedisConfig = &redisConfig
@@ -422,7 +422,7 @@ func (b *ConfigBuilder) loadEsConfig(cfg *configStruct.BaseConfig, dbRows []*DbS
 			return fmt.Errorf("策略要求从 YAML 加载 Elasticsearch 配置，但 YAML 配置未初始化")
 		}
 		var esConfig configStruct.EsConfig
-		if err := b.yamlVipers[0].UnmarshalKey("es_config", &esConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("es", &esConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 Elasticsearch 配置失败: %w", err)
 		}
 		cfg.EsConfig = &esConfig
@@ -445,7 +445,7 @@ func (b *ConfigBuilder) loadRabbitMQConfig(cfg *configStruct.BaseConfig, dbRows 
 			return fmt.Errorf("策略要求从 YAML 加载 RabbitMQ 配置，但 YAML 配置未初始化")
 		}
 		var rabbitMQConfig configStruct.RabbitMQConfig
-		if err := b.yamlVipers[0].UnmarshalKey("rabbitmq_config", &rabbitMQConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("rabbitmq", &rabbitMQConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 RabbitMQ 配置失败: %w", err)
 		}
 		cfg.RabbitMQConfig = &rabbitMQConfig
@@ -468,7 +468,7 @@ func (b *ConfigBuilder) loadPostgresConfig(cfg *configStruct.BaseConfig, dbRows 
 			return fmt.Errorf("策略要求从 YAML 加载 PostgreSQL 配置，但 YAML 配置未初始化")
 		}
 		var postgresConfig configStruct.PostgresConfig
-		if err := b.yamlVipers[0].UnmarshalKey("postgres_config", &postgresConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("postgres", &postgresConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 PostgreSQL 配置失败: %w", err)
 		}
 		cfg.PostgresConfig = &postgresConfig
@@ -491,7 +491,7 @@ func (b *ConfigBuilder) loadMysqlConfig(cfg *configStruct.BaseConfig, dbRows []*
 			return fmt.Errorf("策略要求从 YAML 加载 MySQL 配置，但 YAML 配置未初始化")
 		}
 		var mysqlConfig configStruct.MysqlConfig
-		if err := b.yamlVipers[0].UnmarshalKey("mysql_config", &mysqlConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("mysql", &mysqlConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 MySQL 配置失败: %w", err)
 		}
 		cfg.MysqlConfig = &mysqlConfig
@@ -514,7 +514,7 @@ func (b *ConfigBuilder) loadWechatMiniConfig(cfg *configStruct.BaseConfig, dbRow
 			return fmt.Errorf("策略要求从 YAML 加载微信小程序配置，但 YAML 配置未初始化")
 		}
 		var wechatMiniConfig configStruct.WechatMiniConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_mini_config", &wechatMiniConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("wechat_mini", &wechatMiniConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信小程序配置失败: %w", err)
 		}
 		cfg.WechatMiniConfig = &wechatMiniConfig
@@ -537,7 +537,7 @@ func (b *ConfigBuilder) loadWechatOaConfig(cfg *configStruct.BaseConfig, dbRows 
 			return fmt.Errorf("策略要求从 YAML 加载微信公众号配置，但 YAML 配置未初始化")
 		}
 		var wechatOaConfig configStruct.WechatOaConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_oa_config", &wechatOaConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("wechat_oa", &wechatOaConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信公众号配置失败: %w", err)
 		}
 		cfg.WechatOaConfig = &wechatOaConfig
@@ -560,7 +560,7 @@ func (b *ConfigBuilder) loadWechatOpenConfig(cfg *configStruct.BaseConfig, dbRow
 			return fmt.Errorf("策略要求从 YAML 加载微信开放平台配置，但 YAML 配置未初始化")
 		}
 		var wechatOpenConfig configStruct.WechatOpenConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_open_config", &wechatOpenConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("wechat_open", &wechatOpenConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信开放平台配置失败: %w", err)
 		}
 		cfg.WechatOpenConfig = &wechatOpenConfig
@@ -583,7 +583,7 @@ func (b *ConfigBuilder) loadWechatPayV3Config(cfg *configStruct.BaseConfig, dbRo
 			return fmt.Errorf("策略要求从 YAML 加载微信支付 V3 配置，但 YAML 配置未初始化")
 		}
 		var wechatPayV3Config configStruct.WechatPayConfigV3
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_config_v3", &wechatPayV3Config); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_v3", &wechatPayV3Config); err != nil {
 			return fmt.Errorf("从 YAML 加载微信支付 V3 配置失败: %w", err)
 		}
 		cfg.WechatPayConfigV3 = &wechatPayV3Config
@@ -606,7 +606,7 @@ func (b *ConfigBuilder) loadWechatPayV2Config(cfg *configStruct.BaseConfig, dbRo
 			return fmt.Errorf("策略要求从 YAML 加载微信支付 V2 配置，但 YAML 配置未初始化")
 		}
 		var wechatPayV2Config configStruct.WechatPayConfigV2
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_config_v2", &wechatPayV2Config); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_v2", &wechatPayV2Config); err != nil {
 			return fmt.Errorf("从 YAML 加载微信支付 V2 配置失败: %w", err)
 		}
 		cfg.WechatPayConfigV2 = &wechatPayV2Config
@@ -629,7 +629,7 @@ func (b *ConfigBuilder) loadAliOssConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载阿里云 OSS 配置，但 YAML 配置未初始化")
 		}
 		var aliOssConfig configStruct.AliOssConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_oss_config", &aliOssConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("ali_oss", &aliOssConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 OSS 配置失败: %w", err)
 		}
 		cfg.AliOssConfig = &aliOssConfig
@@ -652,7 +652,7 @@ func (b *ConfigBuilder) loadAliPayConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载支付宝配置，但 YAML 配置未初始化")
 		}
 		var aliPayConfig configStruct.AliPayConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_pay_config", &aliPayConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("ali_pay", &aliPayConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载支付宝配置失败: %w", err)
 		}
 		cfg.AliPayConfig = &aliPayConfig
@@ -675,7 +675,7 @@ func (b *ConfigBuilder) loadAliApiConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载阿里云 API 配置，但 YAML 配置未初始化")
 		}
 		var aliApiConfig configStruct.AliApiConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_api_config", &aliApiConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("ali_api", &aliApiConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 API 配置失败: %w", err)
 		}
 		cfg.AliApiConfig = &aliApiConfig
@@ -698,7 +698,7 @@ func (b *ConfigBuilder) loadAliSmsConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载阿里云短信配置，但 YAML 配置未初始化")
 		}
 		var aliSmsConfig configStruct.AliSmsConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_sms_config", &aliSmsConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("ali_sms", &aliSmsConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云短信配置失败: %w", err)
 		}
 		cfg.AliSmsConfig = &aliSmsConfig
@@ -721,7 +721,7 @@ func (b *ConfigBuilder) loadAliIotConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载阿里云 IoT 配置，但 YAML 配置未初始化")
 		}
 		var aliIotConfig configStruct.AliIotConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_iot_config", &aliIotConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("ali_iot", &aliIotConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 IoT 配置失败: %w", err)
 		}
 		cfg.AliIotConfig = &aliIotConfig
@@ -744,7 +744,7 @@ func (b *ConfigBuilder) loadAmapConfig(cfg *configStruct.BaseConfig, dbRows []*D
 			return fmt.Errorf("策略要求从 YAML 加载高德地图配置，但 YAML 配置未初始化")
 		}
 		var amapConfig configStruct.AmapConfig
-		if err := b.yamlVipers[0].UnmarshalKey("amap_config", &amapConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("amap", &amapConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载高德地图配置失败: %w", err)
 		}
 		cfg.AmapConfig = &amapConfig
@@ -767,7 +767,7 @@ func (b *ConfigBuilder) loadYunxinConfig(cfg *configStruct.BaseConfig, dbRows []
 			return fmt.Errorf("策略要求从 YAML 加载网易云信配置，但 YAML 配置未初始化")
 		}
 		var yunxinConfig configStruct.YunxinConfig
-		if err := b.yamlVipers[0].UnmarshalKey("yunxin_config", &yunxinConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey("yunxin", &yunxinConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载网易云信配置失败: %w", err)
 		}
 		cfg.YunxinConfig = &yunxinConfig
