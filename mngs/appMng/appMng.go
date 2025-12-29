@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
@@ -77,15 +76,15 @@ func (m *Manager) build(ctx context.Context, key string, builder *ConfigBuilder,
 		ProjectConfig: projectCfg,
 	}
 
-	// 初始化依赖（若 loader 未提供实例则自行初始化）
-	if app.BaseConfig.MysqlConfig != nil && app.Mysql == nil {
-		app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
+	// 初始化依赖
+	if app.BaseConfig.MysqlConfig != nil && app.Repos.Mysql == nil {
+		app.Repos.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
 		if err != nil {
 			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
 		}
 	}
-	if app.BaseConfig.PostgresConfig != nil && app.Postgres == nil {
-		app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
+	if app.BaseConfig.PostgresConfig != nil && app.Repos.Postgres == nil {
+		app.Repos.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
 			DSN:             app.BaseConfig.PostgresConfig.DSN,
 			ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
 			ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
@@ -95,21 +94,27 @@ func (m *Manager) build(ctx context.Context, key string, builder *ConfigBuilder,
 			return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
 		}
 	}
-	if app.BaseConfig.RedisConfig != nil && app.Redis == nil {
-		if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
+
+	if app.BaseConfig.RedisConfig != nil {
+		if app.Repos.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
 		}
 	}
-	if app.BaseConfig.EsConfig != nil && app.Es == nil {
+	if app.BaseConfig.EsConfig != nil {
 		if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
 			return nil, fmt.Errorf("appMng: init es failed: %w", err)
 		}
 	}
-	if app.BaseConfig.RabbitMQConfig != nil && app.RabbitMQ == nil {
-		if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
-		}
-	}
+
+	// if app.BaseConfig.RabbitMQConfig != nil {
+	// 	if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
+	// 		return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
+	// 	}
+	// 	app.Repos.RabbitMQ, err = amqpMng.NewRabbitMQ(app.BaseConfig.RabbitMQConfig)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
+	// 	}
+	// }
 
 	// 项目级构建
 	if app.ProjectConfig != nil {
