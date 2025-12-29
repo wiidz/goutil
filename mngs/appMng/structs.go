@@ -114,7 +114,7 @@ var ConfigKeys = struct {
 	Volcengine  ConfigKey
 	LocationTZ  ConfigKey
 	App         ConfigKey
-	Server      ConfigKey
+	HttpServer  ConfigKey
 	TimeZone    ConfigKey
 	Wechat      ConfigKey
 	Ali         ConfigKey
@@ -156,7 +156,7 @@ var ConfigKeys = struct {
 	Volcengine:  ConfigKey{Key: "volcengine", CnLabel: "火山引擎"},
 	LocationTZ:  ConfigKey{Key: "location.timezone", CnLabel: "时区"},
 	App:         ConfigKey{Key: "app", CnLabel: "应用配置"},
-	Server:      ConfigKey{Key: "server", CnLabel: "服务配置"},
+	HttpServer:  ConfigKey{Key: "http_server", CnLabel: "服务配置"},
 	TimeZone:    ConfigKey{Key: "time_zone", CnLabel: "时区"},
 	Wechat:      ConfigKey{Key: "wechat", CnLabel: "微信配置"},
 	Ali:         ConfigKey{Key: "ali", CnLabel: "阿里云配置"},
@@ -200,7 +200,7 @@ var ConfigKeyList = []ConfigKey{
 	ConfigKeys.Yunxin,
 	ConfigKeys.Volcengine,
 	ConfigKeys.App,
-	ConfigKeys.Server,
+	ConfigKeys.HttpServer,
 	ConfigKeys.TimeZone,
 	ConfigKeys.Wechat,
 	ConfigKeys.Ali,

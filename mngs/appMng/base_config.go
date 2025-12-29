@@ -212,7 +212,7 @@ func (b *BaseConfigBuilder) Build(configPool *ConfigPool) (config *configStruct.
 	// 从配置池获取 dbRows
 	dbRows := configPool.GetDBRows()
 	for _, serverLabel := range b.HttpServerLabels {
-		serverConfig := getServerConfig(dbRows, serverLabel)
+		serverConfig := getHttpServerConfig(dbRows, serverLabel)
 		if serverConfig == nil {
 			err = fmt.Errorf("加载 HttpServer 配置失败: 标签 %s 不存在", serverLabel)
 			return

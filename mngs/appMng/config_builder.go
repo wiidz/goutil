@@ -206,12 +206,12 @@ func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	}
 }
 
-func getServerConfig(rows []*DbSettingRow, serverLabel string) *configStruct.HttpServerConfig {
+func getHttpServerConfig(rows []*DbSettingRow, serverLabel string) *configStruct.HttpServerConfig {
 	return &configStruct.HttpServerConfig{
-		Label:  GetValueFromRow(rows, ConfigKeys.Server.Key, serverLabel, "label", "", false),
-		Host:   GetValueFromRow(rows, ConfigKeys.Server.Key, serverLabel, "host", "", false),
-		Port:   GetValueFromRow(rows, ConfigKeys.Server.Key, serverLabel, "port", "", false),
-		Domain: GetValueFromRow(rows, ConfigKeys.Server.Key, serverLabel, "domain", "", false),
+		Label:  GetValueFromRow(rows, ConfigKeys.HttpServer.Key, serverLabel, "label", "", false),
+		Host:   GetValueFromRow(rows, ConfigKeys.HttpServer.Key, serverLabel, "host", "", false),
+		Port:   GetValueFromRow(rows, ConfigKeys.HttpServer.Key, serverLabel, "port", "", false),
+		Domain: GetValueFromRow(rows, ConfigKeys.HttpServer.Key, serverLabel, "domain", "", false),
 	}
 }
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error) {
