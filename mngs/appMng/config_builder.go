@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"github.com/wiidz/goutil/helpers/configHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
@@ -257,6 +258,12 @@ func (b *ConfigBuilder) loadAllConfigs(cfg *configStruct.BaseConfig, dbRows []*D
 			if err := fillConfigFromRows(targetPtr.Interface(), key, key, dbRows, debug); err != nil {
 				return err
 			}
+			// 应用默认值
+			applyDefaultsFromTags(targetPtr.Interface())
+			// 验证配置
+			if err := validateConfig(targetPtr.Interface(), key); err != nil {
+				return err
+			}
 		case SourceYAML:
 			if len(b.yamlVipers) == 0 {
 				return errFactory.yamlNotInit(key)
@@ -265,6 +272,10 @@ func (b *ConfigBuilder) loadAllConfigs(cfg *configStruct.BaseConfig, dbRows []*D
 				return errFactory.yamlLoadFailed(key, err)
 			}
 			applyDefaultsFromTags(targetPtr.Interface())
+			// 验证配置
+			if err := validateConfig(targetPtr.Interface(), key); err != nil {
+				return err
+			}
 		default:
 			continue
 		}
@@ -685,6 +696,56 @@ var configMaps = map[string]ConfigMap{
 	ConfigKeys.AliIot.Key:      {Key: ConfigKeys.AliIot, Data: configStruct.AliIotConfig{}},
 	ConfigKeys.Amap.Key:        {Key: ConfigKeys.Amap, Data: configStruct.AmapConfig{}},
 	ConfigKeys.Yunxin.Key:      {Key: ConfigKeys.Yunxin, Data: configStruct.YunxinConfig{}},
+}
+
+// validateConfig 使用 validator 库验证配置结构体
+func validateConfig(target interface{}, configKey string) error {
+	if target == nil {
+		return nil
+	}
+
+	// 创建 validator 实例
+	validate := validator.New()
+
+	// 验证结构体
+	if err := validate.Struct(target); err != nil {
+		// 格式化验证错误信息
+		var errMsgs []string
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			for _, fieldError := range validationErrors {
+				errMsgs = append(errMsgs, fmt.Sprintf("字段 %s: %s", fieldError.Field(), getValidationErrorMsg(fieldError)))
+			}
+		} else {
+			errMsgs = append(errMsgs, err.Error())
+		}
+		return fmt.Errorf("配置 %s 验证失败: %s", configKey, strings.Join(errMsgs, "; "))
+	}
+
+	return nil
+}
+
+// getValidationErrorMsg 获取验证错误的友好提示信息
+func getValidationErrorMsg(fieldError validator.FieldError) string {
+	switch fieldError.Tag() {
+	case "required":
+		return "必填字段不能为空"
+	case "min":
+		return fmt.Sprintf("值不能小于 %s", fieldError.Param())
+	case "max":
+		return fmt.Sprintf("值不能大于 %s", fieldError.Param())
+	case "len":
+		return fmt.Sprintf("长度必须等于 %s", fieldError.Param())
+	case "email":
+		return "必须是有效的邮箱地址"
+	case "url":
+		return "必须是有效的URL地址"
+	case "ip":
+		return "必须是有效的IP地址"
+	case "oneof":
+		return fmt.Sprintf("值必须是以下之一: %s", fieldError.Param())
+	default:
+		return fmt.Sprintf("验证失败 (tag: %s, param: %s)", fieldError.Tag(), fieldError.Param())
+	}
 }
 
 // applyDefaultsFromTags 根据 struct 的 default tag 填充零值字段

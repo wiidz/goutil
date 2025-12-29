@@ -21,10 +21,10 @@ type AppProfile struct {
 
 // 一个AppMng中可能包含多个Server，例如(Client和Console)，每个Server可能对应一个不同的域名和端口
 type HttpServerConfig struct {
-	Label  string `mapstructure:"label"`  // 标签（例如client，console等）
-	Domain string `mapstructure:"domain"` // 外部域名地址
-	Host   string `mapstructure:"host"`   // 监听的地址（如0.0.0.0，127.0.0.1等）
-	Port   string `mapstructure:"port"`   // 监听的端口号
+	Label  string `mapstructure:"label" validate:"required"` // 标签（例如client，console等）
+	Domain string `mapstructure:"domain"`                    // 外部域名地址
+	Host   string `mapstructure:"host" validate:"required"`  // 监听的地址（如0.0.0.0，127.0.0.1等）
+	Port   string `mapstructure:"port" validate:"required"`  // 监听的端口号
 }
 
 type ViperConfig struct {
@@ -74,11 +74,11 @@ type BaseConfig struct {
 
 // MysqlConfig mysql数据库参数
 type MysqlConfig struct {
-	Host             string `gorm:"column:db_host" json:"host" mapstructure:"host"`
-	Port             string `gorm:"column:db_host" json:"port" mapstructure:"port"`
-	Username         string `gorm:"column:db_account" json:"username" mapstructure:"username"`
+	Host             string `gorm:"column:db_host" json:"host" mapstructure:"host" validate:"required"`
+	Port             string `gorm:"column:db_host" json:"port" mapstructure:"port" validate:"required"`
+	Username         string `gorm:"column:db_account" json:"username" mapstructure:"username" validate:"required"`
 	Password         string `gorm:"column:db_password" json:"password" mapstructure:"password"`
-	DbName           string `gorm:"column:db_name" json:"db_name" mapstructure:"db_name"`
+	DbName           string `gorm:"column:db_name" json:"db_name" mapstructure:"db_name" validate:"required"`
 	Charset          string `mapstructure:"charset"`
 	Collation        string `mapstructure:"collation"`
 	MaxOpenConns     int    `json:"max_open_conns" mapstructure:"max_open_conns"`                                          // 默认10
@@ -93,16 +93,16 @@ type MysqlConfig struct {
 
 // EsConfig elastic search 设置
 type EsConfig struct {
-	Host     string `json:"host" mapstructure:"host"`
-	Port     string `json:"port" mapstructure:"port"`
+	Host     string `json:"host" mapstructure:"host" validate:"required"`
+	Port     string `json:"port" mapstructure:"port" validate:"required"`
 	Username string `json:"username" mapstructure:"username"`
 	Password string `json:"password" mapstructure:"password"`
 }
 
 // RedisConfig redis服务器设置
 type RedisConfig struct {
-	Host        string `json:"host" mapstructure:"host"`
-	Port        string `json:"port" mapstructure:"port"`
+	Host        string `json:"host" mapstructure:"host" validate:"required"`
+	Port        string `json:"port" mapstructure:"port" validate:"required"`
 	Username    string `json:"username" mapstructure:"username"`
 	Password    string `json:"password" mapstructure:"password"`
 	IdleTimeout int    `json:"idle_timeout" mapstructure:"idle_timeout" default:"60"` // 默认60
@@ -122,7 +122,7 @@ const (
 // DBConfig 统一的数据库配置（支持 PostgreSQL 和 MySQL）
 type DBConfig struct {
 	// 数据库类型（postgres 或 mysql）
-	Type DBType `json:"type" mapstructure:"type"`
+	Type DBType `json:"type" mapstructure:"type" validate:"required,oneof=postgres mysql"`
 
 	// DSN 连接字符串（优先级最高，如果设置了 DSN，将忽略下面的 Host/Port 等字段）
 	// PostgreSQL: "postgres://user:password@host:port/dbname?sslmode=disable"
@@ -153,7 +153,7 @@ type DBConfig struct {
 // PostgresConfig PostgreSQL 数据库配置（保留用于向后兼容）
 // Deprecated: 建议使用 DBConfig 替代
 type PostgresConfig struct {
-	DSN              string           `json:"dsn" mapstructure:"dsn"`
+	DSN              string           `json:"dsn" mapstructure:"dsn" validate:"required"`
 	ConnMaxIdle      int              `json:"conn_max_idle" mapstructure:"conn_max_idle"`
 	ConnMaxOpen      int              `json:"conn_max_open" mapstructure:"conn_max_open"`
 	ConnMaxLifetime  time.Duration    `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
@@ -174,36 +174,36 @@ const (
 
 // RabbitMQConfig rabbit mq配置
 type RabbitMQConfig struct {
-	Host     string `json:"host" mapstructure:"host"`
+	Host     string `json:"host" mapstructure:"host" validate:"required"`
 	Username string `json:"username" mapstructure:"username"`
 	Password string `json:"password" mapstructure:"password"`
 }
 
 // WechatMiniConfig 微信小程序参数
 type WechatMiniConfig struct {
-	AppID     string `gorm:"column:wechat_mini_app_id" json:"wechat_mini_app_id" mapstructure:"wechat_mini_app_id"`
-	AppSecret string `gorm:"column:wechat_mini_app_secret" json:"wechat_mini_app_secret" mapstructure:"wechat_mini_app_secret"`
+	AppID     string `gorm:"column:wechat_mini_app_id" json:"wechat_mini_app_id" mapstructure:"wechat_mini_app_id" validate:"required"`
+	AppSecret string `gorm:"column:wechat_mini_app_secret" json:"wechat_mini_app_secret" mapstructure:"wechat_mini_app_secret" validate:"required"`
 }
 
 // WechatOaConfig 微信公众号参数
 type WechatOaConfig struct {
-	AppID          string `gorm:"column:wechat_oa_app_id" json:"wechat_oa_app_id" mapstructure:"wechat_oa_app_id"`
-	AppSecret      string `gorm:"column:wechat_oa_app_secret" json:"wechat_oa_app_secret" mapstructure:"wechat_oa_app_secret"`
+	AppID          string `gorm:"column:wechat_oa_app_id" json:"wechat_oa_app_id" mapstructure:"wechat_oa_app_id" validate:"required"`
+	AppSecret      string `gorm:"column:wechat_oa_app_secret" json:"wechat_oa_app_secret" mapstructure:"wechat_oa_app_secret" validate:"required"`
 	Token          string `gorm:"column:token" json:"token" mapstructure:"token"`
 	EncodingAESKey string `gorm:"column:encoding_aes_key" json:"encoding_aes_key" mapstructure:"encoding_aes_key"`
 }
 
 // WechatOpenConfig 微信开放平台参数
 type WechatOpenConfig struct {
-	AppID     string `gorm:"column:wechat_oa_app_id" json:"wechat_oa_app_id" mapstructure:"wechat_oa_app_id"`
-	AppSecret string `gorm:"column:wechat_oa_app_secret" json:"wechat_oa_app_secret" mapstructure:"wechat_oa_app_secret"`
+	AppID     string `gorm:"column:wechat_oa_app_id" json:"wechat_oa_app_id" mapstructure:"wechat_oa_app_id" validate:"required"`
+	AppSecret string `gorm:"column:wechat_oa_app_secret" json:"wechat_oa_app_secret" mapstructure:"wechat_oa_app_secret" validate:"required"`
 }
 
 // WechatPayConfigV3 V3微信支付参数
 type WechatPayConfigV3 struct {
-	AppID                     string `gorm:"column:wechat_pay_app_id" json:"app_id" mapstructure:"app_id"`                                                        //【微信支付】appID
-	ApiKeyV3                  string `gorm:"column:wechat_api_key_v3" json:"api_key_v3" mapstructure:"api_key_v3"`                                                //【微信支付】apiKey,apiV3Key（v3）
-	MchID                     string `gorm:"column:wechat_pay_mch_id" json:"mch_id" mapstructure:"mch_id"`                                                        //【微信支付】商户ID 或者服务商模式的 sp_mchid
+	AppID                     string `gorm:"column:wechat_pay_app_id" json:"app_id" mapstructure:"app_id" validate:"required"`                                    //【微信支付】appID
+	ApiKeyV3                  string `gorm:"column:wechat_api_key_v3" json:"api_key_v3" mapstructure:"api_key_v3" validate:"required"`                            //【微信支付】apiKey,apiV3Key（v3）
+	MchID                     string `gorm:"column:wechat_pay_mch_id" json:"mch_id" mapstructure:"mch_id" validate:"required"`                                    //【微信支付】商户ID 或者服务商模式的 sp_mchid
 	CertURI                   string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri" mapstructure:"cert_uri"`                                                  //【微信支付】公钥文件
 	KeyURI                    string `gorm:"column:wechat_pay_key_uri" json:"key_uri" mapstructure:"key_uri"`                                                     //【微信支付】私钥文件
 	CertSerialNo              string `gorm:"column:cert_serial_mo" json:"cert_serial_mo" mapstructure:"cert_serial_mo"`                                           //【微信支付】证书序列号（V3使用）
@@ -218,9 +218,9 @@ type WechatPayConfigV3 struct {
 
 // WechatPayConfigV2 V2微信支付参数
 type WechatPayConfigV2 struct {
-	AppID           string `gorm:"column:wechat_pay_app_id" json:"app_id" mapstructure:"app_id"`                          //【微信支付】appID
-	ApiKey          string `gorm:"column:wechat_api_key" json:"api_key" mapstructure:"api_key"`                           //【微信支付】apiKey（v2）
-	MchID           string `gorm:"column:wechat_pay_mch_id" json:"mch_id" mapstructure:"mch_id"`                          //【微信支付】商户ID 或者服务商模式的 sp_mchid
+	AppID           string `gorm:"column:wechat_pay_app_id" json:"app_id" mapstructure:"app_id" validate:"required"`      //【微信支付】appID
+	ApiKey          string `gorm:"column:wechat_api_key" json:"api_key" mapstructure:"api_key" validate:"required"`       //【微信支付】apiKey（v2）
+	MchID           string `gorm:"column:wechat_pay_mch_id" json:"mch_id" mapstructure:"mch_id" validate:"required"`      //【微信支付】商户ID 或者服务商模式的 sp_mchid
 	CertURI         string `gorm:"column:wechat_pay_cert_uri" json:"cert_uri" mapstructure:"cert_uri"`                    //【微信支付】公钥文件
 	KeyURI          string `gorm:"column:wechat_pay_key_uri" json:"key_uri" mapstructure:"key_uri"`                       //【微信支付】私钥文件
 	CertSerialNo    string `gorm:"column:cert_serial_mo" json:"cert_serial_mo" mapstructure:"cert_serial_mo"`             //【微信支付】证书序列号（V3使用）
@@ -235,8 +235,8 @@ type WechatPayConfigV2 struct {
 
 // AliPayConfig 支付宝参数
 type AliPayConfig struct {
-	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id" mapstructure:"alipay_app_id"`                //【支付宝】appID
-	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key" mapstructure:"alipay_private_key"` //【支付宝】密钥（PKCS1）
+	AppID      string `gorm:"column:alipay_app_id" json:"alipay_app_id" mapstructure:"alipay_app_id" validate:"required"`                //【支付宝】appID
+	PrivateKey string `gorm:"column:alipay_private_key" json:"alipay_private_key" mapstructure:"alipay_private_key" validate:"required"` //【支付宝】密钥（PKCS1）
 
 	AppCertPublicKey string `gorm:"column:app_cert_public_key" json:"app_cert_public_key" mapstructure:"app_cert_public_key"`
 	RootCert         string `gorm:"column:root_cert" json:"root_cert" mapstructure:"root_cert"`
@@ -252,26 +252,26 @@ type ProjectConfig interface {
 
 // AliApiConfig 阿里云市场提供的服务的基本配置
 type AliApiConfig struct {
-	AppCode   string `mapstructure:"app_code"`
-	AppKey    string `mapstructure:"app_key"`
-	AppSecret string `mapstructure:"app_secret"`
+	AppCode   string `mapstructure:"app_code" validate:"required"`
+	AppKey    string `mapstructure:"app_key" validate:"required"`
+	AppSecret string `mapstructure:"app_secret" validate:"required"`
 }
 
 // AliOssConfig oss参数
 type AliOssConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret"`
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
 	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host" mapstructure:"oss_host"`
-	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point" mapstructure:"oss_end_point"`
-	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name" mapstructure:"oss_bucket_name"`
+	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point" mapstructure:"oss_end_point" validate:"required"`
+	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name" mapstructure:"oss_bucket_name" validate:"required"`
 	ARN             string `gorm:"arn" json:"arn" mapstructure:"arn"`
 	ExpireTime      int64  `mapstructure:"expire_time"`
 }
 
 // AliSmsConfig 阿里云短信服务的配置
 type AliSmsConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret"`
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
 }
 
 // AliRamConfig 阿里云RAM访问控制的账号和密码
@@ -283,27 +283,27 @@ type AliRamConfig struct {
 // AliIotConfig 阿里云物联网的基本配置（每个实例单独放）
 // 因为一个项目用的服务器基本上是一个区域，一个账户，所以以下属性是公用的
 type AliIotConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret"`
-	EndPoint        string `gorm:"end_point;type:varchar(128)" json:"end_point" mapstructure:"end_point"`
-	RegionID        string `gorm:"region_id;type:varchar(128)" json:"region_id" mapstructure:"region_id"`
+	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
+	EndPoint        string `gorm:"end_point;type:varchar(128)" json:"end_point" mapstructure:"end_point" validate:"required"`
+	RegionID        string `gorm:"region_id;type:varchar(128)" json:"region_id" mapstructure:"region_id" validate:"required"`
 }
 
 // YunxinConfig 网易云信
 type YunxinConfig struct {
-	AppKey    string `gorm:"column:app_key;type:varchar(128)" json:"app_key" mapstructure:"app_key"`          // 【云信】密钥
-	AppSecret string `gorm:"column:app_secret;type:varchar(128)" json:"app_secret" mapstructure:"app_secret"` // 【云信】密钥
-	CCURL     string `gorm:"column:cc_url;type:varchar(128)" json:"cc_url" mapstructure:"cc_url"`             // 信息抄送地址
+	AppKey    string `gorm:"column:app_key;type:varchar(128)" json:"app_key" mapstructure:"app_key" validate:"required"`          // 【云信】密钥
+	AppSecret string `gorm:"column:app_secret;type:varchar(128)" json:"app_secret" mapstructure:"app_secret" validate:"required"` // 【云信】密钥
+	CCURL     string `gorm:"column:cc_url;type:varchar(128)" json:"cc_url" mapstructure:"cc_url"`                                 // 信息抄送地址
 }
 
 // AmapConfig 高德地图配置
 type AmapConfig struct {
-	Key string `mapstructure:"key"`
+	Key string `mapstructure:"key" validate:"required"`
 }
 
 type TcpConfig struct {
-	IP           string        `json:"ip" mapstructure:"ip"`
-	Port         int           `json:"port" mapstructure:"port"`
+	IP           string        `json:"ip" mapstructure:"ip" validate:"required,ip"`
+	Port         int           `json:"port" mapstructure:"port" validate:"required,min=1,max=65535"`
 	ReadTimeOut  time.Duration `mapstructure:"read_timeout"`  // 读取超时时间
 	WriteTimeOut time.Duration `mapstructure:"write_timeout"` // 写入超时时间
 }
@@ -333,9 +333,9 @@ type VolcengineConfig struct {
 type XFYunConfig struct {
 	Debug bool `mapstructure:"debug"`
 
-	AppID     string `mapstructure:"app_id"`
-	ApiKey    string `mapstructure:"api_key"`
-	ApiSecret string `mapstructure:"api_secret"`
+	AppID     string `mapstructure:"app_id" validate:"required"`
+	ApiKey    string `mapstructure:"api_key" validate:"required"`
+	ApiSecret string `mapstructure:"api_secret" validate:"required"`
 
 	Scheme string `mapstructure:"scheme"` // 默认: wss
 	Host   string `mapstructure:"host"`   // 默认: iat.xf-yun.com
@@ -344,9 +344,9 @@ type XFYunConfig struct {
 
 // Config 配置信息
 type WikiConfig struct {
-	AccessKeyID string `mapstructure:"access_key_id"` // Access Key
-	SecretKey   string `mapstructure:"secret_key"`    // Secret Key
-	ApiKey      string `mapstructure:"api_key"`       // API Key
+	AccessKeyID string `mapstructure:"access_key_id" validate:"required"` // Access Key
+	SecretKey   string `mapstructure:"secret_key" validate:"required"`    // Secret Key
+	ApiKey      string `mapstructure:"api_key" validate:"required"`       // API Key
 
 	StreamTimeout time.Duration `mapstructure:"stream_timeout"` // 流式超时
 	SimpleTimeout time.Duration `mapstructure:"simple_timeout"` // 单此请求
