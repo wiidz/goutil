@@ -71,13 +71,20 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 
 	//【5】启动检查
+	// 根据 CheckStart 要求初始化服务
+	// 注意：配置的有效性验证应该在 Loader 中完成（例如 BuildBaseConfig）
+	// 这里只负责根据 CheckStart 要求初始化服务
 	if opts.CheckStart.Mysql {
-		if app.BaseConfig.MysqlConfig == nil {
-			return nil, fmt.Errorf("appMng: MySql config is nil")
-		}
-		app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
-		if err != nil {
-			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
+		if res.Mysql != nil {
+			app.Mysql = res.Mysql
+		} else {
+			if app.BaseConfig.MysqlConfig == nil {
+				return nil, fmt.Errorf("appMng: MySql config is required but not found")
+			}
+			app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
+			if err != nil {
+				return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
+			}
 		}
 	}
 	if opts.CheckStart.Postgres {
@@ -85,7 +92,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			app.Postgres = res.Postgres
 		} else {
 			if app.BaseConfig.PostgresConfig == nil {
-				return nil, fmt.Errorf("appMng: PostgreSql config is nil")
+				return nil, fmt.Errorf("appMng: PostgreSql config is required but not found")
 			}
 			app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
 				DSN:             app.BaseConfig.PostgresConfig.DSN,
@@ -103,7 +110,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			app.Redis = res.Redis
 		} else {
 			if app.BaseConfig.RedisConfig == nil {
-				return nil, fmt.Errorf("appMng: Redis config is nil")
+				return nil, fmt.Errorf("appMng: Redis config is required but not found")
 			}
 			if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init redis failed: %w", err)
@@ -115,7 +122,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			app.Es = res.Es
 		} else {
 			if app.BaseConfig.EsConfig == nil {
-				return nil, fmt.Errorf("appMng: Es config is nil")
+				return nil, fmt.Errorf("appMng: Es config is required but not found")
 			}
 			if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init es failed: %w", err)
@@ -127,13 +134,12 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			app.RabbitMQ = res.RabbitMQ
 		} else {
 			if app.BaseConfig.RabbitMQConfig == nil {
-				return nil, fmt.Errorf("appMng: RabbitMQ config is nil")
+				return nil, fmt.Errorf("appMng: RabbitMQ config is required but not found")
 			}
 			if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
 			}
 		}
-
 	}
 
 	//【6】项目独特配置

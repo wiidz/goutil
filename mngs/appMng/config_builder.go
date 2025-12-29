@@ -61,7 +61,10 @@ func DefaultConfigLoadOptions() *ConfigLoadOptions {
 	}
 }
 
-func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configStruct.BaseConfig, error) {
+// BuildBaseConfig 从数据库配置行构建 BaseConfig
+// rows: 数据库配置行
+// options: 配置加载选项，如果为 nil 则使用默认选项（加载所有配置）
+func BuildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configStruct.BaseConfig, error) {
 	cfg := &configStruct.BaseConfig{}
 	if len(rows) == 0 {
 		cfg.Profile = &configStruct.AppProfile{}
@@ -83,13 +86,13 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 	}
 
 	// 根据选项决定是否加载各个配置
+	// 注意：只有在 options 中明确指定要加载的配置才会被加载和验证
+	// 如果某个配置在 options 中未指定，即使数据库中有相关配置也不会加载
+	// 每个 get*Config 函数已经负责验证配置的有效性（包括关键字段），这里直接赋值即可
 	if options.Redis {
 		redisConfig, err := getRedisConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载 Redis 配置失败: %w", err)
-		}
-		if redisConfig == nil {
-			return nil, fmt.Errorf("Redis 配置为 nil")
 		}
 		cfg.RedisConfig = redisConfig
 	}
@@ -98,18 +101,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载 Elasticsearch 配置失败: %w", err)
 		}
-		if esConfig == nil {
-			return nil, fmt.Errorf("Elasticsearch 配置为 nil")
-		}
 		cfg.EsConfig = esConfig
 	}
 	if options.RabbitMQ {
 		rabbitMQConfig, err := getRabbitMQConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载 RabbitMQ 配置失败: %w", err)
-		}
-		if rabbitMQConfig == nil {
-			return nil, fmt.Errorf("RabbitMQ 配置为 nil")
 		}
 		cfg.RabbitMQConfig = rabbitMQConfig
 	}
@@ -118,7 +115,7 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载 PostgreSQL 配置失败: %w", err)
 		}
-		// PostgresConfig 可以为 nil（如果 DSN 为空）
+		// PostgresConfig 可以为 nil（如果 DSN 为空），这是允许的
 		cfg.PostgresConfig = postgresConfig
 	}
 
@@ -127,18 +124,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载微信小程序配置失败: %w", err)
 		}
-		if wechatMiniConfig == nil {
-			return nil, fmt.Errorf("微信小程序配置为 nil")
-		}
 		cfg.WechatMiniConfig = wechatMiniConfig
 	}
 	if options.WechatOa {
 		wechatOaConfig, err := getWechatOaConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载微信公众号配置失败: %w", err)
-		}
-		if wechatOaConfig == nil {
-			return nil, fmt.Errorf("微信公众号配置为 nil")
 		}
 		cfg.WechatOaConfig = wechatOaConfig
 	}
@@ -147,9 +138,6 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载微信开放平台配置失败: %w", err)
 		}
-		if wechatOpenConfig == nil {
-			return nil, fmt.Errorf("微信开放平台配置为 nil")
-		}
 		cfg.WechatOpenConfig = wechatOpenConfig
 	}
 	if options.WechatPayV3 {
@@ -157,18 +145,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载微信支付 V3 配置失败: %w", err)
 		}
-		if wechatPayV3Config == nil {
-			return nil, fmt.Errorf("微信支付 V3 配置为 nil")
-		}
 		cfg.WechatPayConfigV3 = wechatPayV3Config
 	}
 	if options.WechatPayV2 {
 		wechatPayV2Config, err := getWechatPayConfigV2(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载微信支付 V2 配置失败: %w", err)
-		}
-		if wechatPayV2Config == nil {
-			return nil, fmt.Errorf("微信支付 V2 配置为 nil")
 		}
 		cfg.WechatPayConfigV2 = wechatPayV2Config
 	}
@@ -178,18 +160,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载阿里云 OSS 配置失败: %w", err)
 		}
-		if aliOssConfig == nil {
-			return nil, fmt.Errorf("阿里云 OSS 配置为 nil")
-		}
 		cfg.AliOssConfig = aliOssConfig
 	}
 	if options.AliPay {
 		aliPayConfig, err := getAliPayConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载支付宝配置失败: %w", err)
-		}
-		if aliPayConfig == nil {
-			return nil, fmt.Errorf("支付宝配置为 nil")
 		}
 		cfg.AliPayConfig = aliPayConfig
 	}
@@ -198,18 +174,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载阿里云 API 配置失败: %w", err)
 		}
-		if aliApiConfig == nil {
-			return nil, fmt.Errorf("阿里云 API 配置为 nil")
-		}
 		cfg.AliApiConfig = aliApiConfig
 	}
 	if options.AliSms {
 		aliSmsConfig, err := getAliSmsConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载阿里云短信配置失败: %w", err)
-		}
-		if aliSmsConfig == nil {
-			return nil, fmt.Errorf("阿里云短信配置为 nil")
 		}
 		cfg.AliSmsConfig = aliSmsConfig
 	}
@@ -218,18 +188,12 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		if err != nil {
 			return nil, fmt.Errorf("加载阿里云 IoT 配置失败: %w", err)
 		}
-		if aliIotConfig == nil {
-			return nil, fmt.Errorf("阿里云 IoT 配置为 nil")
-		}
 		cfg.AliIotConfig = aliIotConfig
 	}
 	if options.Amap {
 		amapConfig, err := getAmapConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载高德地图配置失败: %w", err)
-		}
-		if amapConfig == nil {
-			return nil, fmt.Errorf("高德地图配置为 nil")
 		}
 		cfg.AmapConfig = amapConfig
 	}
@@ -238,9 +202,6 @@ func buildBaseConfig(rows []*DbSettingRow, options *ConfigLoadOptions) (*configS
 		yunxinConfig, err := getYunXinConfig(rows, debug)
 		if err != nil {
 			return nil, fmt.Errorf("加载网易云信配置失败: %w", err)
-		}
-		if yunxinConfig == nil {
-			return nil, fmt.Errorf("网易云信配置为 nil")
 		}
 		cfg.YunxinConfig = yunxinConfig
 	}

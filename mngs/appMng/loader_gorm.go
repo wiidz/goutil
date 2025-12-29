@@ -28,7 +28,7 @@ func NewGormSettingLoader(dialector gorm.Dialector, tableName string, enrich fun
 			return nil, err
 		}
 
-		baseConfig, err := buildBaseConfig(rows, nil) // nil 表示使用默认选项（加载所有配置）
+		baseConfig, err := BuildBaseConfig(rows, nil) // nil 表示使用默认选项（加载所有配置）
 		if err != nil {
 			return nil, err
 		}
