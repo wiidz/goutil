@@ -2,7 +2,6 @@ package appMng
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/spf13/viper"
@@ -15,8 +14,6 @@ import (
 	"gorm.io/gorm"
 
 	"context"
-
-	"github.com/patrickmn/go-cache"
 )
 
 /******sql******
@@ -83,6 +80,7 @@ func (f LoaderFunc) Load(ctx context.Context) (*LoaderResult, error) { return f(
 // LoaderResult 是 Loader 返回的数据结构。
 type LoaderResult struct {
 	BaseConfig *configStruct.BaseConfig
+	
 	Mysql      *mysqlMng.MysqlMng
 	Postgres   *psqlMng.Manager
 	Redis      *redisMng.RedisMng
@@ -112,12 +110,6 @@ type AppMng struct {
 	RabbitMQ *amqpMng.RabbitMQ
 }
 
-// Manager 负责缓存和复用 AppMng 实例。
-type Manager struct {
-	mu    sync.RWMutex
-	cache *cache.Cache
-}
-
 // ConfigSource 配置来源类型
 type ConfigSource string
 
@@ -126,52 +118,176 @@ const (
 	SourceDatabase ConfigSource = "database" // 从数据库加载
 )
 
-// 配置键名常量（用于 YAML 和数据库配置）
-const (
-	// YAML 配置键（用于 UnmarshalKey）
-	ConfigKeyProfile     = "profile"           // Profile 配置键
-	ConfigKeyLocation    = "location"          // Location 配置键
-	ConfigKeyRedis       = "redis"             // Redis 配置键
-	ConfigKeyEs          = "es"                // Elasticsearch 配置键
-	ConfigKeyRabbitMQ    = "rabbit_mq"         // RabbitMQ 配置键
-	ConfigKeyPostgres    = "postgres"          // PostgreSQL 配置键
-	ConfigKeyMysql       = "mysql"             // MySQL 配置键
-	ConfigKeyWechatMini  = "wechat_mini"       // 微信小程序配置键
-	ConfigKeyWechatOa    = "wechat_oa"         // 微信公众号配置键
-	ConfigKeyWechatOpen  = "wechat_open"       // 微信开放平台配置键
-	ConfigKeyWechatPayV3 = "wechat_pay_v3"     // 微信支付 V3 配置键
-	ConfigKeyWechatPayV2 = "wechat_pay_v2"     // 微信支付 V2 配置键
-	ConfigKeyAliOss      = "ali_oss"           // 阿里云 OSS 配置键
-	ConfigKeyAliPay      = "ali_pay"           // 支付宝配置键
-	ConfigKeyAliApi      = "ali_api"           // 阿里云 API 配置键
-	ConfigKeyAliSms      = "ali_sms"           // 阿里云短信配置键
-	ConfigKeyAliIot      = "ali_iot"           // 阿里云 IoT 配置键
-	ConfigKeyAmap        = "amap"              // 高德地图配置键
-	ConfigKeyYunxin      = "yunxin"            // 网易云信配置键
-	ConfigKeyLocationTZ  = "location.timezone" // Location 时区配置键
+// ConfigKey 统一描述配置键与中文名
+type ConfigKey struct {
+	Key     string
+	CnLabel string
+}
 
-	// 数据库配置键（用于 GetValueFromRow 的 name 参数）
-	ConfigKeyApp      = "app"       // 应用配置键
-	ConfigKeyServer   = "server"    // 服务器配置键
-	ConfigKeyTimeZone = "time_zone" // 时区配置键
-	ConfigKeyWechat   = "wechat"    // 微信配置键
-	ConfigKeyAli      = "ali"       // 阿里配置键
-	ConfigKeyNetease  = "netease"   // 网易配置键
+// ConfigKeys 将键名与中文名集中定义，主键与子键统一入口
+var ConfigKeys = struct {
+	// YAML/主配置键
+	Profile     ConfigKey
+	Location    ConfigKey
+	Redis       ConfigKey
+	Es          ConfigKey
+	RabbitMQ    ConfigKey
+	Postgres    ConfigKey
+	Mysql       ConfigKey
+	WechatMini  ConfigKey
+	WechatOa    ConfigKey
+	WechatOpen  ConfigKey
+	WechatPayV3 ConfigKey
+	WechatPayV2 ConfigKey
+	AliOss      ConfigKey
+	AliPay      ConfigKey
+	AliApi      ConfigKey
+	AliSms      ConfigKey
+	AliIot      ConfigKey
+	Amap        ConfigKey
+	Yunxin      ConfigKey
+	LocationTZ  ConfigKey
+	App         ConfigKey
+	Server      ConfigKey
+	TimeZone    ConfigKey
+	Wechat      ConfigKey
+	Ali         ConfigKey
+	Netease     ConfigKey
 
-	// 数据库配置子键（用于 GetValueFromRow 的 flag1 参数）
-	ConfigKeyWechatMiniFlag  = "mini"   // 微信小程序子键
-	ConfigKeyWechatOaFlag    = "oa"     // 微信公众号子键
-	ConfigKeyWechatOpenFlag  = "open"   // 微信开放平台子键
-	ConfigKeyWechatPayV3Flag = "pay_v3" // 微信支付 V3 子键
-	ConfigKeyWechatPayV2Flag = "pay_v2" // 微信支付 V2 子键
-	ConfigKeyAliPayFlag      = "pay"    // 支付宝子键
-	ConfigKeyAliOssFlag      = "oss"    // 阿里云 OSS 子键
-	ConfigKeyAliApiFlag      = "api"    // 阿里云 API 子键
-	ConfigKeyAliSmsFlag      = "sms"    // 阿里云短信子键
-	ConfigKeyAliIotFlag      = "iot"    // 阿里云 IoT 子键
-	ConfigKeyAliAmapFlag     = "amap"   // 高德地图子键
-	ConfigKeyYunxinFlag      = "yunxin" // 网易云信子键
-)
+	// 子键
+	WechatMiniFlag  ConfigKey
+	WechatOaFlag    ConfigKey
+	WechatOpenFlag  ConfigKey
+	WechatPayV3Flag ConfigKey
+	WechatPayV2Flag ConfigKey
+	AliPayFlag      ConfigKey
+	AliOssFlag      ConfigKey
+	AliApiFlag      ConfigKey
+	AliSmsFlag      ConfigKey
+	AliIotFlag      ConfigKey
+	AliAmapFlag     ConfigKey
+	YunxinFlag      ConfigKey
+}{
+	Profile:     ConfigKey{Key: "profile", CnLabel: "基础配置"},
+	Location:    ConfigKey{Key: "location", CnLabel: "时区/位置"},
+	Redis:       ConfigKey{Key: "redis", CnLabel: "Redis"},
+	Es:          ConfigKey{Key: "es", CnLabel: "Elasticsearch"},
+	RabbitMQ:    ConfigKey{Key: "rabbit_mq", CnLabel: "RabbitMQ"},
+	Postgres:    ConfigKey{Key: "postgres", CnLabel: "PostgreSQL"},
+	Mysql:       ConfigKey{Key: "mysql", CnLabel: "MySQL"},
+	WechatMini:  ConfigKey{Key: "wechat_mini", CnLabel: "微信小程序"},
+	WechatOa:    ConfigKey{Key: "wechat_oa", CnLabel: "微信公众号"},
+	WechatOpen:  ConfigKey{Key: "wechat_open", CnLabel: "微信开放平台"},
+	WechatPayV3: ConfigKey{Key: "wechat_pay_v3", CnLabel: "微信支付 V3"},
+	WechatPayV2: ConfigKey{Key: "wechat_pay_v2", CnLabel: "微信支付 V2"},
+	AliOss:      ConfigKey{Key: "ali_oss", CnLabel: "阿里云 OSS"},
+	AliPay:      ConfigKey{Key: "ali_pay", CnLabel: "支付宝"},
+	AliApi:      ConfigKey{Key: "ali_api", CnLabel: "阿里云 API"},
+	AliSms:      ConfigKey{Key: "ali_sms", CnLabel: "阿里云短信"},
+	AliIot:      ConfigKey{Key: "ali_iot", CnLabel: "阿里云 IoT"},
+	Amap:        ConfigKey{Key: "amap", CnLabel: "高德地图"},
+	Yunxin:      ConfigKey{Key: "yunxin", CnLabel: "网易云信"},
+	LocationTZ:  ConfigKey{Key: "location.timezone", CnLabel: "时区"},
+	App:         ConfigKey{Key: "app", CnLabel: "应用配置"},
+	Server:      ConfigKey{Key: "server", CnLabel: "服务配置"},
+	TimeZone:    ConfigKey{Key: "time_zone", CnLabel: "时区"},
+	Wechat:      ConfigKey{Key: "wechat", CnLabel: "微信配置"},
+	Ali:         ConfigKey{Key: "ali", CnLabel: "阿里云配置"},
+	Netease:     ConfigKey{Key: "netease", CnLabel: "网易配置"},
+
+	WechatMiniFlag:  ConfigKey{Key: "mini", CnLabel: "微信小程序"},
+	WechatOaFlag:    ConfigKey{Key: "oa", CnLabel: "微信公众号"},
+	WechatOpenFlag:  ConfigKey{Key: "open", CnLabel: "微信开放平台"},
+	WechatPayV3Flag: ConfigKey{Key: "pay_v3", CnLabel: "微信支付 V3"},
+	WechatPayV2Flag: ConfigKey{Key: "pay_v2", CnLabel: "微信支付 V2"},
+	AliPayFlag:      ConfigKey{Key: "pay", CnLabel: "支付宝"},
+	AliOssFlag:      ConfigKey{Key: "oss", CnLabel: "阿里云 OSS"},
+	AliApiFlag:      ConfigKey{Key: "api", CnLabel: "阿里云 API"},
+	AliSmsFlag:      ConfigKey{Key: "sms", CnLabel: "阿里云短信"},
+	AliIotFlag:      ConfigKey{Key: "iot", CnLabel: "阿里云 IoT"},
+	AliAmapFlag:     ConfigKey{Key: "amap", CnLabel: "高德地图"},
+	YunxinFlag:      ConfigKey{Key: "yunxin", CnLabel: "网易云信"},
+}
+
+// ConfigKeys 配置键与中文名的组合，便于直接引用
+var ConfigKeyList = []ConfigKey{
+	ConfigKeys.Profile,
+	ConfigKeys.Location,
+	ConfigKeys.LocationTZ,
+	ConfigKeys.Redis,
+	ConfigKeys.Es,
+	ConfigKeys.RabbitMQ,
+	ConfigKeys.Postgres,
+	ConfigKeys.Mysql,
+	ConfigKeys.WechatMini,
+	ConfigKeys.WechatOa,
+	ConfigKeys.WechatOpen,
+	ConfigKeys.WechatPayV3,
+	ConfigKeys.WechatPayV2,
+	ConfigKeys.AliOss,
+	ConfigKeys.AliPay,
+	ConfigKeys.AliApi,
+	ConfigKeys.AliSms,
+	ConfigKeys.AliIot,
+	ConfigKeys.Amap,
+	ConfigKeys.Yunxin,
+	ConfigKeys.App,
+	ConfigKeys.Server,
+	ConfigKeys.TimeZone,
+	ConfigKeys.Wechat,
+	ConfigKeys.Ali,
+	ConfigKeys.Netease,
+}
+
+// ConfigFlagKeys 子键与中文名的组合
+var ConfigFlagKeyList = []ConfigKey{
+	ConfigKeys.WechatMiniFlag,
+	ConfigKeys.WechatOaFlag,
+	ConfigKeys.WechatOpenFlag,
+	ConfigKeys.WechatPayV3Flag,
+	ConfigKeys.WechatPayV2Flag,
+	ConfigKeys.AliPayFlag,
+	ConfigKeys.AliOssFlag,
+	ConfigKeys.AliApiFlag,
+	ConfigKeys.AliSmsFlag,
+	ConfigKeys.AliIotFlag,
+	ConfigKeys.AliAmapFlag,
+	ConfigKeys.YunxinFlag,
+}
+
+// ConfigKeyDisplayNames 用于将配置键映射到可读的中文名，便于提示
+var ConfigKeyDisplayNames = func() map[string]string {
+	m := make(map[string]string, len(ConfigKeyList))
+	for _, item := range ConfigKeyList {
+		m[item.Key] = item.CnLabel
+	}
+	return m
+}()
+
+// ConfigFlagDisplayNames 用于将子键映射到可读的中文名
+var ConfigFlagDisplayNames = func() map[string]string {
+	m := make(map[string]string, len(ConfigFlagKeyList))
+	for _, item := range ConfigFlagKeyList {
+		m[item.Key] = item.CnLabel
+	}
+	return m
+}()
+
+// GetKeyDisplayName 返回配置键的中文名，若不存在则返回原键
+func GetKeyDisplayName(key string) string {
+	if name, ok := ConfigKeyDisplayNames[key]; ok {
+		return name
+	}
+	return key
+}
+
+// GetFlagDisplayName 返回子键的中文名，若不存在则返回原键
+func GetFlagDisplayName(flag string) string {
+	if name, ok := ConfigFlagDisplayNames[flag]; ok {
+		return name
+	}
+	return flag
+}
 
 const (
 	defaultCacheTTL   = 30 * time.Minute
@@ -252,7 +368,7 @@ func errConfigFromYAMLNotInit(configName string) string {
 
 // errConfigLoadFailed 生成从 YAML 加载配置失败的错误信息（YAML 配置未初始化）
 func errConfigLoadFailed(configName string, err error) string {
-	return fmt.Sprintf("加载 %s 配置失败: %w", configName, err)
+	return fmt.Sprintf("加载 %s 配置失败: %v", configName, err)
 }
 
 // configLoadSuccess 加载成功

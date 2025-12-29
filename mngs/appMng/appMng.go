@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/patrickmn/go-cache"
 	"github.com/wiidz/goutil/mngs/amqpMng"
@@ -11,7 +13,14 @@ import (
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 )
+
+// Manager 负责缓存和复用 AppMng 实例。
+type Manager struct {
+	mu    sync.RWMutex
+	cache *cache.Cache
+}
 
 var defaultManager = NewManager()
 
@@ -20,11 +29,15 @@ func NewManager() *Manager {
 	return &Manager{cache: cache.New(defaultCacheTTL, cacheCleanupCycle)}
 }
 
-// Get 根据 Options 获取（或创建）AppMng。
-func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
+// NewApp 直接构建一个 AppMng，不使用缓存。
+func NewApp(ctx context.Context, loader Loader, projectCfg configStruct.ProjectConfig) (*AppMng, error) {
+	m := NewManager()
+	return m.build(ctx, "default", loader, projectCfg, 0, false)
+}
 
-	//【1】参数验证
-	if opts.Loader == nil {
+// Get 从缓存获取或构建新的 AppMng。
+func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
+	if opts == nil || opts.Loader == nil {
 		return nil, errors.New("appMng: loader is nil")
 	}
 
@@ -33,7 +46,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 		key = "default"
 	}
 
-	//【2】从缓存中读取
+	// 读取缓存
 	m.mu.RLock()
 	if cached, ok := m.cache.Get(key); ok {
 		m.mu.RUnlock()
@@ -41,8 +54,16 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 	m.mu.RUnlock()
 
-	//【3】构建参数
-	res, err := opts.Loader.Load(ctx)
+	app, err := m.build(ctx, key, opts.Loader, opts.ProjectConfig, opts.CacheTTL, true)
+	if err != nil {
+		return nil, err
+	}
+	return app, nil
+}
+
+// 构建实例，可选择写入缓存
+func (m *Manager) build(ctx context.Context, key string, loader Loader, projectCfg configStruct.ProjectConfig, ttl time.Duration, cacheResult bool) (*AppMng, error) {
+	res, err := loader.Load(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,100 +71,66 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 		return nil, errors.New("appMng: loader returned empty base config")
 	}
 
-	//【4】初始化
 	app := &AppMng{
 		ID:            key,
 		BaseConfig:    res.BaseConfig,
-		ProjectConfig: opts.ProjectConfig,
+		ProjectConfig: projectCfg,
 		Mysql:         res.Mysql,
 		Postgres:      res.Postgres,
 		Redis:         res.Redis,
+		Es:            res.Es,
+		RabbitMQ:      res.RabbitMQ,
 	}
 
-	//【5】启动检查
-	// 根据 BaseConfig 中的配置自动初始化服务
-	// 注意：配置的有效性验证应该在 Loader 中完成（例如 ConfigBuilder.Build）
-	// 如果 BaseConfig 中有配置，则自动初始化对应的服务
-	// 这样避免了重复配置：如果 ConfigSourceStrategy 中约定了配置必须加载，则自动初始化服务
-
-	// MySQL
-	if app.BaseConfig.MysqlConfig != nil {
-		if res.Mysql != nil {
-			app.Mysql = res.Mysql
-		} else {
-			app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
-			if err != nil {
-				return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
-			}
+	// 初始化依赖（若 loader 未提供实例则自行初始化）
+	if app.BaseConfig.MysqlConfig != nil && app.Mysql == nil {
+		app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
+		if err != nil {
+			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
+		}
+	}
+	if app.BaseConfig.PostgresConfig != nil && app.Postgres == nil {
+		app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
+			DSN:             app.BaseConfig.PostgresConfig.DSN,
+			ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
+			ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
+			ConnMaxLifetime: app.BaseConfig.PostgresConfig.ConnMaxLifetime,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
+		}
+	}
+	if app.BaseConfig.RedisConfig != nil && app.Redis == nil {
+		if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
+			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
+		}
+	}
+	if app.BaseConfig.EsConfig != nil && app.Es == nil {
+		if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
+			return nil, fmt.Errorf("appMng: init es failed: %w", err)
+		}
+	}
+	if app.BaseConfig.RabbitMQConfig != nil && app.RabbitMQ == nil {
+		if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
+			return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
 		}
 	}
 
-	// PostgreSQL
-	if app.BaseConfig.PostgresConfig != nil {
-		if res.Postgres != nil {
-			app.Postgres = res.Postgres
-		} else {
-			app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
-				DSN:             app.BaseConfig.PostgresConfig.DSN,
-				ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
-				ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
-				ConnMaxLifetime: app.BaseConfig.PostgresConfig.ConnMaxLifetime,
-			})
-			if err != nil {
-				return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
-			}
-		}
-	}
-
-	// Redis
-	if app.BaseConfig.RedisConfig != nil {
-		if res.Redis != nil {
-			app.Redis = res.Redis
-		} else {
-			if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
-				return nil, fmt.Errorf("appMng: init redis failed: %w", err)
-			}
-		}
-	}
-
-	// Elasticsearch
-	if app.BaseConfig.EsConfig != nil {
-		if res.Es != nil {
-			app.Es = res.Es
-		} else {
-			if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
-				return nil, fmt.Errorf("appMng: init es failed: %w", err)
-			}
-		}
-	}
-
-	// RabbitMQ
-	if app.BaseConfig.RabbitMQConfig != nil {
-		if res.RabbitMQ != nil {
-			app.RabbitMQ = res.RabbitMQ
-		} else {
-			if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
-				return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
-			}
-		}
-	}
-
-	//【6】项目独特配置
+	// 项目级构建
 	if app.ProjectConfig != nil {
 		if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
 			return nil, fmt.Errorf("appMng: project build failed: %w", err)
 		}
 	}
 
-	ttl := opts.CacheTTL
-	if ttl <= 0 {
-		ttl = defaultCacheTTL
+	if cacheResult {
+		if ttl <= 0 {
+			ttl = defaultCacheTTL
+		}
+		m.mu.Lock()
+		m.cache.Set(key, app, ttl)
+		m.mu.Unlock()
 	}
-
-	m.mu.Lock()
-	m.cache.Set(key, app, ttl)
-	m.mu.Unlock()
-
 	return app, nil
 }
 
