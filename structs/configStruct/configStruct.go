@@ -109,12 +109,54 @@ type RedisConfig struct {
 	MaxIdle     int    `json:"max_idle" mapstructure:"max_idle" default:"10"`         // 默认10
 }
 
+// DBType 数据库类型
+type DBType string
+
+const (
+	DBTypePostgres DBType = "postgres" // PostgreSQL
+	DBTypeMysql    DBType = "mysql"    // MySQL
+)
+
+// DBConfig 统一的数据库配置（支持 PostgreSQL 和 MySQL）
+type DBConfig struct {
+	// 数据库类型（postgres 或 mysql）
+	Type DBType `json:"type" mapstructure:"type"`
+
+	// DSN 连接字符串（优先级最高，如果设置了 DSN，将忽略下面的 Host/Port 等字段）
+	// PostgreSQL: "postgres://user:password@host:port/dbname?sslmode=disable"
+	// MySQL: "user:password@tcp(host:port)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+	DSN string `json:"dsn" mapstructure:"dsn"`
+
+	// 连接参数（当 DSN 为空时使用，主要用于 MySQL）
+	Host     string `json:"host" mapstructure:"host"`
+	Port     string `json:"port" mapstructure:"port"`
+	Username string `json:"username" mapstructure:"username"`
+	Password string `json:"password" mapstructure:"password"`
+	DbName   string `json:"db_name" mapstructure:"db_name"`
+
+	// MySQL 特有参数（当 Type 为 mysql 且 DSN 为空时使用）
+	Charset   string `json:"charset" mapstructure:"charset"`       // 默认 utf8mb4
+	Collation string `json:"collation" mapstructure:"collation"`   // 默认 utf8mb4_unicode_ci
+	TimeZone  string `json:"time_zone" mapstructure:"time_zone"`   // 默认 Asia/Shanghai
+	ParseTime bool   `json:"parse_time" mapstructure:"parse_time"` // 默认 true
+
+	// 连接池参数（两种数据库通用）
+	ConnMaxIdle      int              `json:"conn_max_idle" mapstructure:"conn_max_idle"`           // 最大空闲连接数
+	ConnMaxOpen      int              `json:"conn_max_open" mapstructure:"conn_max_open"`           // 最大打开连接数
+	ConnMaxLifetime  time.Duration    `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`   // 连接最大生命周期
+	SettingTableName string           `json:"setting_table_name" mapstructure:"setting_table_name"` // 设置表的表名
+	Logger           logger.Interface `json:"logger" mapstructure:"logger"`
+}
+
+// PostgresConfig PostgreSQL 数据库配置（保留用于向后兼容）
+// Deprecated: 建议使用 DBConfig 替代
 type PostgresConfig struct {
-	DSN             string           `json:"dsn" mapstructure:"dsn"`
-	ConnMaxIdle     int              `json:"conn_max_idle" mapstructure:"conn_max_idle"`
-	ConnMaxOpen     int              `json:"conn_max_open" mapstructure:"conn_max_open"`
-	ConnMaxLifetime time.Duration    `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
-	Logger          logger.Interface `json:"logger" mapstructure:"logger"`
+	DSN              string           `json:"dsn" mapstructure:"dsn"`
+	ConnMaxIdle      int              `json:"conn_max_idle" mapstructure:"conn_max_idle"`
+	ConnMaxOpen      int              `json:"conn_max_open" mapstructure:"conn_max_open"`
+	ConnMaxLifetime  time.Duration    `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
+	SettingTableName string           `json:"setting_table_name" mapstructure:"setting_table_name"` // 设置表的表名
+	Logger           logger.Interface `json:"logger" mapstructure:"logger"`
 }
 
 // RabbitMQ Exchange 类型

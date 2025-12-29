@@ -72,7 +72,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 
 	//【5】启动检查
 	// 根据 CheckStart 要求初始化服务
-	// 注意：配置的有效性验证应该在 Loader 中完成（例如 BuildBaseConfig）
+	// 注意：配置的有效性验证应该在 Loader 中完成（例如 ConfigBuilder.Build）
 	// 这里只负责根据 CheckStart 要求初始化服务
 	if opts.CheckStart.Mysql {
 		if res.Mysql != nil {

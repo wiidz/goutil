@@ -23,12 +23,17 @@ func NewGormSettingLoader(dialector gorm.Dialector, tableName string, enrich fun
 			defer sqlDB.Close()
 		}
 
-		var rows []*DbSettingRow
-		if err := db.WithContext(ctx).Table(tableName).Where("belonging = ?", "system").Find(&rows).Error; err != nil {
+		// 使用新的 ConfigBuilder API
+		initialConfig := &InitialConfig{
+			SettingTableName: tableName,
+		}
+		builder, err := NewConfigBuilder(initialConfig, nil) // nil 表示使用默认策略（所有配置从数据库加载）
+		if err != nil {
 			return nil, err
 		}
+		builder.SetDatabase(db)
 
-		baseConfig, err := BuildBaseConfig(rows, nil) // nil 表示使用默认选项（加载所有配置）
+		baseConfig, err := builder.Build(ctx)
 		if err != nil {
 			return nil, err
 		}
