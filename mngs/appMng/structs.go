@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"gorm.io/gorm"
 )
 
 /******sql******
@@ -61,20 +59,12 @@ type SettingPage struct {
 	ValueParsed interface{} `gorm:"-" json:"value"`                              // 值
 }
 
-// Options 描述了创建/获取 AppMng 时的参数。
-type Options struct {
-	ID            string
-	Builder       *ConfigBuilder
-	ProjectConfig configStruct.ProjectConfig
-	CacheTTL      time.Duration
-}
-
 // AppMng 表示一个应用实例，封装了基础配置以及资源句柄。
 type AppMng struct {
 	ID string
 
 	BaseConfig    *configStruct.BaseConfig
-	ProjectConfig configStruct.ProjectConfig
+	ProjectConfig ProjectConfig
 
 	Repos struct {
 		Mysql    *mysqlMng.MysqlMng
@@ -121,6 +111,7 @@ var ConfigKeys = struct {
 	AliIot      ConfigKey
 	Amap        ConfigKey
 	Yunxin      ConfigKey
+	Volcengine  ConfigKey
 	LocationTZ  ConfigKey
 	App         ConfigKey
 	Server      ConfigKey
@@ -162,6 +153,7 @@ var ConfigKeys = struct {
 	AliIot:      ConfigKey{Key: "ali_iot", CnLabel: "阿里云 IoT"},
 	Amap:        ConfigKey{Key: "amap", CnLabel: "高德地图"},
 	Yunxin:      ConfigKey{Key: "yunxin", CnLabel: "网易云信"},
+	Volcengine:  ConfigKey{Key: "volcengine", CnLabel: "火山引擎"},
 	LocationTZ:  ConfigKey{Key: "location.timezone", CnLabel: "时区"},
 	App:         ConfigKey{Key: "app", CnLabel: "应用配置"},
 	Server:      ConfigKey{Key: "server", CnLabel: "服务配置"},
@@ -206,6 +198,7 @@ var ConfigKeyList = []ConfigKey{
 	ConfigKeys.AliIot,
 	ConfigKeys.Amap,
 	ConfigKeys.Yunxin,
+	ConfigKeys.Volcengine,
 	ConfigKeys.App,
 	ConfigKeys.Server,
 	ConfigKeys.TimeZone,
@@ -264,24 +257,8 @@ func GetFlagDisplayName(flag string) string {
 	return flag
 }
 
-const (
-	defaultCacheTTL   = 30 * time.Minute
-	cacheCleanupCycle = 5 * time.Minute
-)
-
 // InitialConfig 初始配置，在应用构建之初传入
-// 如果项目涉及数据库连接，必须包含数据库连接信息
 type InitialConfig struct {
-
-	// 数据库连接配置（统一的数据库配置，支持 PostgreSQL 和 MySQL）
-	DB *configStruct.DBConfig `mapstructure:"db"`
-
-	// 配置表名（从数据库加载配置时使用的表名）
-	// 优先级：InitialConfig.SettingTableName > DB.SettingTableName > 默认值 "a_setting"
-	SettingTableName string `mapstructure:"setting_table_name"`
-
-	// YAML 配置文件列表（支持多个 YAML 文件）
-	YAMLFiles []*configStruct.ViperConfig `mapstructure:"yaml_files"`
 
 	// HttpServer标签列表，用于区分不同的HttpServer，例如(client和console)
 	HttpServerLabels []string `mapstructure:"http_server_labels"`
@@ -319,16 +296,13 @@ type ConfigSourceStrategy struct {
 	Amap   ConfigSource `mapstructure:"amap"`    // 高德地图配置来源
 
 	// 其他配置
-	Yunxin ConfigSource `mapstructure:"yunxin"` // 网易云信配置来源
+	Yunxin     ConfigSource `mapstructure:"yunxin"`     // 网易云信配置来源
+	Volcengine ConfigSource `mapstructure:"volcengine"` // 火山引擎配置来源
 
-}
-
-// ConfigBuilder 配置构建器，支持从多个来源加载配置
-type ConfigBuilder struct {
-	initialConfig *InitialConfig
-	strategy      *ConfigSourceStrategy
-	db            *gorm.DB       // 数据库连接（如果使用数据库）
-	yamlVipers    []*viper.Viper // YAML 配置实例列表
+	// 自定义配置项策略（用于 ProjectConfig 扩展）
+	// key: 配置项名称（如 "my_custom_config"）
+	// value: 配置来源（SourceDatabase 或 SourceYAML）
+	Custom map[string]ConfigSource `mapstructure:"custom"`
 }
 
 // errConfigFromDatabaseEmpty 生成从数据库加载配置失败的错误信息（数据库配置行为空）

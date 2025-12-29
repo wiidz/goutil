@@ -1,23 +1,14 @@
 package appMng
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
-	"github.com/wiidz/goutil/helpers/configHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
-	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 // configErrorFactory 统一生成配置相关错误，减少重复文案
@@ -136,6 +127,11 @@ var configAssigners = map[string]func(*configStruct.BaseConfig, interface{}){
 			cfg.YunxinConfig = val
 		}
 	},
+	ConfigKeys.Volcengine.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
+		if val, ok := v.(*configStruct.VolcengineConfig); ok {
+			cfg.VolcengineConfig = val
+		}
+	},
 }
 
 // key 对应的来源选择器
@@ -154,455 +150,14 @@ var configSources = map[string]func(*ConfigSourceStrategy) ConfigSource{
 	ConfigKeys.WechatPayV2.Key: func(s *ConfigSourceStrategy) ConfigSource {
 		return s.WechatPayV2
 	},
-	ConfigKeys.AliOss.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.AliOss },
-	ConfigKeys.AliPay.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.AliPay },
-	ConfigKeys.AliApi.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.AliApi },
-	ConfigKeys.AliSms.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.AliSms },
-	ConfigKeys.AliIot.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.AliIot },
-	ConfigKeys.Amap.Key:   func(s *ConfigSourceStrategy) ConfigSource { return s.Amap },
-	ConfigKeys.Yunxin.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.Yunxin },
-}
-
-// NewConfigBuilder 创建配置构建器
-// initialConfig: 初始配置，如果使用数据库，必须包含数据库连接信息
-// strategy: 配置来源策略，如果为 nil 则使用默认策略（所有配置从数据库加载）
-// 注意：策略中指定的配置项必须成功加载，如果加载失败会报错
-func NewConfigBuilder(initialConfig *InitialConfig, strategy *ConfigSourceStrategy) (*ConfigBuilder, error) {
-	if initialConfig == nil {
-		return nil, fmt.Errorf("初始配置不能为 nil")
-	}
-
-	// 如果策略为 nil，使用默认策略
-	if strategy == nil {
-		return nil, fmt.Errorf("策略不能为 nil")
-	}
-
-	builder := &ConfigBuilder{
-		initialConfig: initialConfig,
-		strategy:      strategy,
-		yamlVipers:    make([]*viper.Viper, 0),
-	}
-
-	// 初始化 YAML 配置
-	if len(initialConfig.YAMLFiles) > 0 {
-		for _, yamlConfig := range initialConfig.YAMLFiles {
-			v, err := configHelper.GetViper(yamlConfig)
-			if err != nil {
-				// YAML 文件不存在时记录警告但不报错（允许部分配置从数据库加载）
-				log.Printf("警告: 无法加载 YAML 配置文件 %s/%s.%s: %v", yamlConfig.DirPath, yamlConfig.FileName, yamlConfig.FileType, err)
-				continue
-			}
-			builder.yamlVipers = append(builder.yamlVipers, v)
-		}
-	}
-
-	return builder, nil
-}
-
-// needDatabaseConnection 判断是否需要数据库连接
-// 返回 true 如果：
-// 1. strategy 中有任何配置项需要从数据库读取（SourceDatabase）
-// 2. 或者 initialConfig.DB 不为 nil
-func (b *ConfigBuilder) needDatabaseConnection() bool {
-	// 检查 initialConfig.DB 是否不为 nil
-	if b.initialConfig != nil && b.initialConfig.DB != nil {
-		return true
-	}
-
-	// 检查 strategy 中是否有任何配置项需要从数据库读取
-	if b.strategy == nil {
-		return false
-	}
-
-	// 检查所有配置项是否从数据库加载
-	return b.strategy.Profile == SourceDatabase ||
-		b.strategy.Location == SourceDatabase ||
-		b.strategy.Redis == SourceDatabase ||
-		b.strategy.Es == SourceDatabase ||
-		b.strategy.RabbitMQ == SourceDatabase ||
-		b.strategy.Postgres == SourceDatabase ||
-		b.strategy.Mysql == SourceDatabase ||
-		b.strategy.WechatMini == SourceDatabase ||
-		b.strategy.WechatOa == SourceDatabase ||
-		b.strategy.WechatOpen == SourceDatabase ||
-		b.strategy.WechatPayV3 == SourceDatabase ||
-		b.strategy.WechatPayV2 == SourceDatabase ||
-		b.strategy.AliOss == SourceDatabase ||
-		b.strategy.AliPay == SourceDatabase ||
-		b.strategy.AliApi == SourceDatabase ||
-		b.strategy.AliSms == SourceDatabase ||
-		b.strategy.AliIot == SourceDatabase ||
-		b.strategy.Amap == SourceDatabase ||
-		b.strategy.Yunxin == SourceDatabase
-}
-
-// 统一加载所有配置项
-func (b *ConfigBuilder) loadAllConfigs(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	for key, cm := range configMaps {
-		sourceSelector, ok := configSources[key]
-		if !ok {
-			continue
-		}
-		src := sourceSelector(b.strategy)
-		if src == "" {
-			continue
-		}
-
-		targetPtr := reflect.New(reflect.TypeOf(cm.Data))
-
-		switch src {
-		case SourceDatabase:
-			if len(dbRows) == 0 {
-				return errFactory.databaseEmpty(key)
-			}
-			if err := fillConfigFromRows(targetPtr.Interface(), key, key, dbRows, debug); err != nil {
-				return err
-			}
-			// 应用默认值
-			applyDefaultsFromTags(targetPtr.Interface())
-			// 验证配置
-			if err := validateConfig(targetPtr.Interface(), key); err != nil {
-				return err
-			}
-		case SourceYAML:
-			if len(b.yamlVipers) == 0 {
-				return errFactory.yamlNotInit(key)
-			}
-			if err := b.yamlVipers[0].UnmarshalKey(key, targetPtr.Interface()); err != nil {
-				return errFactory.yamlLoadFailed(key, err)
-			}
-			applyDefaultsFromTags(targetPtr.Interface())
-			// 验证配置
-			if err := validateConfig(targetPtr.Interface(), key); err != nil {
-				return err
-			}
-		default:
-			continue
-		}
-
-		assigner, ok := configAssigners[key]
-		if !ok {
-			continue
-		}
-		assigner(cfg, targetPtr.Interface())
-	}
-	return nil
-}
-
-// Build 构建 BaseConfig，根据策略从不同来源加载配置
-func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, error) {
-
-	cfg := &configStruct.BaseConfig{}
-
-	// 第一步：检查策略中是否有数据库相关的配置，如果有，优先初始化数据库
-	// 这样后续的配置才能从数据库中读取
-	// 注意：如果策略要求从数据库加载配置，b.db 在 Build 开始时必然是 nil，需要先初始化
-	if b.needDatabaseConnection() {
-		// 需要数据库连接，从 YAML 或 InitialConfig.DB 初始化
-		// b.db 在 Build 开始时必然是 nil，因为数据库连接是在这里初始化的
-		if err := b.initDatabaseFromConfig(); err != nil {
-			return nil, fmt.Errorf("初始化数据库连接失败: %w", err)
-		}
-	}
-
-	// 第二步：加载数据库配置行（如果需要）
-	var dbRows []*DbSettingRow
-	if b.db != nil {
-		var err error
-		dbRows, err = b.loadAllSettingRows(ctx)
-		if err != nil {
-			log.Printf("警告: 无法从数据库加载配置: %v", err)
-		} else {
-			log.Printf("成功: 从数据库加载了 %d 条配置", len(dbRows))
-		}
-	}
-
-	// 第三步：加载 Profile 和 Location（基础配置）
-	if err := b.loadProfileAndLocation(cfg, dbRows); err != nil {
-		return nil, fmt.Errorf("加载基础配置失败: %w", err)
-	}
-
-	debug := cfg.Profile != nil && cfg.Profile.Debug
-
-	// 第四步：根据策略加载各个配置项（如果策略中指定了配置来源，则必须成功加载）
-
-	// 初始化HttpServer配置
-	cfg.HttpServerConfig = map[string]*configStruct.HttpServerConfig{}
-	for _, serverLabel := range b.initialConfig.HttpServerLabels {
-		serverConfig := getServerConfig(dbRows, serverLabel)
-		if serverConfig == nil {
-			return nil, fmt.Errorf("加载 HttpServer 配置失败: 标签 %s 不存在", serverLabel)
-		}
-		cfg.HttpServerConfig[serverLabel] = serverConfig
-	}
-
-	// 第四步：统一管线加载已注册的配置
-	if err := b.loadAllConfigs(cfg, dbRows, debug); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
-}
-
-// initDatabaseFromConfig 从 YAML 或 InitialConfig.DB 初始化数据库连接
-// 当策略要求从数据库加载配置时，需要先初始化数据库连接
-func (b *ConfigBuilder) initDatabaseFromConfig() error {
-	// 优先使用 InitialConfig.DB 中的配置
-	if b.initialConfig.DB != nil {
-		return b.initDatabaseFromDBConfig(b.initialConfig.DB)
-	}
-
-	// 如果没有 InitialConfig.DB，尝试从 YAML 加载数据库配置
-	// 无论 Postgres/MySQL 策略如何，只要需要数据库连接，就尝试从 YAML 加载
-	if len(b.yamlVipers) > 0 {
-		// 优先尝试从 YAML 加载 PostgreSQL 配置来初始化连接
-		var postgresConfig configStruct.PostgresConfig
-		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Postgres.Key, &postgresConfig); err == nil && postgresConfig.DSN != "" {
-			return b.initPostgresFromConfig(&postgresConfig)
-		}
-		// 如果 PostgreSQL 配置不存在，尝试从 YAML 加载 MySQL 配置来初始化连接
-		var mysqlConfig configStruct.MysqlConfig
-		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Mysql.Key, &mysqlConfig); err == nil {
-			if mysqlConfig.Host != "" && mysqlConfig.DbName != "" {
-				return b.initMysqlFromConfig(&mysqlConfig)
-			}
-		}
-	}
-
-	return fmt.Errorf("无法初始化数据库连接：未找到数据库配置（需要 InitialConfig.DB 或 YAML 中的数据库配置）")
-}
-
-// initDatabaseFromDBConfig 从 DBConfig 初始化数据库连接
-func (b *ConfigBuilder) initDatabaseFromDBConfig(dbConfig *configStruct.DBConfig) error {
-	if dbConfig == nil {
-		return fmt.Errorf("DBConfig 为空")
-	}
-
-	switch dbConfig.Type {
-	case configStruct.DBTypePostgres:
-		// 构建 PostgreSQL 配置
-		dsn := dbConfig.DSN
-		if dsn == "" {
-			return errFactory.missingField(ConfigKeys.Postgres.Key, "DSN")
-		}
-		return b.initPostgresFromDSN(dsn, dbConfig.ConnMaxIdle, dbConfig.ConnMaxOpen, dbConfig.ConnMaxLifetime, dbConfig.Logger)
-
-	case configStruct.DBTypeMysql:
-		// 构建 MySQL 配置
-		dsn := dbConfig.DSN
-		if dsn == "" {
-			// 从 Host/Port 等字段构建 DSN
-			if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.Username == "" || dbConfig.DbName == "" {
-				return fmt.Errorf("MySQL 配置不完整：需要 Host, Port, Username, DbName")
-			}
-			charset := dbConfig.Charset
-			if charset == "" {
-				charset = "utf8mb4"
-			}
-			collation := dbConfig.Collation
-			if collation == "" {
-				collation = "utf8mb4_unicode_ci"
-			}
-			timeZone := dbConfig.TimeZone
-			if timeZone == "" {
-				timeZone = "Asia/Shanghai"
-			}
-			parseTime := dbConfig.ParseTime
-			if !parseTime {
-				parseTime = true
-			}
-			dsn = dbConfig.Username + ":" + dbConfig.Password +
-				"@tcp(" + dbConfig.Host + ":" + dbConfig.Port + ")/" + dbConfig.DbName +
-				"?charset=" + charset +
-				"&collation=" + collation +
-				"&loc=" + url.QueryEscape(timeZone) +
-				"&parseTime=" + strconv.FormatBool(parseTime)
-		}
-		return b.initMysqlFromDSN(dsn, dbConfig.ConnMaxIdle, dbConfig.ConnMaxOpen, dbConfig.ConnMaxLifetime, dbConfig.Logger)
-
-	default:
-		return fmt.Errorf("不支持的数据库类型: %s", dbConfig.Type)
-	}
-}
-
-// initPostgresFromDSN 从 DSN 初始化 PostgreSQL 连接
-func (b *ConfigBuilder) initPostgresFromDSN(dsn string, maxIdle, maxOpen int, maxLifetime time.Duration, loggerInterface logger.Interface) error {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: loggerInterface,
-	})
-	if err != nil {
-		return fmt.Errorf("连接 PostgreSQL 失败: %w", err)
-	}
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		return fmt.Errorf("获取底层数据库连接失败: %w", err)
-	}
-
-	if maxIdle > 0 {
-		sqlDB.SetMaxIdleConns(maxIdle)
-	}
-	if maxOpen > 0 {
-		sqlDB.SetMaxOpenConns(maxOpen)
-	}
-	if maxLifetime > 0 {
-		sqlDB.SetConnMaxLifetime(maxLifetime)
-	}
-
-	b.db = db
-	log.Printf("成功: PostgreSQL 数据库连接已初始化")
-	return nil
-}
-
-// initPostgresFromConfig 从 PostgresConfig 初始化 PostgreSQL 连接
-func (b *ConfigBuilder) initPostgresFromConfig(postgresConfig *configStruct.PostgresConfig) error {
-	if postgresConfig == nil || postgresConfig.DSN == "" {
-		return errFactory.missingField(ConfigKeys.Postgres.Key, "DSN")
-	}
-	return b.initPostgresFromDSN(postgresConfig.DSN, postgresConfig.ConnMaxIdle, postgresConfig.ConnMaxOpen, postgresConfig.ConnMaxLifetime, postgresConfig.Logger)
-}
-
-// initMysqlFromDSN 从 DSN 初始化 MySQL 连接
-func (b *ConfigBuilder) initMysqlFromDSN(dsn string, maxIdle, maxOpen int, maxLifetime time.Duration, loggerInterface logger.Interface) error {
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: loggerInterface,
-	})
-	if err != nil {
-		return fmt.Errorf("连接 MySQL 失败: %w", err)
-	}
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		return fmt.Errorf("获取底层数据库连接失败: %w", err)
-	}
-
-	if maxIdle > 0 {
-		sqlDB.SetMaxIdleConns(maxIdle)
-	}
-	if maxOpen > 0 {
-		sqlDB.SetMaxOpenConns(maxOpen)
-	}
-	if maxLifetime > 0 {
-		sqlDB.SetConnMaxLifetime(maxLifetime)
-	}
-
-	b.db = db
-	log.Printf("成功: MySQL 数据库连接已初始化")
-	return nil
-}
-
-// initMysqlFromConfig 从 MysqlConfig 初始化 MySQL 连接
-func (b *ConfigBuilder) initMysqlFromConfig(mysqlConfig *configStruct.MysqlConfig) error {
-	if mysqlConfig == nil {
-		return fmt.Errorf("%s 配置为空", GetKeyDisplayName(ConfigKeys.Mysql.Key))
-	}
-
-	// 构建 DSN
-	charset := mysqlConfig.Charset
-	if charset == "" {
-		charset = "utf8mb4"
-	}
-	collation := mysqlConfig.Collation
-	if collation == "" {
-		collation = "utf8mb4_unicode_ci"
-	}
-	timeZone := mysqlConfig.TimeZone
-	if timeZone == "" {
-		timeZone = "Asia/Shanghai"
-	}
-	parseTime := mysqlConfig.ParseTime
-	if !parseTime {
-		parseTime = true
-	}
-
-	dsn := mysqlConfig.Username + ":" + mysqlConfig.Password +
-		"@tcp(" + mysqlConfig.Host + ":" + mysqlConfig.Port + ")/" + mysqlConfig.DbName +
-		"?charset=" + charset +
-		"&collation=" + collation +
-		"&loc=" + url.QueryEscape(timeZone) +
-		"&parseTime=" + strconv.FormatBool(parseTime)
-
-	maxIdle := mysqlConfig.MaxIdle
-	maxOpen := mysqlConfig.MaxOpenConns
-	maxLifetime := time.Duration(mysqlConfig.MaxLifeTime) * time.Second
-
-	return b.initMysqlFromDSN(dsn, maxIdle, maxOpen, maxLifetime, mysqlConfig.Logger)
-}
-
-// loadAllSettingRows 从数据库加载配置行
-func (b *ConfigBuilder) loadAllSettingRows(ctx context.Context) ([]*DbSettingRow, error) {
-	if b.db == nil {
-		return nil, fmt.Errorf("数据库连接未设置")
-	}
-
-	var rows []*DbSettingRow
-	err := b.db.WithContext(ctx).
-		Table(b.getSettingTableName()).
-		Where("kind = ? AND deleted_at IS NULL", 1).
-		Find(&rows).Error
-
-	return rows, err
-}
-
-// getSettingTableName 获取配置表名
-// 优先级：InitialConfig.SettingTableName > DB.SettingTableName > 默认值 "a_setting"
-func (b *ConfigBuilder) getSettingTableName() string {
-	// 如果 InitialConfig 中设置了表名，优先使用
-	if b.initialConfig.SettingTableName != "" {
-		return b.initialConfig.SettingTableName
-	}
-
-	// 如果统一的 DB 配置中设置了表名，使用 DB 配置中的值
-	if b.initialConfig.DB != nil && b.initialConfig.DB.SettingTableName != "" {
-		return b.initialConfig.DB.SettingTableName
-	}
-
-	// 默认值
-	return "a_setting"
-}
-
-// loadProfileAndLocation 加载 Profile 和 Location 配置
-func (b *ConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow) error {
-	// 加载 Profile
-	if b.strategy.Profile == SourceDatabase && len(dbRows) > 0 {
-		cfg.Profile = getAppProfile(dbRows)
-	} else if b.strategy.Profile == SourceYAML && len(b.yamlVipers) > 0 {
-		// 从第一个 YAML 文件加载 Profile
-		var profile configStruct.AppProfile
-		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeys.Profile.Key, &profile); err == nil {
-			cfg.Profile = &profile
-		}
-	}
-
-	// 如果 Profile 仍为 nil，创建默认值
-	if cfg.Profile == nil {
-		cfg.Profile = &configStruct.AppProfile{}
-	}
-
-	// 加载 Location
-	if b.strategy.Location == SourceDatabase && len(dbRows) > 0 {
-		location, err := getLocationConfig(dbRows)
-		if err == nil {
-			cfg.Location = location
-		} else {
-			cfg.Location = time.Local
-		}
-	} else if b.strategy.Location == SourceYAML && len(b.yamlVipers) > 0 {
-		// 从第一个 YAML 文件加载 Location
-		timeZone := b.yamlVipers[0].GetString(ConfigKeys.LocationTZ.Key)
-		if timeZone == "" {
-			timeZone = "Asia/Shanghai"
-		}
-		location, err := time.LoadLocation(timeZone)
-		if err != nil {
-			location = time.FixedZone("CST-8", 8*3600)
-		}
-		cfg.Location = location
-	} else {
-		cfg.Location = time.Local
-	}
-
-	return nil
+	ConfigKeys.AliOss.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliOss },
+	ConfigKeys.AliPay.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliPay },
+	ConfigKeys.AliApi.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliApi },
+	ConfigKeys.AliSms.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliSms },
+	ConfigKeys.AliIot.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliIot },
+	ConfigKeys.Amap.Key:       func(s *ConfigSourceStrategy) ConfigSource { return s.Amap },
+	ConfigKeys.Yunxin.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.Yunxin },
+	ConfigKeys.Volcengine.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.Volcengine },
 }
 
 // GetValueFromRow 从 rows 中检索符合条件的数据。
@@ -644,11 +199,8 @@ func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2, defaultValue stri
 
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
-		No:   GetValueFromRow(rows, ConfigKeys.App.Key, "", "no", "", false),
-		Name: GetValueFromRow(rows, ConfigKeys.App.Key, "", "name", "", false),
-		// Host:    GetValueFromRow(rows, ConfigKeys.App.Key, "", "host", "", false),
-		// Port:    GetValueFromRow(rows, ConfigKeys.App.Key, "", "port", "127.0.0.1", false),
-		// Domain:  GetValueFromRow(rows, ConfigKeys.App.Key, "", "domain", "", false),
+		No:      GetValueFromRow(rows, ConfigKeys.App.Key, "", "no", "", false),
+		Name:    GetValueFromRow(rows, ConfigKeys.App.Key, "", "name", "", false),
 		Debug:   GetValueFromRow(rows, ConfigKeys.App.Key, "", "debug", "", false) == "1",
 		Version: GetValueFromRow(rows, ConfigKeys.App.Key, "", "version", "", false),
 	}
@@ -696,6 +248,7 @@ var configMaps = map[string]ConfigMap{
 	ConfigKeys.AliIot.Key:      {Key: ConfigKeys.AliIot, Data: configStruct.AliIotConfig{}},
 	ConfigKeys.Amap.Key:        {Key: ConfigKeys.Amap, Data: configStruct.AmapConfig{}},
 	ConfigKeys.Yunxin.Key:      {Key: ConfigKeys.Yunxin, Data: configStruct.YunxinConfig{}},
+	ConfigKeys.Volcengine.Key:  {Key: ConfigKeys.Volcengine, Data: configStruct.VolcengineConfig{}},
 }
 
 // validateConfig 使用 validator 库验证配置结构体

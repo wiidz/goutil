@@ -2,87 +2,33 @@ package appMng
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"sync"
-	"time"
 
-	"github.com/patrickmn/go-cache"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
-	"github.com/wiidz/goutil/structs/configStruct"
 )
 
-// Manager 负责缓存和复用 AppMng 实例。
-type Manager struct {
-	mu    sync.RWMutex
-	cache *cache.Cache
-}
+// NewApp 直接构建一个 AppMng。
+func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (*AppMng, error) {
 
-var defaultManager = NewManager()
-
-// NewManager 创建一个新的 Manager。
-func NewManager() *Manager {
-	return &Manager{cache: cache.New(defaultCacheTTL, cacheCleanupCycle)}
-}
-
-// NewApp 直接构建一个 AppMng，不使用缓存。
-func NewApp(ctx context.Context, builder *ConfigBuilder, projectCfg configStruct.ProjectConfig) (*AppMng, error) {
-	m := NewManager()
-	return m.build(ctx, "default", builder, projectCfg, 0, false)
-}
-
-// Get 从缓存获取或构建新的 AppMng。
-func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
-	if opts == nil || opts.Builder == nil {
-		return nil, errors.New("appMng: builder is nil")
-	}
-
-	key := opts.ID
-	if key == "" {
-		key = "default"
-	}
-
-	// 读取缓存
-	m.mu.RLock()
-	if cached, ok := m.cache.Get(key); ok {
-		m.mu.RUnlock()
-		return cached.(*AppMng), nil
-	}
-	m.mu.RUnlock()
-
-	app, err := m.build(ctx, key, opts.Builder, opts.ProjectConfig, opts.CacheTTL, true)
+	//【1】构建 base 配置
+	baseCfg, err := baseBuilder.Build(configPool)
 	if err != nil {
 		return nil, err
-	}
-	return app, nil
-}
-
-// 构建实例，可选择写入缓存
-func (m *Manager) build(ctx context.Context, key string, builder *ConfigBuilder, projectCfg configStruct.ProjectConfig, ttl time.Duration, cacheResult bool) (*AppMng, error) {
-	baseCfg, err := builder.Build(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if baseCfg == nil {
-		return nil, errors.New("appMng: builder returned empty base config")
 	}
 
 	app := &AppMng{
-		ID:            key,
-		BaseConfig:    baseCfg,
-		ProjectConfig: projectCfg,
+		ID:         baseCfg.Profile.Name,
+		BaseConfig: baseCfg,
 	}
 
-	// 初始化依赖
+	// 【3】初始化依赖
 	if app.BaseConfig.MysqlConfig != nil && app.Repos.Mysql == nil {
 		app.Repos.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
-		if err != nil {
-			return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
-		}
 	}
+
 	if app.BaseConfig.PostgresConfig != nil && app.Repos.Postgres == nil {
 		app.Repos.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
 			DSN:             app.BaseConfig.PostgresConfig.DSN,
@@ -116,33 +62,15 @@ func (m *Manager) build(ctx context.Context, key string, builder *ConfigBuilder,
 	// 	}
 	// }
 
-	// 项目级构建
-	if app.ProjectConfig != nil {
-		if err = app.ProjectConfig.Build(app.BaseConfig); err != nil {
+	// 【4】项目级配置构建
+
+	// 设置 ProjectConfig（如果提供了）
+	if projectBuilder != nil {
+		app.ProjectConfig = projectBuilder
+		if err = app.ProjectConfig.Build(app.BaseConfig, configPool); err != nil {
 			return nil, fmt.Errorf("appMng: project build failed: %w", err)
 		}
 	}
 
-	if cacheResult {
-		if ttl <= 0 {
-			ttl = defaultCacheTTL
-		}
-		m.mu.Lock()
-		m.cache.Set(key, app, ttl)
-		m.mu.Unlock()
-	}
 	return app, nil
 }
-
-// Invalidate 清除缓存，迫使下次重新加载。
-func (m *Manager) Invalidate(id string) {
-	if id == "" {
-		id = "default"
-	}
-	m.mu.Lock()
-	m.cache.Delete(id)
-	m.mu.Unlock()
-}
-
-// DefaultManager 返回全局的默认 Manager。
-func DefaultManager() *Manager { return defaultManager }

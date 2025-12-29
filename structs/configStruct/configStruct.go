@@ -53,7 +53,7 @@ type BaseConfig struct {
 	RedisConfig    *RedisConfig    `mapstructure:"redis_config"`    // redis设定
 
 	EsConfig       *EsConfig       `mapstructure:"es_config"`       // es设定
-	RabbitMQConfig *RabbitMQConfig `mapstructure:"rabbitmq_config"` // es设定
+	RabbitMQConfig *RabbitMQConfig `mapstructure:"rabbitmq_config"` // rabbit_mq设定
 
 	WechatMiniConfig  *WechatMiniConfig  `mapstructure:"wechat_mini_config"`   // 小程序设定
 	WechatOaConfig    *WechatOaConfig    `mapstructure:"wechat_oa_config"`     // 公众号设定
@@ -68,8 +68,9 @@ type BaseConfig struct {
 	AliOssConfig *AliOssConfig `mapstructure:"ali_oss_config"` // 阿里云oss对象存储设定
 	AmapConfig   *AmapConfig   `mapstructure:"amap_config"`    // 高德地图设定
 
-	YunxinConfig *YunxinConfig `mapstructure:"yunxin_config"` // 网易云信设定
-	XFYunConfig  *XFYunConfig  `mapstructure:"xfyun_config"`  // 科大讯飞配置
+	YunxinConfig     *YunxinConfig     `mapstructure:"yunxin_config"`     // 网易云信设定
+	XFYunConfig      *XFYunConfig      `mapstructure:"xfyun_config"`      // 科大讯飞配置
+	VolcengineConfig *VolcengineConfig `mapstructure:"volcengine_config"` // 火山引擎配置
 }
 
 // MysqlConfig mysql数据库参数
@@ -246,10 +247,6 @@ type AliPayConfig struct {
 	Debug     bool   `mapstructure:"debug"`
 }
 
-type ProjectConfig interface {
-	Build(baseConfig *BaseConfig) error // 构建参数
-}
-
 // AliApiConfig 阿里云市场提供的服务的基本配置
 type AliApiConfig struct {
 	AppCode   string `mapstructure:"app_code" validate:"required"`
@@ -360,18 +357,18 @@ type AiMngConfig struct {
 
 	// 会话配置
 	SessionTTL         time.Duration `mapstructure:"session_ttl" default:"1h"`           // 会话过期时间
-	MaxSessionMessages int           `mapstructure:"max_session_messages" default:"100"`  // 最大会话消息数
-	ResetSignal        string        `mapstructure:"reset_signal" default:"新对话"`      // 重置对话信号
+	MaxSessionMessages int           `mapstructure:"max_session_messages" default:"100"` // 最大会话消息数
+	ResetSignal        string        `mapstructure:"reset_signal" default:"新对话"`         // 重置对话信号
 
 	// SKU 配置
-	DirectSkuDisplayLimit int           `mapstructure:"direct_sku_display_limit" default:"10"`      // 直接 SKU 显示限制
-	DirectSkuContextTTL   time.Duration `mapstructure:"direct_sku_context_ttl" default:"30m"`      // 直接 SKU 上下文过期时间
+	DirectSkuDisplayLimit int           `mapstructure:"direct_sku_display_limit" default:"10"` // 直接 SKU 显示限制
+	DirectSkuContextTTL   time.Duration `mapstructure:"direct_sku_context_ttl" default:"30m"`  // 直接 SKU 上下文过期时间
 
 	// Wiki 配置
-	WikiCollectionID              string  `mapstructure:"wiki_collection_id" validate:"required"`  // Wiki 集合 ID
-	WikiMinScore                  float64 `mapstructure:"wiki_min_score" default:"0.35"`           // Wiki 最小分数
-	WikiNormalizationMinScore     float64 `mapstructure:"wiki_normalization_min_score" default:"0.05"` // Wiki 标准化最小分数
-	DefaultWikiSearchLimit        int     `mapstructure:"default_wiki_search_limit" default:"3"`  // 默认 Wiki 搜索限制
-	MaxWikiSearchLimit            int     `mapstructure:"max_wiki_search_limit" default:"10"`     // 最大 Wiki 搜索限制
+	WikiCollectionID              string  `mapstructure:"wiki_collection_id" validate:"required"`       // Wiki 集合 ID
+	WikiMinScore                  float64 `mapstructure:"wiki_min_score" default:"0.35"`                // Wiki 最小分数
+	WikiNormalizationMinScore     float64 `mapstructure:"wiki_normalization_min_score" default:"0.05"`  // Wiki 标准化最小分数
+	DefaultWikiSearchLimit        int     `mapstructure:"default_wiki_search_limit" default:"3"`        // 默认 Wiki 搜索限制
+	MaxWikiSearchLimit            int     `mapstructure:"max_wiki_search_limit" default:"10"`           // 最大 Wiki 搜索限制
 	DefaultNameNormalizationLimit int     `mapstructure:"default_name_normalization_limit" default:"5"` // 默认名称标准化限制
 }
