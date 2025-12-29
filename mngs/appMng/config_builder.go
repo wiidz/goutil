@@ -127,6 +127,16 @@ func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, er
 	debug := cfg.Profile != nil && cfg.Profile.Debug
 
 	// 第四步：根据策略加载各个配置项（如果策略中指定了配置来源，则必须成功加载）
+
+	// 初始化HttpServer配置
+	for _, serverLabel := range b.initialConfig.HttpServerLabels {
+		serverConfig := getServerConfig(dbRows, serverLabel)
+		if serverConfig == nil {
+			return nil, fmt.Errorf("加载 HttpServer 配置失败: 标签 %s 不存在", serverLabel)
+		}
+		cfg.HttpServerConfig = append(cfg.HttpServerConfig, serverConfig)
+	}
+
 	// 注意：数据库配置（Postgres/Mysql）如果策略要求从数据库加载，此时应该已经可以从 dbRows 中读取了
 	if b.strategy.Redis != "" {
 		if err := b.loadRedisConfig(cfg, dbRows, debug); err != nil {
@@ -945,16 +955,24 @@ func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2, defaultValue stri
 
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
-		No:      GetValueFromRow(rows, ConfigKeyApp, "", "no", "", false),
-		Name:    GetValueFromRow(rows, ConfigKeyApp, "", "name", "", false),
-		Host:    GetValueFromRow(rows, ConfigKeyApp, "", "host", "", false),
-		Port:    GetValueFromRow(rows, ConfigKeyApp, "", "port", "127.0.0.1", false),
-		Domain:  GetValueFromRow(rows, ConfigKeyApp, "", "domain", "", false),
+		No:   GetValueFromRow(rows, ConfigKeyApp, "", "no", "", false),
+		Name: GetValueFromRow(rows, ConfigKeyApp, "", "name", "", false),
+		// Host:    GetValueFromRow(rows, ConfigKeyApp, "", "host", "", false),
+		// Port:    GetValueFromRow(rows, ConfigKeyApp, "", "port", "127.0.0.1", false),
+		// Domain:  GetValueFromRow(rows, ConfigKeyApp, "", "domain", "", false),
 		Debug:   GetValueFromRow(rows, ConfigKeyApp, "", "debug", "", false) == "1",
 		Version: GetValueFromRow(rows, ConfigKeyApp, "", "version", "", false),
 	}
 }
 
+func getServerConfig(rows []*DbSettingRow, serverLabel string) *configStruct.ServerConfig {
+	return &configStruct.ServerConfig{
+		Label:  GetValueFromRow(rows, ConfigKeyServer, serverLabel, "label", "", false),
+		Host:   GetValueFromRow(rows, ConfigKeyServer, serverLabel, "host", "", false),
+		Port:   GetValueFromRow(rows, ConfigKeyServer, serverLabel, "port", "", false),
+		Domain: GetValueFromRow(rows, ConfigKeyServer, serverLabel, "domain", "", false),
+	}
+}
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error) {
 	timeZone := GetValueFromRow(rows, ConfigKeyTimeZone, "", "", "Asia/Shanghai", false)
 	location, err = time.LoadLocation(timeZone)

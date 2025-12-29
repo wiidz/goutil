@@ -152,6 +152,7 @@ const (
 
 	// 数据库配置键（用于 GetValueFromRow 的 name 参数）
 	ConfigKeyApp      = "app"       // 应用配置键
+	ConfigKeyServer   = "server"    // 服务器配置键
 	ConfigKeyTimeZone = "time_zone" // 时区配置键
 	ConfigKeyWechat   = "wechat"    // 微信配置键
 	ConfigKeyAli      = "ali"       // 阿里配置键
@@ -180,6 +181,7 @@ const (
 // InitialConfig 初始配置，在应用构建之初传入
 // 如果项目涉及数据库连接，必须包含数据库连接信息
 type InitialConfig struct {
+
 	// 数据库连接配置（统一的数据库配置，支持 PostgreSQL 和 MySQL）
 	DB *configStruct.DBConfig `mapstructure:"db"`
 
@@ -189,6 +191,9 @@ type InitialConfig struct {
 
 	// YAML 配置文件列表（支持多个 YAML 文件）
 	YAMLFiles []*configStruct.ViperConfig `mapstructure:"yaml_files"`
+
+	// HttpServer标签列表，用于区分不同的HttpServer，例如(client和console)
+	HttpServerLabels []string `mapstructure:"http_server_labels"`
 }
 
 // ConfigSourceStrategy 配置来源策略，定义每个配置项应该从哪个来源加载
@@ -197,6 +202,8 @@ type ConfigSourceStrategy struct {
 	// Profile 和 Location 配置来源（通常从数据库或第一个 YAML 文件）
 	Profile  ConfigSource `mapstructure:"profile"`  // Profile 配置来源
 	Location ConfigSource `mapstructure:"location"` // Location 配置来源
+
+	HttpServer ConfigSource `mapstructure:"http_server"` // HttpServer 配置来源
 
 	// 存储相关配置
 	Redis    ConfigSource `mapstructure:"redis"`    // Redis 配置来源

@@ -12,11 +12,19 @@ type AppProfile struct {
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 
+	// Domain string `mapstructure:"domain"` // 外部域名地址
+	// Host   string `mapstructure:"host"`   // 监听的地址（如0.0.0.0，127.0.0.1等）
+	// Port   string `mapstructure:"port"`   // 监听的端口号
+
+	Debug bool `mapstructure:"debug"` // 是否调试模式
+}
+
+// 一个AppMng中可能包含多个Server，例如(Client和Console)，每个Server可能对应一个不同的域名和端口
+type HttpServerConfig struct {
+	Label  string `mapstructure:"label"`  // 标签（例如client，console等）
 	Domain string `mapstructure:"domain"` // 外部域名地址
 	Host   string `mapstructure:"host"`   // 监听的地址（如0.0.0.0，127.0.0.1等）
 	Port   string `mapstructure:"port"`   // 监听的端口号
-
-	Debug bool `mapstructure:"debug"` // 是否调试模式
 }
 
 type ViperConfig struct {
@@ -35,9 +43,10 @@ type RepoConfig struct {
 
 // BaseConfig 参数
 type BaseConfig struct {
-	Profile *AppProfile `mapstructure:"profile"`
-
+	Profile  *AppProfile    `mapstructure:"profile"`
 	Location *time.Location `gorm:"-" json:"-" mapstructure:"location"` // 时区
+
+	HttpServerConfig []*HttpServerConfig `mapstructure:"http_server_config"` // http服务器设定
 
 	MysqlConfig    *MysqlConfig    `mapstructure:"mysql_config"`    // 数据库设定
 	PostgresConfig *PostgresConfig `mapstructure:"postgres_config"` // Postgres 设定
