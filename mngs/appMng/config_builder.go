@@ -53,13 +53,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
 	"github.com/wiidz/goutil/helpers/configHelper"
 	"github.com/wiidz/goutil/helpers/typeHelper"
 	"github.com/wiidz/goutil/structs/configStruct"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // ConfigSource 配置来源类型
@@ -69,6 +74,72 @@ const (
 	SourceYAML     ConfigSource = "yaml"     // 从 YAML 文件加载
 	SourceDatabase ConfigSource = "database" // 从数据库加载
 )
+
+// 配置键名常量（用于 YAML 和数据库配置）
+const (
+	// YAML 配置键（用于 UnmarshalKey）
+	ConfigKeyProfile     = "profile"           // Profile 配置键
+	ConfigKeyLocation    = "location"          // Location 配置键
+	ConfigKeyRedis       = "redis"             // Redis 配置键
+	ConfigKeyEs          = "es"                // Elasticsearch 配置键
+	ConfigKeyRabbitMQ    = "rabbit_mq"         // RabbitMQ 配置键
+	ConfigKeyPostgres    = "postgres"          // PostgreSQL 配置键
+	ConfigKeyMysql       = "mysql"             // MySQL 配置键
+	ConfigKeyWechatMini  = "wechat_mini"       // 微信小程序配置键
+	ConfigKeyWechatOa    = "wechat_oa"         // 微信公众号配置键
+	ConfigKeyWechatOpen  = "wechat_open"       // 微信开放平台配置键
+	ConfigKeyWechatPayV3 = "wechat_pay_v3"     // 微信支付 V3 配置键
+	ConfigKeyWechatPayV2 = "wechat_pay_v2"     // 微信支付 V2 配置键
+	ConfigKeyAliOss      = "ali_oss"           // 阿里云 OSS 配置键
+	ConfigKeyAliPay      = "ali_pay"           // 支付宝配置键
+	ConfigKeyAliApi      = "ali_api"           // 阿里云 API 配置键
+	ConfigKeyAliSms      = "ali_sms"           // 阿里云短信配置键
+	ConfigKeyAliIot      = "ali_iot"           // 阿里云 IoT 配置键
+	ConfigKeyAmap        = "amap"              // 高德地图配置键
+	ConfigKeyYunxin      = "yunxin"            // 网易云信配置键
+	ConfigKeyLocationTZ  = "location.timezone" // Location 时区配置键
+
+	// 数据库配置键（用于 GetValueFromRow 的 name 参数）
+	ConfigKeyApp      = "app"       // 应用配置键
+	ConfigKeyTimeZone = "time_zone" // 时区配置键
+	ConfigKeyWechat   = "wechat"    // 微信配置键
+	ConfigKeyAli      = "ali"       // 阿里配置键
+	ConfigKeyNetease  = "netease"   // 网易配置键
+
+	// 数据库配置子键（用于 GetValueFromRow 的 flag1 参数）
+	ConfigKeyWechatMiniFlag  = "mini"   // 微信小程序子键
+	ConfigKeyWechatOaFlag    = "oa"     // 微信公众号子键
+	ConfigKeyWechatOpenFlag  = "open"   // 微信开放平台子键
+	ConfigKeyWechatPayV3Flag = "pay_v3" // 微信支付 V3 子键
+	ConfigKeyWechatPayV2Flag = "pay_v2" // 微信支付 V2 子键
+	ConfigKeyAliPayFlag      = "pay"    // 支付宝子键
+	ConfigKeyAliOssFlag      = "oss"    // 阿里云 OSS 子键
+	ConfigKeyAliApiFlag      = "api"    // 阿里云 API 子键
+	ConfigKeyAliSmsFlag      = "sms"    // 阿里云短信子键
+	ConfigKeyAliIotFlag      = "iot"    // 阿里云 IoT 子键
+	ConfigKeyAliAmapFlag     = "amap"   // 高德地图子键
+	ConfigKeyYunxinFlag      = "yunxin" // 网易云信子键
+)
+
+// errConfigFromDatabaseEmpty 生成从数据库加载配置失败的错误信息（数据库配置行为空）
+func errConfigFromDatabaseEmpty(configName string) string {
+	return fmt.Sprintf("策略要求从数据库加载%s配置，但数据库配置行为空", configName)
+}
+
+// errConfigFromYAMLNotInit 生成从 YAML 加载配置失败的错误信息（YAML 配置未初始化）
+func errConfigFromYAMLNotInit(configName string) string {
+	return fmt.Sprintf("策略要求从 YAML 加载%s配置，但 YAML 配置未初始化", configName)
+}
+
+// errConfigLoadFailed 生成从 YAML 加载配置失败的错误信息（YAML 配置未初始化）
+func errConfigLoadFailed(configName string, err error) string {
+	return fmt.Sprintf("加载 %s 配置失败: %w", configName, err)
+}
+
+// configLoadSuccess 加载成功
+func configLoadSuccess(configName string) string {
+	return fmt.Sprintf("加载 %s 配置成功", configName)
+}
 
 // InitialConfig 初始配置，在应用构建之初传入
 // 如果项目涉及数据库连接，必须包含数据库连接信息
@@ -192,115 +263,371 @@ func (b *ConfigBuilder) SetDatabase(db *gorm.DB) {
 	b.db = db
 }
 
+// needDatabaseConnection 判断是否需要数据库连接
+// 返回 true 如果：
+// 1. strategy 中有任何配置项需要从数据库读取（SourceDatabase）
+// 2. 或者 initialConfig.DB 不为 nil
+func (b *ConfigBuilder) needDatabaseConnection() bool {
+	// 检查 initialConfig.DB 是否不为 nil
+	if b.initialConfig != nil && b.initialConfig.DB != nil {
+		return true
+	}
+
+	// 检查 strategy 中是否有任何配置项需要从数据库读取
+	if b.strategy == nil {
+		return false
+	}
+
+	// 检查所有配置项是否从数据库加载
+	return b.strategy.Profile == SourceDatabase ||
+		b.strategy.Location == SourceDatabase ||
+		b.strategy.Redis == SourceDatabase ||
+		b.strategy.Es == SourceDatabase ||
+		b.strategy.RabbitMQ == SourceDatabase ||
+		b.strategy.Postgres == SourceDatabase ||
+		b.strategy.Mysql == SourceDatabase ||
+		b.strategy.WechatMini == SourceDatabase ||
+		b.strategy.WechatOa == SourceDatabase ||
+		b.strategy.WechatOpen == SourceDatabase ||
+		b.strategy.WechatPayV3 == SourceDatabase ||
+		b.strategy.WechatPayV2 == SourceDatabase ||
+		b.strategy.AliOss == SourceDatabase ||
+		b.strategy.AliPay == SourceDatabase ||
+		b.strategy.AliApi == SourceDatabase ||
+		b.strategy.AliSms == SourceDatabase ||
+		b.strategy.AliIot == SourceDatabase ||
+		b.strategy.Amap == SourceDatabase ||
+		b.strategy.Yunxin == SourceDatabase
+}
+
 // Build 构建 BaseConfig，根据策略从不同来源加载配置
 func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, error) {
 	cfg := &configStruct.BaseConfig{}
 
-	// 加载数据库配置行（如果需要）
+	// 第一步：检查策略中是否有数据库相关的配置，如果有，优先初始化数据库
+	// 这样后续的配置才能从数据库中读取
+	// 注意：如果策略要求从数据库加载配置，b.db 在 Build 开始时必然是 nil，需要先初始化
+	needDatabase := b.needDatabaseConnection()
+	if needDatabase {
+		// 需要数据库连接，从 YAML 或 InitialConfig.DB 初始化
+		// b.db 在 Build 开始时必然是 nil，因为数据库连接是在这里初始化的
+		if err := b.initDatabaseFromConfig(); err != nil {
+			return nil, fmt.Errorf("初始化数据库连接失败: %w", err)
+		}
+	}
+
+	// 第二步：加载数据库配置行（如果需要）
 	var dbRows []*DbSettingRow
 	if b.db != nil {
 		var err error
 		dbRows, err = b.loadDatabaseRows(ctx)
 		if err != nil {
 			log.Printf("警告: 无法从数据库加载配置: %v", err)
+		} else {
+			log.Printf("成功: 从数据库加载了 %d 条配置", len(dbRows))
 		}
 	}
 
-	// 加载 Profile 和 Location（基础配置）
+	// 第三步：加载 Profile 和 Location（基础配置）
 	if err := b.loadProfileAndLocation(cfg, dbRows); err != nil {
 		return nil, fmt.Errorf("加载基础配置失败: %w", err)
 	}
 
 	debug := cfg.Profile != nil && cfg.Profile.Debug
 
-	// 根据策略加载各个配置项（如果策略中指定了配置来源，则必须成功加载）
+	// 第四步：根据策略加载各个配置项（如果策略中指定了配置来源，则必须成功加载）
+	// 注意：数据库配置（Postgres/Mysql）如果策略要求从数据库加载，此时应该已经可以从 dbRows 中读取了
 	if b.strategy.Redis != "" {
 		if err := b.loadRedisConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载 Redis 配置失败: %w", err)
 		}
+		log.Printf("成功: Redis 配置已加载")
 	}
 	if b.strategy.Es != "" {
 		if err := b.loadEsConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载 Elasticsearch 配置失败: %w", err)
 		}
+		log.Printf("成功: Elasticsearch 配置已加载")
 	}
 	if b.strategy.RabbitMQ != "" {
 		if err := b.loadRabbitMQConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载 RabbitMQ 配置失败: %w", err)
 		}
+		log.Printf("成功: RabbitMQ 配置已加载")
 	}
 	if b.strategy.Postgres != "" {
 		if err := b.loadPostgresConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载 PostgreSQL 配置失败: %w", err)
 		}
+		log.Printf("成功: PostgreSQL 配置已加载")
 	}
 	if b.strategy.Mysql != "" {
 		if err := b.loadMysqlConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载 MySQL 配置失败: %w", err)
 		}
+		log.Printf("成功: MySQL 配置已加载")
 	}
 	if b.strategy.WechatMini != "" {
 		if err := b.loadWechatMiniConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载微信小程序配置失败: %w", err)
 		}
+		log.Printf("成功: 微信小程序配置已加载")
 	}
 	if b.strategy.WechatOa != "" {
 		if err := b.loadWechatOaConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载微信公众号配置失败: %w", err)
 		}
+		log.Printf("成功: 微信公众号配置已加载")
 	}
 	if b.strategy.WechatOpen != "" {
 		if err := b.loadWechatOpenConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载微信开放平台配置失败: %w", err)
 		}
+		log.Printf("成功: 微信开放平台配置已加载")
 	}
 	if b.strategy.WechatPayV3 != "" {
 		if err := b.loadWechatPayV3Config(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载微信支付 V3 配置失败: %w", err)
 		}
+		log.Printf("成功: 微信支付 V3 配置已加载")
 	}
 	if b.strategy.WechatPayV2 != "" {
 		if err := b.loadWechatPayV2Config(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载微信支付 V2 配置失败: %w", err)
 		}
+		log.Printf("成功: 微信支付 V2 配置已加载")
 	}
 	if b.strategy.AliOss != "" {
 		if err := b.loadAliOssConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载阿里云 OSS 配置失败: %w", err)
 		}
+		log.Printf("成功: 阿里云 OSS 配置已加载")
 	}
 	if b.strategy.AliPay != "" {
 		if err := b.loadAliPayConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载支付宝配置失败: %w", err)
 		}
+		log.Printf("成功: 支付宝配置已加载")
 	}
 	if b.strategy.AliApi != "" {
 		if err := b.loadAliApiConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载阿里云 API 配置失败: %w", err)
 		}
+		log.Printf("成功: 阿里云 API 配置已加载")
 	}
 	if b.strategy.AliSms != "" {
 		if err := b.loadAliSmsConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载阿里云短信配置失败: %w", err)
 		}
+		log.Printf("成功: 阿里云短信配置已加载")
 	}
 	if b.strategy.AliIot != "" {
 		if err := b.loadAliIotConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载阿里云 IoT 配置失败: %w", err)
 		}
+		log.Printf("成功: 阿里云 IoT 配置已加载")
 	}
 	if b.strategy.Amap != "" {
 		if err := b.loadAmapConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载高德地图配置失败: %w", err)
 		}
+		log.Printf("成功: 高德地图配置已加载")
 	}
 	if b.strategy.Yunxin != "" {
 		if err := b.loadYunxinConfig(cfg, dbRows, debug); err != nil {
 			return nil, fmt.Errorf("加载网易云信配置失败: %w", err)
 		}
+		log.Printf("成功: 网易云信配置已加载")
 	}
 
 	return cfg, nil
+}
+
+// initDatabaseFromConfig 从 YAML 或 InitialConfig.DB 初始化数据库连接
+// 当策略要求从数据库加载配置时，需要先初始化数据库连接
+func (b *ConfigBuilder) initDatabaseFromConfig() error {
+	// 优先使用 InitialConfig.DB 中的配置
+	if b.initialConfig.DB != nil {
+		return b.initDatabaseFromDBConfig(b.initialConfig.DB)
+	}
+
+	// 如果没有 InitialConfig.DB，尝试从 YAML 加载数据库配置
+	// 根据策略中需要的数据库类型，尝试从 YAML 加载对应的配置
+	if len(b.yamlVipers) > 0 {
+		// 如果策略要求从数据库加载 PostgreSQL 配置，尝试从 YAML 加载 PostgreSQL 配置来初始化连接
+		if b.strategy.Postgres == SourceDatabase {
+			var postgresConfig configStruct.PostgresConfig
+			if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyPostgres, &postgresConfig); err == nil && postgresConfig.DSN != "" {
+				return b.initPostgresFromConfig(&postgresConfig)
+			}
+		}
+		// 如果策略要求从数据库加载 MySQL 配置，尝试从 YAML 加载 MySQL 配置来初始化连接
+		if b.strategy.Mysql == SourceDatabase {
+			var mysqlConfig configStruct.MysqlConfig
+			if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyMysql, &mysqlConfig); err == nil {
+				return b.initMysqlFromConfig(&mysqlConfig)
+			}
+		}
+	}
+
+	return fmt.Errorf("无法初始化数据库连接：未找到数据库配置（需要 InitialConfig.DB 或 YAML 中的数据库配置）")
+}
+
+// initDatabaseFromDBConfig 从 DBConfig 初始化数据库连接
+func (b *ConfigBuilder) initDatabaseFromDBConfig(dbConfig *configStruct.DBConfig) error {
+	if dbConfig == nil {
+		return fmt.Errorf("DBConfig 为空")
+	}
+
+	switch dbConfig.Type {
+	case configStruct.DBTypePostgres:
+		// 构建 PostgreSQL 配置
+		dsn := dbConfig.DSN
+		if dsn == "" {
+			return fmt.Errorf("PostgreSQL DSN 为空")
+		}
+		return b.initPostgresFromDSN(dsn, dbConfig.ConnMaxIdle, dbConfig.ConnMaxOpen, dbConfig.ConnMaxLifetime, dbConfig.Logger)
+
+	case configStruct.DBTypeMysql:
+		// 构建 MySQL 配置
+		dsn := dbConfig.DSN
+		if dsn == "" {
+			// 从 Host/Port 等字段构建 DSN
+			if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.Username == "" || dbConfig.DbName == "" {
+				return fmt.Errorf("MySQL 配置不完整：需要 Host, Port, Username, DbName")
+			}
+			charset := dbConfig.Charset
+			if charset == "" {
+				charset = "utf8mb4"
+			}
+			collation := dbConfig.Collation
+			if collation == "" {
+				collation = "utf8mb4_unicode_ci"
+			}
+			timeZone := dbConfig.TimeZone
+			if timeZone == "" {
+				timeZone = "Asia/Shanghai"
+			}
+			parseTime := dbConfig.ParseTime
+			if !parseTime {
+				parseTime = true
+			}
+			dsn = dbConfig.Username + ":" + dbConfig.Password +
+				"@tcp(" + dbConfig.Host + ":" + dbConfig.Port + ")/" + dbConfig.DbName +
+				"?charset=" + charset +
+				"&collation=" + collation +
+				"&loc=" + url.QueryEscape(timeZone) +
+				"&parseTime=" + strconv.FormatBool(parseTime)
+		}
+		return b.initMysqlFromDSN(dsn, dbConfig.ConnMaxIdle, dbConfig.ConnMaxOpen, dbConfig.ConnMaxLifetime, dbConfig.Logger)
+
+	default:
+		return fmt.Errorf("不支持的数据库类型: %s", dbConfig.Type)
+	}
+}
+
+// initPostgresFromDSN 从 DSN 初始化 PostgreSQL 连接
+func (b *ConfigBuilder) initPostgresFromDSN(dsn string, maxIdle, maxOpen int, maxLifetime time.Duration, loggerInterface logger.Interface) error {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: loggerInterface,
+	})
+	if err != nil {
+		return fmt.Errorf("连接 PostgreSQL 失败: %w", err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("获取底层数据库连接失败: %w", err)
+	}
+
+	if maxIdle > 0 {
+		sqlDB.SetMaxIdleConns(maxIdle)
+	}
+	if maxOpen > 0 {
+		sqlDB.SetMaxOpenConns(maxOpen)
+	}
+	if maxLifetime > 0 {
+		sqlDB.SetConnMaxLifetime(maxLifetime)
+	}
+
+	b.db = db
+	log.Printf("成功: PostgreSQL 数据库连接已初始化")
+	return nil
+}
+
+// initPostgresFromConfig 从 PostgresConfig 初始化 PostgreSQL 连接
+func (b *ConfigBuilder) initPostgresFromConfig(postgresConfig *configStruct.PostgresConfig) error {
+	if postgresConfig == nil || postgresConfig.DSN == "" {
+		return fmt.Errorf("PostgreSQL 配置 DSN 为空")
+	}
+	return b.initPostgresFromDSN(postgresConfig.DSN, postgresConfig.ConnMaxIdle, postgresConfig.ConnMaxOpen, postgresConfig.ConnMaxLifetime, postgresConfig.Logger)
+}
+
+// initMysqlFromDSN 从 DSN 初始化 MySQL 连接
+func (b *ConfigBuilder) initMysqlFromDSN(dsn string, maxIdle, maxOpen int, maxLifetime time.Duration, loggerInterface logger.Interface) error {
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: loggerInterface,
+	})
+	if err != nil {
+		return fmt.Errorf("连接 MySQL 失败: %w", err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("获取底层数据库连接失败: %w", err)
+	}
+
+	if maxIdle > 0 {
+		sqlDB.SetMaxIdleConns(maxIdle)
+	}
+	if maxOpen > 0 {
+		sqlDB.SetMaxOpenConns(maxOpen)
+	}
+	if maxLifetime > 0 {
+		sqlDB.SetConnMaxLifetime(maxLifetime)
+	}
+
+	b.db = db
+	log.Printf("成功: MySQL 数据库连接已初始化")
+	return nil
+}
+
+// initMysqlFromConfig 从 MysqlConfig 初始化 MySQL 连接
+func (b *ConfigBuilder) initMysqlFromConfig(mysqlConfig *configStruct.MysqlConfig) error {
+	if mysqlConfig == nil {
+		return fmt.Errorf("MySQL 配置为空")
+	}
+
+	// 构建 DSN
+	charset := mysqlConfig.Charset
+	if charset == "" {
+		charset = "utf8mb4"
+	}
+	collation := mysqlConfig.Collation
+	if collation == "" {
+		collation = "utf8mb4_unicode_ci"
+	}
+	timeZone := mysqlConfig.TimeZone
+	if timeZone == "" {
+		timeZone = "Asia/Shanghai"
+	}
+	parseTime := mysqlConfig.ParseTime
+	if !parseTime {
+		parseTime = true
+	}
+
+	dsn := mysqlConfig.Username + ":" + mysqlConfig.Password +
+		"@tcp(" + mysqlConfig.Host + ":" + mysqlConfig.Port + ")/" + mysqlConfig.DbName +
+		"?charset=" + charset +
+		"&collation=" + collation +
+		"&loc=" + url.QueryEscape(timeZone) +
+		"&parseTime=" + strconv.FormatBool(parseTime)
+
+	maxIdle := mysqlConfig.MaxIdle
+	maxOpen := mysqlConfig.MaxOpenConns
+	maxLifetime := time.Duration(mysqlConfig.MaxLifeTime) * time.Second
+
+	return b.initMysqlFromDSN(dsn, maxIdle, maxOpen, maxLifetime, mysqlConfig.Logger)
 }
 
 // loadDatabaseRows 从数据库加载配置行
@@ -346,7 +673,7 @@ func (b *ConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig, dbR
 	} else if b.strategy.Profile == SourceYAML && len(b.yamlVipers) > 0 {
 		// 从第一个 YAML 文件加载 Profile
 		var profile configStruct.AppProfile
-		if err := b.yamlVipers[0].UnmarshalKey("profile", &profile); err == nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyProfile, &profile); err == nil {
 			cfg.Profile = &profile
 		}
 	}
@@ -366,7 +693,7 @@ func (b *ConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig, dbR
 		}
 	} else if b.strategy.Location == SourceYAML && len(b.yamlVipers) > 0 {
 		// 从第一个 YAML 文件加载 Location
-		timeZone := b.yamlVipers[0].GetString("location.timezone")
+		timeZone := b.yamlVipers[0].GetString(ConfigKeyLocationTZ)
 		if timeZone == "" {
 			timeZone = "Asia/Shanghai"
 		}
@@ -385,21 +712,22 @@ func (b *ConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig, dbR
 // 各个配置项的加载函数（根据策略从数据库或 YAML 加载）
 
 func (b *ConfigBuilder) loadRedisConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Redis == SourceDatabase {
+	switch b.strategy.Redis {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载 Redis 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("Redis"))
 		}
 		redisConfig, err := getRedisConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.RedisConfig = redisConfig
-	} else if b.strategy.Redis == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载 Redis 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("Redis"))
 		}
 		var redisConfig configStruct.RedisConfig
-		if err := b.yamlVipers[0].UnmarshalKey("redis", &redisConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyRedis, &redisConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 Redis 配置失败: %w", err)
 		}
 		cfg.RedisConfig = &redisConfig
@@ -408,21 +736,22 @@ func (b *ConfigBuilder) loadRedisConfig(cfg *configStruct.BaseConfig, dbRows []*
 }
 
 func (b *ConfigBuilder) loadEsConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Es == SourceDatabase {
+	switch b.strategy.Es {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载 Elasticsearch 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("Elasticsearch"))
 		}
 		esConfig, err := getEsConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.EsConfig = esConfig
-	} else if b.strategy.Es == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载 Elasticsearch 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("Elasticsearch"))
 		}
 		var esConfig configStruct.EsConfig
-		if err := b.yamlVipers[0].UnmarshalKey("es", &esConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyEs, &esConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 Elasticsearch 配置失败: %w", err)
 		}
 		cfg.EsConfig = &esConfig
@@ -431,21 +760,22 @@ func (b *ConfigBuilder) loadEsConfig(cfg *configStruct.BaseConfig, dbRows []*DbS
 }
 
 func (b *ConfigBuilder) loadRabbitMQConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.RabbitMQ == SourceDatabase {
+	switch b.strategy.RabbitMQ {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载 RabbitMQ 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("RabbitMQ"))
 		}
 		rabbitMQConfig, err := getRabbitMQConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.RabbitMQConfig = rabbitMQConfig
-	} else if b.strategy.RabbitMQ == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载 RabbitMQ 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("RabbitMQ"))
 		}
 		var rabbitMQConfig configStruct.RabbitMQConfig
-		if err := b.yamlVipers[0].UnmarshalKey("rabbitmq", &rabbitMQConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyRabbitMQ, &rabbitMQConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 RabbitMQ 配置失败: %w", err)
 		}
 		cfg.RabbitMQConfig = &rabbitMQConfig
@@ -454,21 +784,22 @@ func (b *ConfigBuilder) loadRabbitMQConfig(cfg *configStruct.BaseConfig, dbRows 
 }
 
 func (b *ConfigBuilder) loadPostgresConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Postgres == SourceDatabase {
+	switch b.strategy.Postgres {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载 PostgreSQL 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("PostgreSQL"))
 		}
 		postgresConfig, err := getPostgresConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.PostgresConfig = postgresConfig
-	} else if b.strategy.Postgres == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载 PostgreSQL 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("PostgreSQL"))
 		}
 		var postgresConfig configStruct.PostgresConfig
-		if err := b.yamlVipers[0].UnmarshalKey("postgres", &postgresConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyPostgres, &postgresConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 PostgreSQL 配置失败: %w", err)
 		}
 		cfg.PostgresConfig = &postgresConfig
@@ -477,21 +808,22 @@ func (b *ConfigBuilder) loadPostgresConfig(cfg *configStruct.BaseConfig, dbRows 
 }
 
 func (b *ConfigBuilder) loadMysqlConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Mysql == SourceDatabase {
+	switch b.strategy.Mysql {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载 MySQL 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("MySQL"))
 		}
 		mysqlConfig, err := getMysqlConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.MysqlConfig = mysqlConfig
-	} else if b.strategy.Mysql == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载 MySQL 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("MySQL"))
 		}
 		var mysqlConfig configStruct.MysqlConfig
-		if err := b.yamlVipers[0].UnmarshalKey("mysql", &mysqlConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyMysql, &mysqlConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载 MySQL 配置失败: %w", err)
 		}
 		cfg.MysqlConfig = &mysqlConfig
@@ -500,21 +832,22 @@ func (b *ConfigBuilder) loadMysqlConfig(cfg *configStruct.BaseConfig, dbRows []*
 }
 
 func (b *ConfigBuilder) loadWechatMiniConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.WechatMini == SourceDatabase {
+	switch b.strategy.WechatMini {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载微信小程序配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("微信小程序"))
 		}
 		wechatMiniConfig, err := getWechatMiniConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.WechatMiniConfig = wechatMiniConfig
-	} else if b.strategy.WechatMini == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载微信小程序配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("微信小程序"))
 		}
 		var wechatMiniConfig configStruct.WechatMiniConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_mini", &wechatMiniConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyWechatMini, &wechatMiniConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信小程序配置失败: %w", err)
 		}
 		cfg.WechatMiniConfig = &wechatMiniConfig
@@ -523,21 +856,22 @@ func (b *ConfigBuilder) loadWechatMiniConfig(cfg *configStruct.BaseConfig, dbRow
 }
 
 func (b *ConfigBuilder) loadWechatOaConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.WechatOa == SourceDatabase {
+	switch b.strategy.WechatOa {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载微信公众号配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("微信公众号"))
 		}
 		wechatOaConfig, err := getWechatOaConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.WechatOaConfig = wechatOaConfig
-	} else if b.strategy.WechatOa == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载微信公众号配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("微信公众号"))
 		}
 		var wechatOaConfig configStruct.WechatOaConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_oa", &wechatOaConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyWechatOa, &wechatOaConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信公众号配置失败: %w", err)
 		}
 		cfg.WechatOaConfig = &wechatOaConfig
@@ -546,21 +880,22 @@ func (b *ConfigBuilder) loadWechatOaConfig(cfg *configStruct.BaseConfig, dbRows 
 }
 
 func (b *ConfigBuilder) loadWechatOpenConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.WechatOpen == SourceDatabase {
+	switch b.strategy.WechatOpen {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载微信开放平台配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("微信开放平台"))
 		}
 		wechatOpenConfig, err := getWechatOpenConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.WechatOpenConfig = wechatOpenConfig
-	} else if b.strategy.WechatOpen == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载微信开放平台配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("微信开放平台"))
 		}
 		var wechatOpenConfig configStruct.WechatOpenConfig
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_open", &wechatOpenConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyWechatOpen, &wechatOpenConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载微信开放平台配置失败: %w", err)
 		}
 		cfg.WechatOpenConfig = &wechatOpenConfig
@@ -569,21 +904,22 @@ func (b *ConfigBuilder) loadWechatOpenConfig(cfg *configStruct.BaseConfig, dbRow
 }
 
 func (b *ConfigBuilder) loadWechatPayV3Config(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.WechatPayV3 == SourceDatabase {
+	switch b.strategy.WechatPayV3 {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载微信支付 V3 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("微信支付 V3"))
 		}
 		wechatPayV3Config, err := getWechatPayConfigV3(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.WechatPayConfigV3 = wechatPayV3Config
-	} else if b.strategy.WechatPayV3 == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载微信支付 V3 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("微信支付 V3"))
 		}
 		var wechatPayV3Config configStruct.WechatPayConfigV3
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_v3", &wechatPayV3Config); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyWechatPayV3, &wechatPayV3Config); err != nil {
 			return fmt.Errorf("从 YAML 加载微信支付 V3 配置失败: %w", err)
 		}
 		cfg.WechatPayConfigV3 = &wechatPayV3Config
@@ -592,21 +928,22 @@ func (b *ConfigBuilder) loadWechatPayV3Config(cfg *configStruct.BaseConfig, dbRo
 }
 
 func (b *ConfigBuilder) loadWechatPayV2Config(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.WechatPayV2 == SourceDatabase {
+	switch b.strategy.WechatPayV2 {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载微信支付 V2 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("微信支付 V2"))
 		}
 		wechatPayV2Config, err := getWechatPayConfigV2(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.WechatPayConfigV2 = wechatPayV2Config
-	} else if b.strategy.WechatPayV2 == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载微信支付 V2 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("微信支付 V2"))
 		}
 		var wechatPayV2Config configStruct.WechatPayConfigV2
-		if err := b.yamlVipers[0].UnmarshalKey("wechat_pay_v2", &wechatPayV2Config); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyWechatPayV2, &wechatPayV2Config); err != nil {
 			return fmt.Errorf("从 YAML 加载微信支付 V2 配置失败: %w", err)
 		}
 		cfg.WechatPayConfigV2 = &wechatPayV2Config
@@ -615,21 +952,22 @@ func (b *ConfigBuilder) loadWechatPayV2Config(cfg *configStruct.BaseConfig, dbRo
 }
 
 func (b *ConfigBuilder) loadAliOssConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.AliOss == SourceDatabase {
+	switch b.strategy.AliOss {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载阿里云 OSS 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("阿里云 OSS"))
 		}
 		aliOssConfig, err := getAliOssConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AliOssConfig = aliOssConfig
-	} else if b.strategy.AliOss == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载阿里云 OSS 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("阿里云 OSS"))
 		}
 		var aliOssConfig configStruct.AliOssConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_oss", &aliOssConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAliOss, &aliOssConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 OSS 配置失败: %w", err)
 		}
 		cfg.AliOssConfig = &aliOssConfig
@@ -638,21 +976,22 @@ func (b *ConfigBuilder) loadAliOssConfig(cfg *configStruct.BaseConfig, dbRows []
 }
 
 func (b *ConfigBuilder) loadAliPayConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.AliPay == SourceDatabase {
+	switch b.strategy.AliPay {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载支付宝配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("支付宝"))
 		}
 		aliPayConfig, err := getAliPayConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AliPayConfig = aliPayConfig
-	} else if b.strategy.AliPay == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载支付宝配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("支付宝"))
 		}
 		var aliPayConfig configStruct.AliPayConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_pay", &aliPayConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAliPay, &aliPayConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载支付宝配置失败: %w", err)
 		}
 		cfg.AliPayConfig = &aliPayConfig
@@ -661,21 +1000,22 @@ func (b *ConfigBuilder) loadAliPayConfig(cfg *configStruct.BaseConfig, dbRows []
 }
 
 func (b *ConfigBuilder) loadAliApiConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.AliApi == SourceDatabase {
+	switch b.strategy.AliApi {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载阿里云 API 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("阿里云 API"))
 		}
 		aliApiConfig, err := getAliApiConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AliApiConfig = aliApiConfig
-	} else if b.strategy.AliApi == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载阿里云 API 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("阿里云 API"))
 		}
 		var aliApiConfig configStruct.AliApiConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_api", &aliApiConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAliApi, &aliApiConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 API 配置失败: %w", err)
 		}
 		cfg.AliApiConfig = &aliApiConfig
@@ -684,21 +1024,22 @@ func (b *ConfigBuilder) loadAliApiConfig(cfg *configStruct.BaseConfig, dbRows []
 }
 
 func (b *ConfigBuilder) loadAliSmsConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.AliSms == SourceDatabase {
+	switch b.strategy.AliSms {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载阿里云短信配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("阿里云短信"))
 		}
 		aliSmsConfig, err := getAliSmsConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AliSmsConfig = aliSmsConfig
-	} else if b.strategy.AliSms == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载阿里云短信配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("阿里云短信"))
 		}
 		var aliSmsConfig configStruct.AliSmsConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_sms", &aliSmsConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAliSms, &aliSmsConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云短信配置失败: %w", err)
 		}
 		cfg.AliSmsConfig = &aliSmsConfig
@@ -707,21 +1048,22 @@ func (b *ConfigBuilder) loadAliSmsConfig(cfg *configStruct.BaseConfig, dbRows []
 }
 
 func (b *ConfigBuilder) loadAliIotConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.AliIot == SourceDatabase {
+	switch b.strategy.AliIot {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载阿里云 IoT 配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("阿里云 IoT"))
 		}
 		aliIotConfig, err := getAliIotConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AliIotConfig = aliIotConfig
-	} else if b.strategy.AliIot == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载阿里云 IoT 配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("阿里云 IoT"))
 		}
 		var aliIotConfig configStruct.AliIotConfig
-		if err := b.yamlVipers[0].UnmarshalKey("ali_iot", &aliIotConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAliIot, &aliIotConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载阿里云 IoT 配置失败: %w", err)
 		}
 		cfg.AliIotConfig = &aliIotConfig
@@ -730,21 +1072,22 @@ func (b *ConfigBuilder) loadAliIotConfig(cfg *configStruct.BaseConfig, dbRows []
 }
 
 func (b *ConfigBuilder) loadAmapConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Amap == SourceDatabase {
+	switch b.strategy.Amap {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载高德地图配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("高德地图"))
 		}
 		amapConfig, err := getAmapConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.AmapConfig = amapConfig
-	} else if b.strategy.Amap == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载高德地图配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("高德地图"))
 		}
 		var amapConfig configStruct.AmapConfig
-		if err := b.yamlVipers[0].UnmarshalKey("amap", &amapConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyAmap, &amapConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载高德地图配置失败: %w", err)
 		}
 		cfg.AmapConfig = &amapConfig
@@ -753,21 +1096,22 @@ func (b *ConfigBuilder) loadAmapConfig(cfg *configStruct.BaseConfig, dbRows []*D
 }
 
 func (b *ConfigBuilder) loadYunxinConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
-	if b.strategy.Yunxin == SourceDatabase {
+	switch b.strategy.Yunxin {
+	case SourceDatabase:
 		if len(dbRows) == 0 {
-			return fmt.Errorf("策略要求从数据库加载网易云信配置，但数据库配置行为空")
+			return fmt.Errorf(errConfigFromDatabaseEmpty("网易云信"))
 		}
 		yunxinConfig, err := getYunXinConfig(dbRows, debug)
 		if err != nil {
 			return err
 		}
 		cfg.YunxinConfig = yunxinConfig
-	} else if b.strategy.Yunxin == SourceYAML {
+	case SourceYAML:
 		if len(b.yamlVipers) == 0 {
-			return fmt.Errorf("策略要求从 YAML 加载网易云信配置，但 YAML 配置未初始化")
+			return fmt.Errorf(errConfigFromYAMLNotInit("网易云信"))
 		}
 		var yunxinConfig configStruct.YunxinConfig
-		if err := b.yamlVipers[0].UnmarshalKey("yunxin", &yunxinConfig); err != nil {
+		if err := b.yamlVipers[0].UnmarshalKey(ConfigKeyYunxin, &yunxinConfig); err != nil {
 			return fmt.Errorf("从 YAML 加载网易云信配置失败: %w", err)
 		}
 		cfg.YunxinConfig = &yunxinConfig
@@ -814,18 +1158,18 @@ func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2, defaultValue stri
 
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
-		No:      GetValueFromRow(rows, "app", "", "no", "", false),
-		Name:    GetValueFromRow(rows, "app", "", "name", "", false),
-		Host:    GetValueFromRow(rows, "app", "", "host", "", false),
-		Port:    GetValueFromRow(rows, "app", "", "port", "127.0.0.1", false),
-		Domain:  GetValueFromRow(rows, "app", "", "domain", "", false),
-		Debug:   GetValueFromRow(rows, "app", "", "debug", "", false) == "1",
-		Version: GetValueFromRow(rows, "app", "", "version", "", false),
+		No:      GetValueFromRow(rows, ConfigKeyApp, "", "no", "", false),
+		Name:    GetValueFromRow(rows, ConfigKeyApp, "", "name", "", false),
+		Host:    GetValueFromRow(rows, ConfigKeyApp, "", "host", "", false),
+		Port:    GetValueFromRow(rows, ConfigKeyApp, "", "port", "127.0.0.1", false),
+		Domain:  GetValueFromRow(rows, ConfigKeyApp, "", "domain", "", false),
+		Debug:   GetValueFromRow(rows, ConfigKeyApp, "", "debug", "", false) == "1",
+		Version: GetValueFromRow(rows, ConfigKeyApp, "", "version", "", false),
 	}
 }
 
 func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error) {
-	timeZone := GetValueFromRow(rows, "time_zone", "", "", "Asia/Shanghai", false)
+	timeZone := GetValueFromRow(rows, ConfigKeyTimeZone, "", "", "Asia/Shanghai", false)
 	location, err = time.LoadLocation(timeZone)
 	if err != nil {
 		location = time.FixedZone("CST-8", 8*3600)
@@ -835,8 +1179,8 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error
 
 func getWechatMiniConfig(rows []*DbSettingRow, debug bool) (*configStruct.WechatMiniConfig, error) {
 	cfg := &configStruct.WechatMiniConfig{
-		AppID:     GetValueFromRow(rows, "wechat", "mini", "app_id", "", debug),
-		AppSecret: GetValueFromRow(rows, "wechat", "mini", "app_secret", "", debug),
+		AppID:     GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatMiniFlag, "app_id", "", debug),
+		AppSecret: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatMiniFlag, "app_secret", "", debug),
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("微信小程序配置 AppID 为空")
@@ -849,10 +1193,10 @@ func getWechatMiniConfig(rows []*DbSettingRow, debug bool) (*configStruct.Wechat
 
 func getWechatOaConfig(rows []*DbSettingRow, debug bool) (*configStruct.WechatOaConfig, error) {
 	cfg := &configStruct.WechatOaConfig{
-		AppID:          GetValueFromRow(rows, "wechat", "oa", "app_id", "", debug),
-		AppSecret:      GetValueFromRow(rows, "wechat", "oa", "app_secret", "", debug),
-		Token:          GetValueFromRow(rows, "wechat", "oa", "token", "", debug),
-		EncodingAESKey: GetValueFromRow(rows, "wechat", "oa", "encoding_aes_key", "", debug),
+		AppID:          GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOaFlag, "app_id", "", debug),
+		AppSecret:      GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOaFlag, "app_secret", "", debug),
+		Token:          GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOaFlag, "token", "", debug),
+		EncodingAESKey: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOaFlag, "encoding_aes_key", "", debug),
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("微信公众号配置 AppID 为空")
@@ -865,8 +1209,8 @@ func getWechatOaConfig(rows []*DbSettingRow, debug bool) (*configStruct.WechatOa
 
 func getWechatOpenConfig(rows []*DbSettingRow, debug bool) (*configStruct.WechatOpenConfig, error) {
 	cfg := &configStruct.WechatOpenConfig{
-		AppID:     GetValueFromRow(rows, "wechat", "open", "app_id", "", debug),
-		AppSecret: GetValueFromRow(rows, "wechat", "open", "app_secret", "", debug),
+		AppID:     GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOpenFlag, "app_id", "", debug),
+		AppSecret: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatOpenFlag, "app_secret", "", debug),
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("微信开放平台配置 AppID 为空")
@@ -879,18 +1223,18 @@ func getWechatOpenConfig(rows []*DbSettingRow, debug bool) (*configStruct.Wechat
 
 func getWechatPayConfigV3(rows []*DbSettingRow, debug bool) (*configStruct.WechatPayConfigV3, error) {
 	cfg := &configStruct.WechatPayConfigV3{
-		AppID:                     GetValueFromRow(rows, "wechat", "pay_v3", "app_id", "", debug),
-		ApiKeyV3:                  GetValueFromRow(rows, "wechat", "pay_v3", "api_key", "", debug),
-		MchID:                     GetValueFromRow(rows, "wechat", "pay_v3", "mch_id", "", debug),
-		CertURI:                   GetValueFromRow(rows, "wechat", "pay_v3", "cert_uri", "", debug),
-		KeyURI:                    GetValueFromRow(rows, "wechat", "pay_v3", "key_uri", "", debug),
-		PEMPrivateKeyContent:      GetValueFromRow(rows, "wechat", "pay_v3", "pem_private_key_content", "", debug),
-		PEMCertContent:            GetValueFromRow(rows, "wechat", "pay_v3", "pem_cert_content", "", debug),
-		CertSerialNo:              GetValueFromRow(rows, "wechat", "pay_v3", "cert_serial_no", "", debug),
-		NotifyURL:                 GetValueFromRow(rows, "wechat", "pay_v3", "notify_url", "", debug),
-		RefundNotifyURL:           GetValueFromRow(rows, "wechat", "pay_v3", "refund_notify_url", "", debug),
-		MerchantTransferNotifyURL: GetValueFromRow(rows, "wechat", "pay_v3", "merchant_transfer_notify_url", "", debug),
-		Debug:                     GetValueFromRow(rows, "wechat", "pay_v3", "debug", "0", debug) == "1",
+		AppID:                     GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "app_id", "", debug),
+		ApiKeyV3:                  GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "api_key", "", debug),
+		MchID:                     GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "mch_id", "", debug),
+		CertURI:                   GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "cert_uri", "", debug),
+		KeyURI:                    GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "key_uri", "", debug),
+		PEMPrivateKeyContent:      GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "pem_private_key_content", "", debug),
+		PEMCertContent:            GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "pem_cert_content", "", debug),
+		CertSerialNo:              GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "cert_serial_no", "", debug),
+		NotifyURL:                 GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "notify_url", "", debug),
+		RefundNotifyURL:           GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "refund_notify_url", "", debug),
+		MerchantTransferNotifyURL: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "merchant_transfer_notify_url", "", debug),
+		Debug:                     GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV3Flag, "debug", "0", debug) == "1",
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("微信支付 V3 配置 AppID 为空")
@@ -903,16 +1247,16 @@ func getWechatPayConfigV3(rows []*DbSettingRow, debug bool) (*configStruct.Wecha
 
 func getWechatPayConfigV2(rows []*DbSettingRow, debug bool) (*configStruct.WechatPayConfigV2, error) {
 	cfg := &configStruct.WechatPayConfigV2{
-		AppID:           GetValueFromRow(rows, "wechat", "pay_v2", "app_id", "", debug),
-		ApiKey:          GetValueFromRow(rows, "wechat", "pay_v2", "api_key", "", debug),
-		MchID:           GetValueFromRow(rows, "wechat", "pay_v2", "mch_id", "", debug),
-		CertURI:         GetValueFromRow(rows, "wechat", "pay_v2", "cert_uri", "", debug),
-		KeyURI:          GetValueFromRow(rows, "wechat", "pay_v2", "key_uri", "", debug),
-		P12CertFilePath: GetValueFromRow(rows, "wechat", "pay_v2", "p12_cert_file_path", "", debug),
-		CertSerialNo:    GetValueFromRow(rows, "wechat", "pay_v2", "cert_serial_no", "", debug),
-		NotifyURL:       GetValueFromRow(rows, "wechat", "pay_v2", "notify_url", "", debug),
-		RefundNotifyURL: GetValueFromRow(rows, "wechat", "pay_v2", "refund_notify_url", "", debug),
-		Debug:           GetValueFromRow(rows, "wechat", "pay_v2", "debug", "0", debug) == "1",
+		AppID:           GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "app_id", "", debug),
+		ApiKey:          GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "api_key", "", debug),
+		MchID:           GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "mch_id", "", debug),
+		CertURI:         GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "cert_uri", "", debug),
+		KeyURI:          GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "key_uri", "", debug),
+		P12CertFilePath: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "p12_cert_file_path", "", debug),
+		CertSerialNo:    GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "cert_serial_no", "", debug),
+		NotifyURL:       GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "notify_url", "", debug),
+		RefundNotifyURL: GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "refund_notify_url", "", debug),
+		Debug:           GetValueFromRow(rows, ConfigKeyWechat, ConfigKeyWechatPayV2Flag, "debug", "0", debug) == "1",
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("微信支付 V2 配置 AppID 为空")
@@ -925,13 +1269,13 @@ func getWechatPayConfigV2(rows []*DbSettingRow, debug bool) (*configStruct.Wecha
 
 func getAliPayConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliPayConfig, error) {
 	cfg := &configStruct.AliPayConfig{
-		AppID:            GetValueFromRow(rows, "ali", "pay", "app_id", "", debug),
-		PrivateKey:       GetValueFromRow(rows, "ali", "pay", "private_key", "", debug),
-		NotifyURL:        GetValueFromRow(rows, "ali", "pay", "notify_url", "", debug),
-		Debug:            GetValueFromRow(rows, "ali", "pay", "debug", "0", debug) == "1",
-		AppCertPublicKey: GetValueFromRow(rows, "ali", "pay", "app_cert_public_key", "", debug),
-		CertPublicKey:    GetValueFromRow(rows, "ali", "pay", "cert_public_key", "", debug),
-		RootCert:         GetValueFromRow(rows, "ali", "pay", "root_cert", "", debug),
+		AppID:            GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "app_id", "", debug),
+		PrivateKey:       GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "private_key", "", debug),
+		NotifyURL:        GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "notify_url", "", debug),
+		Debug:            GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "debug", "0", debug) == "1",
+		AppCertPublicKey: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "app_cert_public_key", "", debug),
+		CertPublicKey:    GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "cert_public_key", "", debug),
+		RootCert:         GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliPayFlag, "root_cert", "", debug),
 	}
 	if cfg.AppID == "" {
 		return nil, fmt.Errorf("支付宝配置 AppID 为空")
@@ -944,14 +1288,14 @@ func getAliPayConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliPayConf
 
 func getRedisConfig(rows []*DbSettingRow, debug bool) (*configStruct.RedisConfig, error) {
 	cfg := &configStruct.RedisConfig{
-		Host:        GetValueFromRow(rows, "redis", "host", "", "127.0.0.1", debug),
-		Port:        GetValueFromRow(rows, "redis", "port", "", "6379", debug),
-		Username:    GetValueFromRow(rows, "redis", "username", "", "", debug),
-		Password:    GetValueFromRow(rows, "redis", "password", "", "", debug),
-		IdleTimeout: typeHelper.Str2Int(GetValueFromRow(rows, "redis", "idle_timeout", "", "60", debug)),
-		Database:    typeHelper.Str2Int(GetValueFromRow(rows, "redis", "database", "", "", debug)),
-		MaxActive:   typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_active", "", "10", debug)),
-		MaxIdle:     typeHelper.Str2Int(GetValueFromRow(rows, "redis", "max_idle", "", "10", debug)),
+		Host:        GetValueFromRow(rows, ConfigKeyRedis, "host", "", "127.0.0.1", debug),
+		Port:        GetValueFromRow(rows, ConfigKeyRedis, "port", "", "6379", debug),
+		Username:    GetValueFromRow(rows, ConfigKeyRedis, "username", "", "", debug),
+		Password:    GetValueFromRow(rows, ConfigKeyRedis, "password", "", "", debug),
+		IdleTimeout: typeHelper.Str2Int(GetValueFromRow(rows, ConfigKeyRedis, "idle_timeout", "", "60", debug)),
+		Database:    typeHelper.Str2Int(GetValueFromRow(rows, ConfigKeyRedis, "database", "", "", debug)),
+		MaxActive:   typeHelper.Str2Int(GetValueFromRow(rows, ConfigKeyRedis, "max_active", "", "10", debug)),
+		MaxIdle:     typeHelper.Str2Int(GetValueFromRow(rows, ConfigKeyRedis, "max_idle", "", "10", debug)),
 	}
 	if cfg.Host == "" {
 		return nil, fmt.Errorf("Redis 配置 Host 为空")
@@ -964,10 +1308,10 @@ func getRedisConfig(rows []*DbSettingRow, debug bool) (*configStruct.RedisConfig
 
 func getEsConfig(rows []*DbSettingRow, debug bool) (*configStruct.EsConfig, error) {
 	cfg := &configStruct.EsConfig{
-		Host:     GetValueFromRow(rows, "es", "host", "", "http://127.0.0.1", debug),
-		Port:     GetValueFromRow(rows, "es", "port", "", "9200", debug),
-		Password: GetValueFromRow(rows, "es", "password", "", "123456", debug),
-		Username: GetValueFromRow(rows, "es", "username", "", "es", debug),
+		Host:     GetValueFromRow(rows, ConfigKeyEs, "host", "", "http://127.0.0.1", debug),
+		Port:     GetValueFromRow(rows, ConfigKeyEs, "port", "", "9200", debug),
+		Password: GetValueFromRow(rows, ConfigKeyEs, "password", "", "123456", debug),
+		Username: GetValueFromRow(rows, ConfigKeyEs, "username", "", "es", debug),
 	}
 	if cfg.Host == "" {
 		return nil, fmt.Errorf("Elasticsearch 配置 Host 为空")
@@ -980,9 +1324,9 @@ func getEsConfig(rows []*DbSettingRow, debug bool) (*configStruct.EsConfig, erro
 
 func getRabbitMQConfig(rows []*DbSettingRow, debug bool) (*configStruct.RabbitMQConfig, error) {
 	cfg := &configStruct.RabbitMQConfig{
-		Host:     GetValueFromRow(rows, "rabbit_mq", "host", "", "http://127.0.0.1", debug),
-		Password: GetValueFromRow(rows, "rabbit_mq", "password", "", "123456", debug),
-		Username: GetValueFromRow(rows, "rabbit_mq", "username", "", "root", debug),
+		Host:     GetValueFromRow(rows, ConfigKeyRabbitMQ, "host", "", "http://127.0.0.1", debug),
+		Password: GetValueFromRow(rows, ConfigKeyRabbitMQ, "password", "", "123456", debug),
+		Username: GetValueFromRow(rows, ConfigKeyRabbitMQ, "username", "", "root", debug),
 	}
 	if cfg.Host == "" {
 		return nil, fmt.Errorf("RabbitMQ 配置 Host 为空")
@@ -991,9 +1335,9 @@ func getRabbitMQConfig(rows []*DbSettingRow, debug bool) (*configStruct.RabbitMQ
 }
 
 func getPostgresConfig(rows []*DbSettingRow, debug bool) (*configStruct.PostgresConfig, error) {
-	dsn := GetValueFromRow(rows, "postgres", "", "dsn", "", debug)
+	dsn := GetValueFromRow(rows, ConfigKeyPostgres, "", "dsn", "", debug)
 	if dsn == "" {
-		dsn = GetValueFromRow(rows, "postgres", "", "", "", debug)
+		dsn = GetValueFromRow(rows, ConfigKeyPostgres, "", "", "", debug)
 	}
 	if dsn == "" {
 		return nil, nil // DSN 为空时返回 nil，这是允许的
@@ -1003,13 +1347,13 @@ func getPostgresConfig(rows []*DbSettingRow, debug bool) (*configStruct.Postgres
 	if cfg.DSN == "" {
 		return nil, fmt.Errorf("PostgreSQL 配置 DSN 为空")
 	}
-	if v := GetValueFromRow(rows, "postgres", "", "conn_max_idle", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyPostgres, "", "conn_max_idle", "", debug); v != "" {
 		cfg.ConnMaxIdle = typeHelper.Str2Int(v)
 	}
-	if v := GetValueFromRow(rows, "postgres", "", "conn_max_open", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyPostgres, "", "conn_max_open", "", debug); v != "" {
 		cfg.ConnMaxOpen = typeHelper.Str2Int(v)
 	}
-	if v := GetValueFromRow(rows, "postgres", "", "conn_max_lifetime", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyPostgres, "", "conn_max_lifetime", "", debug); v != "" {
 		cfg.ConnMaxLifetime = time.Duration(typeHelper.Str2Int64(v)) * time.Second
 	}
 	return cfg, nil
@@ -1017,16 +1361,16 @@ func getPostgresConfig(rows []*DbSettingRow, debug bool) (*configStruct.Postgres
 
 func getMysqlConfig(rows []*DbSettingRow, debug bool) (*configStruct.MysqlConfig, error) {
 	cfg := &configStruct.MysqlConfig{
-		Host:             GetValueFromRow(rows, "mysql", "", "host", "127.0.0.1", debug),
-		Port:             GetValueFromRow(rows, "mysql", "", "port", "3306", debug),
-		Username:         GetValueFromRow(rows, "mysql", "", "username", "", debug),
-		Password:         GetValueFromRow(rows, "mysql", "", "password", "", debug),
-		DbName:           GetValueFromRow(rows, "mysql", "", "db_name", "", debug),
-		Charset:          GetValueFromRow(rows, "mysql", "", "charset", "utf8mb4", debug),
-		Collation:        GetValueFromRow(rows, "mysql", "", "collation", "utf8mb4_unicode_ci", debug),
-		SettingTableName: GetValueFromRow(rows, "mysql", "", "setting_table_name", "u_setting", debug),
-		TimeZone:         GetValueFromRow(rows, "mysql", "", "time_zone", "Asia/Shanghai", debug),
-		ParseTime:        GetValueFromRow(rows, "mysql", "", "parse_time", "true", debug) == "true",
+		Host:             GetValueFromRow(rows, ConfigKeyMysql, "", "host", "127.0.0.1", debug),
+		Port:             GetValueFromRow(rows, ConfigKeyMysql, "", "port", "3306", debug),
+		Username:         GetValueFromRow(rows, ConfigKeyMysql, "", "username", "", debug),
+		Password:         GetValueFromRow(rows, ConfigKeyMysql, "", "password", "", debug),
+		DbName:           GetValueFromRow(rows, ConfigKeyMysql, "", "db_name", "", debug),
+		Charset:          GetValueFromRow(rows, ConfigKeyMysql, "", "charset", "utf8mb4", debug),
+		Collation:        GetValueFromRow(rows, ConfigKeyMysql, "", "collation", "utf8mb4_unicode_ci", debug),
+		SettingTableName: GetValueFromRow(rows, ConfigKeyMysql, "", "setting_table_name", "u_setting", debug),
+		TimeZone:         GetValueFromRow(rows, ConfigKeyMysql, "", "time_zone", "Asia/Shanghai", debug),
+		ParseTime:        GetValueFromRow(rows, ConfigKeyMysql, "", "parse_time", "true", debug) == "true",
 	}
 	if cfg.Host == "" {
 		return nil, fmt.Errorf("MySQL 配置 Host 为空")
@@ -1040,13 +1384,13 @@ func getMysqlConfig(rows []*DbSettingRow, debug bool) (*configStruct.MysqlConfig
 	if cfg.DbName == "" {
 		return nil, fmt.Errorf("MySQL 配置 DbName 为空")
 	}
-	if v := GetValueFromRow(rows, "mysql", "", "max_open_conns", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyMysql, "", "max_open_conns", "", debug); v != "" {
 		cfg.MaxOpenConns = typeHelper.Str2Int(v)
 	}
-	if v := GetValueFromRow(rows, "mysql", "", "max_idle", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyMysql, "", "max_idle", "", debug); v != "" {
 		cfg.MaxIdle = typeHelper.Str2Int(v)
 	}
-	if v := GetValueFromRow(rows, "mysql", "", "max_life_time", "", debug); v != "" {
+	if v := GetValueFromRow(rows, ConfigKeyMysql, "", "max_life_time", "", debug); v != "" {
 		cfg.MaxLifeTime = typeHelper.Str2Int(v)
 	}
 	return cfg, nil
@@ -1054,13 +1398,13 @@ func getMysqlConfig(rows []*DbSettingRow, debug bool) (*configStruct.MysqlConfig
 
 func getAliOssConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliOssConfig, error) {
 	cfg := &configStruct.AliOssConfig{
-		AccessKeyID:     GetValueFromRow(rows, "ali", "oss", "access_key_id", "", debug),
-		AccessKeySecret: GetValueFromRow(rows, "ali", "oss", "access_key_secret", "", debug),
-		Host:            GetValueFromRow(rows, "ali", "oss", "host", "", debug),
-		EndPoint:        GetValueFromRow(rows, "ali", "oss", "end_point", "", debug),
-		BucketName:      GetValueFromRow(rows, "ali", "oss", "bucket_name", "", debug),
-		ExpireTime:      typeHelper.Str2Int64(GetValueFromRow(rows, "ali", "oss", "expire_time", "30", debug)),
-		ARN:             GetValueFromRow(rows, "ali", "oss", "arn", "", debug),
+		AccessKeyID:     GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "access_key_id", "", debug),
+		AccessKeySecret: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "access_key_secret", "", debug),
+		Host:            GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "host", "", debug),
+		EndPoint:        GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "end_point", "", debug),
+		BucketName:      GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "bucket_name", "", debug),
+		ExpireTime:      typeHelper.Str2Int64(GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "expire_time", "30", debug)),
+		ARN:             GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliOssFlag, "arn", "", debug),
 	}
 	if cfg.AccessKeyID == "" {
 		return nil, fmt.Errorf("阿里云 OSS 配置 AccessKeyID 为空")
@@ -1073,9 +1417,9 @@ func getAliOssConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliOssConf
 
 func getAliApiConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliApiConfig, error) {
 	cfg := &configStruct.AliApiConfig{
-		AppKey:    GetValueFromRow(rows, "ali", "api", "app_key", "", debug),
-		AppSecret: GetValueFromRow(rows, "ali", "api", "app_secret", "", debug),
-		AppCode:   GetValueFromRow(rows, "ali", "api", "app_code", "", debug),
+		AppKey:    GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliApiFlag, "app_key", "", debug),
+		AppSecret: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliApiFlag, "app_secret", "", debug),
+		AppCode:   GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliApiFlag, "app_code", "", debug),
 	}
 	if cfg.AppKey == "" {
 		return nil, fmt.Errorf("阿里云 API 配置 AppKey 为空")
@@ -1091,8 +1435,8 @@ func getAliApiConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliApiConf
 
 func getAliSmsConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliSmsConfig, error) {
 	cfg := &configStruct.AliSmsConfig{
-		AccessKeySecret: GetValueFromRow(rows, "ali", "sms", "access_key_secret", "", debug),
-		AccessKeyID:     GetValueFromRow(rows, "ali", "sms", "access_key_id", "", debug),
+		AccessKeySecret: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliSmsFlag, "access_key_secret", "", debug),
+		AccessKeyID:     GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliSmsFlag, "access_key_id", "", debug),
 	}
 	if cfg.AccessKeyID == "" {
 		return nil, fmt.Errorf("阿里云短信配置 AccessKeyID 为空")
@@ -1105,10 +1449,10 @@ func getAliSmsConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliSmsConf
 
 func getAliIotConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliIotConfig, error) {
 	cfg := &configStruct.AliIotConfig{
-		AccessKeySecret: GetValueFromRow(rows, "ali", "iot", "access_key_secret", "", debug),
-		AccessKeyID:     GetValueFromRow(rows, "ali", "iot", "access_key_id", "", debug),
-		EndPoint:        GetValueFromRow(rows, "ali", "iot", "end_point", "", debug),
-		RegionID:        GetValueFromRow(rows, "ali", "iot", "region_id", "", debug),
+		AccessKeySecret: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliIotFlag, "access_key_secret", "", debug),
+		AccessKeyID:     GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliIotFlag, "access_key_id", "", debug),
+		EndPoint:        GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliIotFlag, "end_point", "", debug),
+		RegionID:        GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliIotFlag, "region_id", "", debug),
 	}
 	if cfg.AccessKeyID == "" {
 		return nil, fmt.Errorf("阿里云 IoT 配置 AccessKeyID 为空")
@@ -1120,7 +1464,7 @@ func getAliIotConfig(rows []*DbSettingRow, debug bool) (*configStruct.AliIotConf
 }
 
 func getAmapConfig(rows []*DbSettingRow, debug bool) (*configStruct.AmapConfig, error) {
-	cfg := &configStruct.AmapConfig{Key: GetValueFromRow(rows, "ali", "amap", "key", "", debug)}
+	cfg := &configStruct.AmapConfig{Key: GetValueFromRow(rows, ConfigKeyAli, ConfigKeyAliAmapFlag, "key", "", debug)}
 	if cfg.Key == "" {
 		return nil, fmt.Errorf("高德地图配置 Key 为空")
 	}
@@ -1129,8 +1473,8 @@ func getAmapConfig(rows []*DbSettingRow, debug bool) (*configStruct.AmapConfig, 
 
 func getYunXinConfig(rows []*DbSettingRow, debug bool) (*configStruct.YunxinConfig, error) {
 	cfg := &configStruct.YunxinConfig{
-		AppKey:    GetValueFromRow(rows, "netease", "yunxin", "app_key", "", debug),
-		AppSecret: GetValueFromRow(rows, "netease", "yunxin", "app_secret", "", debug),
+		AppKey:    GetValueFromRow(rows, ConfigKeyNetease, ConfigKeyYunxinFlag, "app_key", "", debug),
+		AppSecret: GetValueFromRow(rows, ConfigKeyNetease, ConfigKeyYunxinFlag, "app_secret", "", debug),
 	}
 	if cfg.AppKey == "" {
 		return nil, fmt.Errorf("网易云信配置 AppKey 为空")
