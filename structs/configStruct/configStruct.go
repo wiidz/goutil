@@ -351,3 +351,27 @@ type WikiConfig struct {
 	StreamTimeout time.Duration `mapstructure:"stream_timeout"` // 流式超时
 	SimpleTimeout time.Duration `mapstructure:"simple_timeout"` // 单此请求
 }
+
+// AiMngConfig AI 管理器配置
+type AiMngConfig struct {
+	// 执行配置
+	MaxExecutionTime time.Duration `mapstructure:"max_execution_time" default:"30s"` // 执行最长时间
+	MinInterval      time.Duration `mapstructure:"min_interval" default:"1s"`        // 调用最小时间间隔
+
+	// 会话配置
+	SessionTTL         time.Duration `mapstructure:"session_ttl" default:"1h"`           // 会话过期时间
+	MaxSessionMessages int           `mapstructure:"max_session_messages" default:"100"`  // 最大会话消息数
+	ResetSignal        string        `mapstructure:"reset_signal" default:"新对话"`      // 重置对话信号
+
+	// SKU 配置
+	DirectSkuDisplayLimit int           `mapstructure:"direct_sku_display_limit" default:"10"`      // 直接 SKU 显示限制
+	DirectSkuContextTTL   time.Duration `mapstructure:"direct_sku_context_ttl" default:"30m"`      // 直接 SKU 上下文过期时间
+
+	// Wiki 配置
+	WikiCollectionID              string  `mapstructure:"wiki_collection_id" validate:"required"`  // Wiki 集合 ID
+	WikiMinScore                  float64 `mapstructure:"wiki_min_score" default:"0.35"`           // Wiki 最小分数
+	WikiNormalizationMinScore     float64 `mapstructure:"wiki_normalization_min_score" default:"0.05"` // Wiki 标准化最小分数
+	DefaultWikiSearchLimit        int     `mapstructure:"default_wiki_search_limit" default:"3"`  // 默认 Wiki 搜索限制
+	MaxWikiSearchLimit            int     `mapstructure:"max_wiki_search_limit" default:"10"`     // 最大 Wiki 搜索限制
+	DefaultNameNormalizationLimit int     `mapstructure:"default_name_normalization_limit" default:"5"` // 默认名称标准化限制
+}
