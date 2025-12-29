@@ -89,7 +89,6 @@ type Options struct {
 	ID            string
 	Loader        Loader
 	ProjectConfig configStruct.ProjectConfig
-	CheckStart    *configStruct.CheckStart
 	CacheTTL      time.Duration
 }
 

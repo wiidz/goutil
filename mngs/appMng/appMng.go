@@ -12,7 +12,6 @@ import (
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
-	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 const (
@@ -33,9 +32,6 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	//【1】参数验证
 	if opts.Loader == nil {
 		opts.Loader = DefaultLoader()
-	}
-	if opts.CheckStart == nil {
-		opts.CheckStart = &configStruct.CheckStart{}
 	}
 
 	key := opts.ID
@@ -71,29 +67,28 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 
 	//【5】启动检查
-	// 根据 CheckStart 要求初始化服务
+	// 根据 BaseConfig 中的配置自动初始化服务
 	// 注意：配置的有效性验证应该在 Loader 中完成（例如 ConfigBuilder.Build）
-	// 这里只负责根据 CheckStart 要求初始化服务
-	if opts.CheckStart.Mysql {
+	// 如果 BaseConfig 中有配置，则自动初始化对应的服务
+	// 这样避免了重复配置：如果 ConfigSourceStrategy 中约定了配置必须加载，则自动初始化服务
+
+	// MySQL
+	if app.BaseConfig.MysqlConfig != nil {
 		if res.Mysql != nil {
 			app.Mysql = res.Mysql
 		} else {
-			if app.BaseConfig.MysqlConfig == nil {
-				return nil, fmt.Errorf("appMng: MySql config is required but not found")
-			}
 			app.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
 			if err != nil {
 				return nil, fmt.Errorf("appMng: init mysql failed: %w", err)
 			}
 		}
 	}
-	if opts.CheckStart.Postgres {
+
+	// PostgreSQL
+	if app.BaseConfig.PostgresConfig != nil {
 		if res.Postgres != nil {
 			app.Postgres = res.Postgres
 		} else {
-			if app.BaseConfig.PostgresConfig == nil {
-				return nil, fmt.Errorf("appMng: PostgreSql config is required but not found")
-			}
 			app.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
 				DSN:             app.BaseConfig.PostgresConfig.DSN,
 				ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
@@ -105,37 +100,34 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 			}
 		}
 	}
-	if opts.CheckStart.Redis {
+
+	// Redis
+	if app.BaseConfig.RedisConfig != nil {
 		if res.Redis != nil {
 			app.Redis = res.Redis
 		} else {
-			if app.BaseConfig.RedisConfig == nil {
-				return nil, fmt.Errorf("appMng: Redis config is required but not found")
-			}
 			if app.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init redis failed: %w", err)
 			}
 		}
 	}
-	if opts.CheckStart.Es {
+
+	// Elasticsearch
+	if app.BaseConfig.EsConfig != nil {
 		if res.Es != nil {
 			app.Es = res.Es
 		} else {
-			if app.BaseConfig.EsConfig == nil {
-				return nil, fmt.Errorf("appMng: Es config is required but not found")
-			}
 			if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init es failed: %w", err)
 			}
 		}
 	}
-	if opts.CheckStart.RabbitMQ {
+
+	// RabbitMQ
+	if app.BaseConfig.RabbitMQConfig != nil {
 		if res.RabbitMQ != nil {
 			app.RabbitMQ = res.RabbitMQ
 		} else {
-			if app.BaseConfig.RabbitMQConfig == nil {
-				return nil, fmt.Errorf("appMng: RabbitMQ config is required but not found")
-			}
 			if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
 				return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
 			}
