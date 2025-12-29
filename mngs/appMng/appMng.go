@@ -30,15 +30,15 @@ func NewManager() *Manager {
 }
 
 // NewApp 直接构建一个 AppMng，不使用缓存。
-func NewApp(ctx context.Context, loader Loader, projectCfg configStruct.ProjectConfig) (*AppMng, error) {
+func NewApp(ctx context.Context, builder *ConfigBuilder, projectCfg configStruct.ProjectConfig) (*AppMng, error) {
 	m := NewManager()
-	return m.build(ctx, "default", loader, projectCfg, 0, false)
+	return m.build(ctx, "default", builder, projectCfg, 0, false)
 }
 
 // Get 从缓存获取或构建新的 AppMng。
 func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
-	if opts == nil || opts.Loader == nil {
-		return nil, errors.New("appMng: loader is nil")
+	if opts == nil || opts.Builder == nil {
+		return nil, errors.New("appMng: builder is nil")
 	}
 
 	key := opts.ID
@@ -54,7 +54,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 	}
 	m.mu.RUnlock()
 
-	app, err := m.build(ctx, key, opts.Loader, opts.ProjectConfig, opts.CacheTTL, true)
+	app, err := m.build(ctx, key, opts.Builder, opts.ProjectConfig, opts.CacheTTL, true)
 	if err != nil {
 		return nil, err
 	}
@@ -62,24 +62,19 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 }
 
 // 构建实例，可选择写入缓存
-func (m *Manager) build(ctx context.Context, key string, loader Loader, projectCfg configStruct.ProjectConfig, ttl time.Duration, cacheResult bool) (*AppMng, error) {
-	res, err := loader.Load(ctx)
+func (m *Manager) build(ctx context.Context, key string, builder *ConfigBuilder, projectCfg configStruct.ProjectConfig, ttl time.Duration, cacheResult bool) (*AppMng, error) {
+	baseCfg, err := builder.Build(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if res == nil || res.BaseConfig == nil {
-		return nil, errors.New("appMng: loader returned empty base config")
+	if baseCfg == nil {
+		return nil, errors.New("appMng: builder returned empty base config")
 	}
 
 	app := &AppMng{
 		ID:            key,
-		BaseConfig:    res.BaseConfig,
+		BaseConfig:    baseCfg,
 		ProjectConfig: projectCfg,
-		Mysql:         res.Mysql,
-		Postgres:      res.Postgres,
-		Redis:         res.Redis,
-		Es:            res.Es,
-		RabbitMQ:      res.RabbitMQ,
 	}
 
 	// 初始化依赖（若 loader 未提供实例则自行初始化）

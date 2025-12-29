@@ -12,8 +12,6 @@ import (
 	"github.com/wiidz/goutil/mngs/redisMng"
 	"github.com/wiidz/goutil/structs/configStruct"
 	"gorm.io/gorm"
-
-	"context"
 )
 
 /******sql******
@@ -63,35 +61,10 @@ type SettingPage struct {
 	ValueParsed interface{} `gorm:"-" json:"value"`                              // 值
 }
 
-// Loader 定义了如何装载应用配置的接口。
-// 这个是比较复杂逻辑时使用的，为了拓展功能使用
-// 返回 Result，其中至少要包含 BaseConfig。
-type Loader interface {
-	Load(ctx context.Context) (*LoaderResult, error)
-	// ... 具体结构体中增加其他的验证、远程拉取等方法
-}
-
-// LoaderFunc 便于使用函数式实现 Loader。
-type LoaderFunc func(ctx context.Context) (*LoaderResult, error)
-
-// Load 实现 Loader 接口。
-func (f LoaderFunc) Load(ctx context.Context) (*LoaderResult, error) { return f(ctx) }
-
-// LoaderResult 是 Loader 返回的数据结构。
-type LoaderResult struct {
-	BaseConfig *configStruct.BaseConfig
-	
-	Mysql      *mysqlMng.MysqlMng
-	Postgres   *psqlMng.Manager
-	Redis      *redisMng.RedisMng
-	Es         *esMng.EsMng
-	RabbitMQ   *amqpMng.RabbitMQ
-}
-
 // Options 描述了创建/获取 AppMng 时的参数。
 type Options struct {
 	ID            string
-	Loader        Loader
+	Builder       *ConfigBuilder
 	ProjectConfig configStruct.ProjectConfig
 	CacheTTL      time.Duration
 }
@@ -103,11 +76,13 @@ type AppMng struct {
 	BaseConfig    *configStruct.BaseConfig
 	ProjectConfig configStruct.ProjectConfig
 
-	Mysql    *mysqlMng.MysqlMng
-	Postgres *psqlMng.Manager
-	Redis    *redisMng.RedisMng
-	Es       *esMng.EsMng
-	RabbitMQ *amqpMng.RabbitMQ
+	Repos struct {
+		Mysql    *mysqlMng.MysqlMng
+		Postgres *psqlMng.Manager
+		Redis    *redisMng.RedisMng
+		Es       *esMng.EsMng
+		RabbitMQ *amqpMng.RabbitMQ
+	}
 }
 
 // ConfigSource 配置来源类型
