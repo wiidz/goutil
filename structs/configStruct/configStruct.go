@@ -46,7 +46,7 @@ type BaseConfig struct {
 	Profile  *AppProfile    `mapstructure:"profile"`
 	Location *time.Location `gorm:"-" json:"-" mapstructure:"location"` // 时区
 
-	HttpServerConfig []*HttpServerConfig `mapstructure:"http_server_config"` // http服务器设定
+	HttpServerConfig map[string]*HttpServerConfig `mapstructure:"http_server_config"` // http服务器设定
 
 	MysqlConfig    *MysqlConfig    `mapstructure:"mysql_config"`    // 数据库设定
 	PostgresConfig *PostgresConfig `mapstructure:"postgres_config"` // Postgres 设定

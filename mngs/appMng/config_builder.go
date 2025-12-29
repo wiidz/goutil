@@ -134,7 +134,7 @@ func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, er
 		if serverConfig == nil {
 			return nil, fmt.Errorf("加载 HttpServer 配置失败: 标签 %s 不存在", serverLabel)
 		}
-		cfg.HttpServerConfig = append(cfg.HttpServerConfig, serverConfig)
+		cfg.HttpServerConfig[serverLabel] = serverConfig
 	}
 
 	// 注意：数据库配置（Postgres/Mysql）如果策略要求从数据库加载，此时应该已经可以从 dbRows 中读取了
