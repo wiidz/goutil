@@ -1,54 +1,5 @@
 package appMng
 
-// 配置加载机制使用示例：
-//
-// 示例1：所有配置从数据库加载（需要数据库连接）
-//   initialConfig := &appMng.InitialConfig{
-//       DB: &configStruct.DBConfig{
-//           Type: configStruct.DBTypePostgres,
-//           DSN: "postgres://user:password@host:port/dbname",
-//           SettingTableName: "a_setting", // 可选，默认值为 "a_setting"
-//       },
-//   }
-//   builder, _ := appMng.NewConfigBuilder(initialConfig, nil)
-//   builder.SetDatabase(db) // 设置数据库连接
-//   baseConfig, _ := builder.Build(ctx)
-//
-// 示例2：所有配置从 YAML 加载（不需要数据库）
-//   initialConfig := &appMng.InitialConfig{
-//       YAMLFiles: []*configStruct.ViperConfig{
-//           {DirPath: "./configs", FileName: "common", FileType: "yaml"},
-//       },
-//   }
-//   strategy := &appMng.ConfigSourceStrategy{
-//       Redis: appMng.SourceYAML,
-//       Es:    appMng.SourceYAML,
-//       // ... 其他配置项都设置为 SourceYAML
-//   }
-//   builder, _ := appMng.NewConfigBuilder(initialConfig, strategy)
-//   baseConfig, _ := builder.Build(ctx)
-//
-// 示例3：混合加载（部分从数据库，部分从 YAML）
-//   initialConfig := &appMng.InitialConfig{
-//       DB: &configStruct.DBConfig{
-//           Type: configStruct.DBTypePostgres,
-//           DSN: "postgres://user:password@host:port/dbname",
-//           SettingTableName: "custom_setting", // 可选，指定自定义配置表名
-//       },
-//       YAMLFiles: []*configStruct.ViperConfig{
-//           {DirPath: "./configs", FileName: "common", FileType: "yaml"},
-//       },
-//   }
-//   strategy := &appMng.ConfigSourceStrategy{
-//       Redis:      appMng.SourceDatabase, // Redis 从数据库加载（必须成功）
-//       AliApi:     appMng.SourceYAML,      // 阿里云 API 从 YAML 加载（必须成功）
-//       WechatMini: appMng.SourceDatabase, // 微信小程序从数据库加载（必须成功）
-//       // ... 其他配置项根据需要设置，如果设置了就必须成功加载
-//   }
-//   builder, _ := appMng.NewConfigBuilder(initialConfig, strategy)
-//   builder.SetDatabase(db)
-//   baseConfig, _ := builder.Build(ctx) // 如果策略中指定的配置加载失败会报错
-
 import (
 	"context"
 	"fmt"
@@ -67,161 +18,6 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// ConfigSource 配置来源类型
-type ConfigSource string
-
-const (
-	SourceYAML     ConfigSource = "yaml"     // 从 YAML 文件加载
-	SourceDatabase ConfigSource = "database" // 从数据库加载
-)
-
-// 配置键名常量（用于 YAML 和数据库配置）
-const (
-	// YAML 配置键（用于 UnmarshalKey）
-	ConfigKeyProfile     = "profile"           // Profile 配置键
-	ConfigKeyLocation    = "location"          // Location 配置键
-	ConfigKeyRedis       = "redis"             // Redis 配置键
-	ConfigKeyEs          = "es"                // Elasticsearch 配置键
-	ConfigKeyRabbitMQ    = "rabbit_mq"         // RabbitMQ 配置键
-	ConfigKeyPostgres    = "postgres"          // PostgreSQL 配置键
-	ConfigKeyMysql       = "mysql"             // MySQL 配置键
-	ConfigKeyWechatMini  = "wechat_mini"       // 微信小程序配置键
-	ConfigKeyWechatOa    = "wechat_oa"         // 微信公众号配置键
-	ConfigKeyWechatOpen  = "wechat_open"       // 微信开放平台配置键
-	ConfigKeyWechatPayV3 = "wechat_pay_v3"     // 微信支付 V3 配置键
-	ConfigKeyWechatPayV2 = "wechat_pay_v2"     // 微信支付 V2 配置键
-	ConfigKeyAliOss      = "ali_oss"           // 阿里云 OSS 配置键
-	ConfigKeyAliPay      = "ali_pay"           // 支付宝配置键
-	ConfigKeyAliApi      = "ali_api"           // 阿里云 API 配置键
-	ConfigKeyAliSms      = "ali_sms"           // 阿里云短信配置键
-	ConfigKeyAliIot      = "ali_iot"           // 阿里云 IoT 配置键
-	ConfigKeyAmap        = "amap"              // 高德地图配置键
-	ConfigKeyYunxin      = "yunxin"            // 网易云信配置键
-	ConfigKeyLocationTZ  = "location.timezone" // Location 时区配置键
-
-	// 数据库配置键（用于 GetValueFromRow 的 name 参数）
-	ConfigKeyApp      = "app"       // 应用配置键
-	ConfigKeyTimeZone = "time_zone" // 时区配置键
-	ConfigKeyWechat   = "wechat"    // 微信配置键
-	ConfigKeyAli      = "ali"       // 阿里配置键
-	ConfigKeyNetease  = "netease"   // 网易配置键
-
-	// 数据库配置子键（用于 GetValueFromRow 的 flag1 参数）
-	ConfigKeyWechatMiniFlag  = "mini"   // 微信小程序子键
-	ConfigKeyWechatOaFlag    = "oa"     // 微信公众号子键
-	ConfigKeyWechatOpenFlag  = "open"   // 微信开放平台子键
-	ConfigKeyWechatPayV3Flag = "pay_v3" // 微信支付 V3 子键
-	ConfigKeyWechatPayV2Flag = "pay_v2" // 微信支付 V2 子键
-	ConfigKeyAliPayFlag      = "pay"    // 支付宝子键
-	ConfigKeyAliOssFlag      = "oss"    // 阿里云 OSS 子键
-	ConfigKeyAliApiFlag      = "api"    // 阿里云 API 子键
-	ConfigKeyAliSmsFlag      = "sms"    // 阿里云短信子键
-	ConfigKeyAliIotFlag      = "iot"    // 阿里云 IoT 子键
-	ConfigKeyAliAmapFlag     = "amap"   // 高德地图子键
-	ConfigKeyYunxinFlag      = "yunxin" // 网易云信子键
-)
-
-// errConfigFromDatabaseEmpty 生成从数据库加载配置失败的错误信息（数据库配置行为空）
-func errConfigFromDatabaseEmpty(configName string) string {
-	return fmt.Sprintf("策略要求从数据库加载%s配置，但数据库配置行为空", configName)
-}
-
-// errConfigFromYAMLNotInit 生成从 YAML 加载配置失败的错误信息（YAML 配置未初始化）
-func errConfigFromYAMLNotInit(configName string) string {
-	return fmt.Sprintf("策略要求从 YAML 加载%s配置，但 YAML 配置未初始化", configName)
-}
-
-// errConfigLoadFailed 生成从 YAML 加载配置失败的错误信息（YAML 配置未初始化）
-func errConfigLoadFailed(configName string, err error) string {
-	return fmt.Sprintf("加载 %s 配置失败: %w", configName, err)
-}
-
-// configLoadSuccess 加载成功
-func configLoadSuccess(configName string) string {
-	return fmt.Sprintf("加载 %s 配置成功", configName)
-}
-
-// InitialConfig 初始配置，在应用构建之初传入
-// 如果项目涉及数据库连接，必须包含数据库连接信息
-type InitialConfig struct {
-	// 数据库连接配置（统一的数据库配置，支持 PostgreSQL 和 MySQL）
-	DB *configStruct.DBConfig `mapstructure:"db"`
-
-	// 配置表名（从数据库加载配置时使用的表名）
-	// 优先级：InitialConfig.SettingTableName > DB.SettingTableName > 默认值 "a_setting"
-	SettingTableName string `mapstructure:"setting_table_name"`
-
-	// YAML 配置文件列表（支持多个 YAML 文件）
-	YAMLFiles []*configStruct.ViperConfig `mapstructure:"yaml_files"`
-}
-
-// ConfigSourceStrategy 配置来源策略，定义每个配置项应该从哪个来源加载
-type ConfigSourceStrategy struct {
-
-	// Profile 和 Location 配置来源（通常从数据库或第一个 YAML 文件）
-	Profile  ConfigSource `mapstructure:"profile"`  // Profile 配置来源
-	Location ConfigSource `mapstructure:"location"` // Location 配置来源
-
-	// 存储相关配置
-	Redis    ConfigSource `mapstructure:"redis"`    // Redis 配置来源
-	Es       ConfigSource `mapstructure:"es"`       // Elasticsearch 配置来源
-	RabbitMQ ConfigSource `mapstructure:"rabbitmq"` // RabbitMQ 配置来源
-	Postgres ConfigSource `mapstructure:"postgres"` // PostgreSQL 配置来源
-	Mysql    ConfigSource `mapstructure:"mysql"`    // MySQL 配置来源
-
-	// 微信相关配置
-	WechatMini  ConfigSource `mapstructure:"wechat_mini"`   // 微信小程序配置来源
-	WechatOa    ConfigSource `mapstructure:"wechat_oa"`     // 微信公众号配置来源
-	WechatOpen  ConfigSource `mapstructure:"wechat_open"`   // 微信开放平台配置来源
-	WechatPayV3 ConfigSource `mapstructure:"wechat_pay_v3"` // 微信支付 V3 配置来源
-	WechatPayV2 ConfigSource `mapstructure:"wechat_pay_v2"` // 微信支付 V2 配置来源
-
-	// 阿里相关配置
-	AliOss ConfigSource `mapstructure:"ali_oss"` // 阿里云 OSS 配置来源
-	AliPay ConfigSource `mapstructure:"ali_pay"` // 支付宝配置来源
-	AliApi ConfigSource `mapstructure:"ali_api"` // 阿里云 API 配置来源
-	AliSms ConfigSource `mapstructure:"ali_sms"` // 阿里云短信配置来源
-	AliIot ConfigSource `mapstructure:"ali_iot"` // 阿里云 IoT 配置来源
-	Amap   ConfigSource `mapstructure:"amap"`    // 高德地图配置来源
-
-	// 其他配置
-	Yunxin ConfigSource `mapstructure:"yunxin"` // 网易云信配置来源
-
-}
-
-// DefaultConfigSourceStrategy 返回默认的配置来源策略（所有配置都从数据库加载）
-func DefaultConfigSourceStrategy() *ConfigSourceStrategy {
-	return &ConfigSourceStrategy{
-		Redis:       SourceDatabase,
-		Es:          SourceDatabase,
-		RabbitMQ:    SourceDatabase,
-		Postgres:    SourceDatabase,
-		Mysql:       SourceDatabase,
-		WechatMini:  SourceDatabase,
-		WechatOa:    SourceDatabase,
-		WechatOpen:  SourceDatabase,
-		WechatPayV3: SourceDatabase,
-		WechatPayV2: SourceDatabase,
-		AliOss:      SourceDatabase,
-		AliPay:      SourceDatabase,
-		AliApi:      SourceDatabase,
-		AliSms:      SourceDatabase,
-		AliIot:      SourceDatabase,
-		Amap:        SourceDatabase,
-		Yunxin:      SourceDatabase,
-		Profile:     SourceDatabase,
-		Location:    SourceDatabase,
-	}
-}
-
-// ConfigBuilder 配置构建器，支持从多个来源加载配置
-type ConfigBuilder struct {
-	initialConfig *InitialConfig
-	strategy      *ConfigSourceStrategy
-	db            *gorm.DB       // 数据库连接（如果使用数据库）
-	yamlVipers    []*viper.Viper // YAML 配置实例列表
-}
-
 // NewConfigBuilder 创建配置构建器
 // initialConfig: 初始配置，如果使用数据库，必须包含数据库连接信息
 // strategy: 配置来源策略，如果为 nil 则使用默认策略（所有配置从数据库加载）
@@ -233,7 +29,7 @@ func NewConfigBuilder(initialConfig *InitialConfig, strategy *ConfigSourceStrate
 
 	// 如果策略为 nil，使用默认策略
 	if strategy == nil {
-		strategy = DefaultConfigSourceStrategy()
+		return nil, fmt.Errorf("策略不能为 nil")
 	}
 
 	builder := &ConfigBuilder{
@@ -256,11 +52,6 @@ func NewConfigBuilder(initialConfig *InitialConfig, strategy *ConfigSourceStrate
 	}
 
 	return builder, nil
-}
-
-// SetDatabase 设置数据库连接（用于从数据库加载配置）
-func (b *ConfigBuilder) SetDatabase(db *gorm.DB) {
-	b.db = db
 }
 
 // needDatabaseConnection 判断是否需要数据库连接
@@ -302,13 +93,13 @@ func (b *ConfigBuilder) needDatabaseConnection() bool {
 
 // Build 构建 BaseConfig，根据策略从不同来源加载配置
 func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, error) {
+
 	cfg := &configStruct.BaseConfig{}
 
 	// 第一步：检查策略中是否有数据库相关的配置，如果有，优先初始化数据库
 	// 这样后续的配置才能从数据库中读取
 	// 注意：如果策略要求从数据库加载配置，b.db 在 Build 开始时必然是 nil，需要先初始化
-	needDatabase := b.needDatabaseConnection()
-	if needDatabase {
+	if b.needDatabaseConnection() {
 		// 需要数据库连接，从 YAML 或 InitialConfig.DB 初始化
 		// b.db 在 Build 开始时必然是 nil，因为数据库连接是在这里初始化的
 		if err := b.initDatabaseFromConfig(); err != nil {
@@ -320,7 +111,7 @@ func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, er
 	var dbRows []*DbSettingRow
 	if b.db != nil {
 		var err error
-		dbRows, err = b.loadDatabaseRows(ctx)
+		dbRows, err = b.loadAllSettingRows(ctx)
 		if err != nil {
 			log.Printf("警告: 无法从数据库加载配置: %v", err)
 		} else {
@@ -630,18 +421,15 @@ func (b *ConfigBuilder) initMysqlFromConfig(mysqlConfig *configStruct.MysqlConfi
 	return b.initMysqlFromDSN(dsn, maxIdle, maxOpen, maxLifetime, mysqlConfig.Logger)
 }
 
-// loadDatabaseRows 从数据库加载配置行
-func (b *ConfigBuilder) loadDatabaseRows(ctx context.Context) ([]*DbSettingRow, error) {
+// loadAllSettingRows 从数据库加载配置行
+func (b *ConfigBuilder) loadAllSettingRows(ctx context.Context) ([]*DbSettingRow, error) {
 	if b.db == nil {
 		return nil, fmt.Errorf("数据库连接未设置")
 	}
 
-	// 确定使用的表名
-	tableName := b.getSettingTableName()
-
 	var rows []*DbSettingRow
 	err := b.db.WithContext(ctx).
-		Table(tableName).
+		Table(b.getSettingTableName()).
 		Where("kind = ? AND deleted_at IS NULL", 1).
 		Find(&rows).Error
 
@@ -710,7 +498,6 @@ func (b *ConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig, dbR
 }
 
 // 各个配置项的加载函数（根据策略从数据库或 YAML 加载）
-
 func (b *ConfigBuilder) loadRedisConfig(cfg *configStruct.BaseConfig, dbRows []*DbSettingRow, debug bool) error {
 	switch b.strategy.Redis {
 	case SourceDatabase:

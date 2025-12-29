@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/patrickmn/go-cache"
 	"github.com/wiidz/goutil/mngs/amqpMng"
@@ -12,11 +11,6 @@ import (
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
-)
-
-const (
-	defaultCacheTTL   = 30 * time.Minute
-	cacheCleanupCycle = 5 * time.Minute
 )
 
 var defaultManager = NewManager()
@@ -31,7 +25,7 @@ func (m *Manager) Get(ctx context.Context, opts *Options) (*AppMng, error) {
 
 	//【1】参数验证
 	if opts.Loader == nil {
-		opts.Loader = DefaultLoader()
+		return nil, errors.New("appMng: loader is nil")
 	}
 
 	key := opts.ID

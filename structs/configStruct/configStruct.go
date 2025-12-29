@@ -8,22 +8,15 @@ import (
 
 // AppProfile App资料
 type AppProfile struct {
-	Domain  string `mapstructure:"domain"` // 外部域名地址
-	Host    string `mapstructure:"host"`   // 本地host地址
-	Port    string `mapstructure:"port"`   // 本地的端口号
-	Debug   bool   `mapstructure:"debug"`  // 是否调试模式
 	No      string `mapstructure:"no"`
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
-}
 
-// CheckStart 约定启动时要验证的项目
-type CheckStart struct {
-	Mysql    bool `mapstructure:"mysql"`
-	Redis    bool `mapstructure:"redis"`
-	Es       bool `mapstructure:"es"`
-	RabbitMQ bool `mapstructure:"rabbitmq"`
-	Postgres bool `mapstructure:"postgres"`
+	Domain string `mapstructure:"domain"` // 外部域名地址
+	Host   string `mapstructure:"host"`   // 监听的地址（如0.0.0.0，127.0.0.1等）
+	Port   string `mapstructure:"port"`   // 监听的端口号
+
+	Debug bool `mapstructure:"debug"` // 是否调试模式
 }
 
 type ViperConfig struct {
