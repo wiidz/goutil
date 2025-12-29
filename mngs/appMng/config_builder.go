@@ -316,6 +316,7 @@ func (b *ConfigBuilder) Build(ctx context.Context) (*configStruct.BaseConfig, er
 	// 第四步：根据策略加载各个配置项（如果策略中指定了配置来源，则必须成功加载）
 
 	// 初始化HttpServer配置
+	cfg.HttpServerConfig = map[string]*configStruct.HttpServerConfig{}
 	for _, serverLabel := range b.initialConfig.HttpServerLabels {
 		serverConfig := getServerConfig(dbRows, serverLabel)
 		if serverConfig == nil {
