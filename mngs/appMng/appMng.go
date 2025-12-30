@@ -103,6 +103,6 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 
 	// 计算启动耗时
 	elapsed := time.Since(startTime)
-	log.Printf("✅成功: 应用初始化完成 (ID: %s, 耗时: %v)", appMng.ID, elapsed)
+	log.Printf("✅成功: 应用初始化完成 (ID: %s, 名称: %s, 版本: %s, 耗时: %v)", appMng.ID, appMng.BaseConfig.Profile.Name, appMng.BaseConfig.Profile.Version, elapsed)
 	return
 }
