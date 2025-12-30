@@ -66,13 +66,68 @@ func (g *GenericProjectConfig[T]) GetStrategy() *ConfigSourceStrategy {
 }
 
 // Build 构建项目配置（实现 ProjectConfig 接口）
-// 初始化配置池和调试模式，返回自身以便链式调用
+// 初始化配置池和调试模式，并自动加载所有在 Custom 策略中定义的配置项
+// 应用层通常不需要重写此方法，除非有特殊需求
 func (g *GenericProjectConfig[T]) Build(baseConfig *configStruct.BaseConfig, configPool *ConfigPool) error {
 	if configPool == nil {
 		return errFactory.configPoolNil()
 	}
 	g.configPool = configPool
 	g.debug = baseConfig.Profile != nil && baseConfig.Profile.Debug
+
+	// 自动加载所有在 Custom 策略中定义的配置项
+	return g.AutoLoad()
+}
+
+// AutoLoad 自动加载所有在 Custom 策略中定义的配置项
+// 通过反射自动初始化指针并加载配置，应用层无需手动处理每个字段
+// 使用示例：
+//
+//	func (c *MyProjectConfig) Build(baseConfig *configStruct.BaseConfig, configPool *appMng.ConfigPool) error {
+//	    return c.GenericProjectConfig.Build(baseConfig, configPool).AutoLoad()
+//	}
+func (g *GenericProjectConfig[T]) AutoLoad() error {
+	if g.strategy == nil {
+		return errFactory.strategyNil()
+	}
+
+	// 获取策略中的 Custom 配置
+	customStrategy := g.strategy.Custom
+	if customStrategy == nil || len(customStrategy) == 0 {
+		return nil // 如果没有自定义配置，直接返回
+	}
+
+	// 通过反射自动初始化指针并加载配置
+	dataVal := reflect.ValueOf(&g.Data).Elem()
+	dataType := dataVal.Type()
+
+	for i := 0; i < dataVal.NumField(); i++ {
+		field := dataVal.Field(i)
+		fieldType := field.Type()
+		fieldName := dataType.Field(i).Name
+
+		// 只处理指针类型字段
+		if fieldType.Kind() != reflect.Ptr {
+			continue
+		}
+
+		// 检查策略中是否有该配置项
+		if _, exists := customStrategy[fieldName]; !exists {
+			continue // 如果策略中没有定义，跳过
+		}
+
+		// 自动初始化指针（如果为 nil）
+		if field.IsNil() {
+			newValue := reflect.New(fieldType.Elem())
+			field.Set(newValue)
+		}
+
+		// 自动加载配置
+		if err := g.loadConfig(fieldName, fieldName, field.Interface()); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
