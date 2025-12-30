@@ -83,7 +83,7 @@ func GetValueFromRow(rows []*DbSettingRow, name, flag1, flag2, defaultValue stri
 
 func getAppProfile(rows []*DbSettingRow) *configStruct.AppProfile {
 	return &configStruct.AppProfile{
-		No:      GetValueFromRow(rows, ConfigKeys.App.Key, "", "no", "", false),
+		ID:      GetValueFromRow(rows, ConfigKeys.App.Key, "", "id", "", false),
 		Name:    GetValueFromRow(rows, ConfigKeys.App.Key, "", "name", "", false),
 		Debug:   GetValueFromRow(rows, ConfigKeys.App.Key, "", "debug", "", false) == "1",
 		Version: GetValueFromRow(rows, ConfigKeys.App.Key, "", "version", "", false),

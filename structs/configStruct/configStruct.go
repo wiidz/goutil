@@ -8,7 +8,7 @@ import (
 
 // AppProfile App资料
 type AppProfile struct {
-	No      string `mapstructure:"no"`
+	ID      string `mapstructure:"id"`
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 

@@ -27,7 +27,7 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 	log.Printf("✅成功: 基础配置已构建完成")
 
 	appMng = &AppMng{
-		ID:         baseCfg.Profile.Name,
+		ID:         baseCfg.Profile.ID,
 		BaseConfig: baseCfg,
 	}
 
