@@ -43,34 +43,34 @@ type RepoConfig struct {
 
 // BaseConfig 参数
 type BaseConfig struct {
-	Profile  *AppProfile    `mapstructure:"profile"`
-	Location *time.Location `gorm:"-" json:"-" mapstructure:"location"` // 时区
+	Profile  *AppProfile    `mapstructure:"Profile"`
+	Location *time.Location `gorm:"-" json:"-" mapstructure:"Location"` // 时区
 
-	HttpServerConfig map[string]*HttpServerConfig `mapstructure:"http_server_config"` // http服务器设定
+	HttpServerConfig map[string]*HttpServerConfig `mapstructure:"HttpServer"` // http服务器设定
 
-	MysqlConfig    *MysqlConfig    `mapstructure:"mysql_config"`    // 数据库设定
-	PostgresConfig *PostgresConfig `mapstructure:"postgres_config"` // Postgres 设定
-	RedisConfig    *RedisConfig    `mapstructure:"redis_config"`    // redis设定
+	Mysql    *MysqlConfig    `mapstructure:"Mysql"`    // 数据库设定
+	Postgres *PostgresConfig `mapstructure:"Postgres"` // Postgres 设定
+	Redis    *RedisConfig    `mapstructure:"Redis"`    // redis设定
 
-	EsConfig       *EsConfig       `mapstructure:"es_config"`       // es设定
-	RabbitMQConfig *RabbitMQConfig `mapstructure:"rabbitmq_config"` // rabbit_mq设定
+	Es       *EsConfig       `mapstructure:"Es"`       // es设定
+	Rabbitmq *RabbitMQConfig `mapstructure:"Rabbitmq"` // RabbitMQ设定
 
-	WechatMiniConfig  *WechatMiniConfig  `mapstructure:"wechat_mini_config"`   // 小程序设定
-	WechatOaConfig    *WechatOaConfig    `mapstructure:"wechat_oa_config"`     // 公众号设定
-	WechatOpenConfig  *WechatOpenConfig  `mapstructure:"wechat_open_config"`   // 开放平台设定
-	WechatPayConfigV3 *WechatPayConfigV3 `mapstructure:"wechat_pay_config_v3"` // V3微信支付设定
-	WechatPayConfigV2 *WechatPayConfigV2 `mapstructure:"wechat_pay_config_v2"` // V2微信支付设定
-	AliPayConfig      *AliPayConfig      `mapstructure:"ali_pay_config"`       // 支付宝设定
+	// WechatMiniConfig  *WechatMiniConfig  `mapstructure:"wechat_mini_config"`   // 小程序设定
+	// WechatOaConfig    *WechatOaConfig    `mapstructure:"wechat_oa_config"`     // 公众号设定
+	// WechatOpenConfig  *WechatOpenConfig  `mapstructure:"wechat_open_config"`   // 开放平台设定
+	// WechatPayConfigV3 *WechatPayConfigV3 `mapstructure:"wechat_pay_config_v3"` // V3微信支付设定
+	// WechatPayConfigV2 *WechatPayConfigV2 `mapstructure:"wechat_pay_config_v2"` // V2微信支付设定
+	// AliPayConfig      *AliPayConfig      `mapstructure:"ali_pay_config"`       // 支付宝设定
 
-	AliApiConfig *AliApiConfig `mapstructure:"ali_api_config"` // 阿里云APi市场设定
-	AliSmsConfig *AliSmsConfig `mapstructure:"ali_sms_config"` // 阿里云短信服务设定
-	AliIotConfig *AliIotConfig `mapstructure:"ali_iot_config"` // 阿里云物联网市场设定
-	AliOssConfig *AliOssConfig `mapstructure:"ali_oss_config"` // 阿里云oss对象存储设定
-	AmapConfig   *AmapConfig   `mapstructure:"amap_config"`    // 高德地图设定
+	// AliApiConfig *AliApiConfig `mapstructure:"ali_api_config"` // 阿里云APi市场设定
+	// AliSmsConfig *AliSmsConfig `mapstructure:"ali_sms_config"` // 阿里云短信服务设定
+	// AliIotConfig *AliIotConfig `mapstructure:"ali_iot_config"` // 阿里云物联网市场设定
+	// AliOssConfig *AliOssConfig `mapstructure:"ali_oss_config"` // 阿里云oss对象存储设定
+	// AmapConfig   *AmapConfig   `mapstructure:"amap_config"`    // 高德地图设定
 
-	YunxinConfig     *YunxinConfig     `mapstructure:"yunxin_config"`     // 网易云信设定
-	XFYunConfig      *XFYunConfig      `mapstructure:"xfyun_config"`      // 科大讯飞配置
-	VolcengineConfig *VolcengineConfig `mapstructure:"volcengine_config"` // 火山引擎配置
+	// YunxinConfig     *YunxinConfig     `mapstructure:"yunxin_config"`     // 网易云信设定
+	// XFYunConfig      *XFYunConfig      `mapstructure:"xfyun_config"`      // 科大讯飞配置
+	// VolcengineConfig *VolcengineConfig `mapstructure:"volcengine_config"` // 火山引擎配置
 }
 
 // MysqlConfig mysql数据库参数

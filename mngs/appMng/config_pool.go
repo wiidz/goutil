@@ -2,7 +2,6 @@ package appMng
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/url"
 	"strconv"
@@ -38,27 +37,27 @@ func NewConfigPool(ctx context.Context, yamlFiles []*configStruct.ViperConfig, s
 
 	// 第一步：初始化 YAML 配置（必须先初始化 YAML，才能从中读取数据库配置）
 	if len(yamlFiles) == 0 {
-		return nil, fmt.Errorf("YAML 配置文件列表不能为空")
+		return nil, errFactory.yamlFilesEmpty()
 	}
 	if err := pool.initYAML(yamlFiles); err != nil {
-		return nil, fmt.Errorf("初始化 YAML 配置失败: %w", err)
+		return nil, errFactory.yamlInitFailed(err)
 	}
 
 	// 第二步：如果传入了 settingTableName，说明需要从数据库加载配置，需要初始化数据库连接
 	if settingTableName != "" {
 		// 从 YAML 初始化数据库连接
 		if err := pool.InitDatabaseFromYAML(); err != nil {
-			return nil, fmt.Errorf("初始化数据库连接失败（需要从数据库加载配置，但无法连接数据库）: %w", err)
+			return nil, errFactory.databaseInitFailed(err)
 		}
 
 		// 第三步：数据库初始化后，立即加载配置行并保存
 		if pool.db != nil {
 			dbRows, err := pool.LoadSettingRows(ctx)
 			if err != nil {
-				log.Printf("警告: 无法从数据库加载配置行: %v", err)
+				log.Printf("⚠️警告: 无法从数据库加载配置行: %v", err)
 			} else {
 				pool.dbRows = dbRows
-				log.Printf("成功: 从数据库加载了 %d 条配置行并缓存到配置池", len(dbRows))
+				log.Printf("✅成功: 从数据库加载了 %d 条配置行并缓存到配置池", len(dbRows))
 			}
 		}
 	}
@@ -72,12 +71,12 @@ func (p *ConfigPool) initPostgresFromDSN(dsn string, maxIdle, maxOpen int, maxLi
 		Logger: loggerInterface,
 	})
 	if err != nil {
-		return fmt.Errorf("连接 PostgreSQL 失败: %w", err)
+		return errFactory.postgresConnectFailed(err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("获取底层数据库连接失败: %w", err)
+		return errFactory.getDBFailed(err)
 	}
 
 	if maxIdle > 0 {
@@ -91,7 +90,7 @@ func (p *ConfigPool) initPostgresFromDSN(dsn string, maxIdle, maxOpen int, maxLi
 	}
 
 	p.db = db
-	log.Printf("成功: PostgreSQL 数据库连接已初始化")
+	log.Printf("✅成功: PostgreSQL 数据库连接已初始化")
 	return nil
 }
 
@@ -101,12 +100,12 @@ func (p *ConfigPool) initMysqlFromDSN(dsn string, maxIdle, maxOpen int, maxLifet
 		Logger: loggerInterface,
 	})
 	if err != nil {
-		return fmt.Errorf("连接 MySQL 失败: %w", err)
+		return errFactory.mysqlConnectFailed(err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("获取底层数据库连接失败: %w", err)
+		return errFactory.getDBFailed(err)
 	}
 
 	if maxIdle > 0 {
@@ -120,14 +119,14 @@ func (p *ConfigPool) initMysqlFromDSN(dsn string, maxIdle, maxOpen int, maxLifet
 	}
 
 	p.db = db
-	log.Printf("成功: MySQL 数据库连接已初始化")
+	log.Printf("✅成功: MySQL 数据库连接已初始化")
 	return nil
 }
 
 // InitDatabaseFromYAML 从 YAML 配置初始化数据库连接
 func (p *ConfigPool) InitDatabaseFromYAML() error {
 	if len(p.yamlVipers) == 0 {
-		return fmt.Errorf("YAML 配置未初始化")
+		return errFactory.yamlConfigNotInit()
 	}
 
 	// 优先尝试从 YAML 加载 PostgreSQL 配置来初始化连接
@@ -174,7 +173,7 @@ func (p *ConfigPool) InitDatabaseFromYAML() error {
 		}
 	}
 
-	return fmt.Errorf("无法从 YAML 加载数据库配置，不存在" + ConfigKeys.Postgres.Key + "或" + ConfigKeys.Mysql.Key)
+	return errFactory.databaseConfigNotFound()
 }
 
 // initYAML 初始化 YAML 配置
@@ -182,7 +181,7 @@ func (p *ConfigPool) initYAML(yamlFiles []*configStruct.ViperConfig) error {
 	for _, yamlConfig := range yamlFiles {
 		v, err := configHelper.GetViper(yamlConfig)
 		if err != nil {
-			log.Printf("警告: 无法加载 YAML 配置文件 %s/%s.%s: %v", yamlConfig.DirPath, yamlConfig.FileName, yamlConfig.FileType, err)
+			log.Printf("⚠️警告: 无法加载 YAML 配置文件 %s/%s.%s: %v", yamlConfig.DirPath, yamlConfig.FileName, yamlConfig.FileType, err)
 			continue
 		}
 		p.yamlVipers = append(p.yamlVipers, v)
@@ -211,7 +210,7 @@ func (p *ConfigPool) GetSettingTableName() string {
 // LoadSettingRows 从数据库加载配置行
 func (p *ConfigPool) LoadSettingRows(ctx context.Context) ([]*DbSettingRow, error) {
 	if p.db == nil {
-		return nil, fmt.Errorf("数据库连接未设置")
+		return nil, errFactory.dbNotSet()
 	}
 
 	var rows []*DbSettingRow

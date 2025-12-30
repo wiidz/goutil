@@ -2,7 +2,6 @@ package appMng
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -29,6 +28,116 @@ type ProjectConfig interface {
 	Build(baseConfig *configStruct.BaseConfig, configPool *ConfigPool) error // 构建参数
 }
 
+// GenericProjectConfig 泛型项目配置（简化扩展，类型安全）
+// T: 项目配置结构体类型
+// 使用示例：
+//
+//	type MyConfig struct {
+//	    ServiceA *ServiceAConfig
+//	    ServiceB *ServiceBConfig
+//	}
+//	cfg := appMng.NewGenericProjectConfig[MyConfig](strategy)
+//	// 在 Build 方法中链式加载：
+//	func (c *MyConfig) Build(baseConfig *configStruct.BaseConfig, configPool *appMng.ConfigPool) error {
+//	    return c.GenericProjectConfig.Build(baseConfig, configPool).
+//	        Load("service_a", &c.Data.ServiceA).
+//	        Load("service_b", &c.Data.ServiceB).
+//	        Error()
+//	}
+type GenericProjectConfig[T any] struct {
+	Data       T                     // 配置数据
+	strategy   *ConfigSourceStrategy // 配置策略
+	configPool *ConfigPool           // 配置池
+	debug      bool                  // 调试模式
+	err        error                 // 用于链式调用时保存错误
+}
+
+// NewGenericProjectConfig 创建泛型项目配置
+// strategy: 配置来源策略（必须包含 Custom 字段定义配置项来源）
+func NewGenericProjectConfig[T any](strategy *ConfigSourceStrategy) *GenericProjectConfig[T] {
+	return &GenericProjectConfig[T]{
+		strategy: strategy,
+	}
+}
+
+// GetStrategy 返回配置策略（实现 ConfigStrategyProvider 接口）
+func (g *GenericProjectConfig[T]) GetStrategy() *ConfigSourceStrategy {
+	return g.strategy
+}
+
+// Build 构建项目配置（实现 ProjectConfig 接口）
+// 初始化配置池和调试模式，返回自身以便链式调用
+func (g *GenericProjectConfig[T]) Build(baseConfig *configStruct.BaseConfig, configPool *ConfigPool) error {
+	if configPool == nil {
+		return errFactory.configPoolNil()
+	}
+	g.configPool = configPool
+	g.debug = baseConfig.Profile != nil && baseConfig.Profile.Debug
+	return nil
+}
+
+// Load 加载配置项（链式调用，简洁易用）
+// configName: 配置项名称（必须在 strategy.Custom 中定义）
+// target: 目标字段的指针（通常是 g.Data 的某个字段）
+func (g *GenericProjectConfig[T]) Load(configName string, target interface{}) *GenericProjectConfig[T] {
+	if g.err != nil {
+		return g // 如果已有错误，跳过
+	}
+	g.err = g.loadConfig(configName, configName, target)
+	return g
+}
+
+// LoadWithKey 加载配置项（可指定 YAML 键名）
+func (g *GenericProjectConfig[T]) LoadWithKey(configName, configKey string, target interface{}) *GenericProjectConfig[T] {
+	if g.err != nil {
+		return g // 如果已有错误，跳过
+	}
+	g.err = g.loadConfig(configName, configKey, target)
+	return g
+}
+
+// Error 返回加载过程中的错误
+func (g *GenericProjectConfig[T]) Error() error {
+	return g.err
+}
+
+// loadConfig 内部方法：加载配置的核心逻辑
+func (g *GenericProjectConfig[T]) loadConfig(configName, configKey string, target interface{}) error {
+	if g.strategy == nil {
+		return errFactory.strategyNil()
+	}
+
+	// 获取配置来源
+	var source ConfigSource
+	if g.strategy.Custom != nil {
+		if src, ok := g.strategy.Custom[configName]; ok {
+			source = src
+		}
+	}
+
+	// 如果 Custom 中没有找到，返回错误（要求明确指定）
+	if source == "" {
+		return errFactory.configNotInCustom(configName)
+	}
+
+	// 创建目标指针
+	targetType := reflect.TypeOf(target)
+	if targetType.Kind() != reflect.Ptr {
+		return errFactory.targetNotPointer()
+	}
+	targetPtr := reflect.New(targetType.Elem())
+
+	// 根据来源加载配置（使用公共加载逻辑）
+	if err := loadConfigFromSource(source, configName, configKey, targetPtr.Interface(), g.configPool, g.debug); err != nil {
+		return err
+	}
+
+	// 将加载的配置赋值给 target
+	reflect.ValueOf(target).Elem().Set(targetPtr.Elem())
+
+	return nil
+}
+
 // NewBaseConfigBuilder 创建基础构建器
 // configPool: 配置池（包含数据库连接和 YAML 配置）
 // strategy: 配置来源策略，如果为 nil 则使用默认策略（所有配置从数据库加载）
@@ -38,7 +147,7 @@ func NewBaseConfigBuilder(configPool *ConfigPool, strategy *ConfigSourceStrategy
 
 	// 如果策略为 nil，使用默认策略
 	if strategy == nil {
-		return nil, fmt.Errorf("策略不能为 nil")
+		return nil, errFactory.strategyNil()
 	}
 
 	builder := &BaseConfigBuilder{
@@ -107,61 +216,20 @@ func (b *BaseConfigBuilder) loadProfileAndLocation(cfg *configStruct.BaseConfig,
 
 // 统一加载所有配置项
 func (b *BaseConfigBuilder) loadAllConfigs(cfg *configStruct.BaseConfig, configPool *ConfigPool, debug bool) error {
-	// 使用传入的 configPool（如果为 nil，使用 builder 自己的 configPool）
-
-	// 从配置池获取 dbRows
-	var dbRows []*DbSettingRow
-	if configPool != nil {
-		dbRows = configPool.GetDBRows()
-	}
-
-	for key, cm := range configMaps {
-		sourceSelector, ok := configSources[key]
-		if !ok {
-			continue
-		}
-		src := sourceSelector(b.strategy)
+	for key, configType := range configTypes {
+		src := getConfigSource(b.strategy, key)
 		if src == "" {
 			continue
 		}
 
-		targetPtr := reflect.New(reflect.TypeOf(cm.Data))
+		targetPtr := reflect.New(configType)
 
-		switch src {
-		case SourceDatabase:
-			if len(dbRows) == 0 {
-				return errFactory.databaseEmpty(key)
-			}
-			if err := fillConfigFromRows(targetPtr.Interface(), key, key, dbRows, debug); err != nil {
-				return err
-			}
-			// 应用默认值
-			applyDefaultsFromTags(targetPtr.Interface())
-			// 验证配置
-			if err := validateConfig(targetPtr.Interface(), key); err != nil {
-				return err
-			}
-		case SourceYAML:
-			if configPool == nil || len(configPool.GetYAML()) == 0 {
-				return errFactory.yamlNotInit(key)
-			}
-			if err := configPool.GetYAML()[0].UnmarshalKey(key, targetPtr.Interface()); err != nil {
-				return errFactory.yamlLoadFailed(key, err)
-			}
-			applyDefaultsFromTags(targetPtr.Interface())
-			// 验证配置
-			if err := validateConfig(targetPtr.Interface(), key); err != nil {
-				return err
-			}
-		default:
-			continue
+		// 使用公共加载逻辑
+		if err := loadConfigFromSource(src, key, key, targetPtr.Interface(), configPool, debug); err != nil {
+			return err
 		}
 
-		assigner, ok := configAssigners[key]
-		if !ok {
-			continue
-		}
-		assigner(cfg, targetPtr.Interface())
+		assignConfigToBaseConfig(cfg, key, targetPtr.Interface())
 	}
 	return nil
 }
@@ -181,11 +249,11 @@ func (b *BaseConfigBuilder) Build(configPool *ConfigPool) (config *configStruct.
 	if configPool == nil || configPool.GetDB() == nil {
 		// 需要数据库连接，从 YAML 初始化
 		if configPool == nil {
-			err = fmt.Errorf("配置池未初始化")
+			err = errFactory.configPoolNil()
 			return
 		}
 		if err = configPool.InitDatabaseFromYAML(); err != nil {
-			err = fmt.Errorf("初始化数据库连接失败: %w", err)
+			err = errFactory.databaseInitFailed(err)
 			return
 		}
 		// 数据库初始化后，重新加载配置行并更新到配置池
@@ -199,7 +267,7 @@ func (b *BaseConfigBuilder) Build(configPool *ConfigPool) (config *configStruct.
 
 	// 第二步：加载 Profile 和 Location（基础配置）
 	if err = b.loadProfileAndLocation(config, configPool); err != nil {
-		err = fmt.Errorf("加载基础配置失败: %w", err)
+		err = errFactory.loadBaseConfigFailed(err)
 		return
 	}
 
@@ -214,7 +282,7 @@ func (b *BaseConfigBuilder) Build(configPool *ConfigPool) (config *configStruct.
 	for _, serverLabel := range b.HttpServerLabels {
 		serverConfig := getHttpServerConfig(dbRows, serverLabel)
 		if serverConfig == nil {
-			err = fmt.Errorf("加载 HttpServer 配置失败: 标签 %s 不存在", serverLabel)
+			err = errFactory.httpServerConfigNotFound(serverLabel)
 			return
 		}
 		config.HttpServerConfig[serverLabel] = serverConfig

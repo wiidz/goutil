@@ -37,53 +37,62 @@ func TestNewApp(t *testing.T) {
 	}
 
 	//【3】构建appMng
-	app, err := NewApp(context.Background(), configPool, baseConfigBuilder, &MyProjectConfig{})
+	app, err := NewApp(context.Background(), configPool, baseConfigBuilder, NewMyProjectConfig())
 	if err != nil {
 		t.Fatalf("NewApp failed: %v", err)
 	}
 	t.Logf("App: %+v", app)
 }
 
-type MyProjectConfig struct {
-	TestConfig *TestConfig `mapstructure:"test_config"`
+// MyProjectConfigData 测试配置数据
+type MyProjectConfigData struct {
+	TestConfig *TestConfig
 }
 
 type TestConfig struct {
 	Test string `mapstructure:"test"`
 }
 
-func (c *MyProjectConfig) Build(baseConfig *configStruct.BaseConfig, configPool *ConfigPool) error {
-	// 初始化配置
-	c.TestConfig = &TestConfig{}
+// MyProjectConfig 测试项目配置（使用泛型）
+type MyProjectConfig struct {
+	*GenericProjectConfig[MyProjectConfigData]
+}
 
-	// 创建配置加载器（自动从 ProjectConfig 获取策略和调试模式）
-	loader, err := NewProjectConfigLoader(c, baseConfig, configPool)
-	if err != nil {
-		return fmt.Errorf("创建配置加载器失败: %w", err)
+func NewMyProjectConfig() *MyProjectConfig {
+	return &MyProjectConfig{
+		GenericProjectConfig: NewGenericProjectConfig[MyProjectConfigData](&ConfigSourceStrategy{
+			Custom: map[string]ConfigSource{
+				"test_config": SourceDatabase,
+			},
+		}),
+	}
+}
+
+func (c *MyProjectConfig) Build(baseConfig *configStruct.BaseConfig, configPool *ConfigPool) error {
+	// 初始化
+	if err := c.GenericProjectConfig.Build(baseConfig, configPool); err != nil {
+		return err
 	}
 
+	// 初始化配置
+	c.Data.TestConfig = &TestConfig{}
+
 	// 使用链式调用加载配置（简洁易扩展）
-	if err := loader.Load("test_config", c.TestConfig).Error(); err != nil {
+	if err := c.GenericProjectConfig.
+		Load("test_config", c.Data.TestConfig).
+		Error(); err != nil {
 		return fmt.Errorf("加载配置失败: %w", err)
 	}
 
 	// 如果需要加载更多配置，可以继续链式调用：
-	// c.AnotherConfig = &AnotherConfig{}
-	// c.ThirdConfig = &ThirdConfig{}
-	// if err := loader.
-	// 	Load("another_config", c.AnotherConfig).
-	// 	Load("third_config", c.ThirdConfig).
+	// c.Data.AnotherConfig = &AnotherConfig{}
+	// c.Data.ThirdConfig = &ThirdConfig{}
+	// if err := c.GenericProjectConfig.
+	// 	Load("another_config", c.Data.AnotherConfig).
+	// 	Load("third_config", c.Data.ThirdConfig).
 	// 	Error(); err != nil {
 	// 	return fmt.Errorf("加载配置失败: %w", err)
 	// }
 
 	return nil
-}
-
-func (c *MyProjectConfig) GetStrategy() *ConfigSourceStrategy {
-	return &ConfigSourceStrategy{
-		Custom: map[string]ConfigSource{
-			"test_config": SourceDatabase,
-		},
-	}
 }

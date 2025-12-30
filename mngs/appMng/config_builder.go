@@ -11,153 +11,37 @@ import (
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
-// configErrorFactory 统一生成配置相关错误，减少重复文案
-type configErrorFactory struct{}
-
-func newConfigErrorFactory() *configErrorFactory {
-	return &configErrorFactory{}
+// assignConfigToBaseConfig 使用反射将配置值赋值到 BaseConfig 的对应字段
+// key 直接作为字段名使用（首字母大写）
+func assignConfigToBaseConfig(cfg *configStruct.BaseConfig, key string, value interface{}) {
+	if key == "" {
+		return
+	}
+	cfgVal := reflect.ValueOf(cfg).Elem()
+	field := cfgVal.FieldByName(key) // key 直接作为字段名
+	if !field.IsValid() || !field.CanSet() {
+		return
+	}
+	val := reflect.ValueOf(value)
+	if val.Kind() == reflect.Ptr {
+		field.Set(val)
+	} else {
+		field.Set(val.Addr())
+	}
 }
 
-// missingField 缺失必填字段
-func (f *configErrorFactory) missingField(key, field string) error {
-	return fmt.Errorf("%s 配置 %s 为空", GetKeyDisplayName(key), field)
-}
-
-// databaseEmpty 从数据库加载到空结果
-func (f *configErrorFactory) databaseEmpty(key string) error {
-	return fmt.Errorf("从数据库加载 %s 配置失败: 数据为空", GetKeyDisplayName(key))
-}
-
-// yamlNotInit 未初始化 YAML
-func (f *configErrorFactory) yamlNotInit(key string) error {
-	return fmt.Errorf("从 YAML 加载 %s 配置失败: 未初始化 YAML 配置", GetKeyDisplayName(key))
-}
-
-// yamlLoadFailed YAML 解析失败
-func (f *configErrorFactory) yamlLoadFailed(key string, err error) error {
-	return fmt.Errorf("从 YAML 加载 %s 配置失败: %w", GetKeyDisplayName(key), err)
-}
-
-var errFactory = newConfigErrorFactory()
-
-// key 对应 BaseConfig 赋值函数
-var configAssigners = map[string]func(*configStruct.BaseConfig, interface{}){
-	ConfigKeys.Redis.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.RedisConfig); ok {
-			cfg.RedisConfig = val
-		}
-	},
-	ConfigKeys.Es.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.EsConfig); ok {
-			cfg.EsConfig = val
-		}
-	},
-	ConfigKeys.RabbitMQ.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.RabbitMQConfig); ok {
-			cfg.RabbitMQConfig = val
-		}
-	},
-	ConfigKeys.Postgres.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.PostgresConfig); ok {
-			cfg.PostgresConfig = val
-		}
-	},
-	ConfigKeys.Mysql.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.MysqlConfig); ok {
-			cfg.MysqlConfig = val
-		}
-	},
-	ConfigKeys.WechatMini.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.WechatMiniConfig); ok {
-			cfg.WechatMiniConfig = val
-		}
-	},
-	ConfigKeys.WechatOa.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.WechatOaConfig); ok {
-			cfg.WechatOaConfig = val
-		}
-	},
-	ConfigKeys.WechatOpen.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.WechatOpenConfig); ok {
-			cfg.WechatOpenConfig = val
-		}
-	},
-	ConfigKeys.WechatPayV3.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.WechatPayConfigV3); ok {
-			cfg.WechatPayConfigV3 = val
-		}
-	},
-	ConfigKeys.WechatPayV2.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.WechatPayConfigV2); ok {
-			cfg.WechatPayConfigV2 = val
-		}
-	},
-	ConfigKeys.AliOss.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AliOssConfig); ok {
-			cfg.AliOssConfig = val
-		}
-	},
-	ConfigKeys.AliPay.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AliPayConfig); ok {
-			cfg.AliPayConfig = val
-		}
-	},
-	ConfigKeys.AliApi.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AliApiConfig); ok {
-			cfg.AliApiConfig = val
-		}
-	},
-	ConfigKeys.AliSms.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AliSmsConfig); ok {
-			cfg.AliSmsConfig = val
-		}
-	},
-	ConfigKeys.AliIot.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AliIotConfig); ok {
-			cfg.AliIotConfig = val
-		}
-	},
-	ConfigKeys.Amap.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.AmapConfig); ok {
-			cfg.AmapConfig = val
-		}
-	},
-	ConfigKeys.Yunxin.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.YunxinConfig); ok {
-			cfg.YunxinConfig = val
-		}
-	},
-	ConfigKeys.Volcengine.Key: func(cfg *configStruct.BaseConfig, v interface{}) {
-		if val, ok := v.(*configStruct.VolcengineConfig); ok {
-			cfg.VolcengineConfig = val
-		}
-	},
-}
-
-// key 对应的来源选择器
-var configSources = map[string]func(*ConfigSourceStrategy) ConfigSource{
-	ConfigKeys.Redis.Key:      func(s *ConfigSourceStrategy) ConfigSource { return s.Redis },
-	ConfigKeys.Es.Key:         func(s *ConfigSourceStrategy) ConfigSource { return s.Es },
-	ConfigKeys.RabbitMQ.Key:   func(s *ConfigSourceStrategy) ConfigSource { return s.RabbitMQ },
-	ConfigKeys.Postgres.Key:   func(s *ConfigSourceStrategy) ConfigSource { return s.Postgres },
-	ConfigKeys.Mysql.Key:      func(s *ConfigSourceStrategy) ConfigSource { return s.Mysql },
-	ConfigKeys.WechatMini.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.WechatMini },
-	ConfigKeys.WechatOa.Key:   func(s *ConfigSourceStrategy) ConfigSource { return s.WechatOa },
-	ConfigKeys.WechatOpen.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.WechatOpen },
-	ConfigKeys.WechatPayV3.Key: func(s *ConfigSourceStrategy) ConfigSource {
-		return s.WechatPayV3
-	},
-	ConfigKeys.WechatPayV2.Key: func(s *ConfigSourceStrategy) ConfigSource {
-		return s.WechatPayV2
-	},
-	ConfigKeys.AliOss.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliOss },
-	ConfigKeys.AliPay.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliPay },
-	ConfigKeys.AliApi.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliApi },
-	ConfigKeys.AliSms.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliSms },
-	ConfigKeys.AliIot.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.AliIot },
-	ConfigKeys.Amap.Key:       func(s *ConfigSourceStrategy) ConfigSource { return s.Amap },
-	ConfigKeys.Yunxin.Key:     func(s *ConfigSourceStrategy) ConfigSource { return s.Yunxin },
-	ConfigKeys.Volcengine.Key: func(s *ConfigSourceStrategy) ConfigSource { return s.Volcengine },
+// getConfigSource 使用反射从 ConfigSourceStrategy 获取配置来源
+// key 直接作为字段名使用（首字母大写）
+func getConfigSource(strategy *ConfigSourceStrategy, key string) ConfigSource {
+	if key == "" {
+		return ""
+	}
+	strategyVal := reflect.ValueOf(strategy).Elem()
+	field := strategyVal.FieldByName(key) // key 直接作为字段名
+	if !field.IsValid() {
+		return ""
+	}
+	return field.Interface().(ConfigSource)
 }
 
 // GetValueFromRow 从 rows 中检索符合条件的数据。
@@ -223,32 +107,43 @@ func getLocationConfig(rows []*DbSettingRow) (location *time.Location, err error
 	return
 }
 
-// ConfigMap 以键对应结构体定义（默认值从 default tag 读取）
-type ConfigMap struct {
-	Key  ConfigKey
-	Data interface{}
-}
+// 所有配置的类型映射（用于反射创建实例，仅包含基础配置）
+// configTypes 所有配置的类型映射（通过 ConfigKey 自动生成）
+var configTypes = initConfigTypes()
 
-// 所有配置的结构映射
-var configMaps = map[string]ConfigMap{
-	ConfigKeys.Redis.Key:       {Key: ConfigKeys.Redis, Data: configStruct.RedisConfig{}},
-	ConfigKeys.Es.Key:          {Key: ConfigKeys.Es, Data: configStruct.EsConfig{}},
-	ConfigKeys.RabbitMQ.Key:    {Key: ConfigKeys.RabbitMQ, Data: configStruct.RabbitMQConfig{}},
-	ConfigKeys.Postgres.Key:    {Key: ConfigKeys.Postgres, Data: configStruct.PostgresConfig{}},
-	ConfigKeys.Mysql.Key:       {Key: ConfigKeys.Mysql, Data: configStruct.MysqlConfig{}},
-	ConfigKeys.WechatMini.Key:  {Key: ConfigKeys.WechatMini, Data: configStruct.WechatMiniConfig{}},
-	ConfigKeys.WechatOa.Key:    {Key: ConfigKeys.WechatOa, Data: configStruct.WechatOaConfig{}},
-	ConfigKeys.WechatOpen.Key:  {Key: ConfigKeys.WechatOpen, Data: configStruct.WechatOpenConfig{}},
-	ConfigKeys.WechatPayV3.Key: {Key: ConfigKeys.WechatPayV3, Data: configStruct.WechatPayConfigV3{}},
-	ConfigKeys.WechatPayV2.Key: {Key: ConfigKeys.WechatPayV2, Data: configStruct.WechatPayConfigV2{}},
-	ConfigKeys.AliOss.Key:      {Key: ConfigKeys.AliOss, Data: configStruct.AliOssConfig{}},
-	ConfigKeys.AliPay.Key:      {Key: ConfigKeys.AliPay, Data: configStruct.AliPayConfig{}},
-	ConfigKeys.AliApi.Key:      {Key: ConfigKeys.AliApi, Data: configStruct.AliApiConfig{}},
-	ConfigKeys.AliSms.Key:      {Key: ConfigKeys.AliSms, Data: configStruct.AliSmsConfig{}},
-	ConfigKeys.AliIot.Key:      {Key: ConfigKeys.AliIot, Data: configStruct.AliIotConfig{}},
-	ConfigKeys.Amap.Key:        {Key: ConfigKeys.Amap, Data: configStruct.AmapConfig{}},
-	ConfigKeys.Yunxin.Key:      {Key: ConfigKeys.Yunxin, Data: configStruct.YunxinConfig{}},
-	ConfigKeys.Volcengine.Key:  {Key: ConfigKeys.Volcengine, Data: configStruct.VolcengineConfig{}},
+// initConfigTypes 从 ConfigKeys 中提取类型映射
+func initConfigTypes() map[string]reflect.Type {
+	result := make(map[string]reflect.Type)
+	configKeys := []ConfigKey{
+		ConfigKeys.Redis,
+		ConfigKeys.Es,
+		ConfigKeys.Rabbitmq,
+		ConfigKeys.Postgres,
+		ConfigKeys.Mysql,
+	}
+
+	// 通过反射从 BaseConfig 中获取字段类型
+	baseConfigType := reflect.TypeOf(configStruct.BaseConfig{})
+	fieldTypeMap := make(map[string]reflect.Type)
+	for i := 0; i < baseConfigType.NumField(); i++ {
+		field := baseConfigType.Field(i)
+		fieldType := field.Type
+		if fieldType.Kind() == reflect.Ptr {
+			fieldType = fieldType.Elem()
+		}
+		fieldTypeMap[field.Name] = fieldType
+	}
+
+	// 根据 ConfigKey 的 Key（直接作为字段名）查找类型
+	for _, ck := range configKeys {
+		if ck.Key != "" {
+			if fieldType, ok := fieldTypeMap[ck.Key]; ok {
+				result[ck.Key] = fieldType
+			}
+		}
+	}
+
+	return result
 }
 
 // validateConfig 使用 validator 库验证配置结构体
@@ -271,7 +166,7 @@ func validateConfig(target interface{}, configKey string) error {
 		} else {
 			errMsgs = append(errMsgs, err.Error())
 		}
-		return fmt.Errorf("配置 %s 验证失败: %s", configKey, strings.Join(errMsgs, "; "))
+		return errFactory.validateFailed(configKey, errMsgs)
 	}
 
 	return nil
@@ -346,18 +241,68 @@ func applyDefaultsFromTags(target interface{}) {
 	}
 }
 
+// loadConfigFromSource 从指定来源加载配置（公共逻辑）
+// source: 配置来源（SourceDatabase 或 SourceYAML）
+// nameKey: 配置名称（用于数据库 name 字段和错误信息）
+// configKey: 配置键（用于 YAML 键名和数据库 flag1）
+// targetPtr: 目标配置指针
+// configPool: 配置池
+// debug: 调试模式
+func loadConfigFromSource(source ConfigSource, nameKey, configKey string, targetPtr interface{}, configPool *ConfigPool, debug bool) error {
+	switch source {
+	case SourceDatabase:
+		dbRows := configPool.GetDBRows()
+		if len(dbRows) == 0 {
+			return errFactory.databaseEmpty(nameKey)
+		}
+		if err := fillConfigFromRows(targetPtr, nameKey, configKey, dbRows, debug); err != nil {
+			return errFactory.databaseLoadFailed(nameKey, err)
+		}
+		// 应用默认值
+		applyDefaultsFromTags(targetPtr)
+		// 验证配置
+		if err := validateConfig(targetPtr, nameKey); err != nil {
+			return err
+		}
+
+	case SourceYAML:
+		if configPool == nil || len(configPool.GetYAML()) == 0 {
+			return errFactory.yamlNotInit(nameKey)
+		}
+		// 如果 configKey 为空，使用 nameKey
+		yamlKey := configKey
+		if yamlKey == "" {
+			yamlKey = nameKey
+		}
+		if err := configPool.GetYAML()[0].UnmarshalKey(yamlKey, targetPtr); err != nil {
+			return errFactory.yamlLoadFailed(nameKey, err)
+		}
+		// 应用默认值
+		applyDefaultsFromTags(targetPtr)
+		// 验证配置
+		if err := validateConfig(targetPtr, nameKey); err != nil {
+			return err
+		}
+
+	default:
+		return errFactory.unsupportedSource(source)
+	}
+
+	return nil
+}
+
 // fillConfigFromRows 使用 flag1=parentKey、flag2=字段 json/mapstructure 标签，从 rows 填充配置，并按 default tag 设置默认值
 func fillConfigFromRows(target interface{}, nameKey, flag1 string, rows []*DbSettingRow, debug bool) error {
 	if target == nil {
-		return fmt.Errorf("target 不能为空")
+		return errFactory.targetEmpty()
 	}
 	val := reflect.ValueOf(target)
 	if val.Kind() != reflect.Ptr || val.IsNil() {
-		return fmt.Errorf("target 必须是非 nil 指针")
+		return errFactory.targetNotStructPointer()
 	}
 	elem := val.Elem()
 	if elem.Kind() != reflect.Struct {
-		return fmt.Errorf("target 必须指向结构体")
+		return errFactory.targetNotStruct()
 	}
 
 	typ := elem.Type()

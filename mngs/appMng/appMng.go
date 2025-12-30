@@ -2,53 +2,60 @@ package appMng
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
+	"github.com/wiidz/goutil/structs/configStruct"
 )
 
 // NewApp 直接构建一个 AppMng。
-func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (*AppMng, error) {
+func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (appMng *AppMng, err error) {
 
 	//【1】构建 base 配置
-	baseCfg, err := baseBuilder.Build(configPool)
+	var baseCfg *configStruct.BaseConfig
+	baseCfg, err = baseBuilder.Build(configPool)
 	if err != nil {
 		return nil, err
 	}
 
-	app := &AppMng{
+	appMng = &AppMng{
 		ID:         baseCfg.Profile.Name,
 		BaseConfig: baseCfg,
 	}
 
 	// 【3】初始化依赖
-	if app.BaseConfig.MysqlConfig != nil && app.Repos.Mysql == nil {
-		app.Repos.Mysql, err = mysqlMng.NewMysqlMng(app.BaseConfig.MysqlConfig, nil)
+	if appMng.BaseConfig.Mysql != nil && appMng.Repos.Mysql == nil {
+		appMng.Repos.Mysql, err = mysqlMng.NewMysqlMng(appMng.BaseConfig.Mysql, nil)
+		if err != nil {
+			return
+		}
 	}
 
-	if app.BaseConfig.PostgresConfig != nil && app.Repos.Postgres == nil {
-		app.Repos.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
-			DSN:             app.BaseConfig.PostgresConfig.DSN,
-			ConnMaxIdle:     app.BaseConfig.PostgresConfig.ConnMaxIdle,
-			ConnMaxOpen:     app.BaseConfig.PostgresConfig.ConnMaxOpen,
-			ConnMaxLifetime: app.BaseConfig.PostgresConfig.ConnMaxLifetime,
+	if appMng.BaseConfig.Postgres != nil && appMng.Repos.Postgres == nil {
+		appMng.Repos.Postgres, err = psqlMng.NewMng(&psqlMng.Config{
+			DSN:             appMng.BaseConfig.Postgres.DSN,
+			ConnMaxIdle:     appMng.BaseConfig.Postgres.ConnMaxIdle,
+			ConnMaxOpen:     appMng.BaseConfig.Postgres.ConnMaxOpen,
+			ConnMaxLifetime: appMng.BaseConfig.Postgres.ConnMaxLifetime,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("appMng: init postgres failed: %w", err)
+			err = errFactory.postgresInitFailed(err)
+			return
 		}
 	}
 
-	if app.BaseConfig.RedisConfig != nil {
-		if app.Repos.Redis, err = redisMng.NewRedisMng(ctx, app.BaseConfig.RedisConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init redis failed: %w", err)
+	if appMng.BaseConfig.Redis != nil {
+		if appMng.Repos.Redis, err = redisMng.NewRedisMng(ctx, appMng.BaseConfig.Redis); err != nil {
+			err = errFactory.redisInitFailed(err)
+			return
 		}
 	}
-	if app.BaseConfig.EsConfig != nil {
-		if err = esMng.Init(app.BaseConfig.EsConfig); err != nil {
-			return nil, fmt.Errorf("appMng: init es failed: %w", err)
+	if appMng.BaseConfig.Es != nil {
+		if err = esMng.Init(appMng.BaseConfig.Es); err != nil {
+			err = errFactory.esInitFailed(err)
+			return
 		}
 	}
 
@@ -66,11 +73,12 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 
 	// 设置 ProjectConfig（如果提供了）
 	if projectBuilder != nil {
-		app.ProjectConfig = projectBuilder
-		if err = app.ProjectConfig.Build(app.BaseConfig, configPool); err != nil {
-			return nil, fmt.Errorf("appMng: project build failed: %w", err)
+		appMng.ProjectConfig = projectBuilder
+		if err = appMng.ProjectConfig.Build(appMng.BaseConfig, configPool); err != nil {
+			err = errFactory.projectBuildFailed(err)
+			return
 		}
 	}
 
-	return app, nil
+	return
 }
