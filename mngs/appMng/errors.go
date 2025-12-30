@@ -155,6 +155,11 @@ func (f *errorFactory) esInitFailed(err error) error {
 	return fmt.Errorf("❌appMng: init es failed: %w", err)
 }
 
+// rabbitmqInitFailed 初始化 RabbitMQ 失败
+func (f *errorFactory) rabbitmqInitFailed(err error) error {
+	return fmt.Errorf("❌appMng: init rabbitmq failed: %w", err)
+}
+
 // projectBuildFailed 项目配置构建失败
 func (f *errorFactory) projectBuildFailed(err error) error {
 	return fmt.Errorf("❌appMng: project build failed: %w", err)

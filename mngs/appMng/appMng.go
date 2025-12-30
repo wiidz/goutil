@@ -2,7 +2,10 @@ package appMng
 
 import (
 	"context"
+	"log"
+	"time"
 
+	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
@@ -12,6 +15,8 @@ import (
 
 // NewApp 直接构建一个 AppMng。
 func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (appMng *AppMng, err error) {
+	// 记录启动开始时间
+	startTime := time.Now()
 
 	//【1】构建 base 配置
 	var baseCfg *configStruct.BaseConfig
@@ -19,6 +24,7 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("✅成功: 基础配置已构建完成")
 
 	appMng = &AppMng{
 		ID:         baseCfg.Profile.Name,
@@ -31,6 +37,7 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 		if err != nil {
 			return
 		}
+		log.Printf("✅成功: MySQL 数据库连接已初始化")
 	}
 
 	if appMng.BaseConfig.Postgres != nil && appMng.Repos.Postgres == nil {
@@ -44,6 +51,7 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 			err = errFactory.postgresInitFailed(err)
 			return
 		}
+		log.Printf("✅成功: PostgreSQL 数据库连接已初始化")
 	}
 
 	if appMng.BaseConfig.Redis != nil {
@@ -51,23 +59,35 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 			err = errFactory.redisInitFailed(err)
 			return
 		}
+		log.Printf("✅成功: Redis 连接已初始化")
 	}
 	if appMng.BaseConfig.Es != nil {
 		if err = esMng.Init(appMng.BaseConfig.Es); err != nil {
 			err = errFactory.esInitFailed(err)
 			return
 		}
+		log.Printf("✅成功: Elasticsearch 连接已初始化")
 	}
 
-	// if app.BaseConfig.RabbitMQConfig != nil {
-	// 	if err = amqpMng.Init(app.BaseConfig.RabbitMQConfig); err != nil {
-	// 		return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
-	// 	}
-	// 	app.Repos.RabbitMQ, err = amqpMng.NewRabbitMQ(app.BaseConfig.RabbitMQConfig)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("appMng: init rabbitmq failed: %w", err)
-	// 	}
-	// }
+	if appMng.BaseConfig.Rabbitmq != nil && appMng.Repos.RabbitMQ == nil {
+		// 初始化 RabbitMQ 连接
+		if err = amqpMng.Init(appMng.BaseConfig.Rabbitmq); err != nil {
+			err = errFactory.rabbitmqInitFailed(err)
+			return
+		}
+		// 创建最小化的 Config（只包含连接信息，其他配置在使用时再设置）
+		amqpConfig := &amqpMng.Config{
+			Host:     appMng.BaseConfig.Rabbitmq.Host,
+			Username: appMng.BaseConfig.Rabbitmq.Username,
+			Password: appMng.BaseConfig.Rabbitmq.Password,
+		}
+		appMng.Repos.RabbitMQ, err = amqpMng.NewRabbitMQ(amqpConfig)
+		if err != nil {
+			err = errFactory.rabbitmqInitFailed(err)
+			return
+		}
+		log.Printf("✅成功: RabbitMQ 连接已初始化")
+	}
 
 	// 【4】项目级配置构建
 
@@ -78,7 +98,11 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 			err = errFactory.projectBuildFailed(err)
 			return
 		}
+		log.Printf("✅成功: 项目配置已构建完成")
 	}
 
+	// 计算启动耗时
+	elapsed := time.Since(startTime)
+	log.Printf("✅成功: 应用初始化完成 (ID: %s, 耗时: %v)", appMng.ID, elapsed)
 	return
 }
