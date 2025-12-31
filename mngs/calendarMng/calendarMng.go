@@ -68,10 +68,10 @@ func request[T any](
 	return resp.Data, nil
 }
 
-// GetHolidayList 获取节假日列表
+// GetHolidayDetail 获取节假日详情
 // date string 需要查询的日期，格式：YYYYMMDD（选填）
 // needDesc string 是否需要返回当日公众日、国际日和我国传统节日的简介，1-返回，默认不返回（选填）
-func (mng *CalendarMng) GetHolidayList(date string, needDesc string) (data *HolidayData, err error) {
+func (mng *CalendarMng) GetHolidayDetail(date string, needDesc string) (data *HolidayDetailData, err error) {
 	params := make(map[string]interface{})
 	if date != "" {
 		params["date"] = date
@@ -80,15 +80,15 @@ func (mng *CalendarMng) GetHolidayList(date string, needDesc string) (data *Holi
 		params["needDesc"] = needDesc
 	}
 
-	return request(mng, networkStruct.Post, URL+"/holiday/list", params, &HolidayResponse{})
+	return request(mng, networkStruct.Post, URL+"/holiday/detail", params, &HolidayDetailResp{})
 }
 
-// GetHolidayDetail 获取节假日详情
+// GetHolidayList 获取节假日列表
 // year string 需要查询的年份，格式：YYYY
-func (mng *CalendarMng) GetHolidayDetail(year string) (data *HolidayDetailData, err error) {
-	return request(mng, networkStruct.Post, URL+"/holiday/detail", map[string]interface{}{
+func (mng *CalendarMng) GetHolidayList(year string) (data *HolidayData, err error) {
+	return request(mng, networkStruct.Post, URL+"/holiday/list", map[string]interface{}{
 		"year": year,
-	}, &HolidayDetailResp{})
+	}, &HolidayResponse{})
 }
 
 // GetAuspiciousTime 获取时辰吉凶数据
