@@ -34,26 +34,29 @@ func request[T any](
 	params map[string]interface{},
 	respStruct *BaseResp[T],
 ) (*T, error) {
-	resStr, _, statusCode, err := networkHelper.RequestJsonWithStruct(
-		method,
-		url,
-		params,
-		map[string]string{
+	res, err := networkHelper.MyRequest(&networkStruct.MyRequestParams{
+		Method:      method,
+		URL:         url,
+		ContentType: networkStruct.XWWWForm, // 按要求使用 form-urlencoded 传参
+		Headers: map[string]string{
 			"Authorization": "APPCODE " + mng.Config.AppCode,
 		},
-		respStruct,
-		mng.Debug,
-	)
-
+		Params:    params,
+		ResStruct: respStruct,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("calendar api request failed, status=%d: %w", statusCode, err)
+		return nil, fmt.Errorf("calendar api request failed: %w", err)
 	}
 
-	if statusCode != 200 {
-		return nil, fmt.Errorf("calendar api returned http status=%d", statusCode)
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("calendar api returned http status=%d, body=%s", res.StatusCode, res.ResStr)
 	}
 
-	resp, ok := resStr.(*BaseResp[T])
+	if !res.IsParsedSuccess {
+		return nil, fmt.Errorf("calendar api parse failed, body=%s", res.ResStr)
+	}
+
+	resp, ok := res.ResStruct.(*BaseResp[T])
 	if !ok {
 		return nil, fmt.Errorf("响应类型转换失败")
 	}
