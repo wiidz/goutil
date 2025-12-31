@@ -1,5 +1,7 @@
 package calendarMng
 
+import "encoding/json"
+
 // BaseResp 通用API响应结构
 type BaseResp[T any] struct {
 	Code   int    `json:"code"`   // 返回码，详见返回码说明
@@ -106,7 +108,48 @@ type AuspiciousTimeResp = BaseResp[AuspiciousTimeData]
 
 // AuspiciousTimeData 时辰吉凶数据
 // key 为时辰名称：zi(子), chou(丑), yin(寅), mao(卯), cheng(辰), si(巳), wu(午), wei(未), shen(申), you(酉), xu(戌), hai(亥)
-type AuspiciousTimeData map[string]*AuspiciousTimeItem
+type AuspiciousTimeData struct {
+	UT    string                         `json:"ut,omitempty"`
+	Times map[string]*AuspiciousTimeItem `json:"-"`
+}
+
+// UnmarshalJSON 兼容包含 ut 字段的响应，将其它键解析为时辰项
+func (a *AuspiciousTimeData) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	times := make(map[string]*AuspiciousTimeItem)
+	for key, value := range raw {
+		if key == "ut" {
+			_ = json.Unmarshal(value, &a.UT)
+			continue
+		}
+
+		var item AuspiciousTimeItem
+		if err := json.Unmarshal(value, &item); err != nil {
+			// 如果单个时辰解析失败，跳过而不影响其它数据
+			continue
+		}
+		times[key] = &item
+	}
+
+	a.Times = times
+	return nil
+}
+
+// MarshalJSON 将内部结构重新展开为与 API 响应一致的扁平结构
+func (a AuspiciousTimeData) MarshalJSON() ([]byte, error) {
+	out := make(map[string]any, len(a.Times)+1)
+	if a.UT != "" {
+		out["ut"] = a.UT
+	}
+	for key, value := range a.Times {
+		out[key] = value
+	}
+	return json.Marshal(out)
+}
 
 // HolidayDetailResp 节假日详情API响应结构
 type HolidayDetailResp = BaseResp[HolidayDetailData]
