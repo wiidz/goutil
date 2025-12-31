@@ -34,7 +34,7 @@ func request[T any](
 	params map[string]interface{},
 	respStruct *BaseResp[T],
 ) (*T, error) {
-	resStr, _, _, err := networkHelper.RequestJsonWithStruct(
+	resStr, _, statusCode, err := networkHelper.RequestJsonWithStruct(
 		method,
 		url,
 		params,
@@ -46,7 +46,11 @@ func request[T any](
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("calendar api request failed, status=%d: %w", statusCode, err)
+	}
+
+	if statusCode != 200 {
+		return nil, fmt.Errorf("calendar api returned http status=%d", statusCode)
 	}
 
 	resp, ok := resStr.(*BaseResp[T])
@@ -87,7 +91,7 @@ func (mng *CalendarMng) GetHolidayDetail(year string) (data *HolidayDetailData, 
 // GetAuspiciousTime 获取时辰吉凶数据
 // date string 需要查询的日期，格式：YYYYMMDD
 func (mng *CalendarMng) GetAuspiciousTime(date string) (data *AuspiciousTimeData, err error) {
-	return request(mng, networkStruct.Post, URL+"/luck-tendency/auspicious-time", map[string]interface{}{
+	return request(mng, networkStruct.Get, URL+"/luck-tendency/auspicious-time", map[string]interface{}{
 		"date": date,
 	}, &AuspiciousTimeResp{})
 }
@@ -95,7 +99,7 @@ func (mng *CalendarMng) GetAuspiciousTime(date string) (data *AuspiciousTimeData
 // GetAuspiciousDemon 获取宜忌神煞数据
 // date string 需要查询的日期，格式：YYYYMMDD
 func (mng *CalendarMng) GetAuspiciousDemon(date string) (data *AuspiciousDemonData, err error) {
-	return request(mng, networkStruct.Post, URL+"/luck-tendency/auspicious-demon", map[string]interface{}{
+	return request(mng, networkStruct.Get, URL+"/luck-tendency/auspicious-demon", map[string]interface{}{
 		"date": date,
 	}, &AuspiciousDemonResp{})
 }
@@ -103,7 +107,7 @@ func (mng *CalendarMng) GetAuspiciousDemon(date string) (data *AuspiciousDemonDa
 // GetAlmanac 获取黄历数据
 // date string 需要查询的日期，格式：YYYYMMDD
 func (mng *CalendarMng) GetAlmanac(date string) (data *AlmanacData, err error) {
-	return request(mng, networkStruct.Post, URL+"/luck-tendency/almanac", map[string]interface{}{
+	return request(mng, networkStruct.Get, URL+"/luck-tendency/almanac", map[string]interface{}{
 		"date": date,
 	}, &AlmanacResp{})
 }
