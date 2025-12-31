@@ -13,12 +13,14 @@ const URL = "https://jmhlysjjr.market.alicloudapi.com"
 // 以下方法均为聚美智数在阿里云市场中提供的服务
 // https://market.aliyun.com/detail/cmapi00066017?spm=5176.730005.result.2.325e414avf3OMU&innerSource=search_%E6%97%A5%E5%8E%86#sku=yuncode6001700003
 type CalendarMng struct {
+	Debug  bool
 	Config *configStruct.AliApiConfig
 }
 
 // NewCalendarMng : 返回日历管理器
-func NewCalendarMng(config *configStruct.AliApiConfig) *CalendarMng {
+func NewCalendarMng(config *configStruct.AliApiConfig, Debug bool) *CalendarMng {
 	return &CalendarMng{
+		Debug:  Debug,
 		Config: config,
 	}
 }
@@ -40,7 +42,7 @@ func request[T any](
 			"Authorization": "APPCODE " + mng.Config.AppCode,
 		},
 		respStruct,
-		false,
+		mng.Debug,
 	)
 
 	if err != nil {
