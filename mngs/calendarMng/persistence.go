@@ -3,6 +3,8 @@ package calendarMng
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -154,11 +156,11 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 		ji := ""
 
 		if almanac != nil {
-			lunarYear = almanac.Ganzhi
-			lunarDate = almanac.Nongli
-			shengxiao = almanac.Shengxiao
+			lunarYear = lunarYearOnly(almanac.Ganzhi)
+			lunarDate = shortLunar(almanac.Nongli)
+			shengxiao = strings.TrimPrefix(almanac.Shengxiao, "属")
 			xingzuo = almanac.Xingzuo
-			jieqi24 = almanac.Jieqi24
+			jieqi24 = jieqiName(dateStr, almanac.Jieqi24) // 仅当日匹配，返回节气名
 			if almanac.Yi != "" {
 				yi = strings.Join(splitClean(almanac.Yi), "、")
 			}
@@ -254,7 +256,62 @@ func shortLunar(nongli string) string {
 	})
 	base := parts[0]
 	if idx := strings.LastIndex(base, "年"); idx >= 0 && idx+len("年") < len(base) {
-		return strings.Trim(base[idx+len("年"):], "()")
+		val := base[idx+len("年"):]
+		val = strings.ReplaceAll(val, "(大)", "")
+		val = strings.ReplaceAll(val, "(小)", "")
+		val = strings.Trim(val, "()")
+		return val
 	}
+	base = strings.ReplaceAll(base, "(大)", "")
+	base = strings.ReplaceAll(base, "(小)", "")
 	return base
+}
+
+// helper: 从干支串取年份（如“乙巳年 丁亥月 己酉日” -> “乙巳年”）
+func lunarYearOnly(ganzhi string) string {
+	if ganzhi == "" {
+		return ""
+	}
+	fields := strings.Fields(ganzhi)
+	if len(fields) > 0 {
+		return fields[0]
+	}
+	return strings.TrimSpace(ganzhi)
+}
+
+// helper: 仅当节气包含当天日期时返回，否则空
+// jieqi24 形如 “12月7日大雪 12月21日冬至”
+func jieqiOfDate(dateStr, jieqi24 string) string {
+	if jieqi24 == "" || len(dateStr) != 8 {
+		return ""
+	}
+	month, _ := strconv.Atoi(dateStr[4:6])
+	day, _ := strconv.Atoi(dateStr[6:8])
+	if month == 0 || day == 0 {
+		return ""
+	}
+	prefix1 := fmt.Sprintf("%d月%d日", month, day)
+	prefix2 := fmt.Sprintf("%02d月%02d日", month, day)
+	for _, seg := range strings.Fields(jieqi24) {
+		if strings.HasPrefix(seg, prefix1) || strings.HasPrefix(seg, prefix2) {
+			return seg
+		}
+	}
+	return ""
+}
+
+// helper: 提取当天的节气名称（去掉日期前缀），无则返回空
+func jieqiName(dateStr, jieqi24 string) string {
+	seg := jieqiOfDate(dateStr, jieqi24)
+	if seg == "" {
+		return ""
+	}
+	if idx := strings.Index(seg, "日"); idx >= 0 && idx+len("日") < len(seg) {
+		return strings.TrimSpace(seg[idx+len("日"):])
+	}
+	parts := strings.Fields(seg)
+	if len(parts) > 0 {
+		return parts[len(parts)-1]
+	}
+	return strings.TrimSpace(seg)
 }
