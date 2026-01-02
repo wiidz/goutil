@@ -123,7 +123,8 @@ func (r *CalendarDayRepo) DeleteByDate(ctx context.Context, date string) error {
 }
 
 // SyncRangeFromAPI 调用 calendarMng 接口获取 [startDate,endDate]（YYYYMMDD）数据并落库
-func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng, startDate, endDate string) error {
+// overwrite: 为 true 时覆盖已存在记录；为 false 时跳过已存在日期
+func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng, startDate, endDate string, overwrite bool) error {
 	start, err := time.Parse("20060102", startDate)
 	if err != nil {
 		return err
@@ -136,9 +137,25 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 		return errors.New("endDate before startDate")
 	}
 
+	exists := map[string]struct{}{}
+	if !overwrite {
+		// 预先拉取已存在的数据，避免逐条查询
+		if existed, err := r.ListByRange(ctx, startDate, endDate); err == nil {
+			for _, d := range existed {
+				exists[d.Date] = struct{}{}
+			}
+		}
+	}
+
 	var toSave []*CalendarDay
 	for curr := start; !curr.After(end); curr = curr.AddDate(0, 0, 1) {
 		dateStr := curr.Format("20060102")
+
+		if !overwrite {
+			if _, ok := exists[dateStr]; ok {
+				continue
+			}
+		}
 
 		holidayDetail, _ := mng.GetHolidayDetail(dateStr, "1")
 		almanac, _ := mng.GetAlmanac(dateStr)
@@ -172,15 +189,20 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 
 		holiday := ""
 		holidayRemark := ""
-		isRest := weekDay == 0 || weekDay == 6
+		baseRest := weekDay == 0 || weekDay == 6
 		if holidayDetail != nil {
 			if holidayDetail.Holiday != "无" {
 				holiday = holidayDetail.Holiday
 			}
 			holidayRemark = holidayDetail.HolidayRemark
-			isRest = holidayDetail.Type == "2" || holidayDetail.Type == "3" || isRest
+			baseRest = holidayDetail.Type == "2" || holidayDetail.Type == "3" || baseRest
 		}
 		isAdjust := strings.Contains(holidayRemark, "调休")
+		// 调休的含义：原为休息日但需上班，因此设置为工作日
+		isRest := baseRest
+		if isAdjust {
+			isRest = false
+		}
 
 		festival, festivalRaw := parseFestival(almanac)
 
