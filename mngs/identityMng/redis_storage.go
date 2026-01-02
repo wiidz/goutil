@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"sync"
 	"time"
 
 	"github.com/click33/sa-token-go/core/adapter"
@@ -19,13 +20,15 @@ type RedisStorage struct {
 }
 
 func init() {
-	// Register common types that Sa-Token stores.
-	gob.Register(&security.RefreshTokenInfo{})
-	gob.Register(security.RefreshTokenInfo{})
-	gob.Register(map[string]any{})
-	gob.Register([]string{})
-	gob.Register(int64(0))
-	gob.Register("")
+	var once sync.Once
+	once.Do(func() {
+		// Register common types that Sa-Token stores.
+		gob.Register(&security.RefreshTokenInfo{})
+		gob.Register(map[string]any{})
+		gob.Register([]string{})
+		gob.Register(int64(0))
+		gob.Register("")
+	})
 }
 
 // NewRedisStorage creates a Storage backed by go-redis.
