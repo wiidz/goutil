@@ -24,7 +24,8 @@ type CalendarDay struct {
 
 	Xingzuo string `gorm:"size:16" json:"xingzuo"` // 星座
 
-	Festival string `gorm:"size:32" json:"festival,omitempty"` // 当天的节日名称（除了法定节日外，植树节、青年节等）
+	Festival    string `gorm:"size:32" json:"festival,omitempty"`     // 当天的节日名称（处理后仅一个）
+	FestivalRaw string `gorm:"size:64" json:"festival_raw,omitempty"` // 接口原始节日（空格替换为逗号）
 
 	Holiday         string `gorm:"size:32" json:"holiday,omitempty"`                // 假日名称（元旦节，春节，清明节，劳动节，端午节，国庆节、中秋节）
 	IsRest          bool   `gorm:"not null;default:false" json:"is_rest"`           // 是否是休息日（包含法定节假日和周末）
@@ -173,22 +174,21 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 		holidayRemark := ""
 		isRest := weekDay == 0 || weekDay == 6
 		if holidayDetail != nil {
-			holiday = holidayDetail.Holiday
+			if holidayDetail.Holiday != "无" {
+				holiday = holidayDetail.Holiday
+			}
 			holidayRemark = holidayDetail.HolidayRemark
 			isRest = holidayDetail.Type == "2" || holidayDetail.Type == "3" || isRest
 		}
 		isAdjust := strings.Contains(holidayRemark, "调休")
 
-		festival := ""
-		if almanac != nil && almanac.Jieri != "" {
-			festival = almanac.Jieri
-		}
+		festival, festivalRaw := parseFestival(almanac)
 
 		simpleMark := firstNonEmpty(
 			nonWorkHoliday(holiday),
 			festival,
 			jieqi24,
-			shortLunar(lunarDate),
+			shortLunarDay(lunarDate),
 		)
 
 		day := &CalendarDay{
@@ -201,6 +201,7 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 			Jieqi24:         jieqi24,
 			Xingzuo:         xingzuo,
 			Festival:        festival,
+			FestivalRaw:     festivalRaw,
 			Holiday:         holiday,
 			IsRest:          isRest,
 			IsAdjustWorkday: isAdjust,
@@ -267,6 +268,15 @@ func shortLunar(nongli string) string {
 	return base
 }
 
+// helper: 仅保留农历日（去掉月份），如 “十一月初八” -> “初八”
+func shortLunarDay(nongli string) string {
+	base := shortLunar(nongli)
+	if idx := strings.LastIndex(base, "月"); idx >= 0 && idx+len("月") < len(base) {
+		return strings.TrimSpace(base[idx+len("月"):])
+	}
+	return base
+}
+
 // helper: 从干支串取年份（如“乙巳年 丁亥月 己酉日” -> “乙巳年”）
 func lunarYearOnly(ganzhi string) string {
 	if ganzhi == "" {
@@ -314,4 +324,34 @@ func jieqiName(dateStr, jieqi24 string) string {
 		return parts[len(parts)-1]
 	}
 	return strings.TrimSpace(seg)
+}
+
+// helper: 处理节日，返回（处理后的单个节日, 原始节日用英文逗号分隔）
+func parseFestival(almanac *AlmanacData) (festival string, raw string) {
+	if almanac == nil || strings.TrimSpace(almanac.Jieri) == "" {
+		return "", ""
+	}
+
+	// 原始：空格拆分，多节日以逗号连接
+	tokens := strings.Fields(almanac.Jieri)
+	raw = strings.Join(tokens, ",")
+	if len(tokens) == 0 {
+		return "", ""
+	}
+
+	important := map[string]bool{
+		"元旦": true, "春节": true, "清明节": true, "劳动节": true, "端午节": true, "中秋节": true, "国庆节": true,
+		"妇女节": true, "青年节": true, "儿童节": true, "建军节": true, "元宵节": true, "七夕节": true,
+		"中元节": true, "重阳节": true, "腊八节": true, "祭灶节": true, "除夕": true, "情人节": true,
+		"愚人节": true, "母亲节": true, "父亲节": true, "平安夜": true, "圣诞节": true,
+	}
+
+	for _, t := range tokens {
+		if important[t] {
+			return t, raw
+		}
+	}
+
+	// 如果没有落在重点列表，取第一个
+	return tokens[0], raw
 }
