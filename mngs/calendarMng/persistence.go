@@ -352,6 +352,6 @@ func parseFestival(almanac *AlmanacData) (festival string, raw string) {
 		}
 	}
 
-	// 如果没有落在重点列表，取第一个
-	return tokens[0], raw
+	// 不在重点列表则 festival 留空，仅保留 raw
+	return "", raw
 }
