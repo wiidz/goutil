@@ -296,6 +296,7 @@ type MyRequestParams struct {
 	Headers     map[string]string      // 请求头参数
 	Params      map[string]interface{} // 请求参数
 	ResStruct   interface{}            // 要被解析成的结构体
+	Debug       bool                   // 是否调试
 }
 
 // MyRequestResp 自己定义的请求返回

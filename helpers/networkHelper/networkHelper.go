@@ -1001,6 +1001,13 @@ func MyRequest(params *networkStruct.MyRequestParams) (resData *networkStruct.My
 		body = strings.NewReader(param.Encode())
 	}
 
+	if params.Debug {
+		fmt.Printf("[MyRequest] => %s %s\n", params.Method.String(), parsedURL.String())
+		fmt.Printf("[MyRequest] headers=%v\n", params.Headers)
+		fmt.Printf("[MyRequest] contentType=%s\n", params.ContentType.GetContentTypeStr())
+		fmt.Printf("[MyRequest] params=%v\n", params.Params)
+	}
+
 	//【4】创建请求
 	request, err := http.NewRequest(params.Method.String(), parsedURL.String(), body)
 	if err != nil {
@@ -1032,10 +1039,19 @@ func MyRequest(params *networkStruct.MyRequestParams) (resData *networkStruct.My
 	var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 	err = json2.Unmarshal(resStr, params.ResStruct)
 	if err != nil {
+		if params.Debug {
+			fmt.Printf("[MyRequest] unmarshal failed: %v\n", err)
+		}
 		err = nil // 解析失败不报错
 	} else {
 		resData.ResStruct = params.ResStruct
 		resData.IsParsedSuccess = true
+	}
+
+	if params.Debug {
+		fmt.Printf("[MyRequest] <= status=%d\n", resData.StatusCode)
+		fmt.Printf("[MyRequest] body=%s\n", resData.ResStr)
+		fmt.Printf("[MyRequest] parsed=%v\n", resData.IsParsedSuccess)
 	}
 
 	//【8】返回

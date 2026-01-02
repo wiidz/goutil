@@ -52,9 +52,9 @@ type CalendarDayRepo struct {
 	table string
 }
 
-// NewCalendarDayRepo 允许自定义表名，默认 "calendar_days"
+// NewCalendarDayRepo 允许自定义表名，默认 "a_calendar"
 func NewCalendarDayRepo(db *gorm.DB, tableName ...string) *CalendarDayRepo {
-	t := "calendar_days"
+	t := "a_calendar"
 	if len(tableName) > 0 && tableName[0] != "" {
 		t = tableName[0]
 	}
@@ -65,7 +65,7 @@ func (r *CalendarDayRepo) AutoMigrate(ctx context.Context) error {
 	return r.db.WithContext(ctx).Table(r.table).AutoMigrate(&CalendarDay{})
 }
 
-// EnsureTable 确保表存在（默认表名 calendar_days）
+// EnsureTable 确保表存在（默认表名 a_calendar)
 func (r *CalendarDayRepo) EnsureTable(ctx context.Context) error {
 	return r.AutoMigrate(ctx)
 }

@@ -43,6 +43,7 @@ func request[T any](
 		},
 		Params:    params,
 		ResStruct: respStruct,
+		Debug:     mng.Debug,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("calendar api request failed: %w", err)
