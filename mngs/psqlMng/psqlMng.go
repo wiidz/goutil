@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // NewMng creates a PostgreSQL manager
@@ -32,7 +33,13 @@ func NewMng(cfg *Config) (*Manager, error) {
 			sqlDB.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 		}
 	}
-	return &Manager{db: db}, nil
+	return &Manager{db: db, config: cfg}, nil
+}
+
+// SetLogger 设置日志
+func (m *Manager) SetLogger(logger logger.Interface) {
+	m.config.Logger = logger
+	m.db.Logger = logger
 }
 
 // AutoMigrate runs gorm automigrate on provided models

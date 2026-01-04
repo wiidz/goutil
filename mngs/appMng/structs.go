@@ -75,6 +75,8 @@ type AppMng struct {
 	}
 
 	IdMng *identityMng.IdentityMng
+
+	Log AppLogger // 日志记录器
 }
 
 // ConfigSource 配置来源类型

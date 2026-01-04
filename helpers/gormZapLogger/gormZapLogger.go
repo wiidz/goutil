@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/wiidz/goutil/helpers/loggerHelper"
 	"go.uber.org/zap/zapcore"
 	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
-	"time"
 )
 
 // Colors
@@ -70,13 +71,13 @@ func GetDefault() (helper *GormZapLogger, err error) {
 func NewGormZapLogger(config *loggerHelper.Config, myConfig *Config) (helper *GormZapLogger, err error) {
 	helper = &GormZapLogger{
 		Config: myConfig,
-		//GormConfig: &gormLogger.Config{
-		//	SlowThreshold:             myConfig.SlowThreshold,
-		//	Colorful:                  myConfig.Colorful,
-		//	IgnoreRecordNotFoundError: myConfig.IgnoreRecordNotFoundError,
-		//	ParameterizedQueries:      myConfig.ParameterizedQueries,
-		//	LogLevel:                  myConfig.LogLevel,
-		//},
+		// GormConfig: &gormLogger.Config{
+		// 	SlowThreshold:             myConfig.SlowThreshold,
+		// 	Colorful:                  myConfig.Colorful,
+		// 	IgnoreRecordNotFoundError: myConfig.IgnoreRecordNotFoundError,
+		// 	ParameterizedQueries:      myConfig.ParameterizedQueries,
+		// 	LogLevel:                  myConfig.LogLevel,
+		// },
 	}
 	helper.LoggerHelper, err = loggerHelper.NewLoggerHelper(config)
 

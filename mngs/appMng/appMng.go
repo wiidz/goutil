@@ -16,15 +16,23 @@ import (
 )
 
 // NewApp 直接构建一个 AppMng。
-func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (appMng *AppMng, err error) {
+func NewApp(ctx context.Context, loggerBuilder AppLogger, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (appMng *AppMng, err error) {
 	// 记录启动开始时间
 	startTime := time.Now()
+
+	//【0】构建日志记录器
+	appMng.Log = loggerBuilder
+	err = appMng.Log.Build()
+	if err != nil {
+		return
+	}
+	log.Printf("✅成功: 日志记录器已构建完成")
 
 	//【1】构建 base 配置
 	var baseCfg *configStruct.BaseConfig
 	baseCfg, err = baseBuilder.Build(configPool)
 	if err != nil {
-		return nil, err
+		return
 	}
 	log.Printf("✅成功: 基础配置已构建完成")
 

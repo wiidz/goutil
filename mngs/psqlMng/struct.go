@@ -19,7 +19,8 @@ type Config struct {
 
 // Manager wraps a gorm DB for PostgreSQL
 type Manager struct {
-	db *gorm.DB
+	db     *gorm.DB
+	config *Config
 }
 
 // DB returns underlying *gorm.DB

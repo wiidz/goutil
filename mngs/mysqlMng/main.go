@@ -3,14 +3,16 @@ package mysqlMng
 import (
 	"errors"
 	"fmt"
-	"github.com/wiidz/goutil/structs/configStruct"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/plugin/dbresolver"
 	"log"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/wiidz/goutil/structs/configStruct"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/plugin/dbresolver"
 )
 
 type MysqlMng struct {
@@ -95,6 +97,12 @@ func (mng *MysqlMng) NewCommonConn() {
 		//WithConditions: true,
 		Logger: mng.config.Logger,
 	})
+}
+
+// SetLogger 设置日志
+func (mng *MysqlMng) SetLogger(logger logger.Interface) {
+	mng.config.Logger = logger
+	mng.db.Logger = logger
 }
 
 // GetConn 获取一个新的会话
