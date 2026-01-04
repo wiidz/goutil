@@ -34,10 +34,11 @@ var TokenStyle = tokenStyle{
 }
 
 type IdentityMng struct {
-	config        *config.Config
+	config33      *config.Config
 	defaultDevice string
 	once          sync.Once
 	Storage       core.Storage // 存储实现（默认 memory）
+	debug         bool
 }
 
 type StorageType string
@@ -58,6 +59,8 @@ type Config struct {
 	RedisClient *redis.Client // 仅当StorageType=redis时需要
 
 	SaConfig *config.Config // 直接传入底层配置（可选）
+
+	Debug bool
 }
 
 // TokenPair 标准令牌对
