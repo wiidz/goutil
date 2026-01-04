@@ -132,3 +132,11 @@ func (mng *IdentityMng) dbg(format string, args ...interface{}) {
 	}
 	log.Printf("[identityMng] "+format, args...)
 }
+
+func (mng *IdentityMng) CheckLogin(token string) error {
+	return stputil.CheckLogin(token)
+}
+
+func (mng *IdentityMng) GetLoginID(token string) (string, error) {
+	return stputil.GetLoginID(token)
+}
