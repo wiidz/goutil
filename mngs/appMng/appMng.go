@@ -118,11 +118,15 @@ func (mng *AppMng) InitIdentityMng(config *identityMng.Config) (err error) {
 			return
 		}
 		config.RedisClient = mng.Repos.Redis.Client
-
-		if err != nil {
-			return err
-		}
 	}
+
 	mng.IdMng, err = identityMng.NewMng(config)
+
+	if err != nil {
+		log.Printf("❌错误: 身份管理器构建失败")
+	} else {
+		log.Printf("✅成功: 身份管理器已构建完成")
+	}
+
 	return
 }
