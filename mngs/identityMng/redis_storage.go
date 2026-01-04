@@ -10,7 +10,6 @@ import (
 	"github.com/click33/sa-token-go/core/adapter"
 	"github.com/click33/sa-token-go/core/security"
 	"github.com/go-redis/redis/v9"
-	redisMng "github.com/wiidz/goutil/mngs/redisMng"
 )
 
 // RedisStorage implements Sa-Token storage on Redis.
@@ -34,14 +33,6 @@ func init() {
 // NewRedisStorage creates a Storage backed by go-redis.
 func NewRedisStorage(client *redis.Client) adapter.Storage {
 	return &RedisStorage{client: client, ctx: context.Background()}
-}
-
-// NewRedisStorageFromMng creates a Storage using redisMng.RedisMng.
-func NewRedisStorageFromMng(mng *redisMng.RedisMng) adapter.Storage {
-	if mng == nil {
-		return nil
-	}
-	return NewRedisStorage(mng.Client)
 }
 
 func (s *RedisStorage) Set(key string, value any, expiration time.Duration) error {

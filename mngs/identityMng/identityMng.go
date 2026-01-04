@@ -16,26 +16,40 @@ import (
 var setOnce sync.Once
 
 // NewMng 创建实例（可多实例，首次创建时初始化 Sa-Token 全局管理器）
-func NewMng(in *Config) (*IdentityMng, error) {
-	cfg := in
-	if cfg == nil {
-		cfg = &Config{}
+func NewMng(config *Config) (mng *IdentityMng, err error) {
+
+	if config == nil {
+		err = errors.New("config is required")
+		return
 	}
 
-	saCfg, err := generateSaConfig(cfg)
+	saCfg, err := generateSaConfig(config)
 	if err != nil {
-		return nil, err
-	}
-	if cfg.Storage == nil {
-		cfg.Storage = memory.NewStorage()
+		return
 	}
 
-	mng := &IdentityMng{config: saCfg, defaultDevice: cfg.DefaultDevice}
+	mng = &IdentityMng{config: saCfg, defaultDevice: config.DefaultDevice}
+
+	if config.StorageType == "" {
+		mng.Storage = memory.NewStorage()
+	} else {
+		switch config.StorageType {
+		case Memory:
+			mng.Storage = memory.NewStorage()
+		case Redis:
+			if config.RedisClient == nil {
+				err = errors.New("redis client is required")
+				return
+			}
+			mng.Storage = NewRedisStorage(config.RedisClient)
+		}
+	}
+
 	setOnce.Do(func() {
-		manager := sagin.NewManager(cfg.Storage, saCfg)
+		manager := sagin.NewManager(mng.Storage, saCfg)
 		sagin.SetManager(manager)
 	})
-	return mng, nil
+	return
 }
 
 // generateSaConfig 构建配置

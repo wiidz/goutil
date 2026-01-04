@@ -6,6 +6,7 @@ import (
 
 	"github.com/click33/sa-token-go/core"
 	"github.com/click33/sa-token-go/core/config"
+	"github.com/go-redis/redis/v9"
 )
 
 type tokenStyle = struct {
@@ -36,7 +37,15 @@ type IdentityMng struct {
 	config        *config.Config
 	defaultDevice string
 	once          sync.Once
+	Storage       core.Storage // 存储实现（默认 memory）
 }
+
+type StorageType string
+
+const (
+	Redis  StorageType = "redis"
+	Memory StorageType = "memory"
+)
 
 // Config
 type Config struct {
@@ -45,8 +54,10 @@ type Config struct {
 	Timeout       time.Duration     // token有效期（单位：Duration，将转换为秒）
 	DefaultDevice string            // 设备默认值（device 为空时使用）
 
+	StorageType StorageType   // 存储类型（memory/redis），为空则走默认
+	RedisClient *redis.Client // 仅当StorageType=redis时需要
+
 	SaConfig *config.Config // 直接传入底层配置（可选）
-	Storage  core.Storage   // 存储实现（默认 memory）
 }
 
 // TokenPair 标准令牌对
