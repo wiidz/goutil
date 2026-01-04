@@ -65,8 +65,9 @@ func (s *RedisStorage) Get(key string) (any, error) {
 	}
 	var out any
 	if err := gob.NewDecoder(bytes.NewReader(b)).Decode(&out); err != nil {
-		s.dbg("Get key=%s err=%v", key, err)
-		return nil, err
+		// 兼容纯字符串/JSON 直接存储的场景（非 gob 编码）
+		s.dbg("Get key=%s gob decode err=%v, fallback to raw string", key, err)
+		return string(b), nil
 	}
 	s.dbg("Get key=%s out=%v", key, out)
 	return out, nil
