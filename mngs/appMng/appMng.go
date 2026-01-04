@@ -19,6 +19,7 @@ import (
 func NewApp(ctx context.Context, loggerBuilder AppLogger, configPool *ConfigPool, baseBuilder ConfigBuilder, projectBuilder ProjectConfig) (appMng *AppMng, err error) {
 	// 记录启动开始时间
 	startTime := time.Now()
+	appMng = &AppMng{}
 
 	//【0】构建日志记录器
 	appMng.Log = loggerBuilder
@@ -35,11 +36,8 @@ func NewApp(ctx context.Context, loggerBuilder AppLogger, configPool *ConfigPool
 		return
 	}
 	log.Printf("✅成功: 基础配置已构建完成")
-
-	appMng = &AppMng{
-		ID:         baseCfg.Profile.ID,
-		BaseConfig: baseCfg,
-	}
+	appMng.ID = baseCfg.Profile.ID
+	appMng.BaseConfig = baseCfg
 
 	// 【3】初始化依赖
 	if appMng.BaseConfig.Mysql != nil && appMng.Repos.Mysql == nil {
