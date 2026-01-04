@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"log"
 	"sync"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 type RedisStorage struct {
 	client *redis.Client
 	ctx    context.Context
+	debug  bool
 }
 
 func init() {
@@ -31,11 +33,12 @@ func init() {
 }
 
 // NewRedisStorage creates a Storage backed by go-redis.
-func NewRedisStorage(client *redis.Client) adapter.Storage {
-	return &RedisStorage{client: client, ctx: context.Background()}
+func NewRedisStorage(client *redis.Client, debug bool) adapter.Storage {
+	return &RedisStorage{client: client, ctx: context.Background(), debug: debug}
 }
 
 func (s *RedisStorage) Set(key string, value any, expiration time.Duration) error {
+	s.dbg("Set key=%s value=%v expiration=%v", key, value, expiration)
 	if s.client == nil {
 		return redis.ErrClosed
 	}
@@ -47,6 +50,7 @@ func (s *RedisStorage) Set(key string, value any, expiration time.Duration) erro
 }
 
 func (s *RedisStorage) Get(key string) (any, error) {
+	s.dbg("Get key=%s", key)
 	if s.client == nil {
 		return nil, redis.ErrClosed
 	}
@@ -65,6 +69,7 @@ func (s *RedisStorage) Get(key string) (any, error) {
 }
 
 func (s *RedisStorage) Delete(keys ...string) error {
+	s.dbg("Delete keys=%v", keys)
 	if s.client == nil {
 		return redis.ErrClosed
 	}
@@ -72,6 +77,7 @@ func (s *RedisStorage) Delete(keys ...string) error {
 }
 
 func (s *RedisStorage) Exists(key string) bool {
+	s.dbg("Exists key=%s", key)
 	if s.client == nil {
 		return false
 	}
@@ -112,4 +118,11 @@ func (s *RedisStorage) Ping() error {
 		return redis.ErrClosed
 	}
 	return s.client.Ping(s.ctx).Err()
+}
+
+func (s *RedisStorage) dbg(format string, args ...interface{}) {
+	if s == nil || !s.debug {
+		return
+	}
+	log.Printf("[identityMng-redis] "+format, args...)
 }

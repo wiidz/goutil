@@ -42,7 +42,7 @@ func NewMng(config *Config) (mng *IdentityMng, err error) {
 				err = errors.New("redis client is required")
 				return
 			}
-			mng.Storage = NewRedisStorage(config.RedisClient)
+			mng.Storage = NewRedisStorage(config.RedisClient, config.Debug)
 		}
 	}
 	mng.dbg("init storage=%T storageType=%s redisNil=%v", mng.Storage, config.StorageType, config.RedisClient == nil)
