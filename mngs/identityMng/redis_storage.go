@@ -42,11 +42,18 @@ func (s *RedisStorage) Set(key string, value any, expiration time.Duration) erro
 	if s.client == nil {
 		return redis.ErrClosed
 	}
-	var buf bytes.Buffer
-	if err := gob.NewEncoder(&buf).Encode(value); err != nil {
-		return err
+	switch v := value.(type) {
+	case string:
+		return s.client.Set(s.ctx, key, v, expiration).Err()
+	case []byte:
+		return s.client.Set(s.ctx, key, v, expiration).Err()
+	default:
+		var buf bytes.Buffer
+		if err := gob.NewEncoder(&buf).Encode(value); err != nil {
+			return err
+		}
+		return s.client.Set(s.ctx, key, buf.Bytes(), expiration).Err()
 	}
-	return s.client.Set(s.ctx, key, buf.Bytes(), expiration).Err()
 }
 
 func (s *RedisStorage) Get(key string) (any, error) {
@@ -63,13 +70,28 @@ func (s *RedisStorage) Get(key string) (any, error) {
 		s.dbg("Get key=%s err=%v", key, err)
 		return nil, err
 	}
+	// 优先按 string 返回，常用 token/account/session 都是字符串
+	return string(b), nil
+}
+
+// gobGet 尝试按 gob 解码（用于 refresh 等结构体）
+func (s *RedisStorage) gobGet(key string) (any, error) {
+	s.dbg("gobGet key=%s", key)
+	if s.client == nil {
+		return nil, redis.ErrClosed
+	}
+	b, err := s.client.Get(s.ctx, key).Bytes()
+	if err == redis.Nil {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
 	var out any
 	if err := gob.NewDecoder(bytes.NewReader(b)).Decode(&out); err != nil {
-		// 兼容纯字符串/JSON 直接存储的场景（非 gob 编码）
-		s.dbg("Get key=%s gob decode err=%v, fallback to raw string", key, err)
-		return string(b), nil
+		return nil, err
 	}
-	s.dbg("Get key=%s out=%v", key, out)
+	s.dbg("gobGet key=%s out=%v", key, out)
 	return out, nil
 }
 
