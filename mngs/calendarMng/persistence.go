@@ -192,7 +192,7 @@ func (r *CalendarDayRepo) SyncRangeFromAPI(ctx context.Context, mng *CalendarMng
 		baseRest := weekDay == 0 || weekDay == 6
 		if holidayDetail != nil {
 			if holidayDetail.Holiday != "无" {
-				holiday = holidayDetail.Holiday
+			holiday = holidayDetail.Holiday
 			}
 			holidayRemark = holidayDetail.HolidayRemark
 			baseRest = holidayDetail.Type == "2" || holidayDetail.Type == "3" || baseRest

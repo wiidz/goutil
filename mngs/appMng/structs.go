@@ -5,6 +5,7 @@ import (
 
 	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
+	"github.com/wiidz/goutil/mngs/identityMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
@@ -72,6 +73,8 @@ type AppMng struct {
 		Es       *esMng.EsMng
 		RabbitMQ *amqpMng.RabbitMQ
 	}
+
+	IdMng *identityMng.IdentityMng
 }
 
 // ConfigSource 配置来源类型

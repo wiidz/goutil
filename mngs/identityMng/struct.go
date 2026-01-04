@@ -56,7 +56,7 @@ type Config struct {
 	DefaultDevice string            // 设备默认值（device 为空时使用）
 
 	StorageType StorageType   // 存储类型（memory/redis），为空则走默认
-	RedisClient *redis.Client // 仅当StorageType=redis时需要
+	RedisClient *redis.Client // 仅当StorageType=redis时需要，如果是appMng启动时，可以不传
 
 	SaConfig *config.Config // 直接传入底层配置（可选）
 

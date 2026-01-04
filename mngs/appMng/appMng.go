@@ -2,11 +2,13 @@ package appMng
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
 	"github.com/wiidz/goutil/mngs/amqpMng"
 	"github.com/wiidz/goutil/mngs/esMng"
+	"github.com/wiidz/goutil/mngs/identityMng"
 	"github.com/wiidz/goutil/mngs/mysqlMng"
 	"github.com/wiidz/goutil/mngs/psqlMng"
 	"github.com/wiidz/goutil/mngs/redisMng"
@@ -61,6 +63,7 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 		}
 		log.Printf("✅成功: Redis 连接已初始化")
 	}
+
 	if appMng.BaseConfig.Es != nil {
 		if err = esMng.Init(appMng.BaseConfig.Es); err != nil {
 			err = errFactory.esInitFailed(err)
@@ -104,5 +107,22 @@ func NewApp(ctx context.Context, configPool *ConfigPool, baseBuilder ConfigBuild
 	// 计算启动耗时
 	elapsed := time.Since(startTime)
 	log.Printf("✅成功: 应用初始化完成 (ID: %s, 名称: %s, 版本: %s, 耗时: %v)", appMng.ID, appMng.BaseConfig.Profile.Name, appMng.BaseConfig.Profile.Version, elapsed)
+	return
+}
+
+func (mng *AppMng) InitIdentityMng(config *identityMng.Config) (err error) {
+
+	if config.StorageType == "redis" {
+		if mng.Repos.Redis.Client == nil {
+			err = errors.New("redis client is nil")
+			return
+		}
+		config.RedisClient = mng.Repos.Redis.Client
+
+		if err != nil {
+			return err
+		}
+	}
+	mng.IdMng, err = identityMng.NewMng(config)
 	return
 }
