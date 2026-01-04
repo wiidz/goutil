@@ -56,15 +56,19 @@ func (s *RedisStorage) Get(key string) (any, error) {
 	}
 	b, err := s.client.Get(s.ctx, key).Bytes()
 	if err == redis.Nil {
+		s.dbg("Get key=%s err=redis.Nil", key)
 		return nil, nil
 	}
 	if err != nil {
+		s.dbg("Get key=%s err=%v", key, err)
 		return nil, err
 	}
 	var out any
 	if err := gob.NewDecoder(bytes.NewReader(b)).Decode(&out); err != nil {
+		s.dbg("Get key=%s err=%v", key, err)
 		return nil, err
 	}
+	s.dbg("Get key=%s out=%v", key, out)
 	return out, nil
 }
 
@@ -73,7 +77,9 @@ func (s *RedisStorage) Delete(keys ...string) error {
 	if s.client == nil {
 		return redis.ErrClosed
 	}
-	return s.client.Del(s.ctx, keys...).Err()
+	err := s.client.Del(s.ctx, keys...).Err()
+	s.dbg("Delete keys=%v err=%v", keys, err)
+	return err
 }
 
 func (s *RedisStorage) Exists(key string) bool {
@@ -82,6 +88,7 @@ func (s *RedisStorage) Exists(key string) bool {
 		return false
 	}
 	n, err := s.client.Exists(s.ctx, key).Result()
+	s.dbg("Exists key=%s n=%d err=%v", key, n, err)
 	return err == nil && n > 0
 }
 
