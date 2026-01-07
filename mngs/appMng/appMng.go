@@ -46,6 +46,8 @@ func NewApp(ctx context.Context, loggerBuilder AppLogger, configPool *ConfigPool
 			return
 		}
 		log.Printf("✅成功: MySQL 数据库连接已初始化")
+		appMng.Repos.Mysql.SetLogger(appMng.Log.GetGorm())
+		log.Printf("✅成功: MySQL 数据库日志已初始化")
 	}
 
 	if appMng.BaseConfig.Postgres != nil && appMng.Repos.Postgres == nil {
@@ -60,6 +62,8 @@ func NewApp(ctx context.Context, loggerBuilder AppLogger, configPool *ConfigPool
 			return
 		}
 		log.Printf("✅成功: PostgreSQL 数据库连接已初始化")
+		appMng.Repos.Postgres.SetLogger(appMng.Log.GetGorm())
+		log.Printf("✅成功: PostgreSQL 数据库日志已初始化")
 	}
 
 	if appMng.BaseConfig.Redis != nil {

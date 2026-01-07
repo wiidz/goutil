@@ -16,7 +16,7 @@ import (
 type Config struct {
 	Filename      string              // 输出的log文件路径
 	Level         zapcore.Level       // 输出限制等级
-	Json          bool                // 是否以json格式输出
+	Json          bool                // 是否以json格式输出到文本（仅输出到文件，json输出到控制台可读性太差了，强制不要）
 	SyncToConsole bool                // 是否同步到控制台（仅文本时生效）
 	EncodeTime    zapcore.TimeEncoder // 时间格式 如 zapcore.ISO8601TimeEncoder
 
@@ -46,6 +46,15 @@ type LoggerHelper struct {
 	Sugar *zap.SugaredLogger // 短小精悍
 
 	// 统一通过 zapcore.NewTee 输出到多个目标
+}
+
+// Sync 将底层 logger 的缓冲区刷新到输出
+// 仅在进程退出或需要确保落盘时调用
+func (helper *LoggerHelper) Sync() error {
+	if helper == nil || helper.Normal == nil {
+		return nil
+	}
+	return helper.Normal.Sync()
 }
 
 // MyTimeEncoder 自定义的时间encoder
