@@ -256,8 +256,8 @@ type AliApiConfig struct {
 
 // AliOssConfig oss参数
 type AliOssConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
+	AccessKeyID     string `gorm:"column:access_key_id;type:varchar(128)" json:"access_key_id" mapstructure:"access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:access_key_secret;type:varchar(128)" json:"access_key_secret" mapstructure:"access_key_secret" validate:"required"`
 	Host            string `gorm:"column:oss_host;type:varchar(128)" json:"oss_host" mapstructure:"oss_host"`
 	EndPoint        string `gorm:"column:oss_end_point;type:varchar(128)" json:"oss_end_point" mapstructure:"oss_end_point" validate:"required"`
 	BucketName      string `gorm:"column:oss_bucket_name;type:varchar(128)" json:"oss_bucket_name" mapstructure:"oss_bucket_name" validate:"required"`
@@ -267,21 +267,21 @@ type AliOssConfig struct {
 
 // AliSmsConfig 阿里云短信服务的配置
 type AliSmsConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
+	AccessKeyID     string `gorm:"column:access_key_id;type:varchar(128)" json:"access_key_id" mapstructure:"access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:access_key_secret;type:varchar(128)" json:"access_key_secret" mapstructure:"access_key_secret" validate:"required"`
 }
 
 // AliRamConfig 阿里云RAM访问控制的账号和密码
 type AliRamConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret"`
+	AccessKeyID     string `gorm:"column:access_key_id;type:varchar(128)" json:"access_key_id" mapstructure:"access_key_id"`
+	AccessKeySecret string `gorm:"column:access_key_secret;type:varchar(128)" json:"access_key_secret" mapstructure:"access_key_secret"`
 }
 
 // AliIotConfig 阿里云物联网的基本配置（每个实例单独放）
 // 因为一个项目用的服务器基本上是一个区域，一个账户，所以以下属性是公用的
 type AliIotConfig struct {
-	AccessKeyID     string `gorm:"column:oss_access_key_id;type:varchar(128)" json:"oss_access_key_id" mapstructure:"oss_access_key_id" validate:"required"`
-	AccessKeySecret string `gorm:"column:oss_access_key_secret;type:varchar(128)" json:"oss_access_key_secret" mapstructure:"oss_access_key_secret" validate:"required"`
+	AccessKeyID     string `gorm:"column:access_key_id;type:varchar(128)" json:"access_key_id" mapstructure:"access_key_id" validate:"required"`
+	AccessKeySecret string `gorm:"column:access_key_secret;type:varchar(128)" json:"access_key_secret" mapstructure:"access_key_secret" validate:"required"`
 	EndPoint        string `gorm:"end_point;type:varchar(128)" json:"end_point" mapstructure:"end_point" validate:"required"`
 	RegionID        string `gorm:"region_id;type:varchar(128)" json:"region_id" mapstructure:"region_id" validate:"required"`
 }
