@@ -81,3 +81,7 @@ func (r *Repo[T]) Delete(ctx context.Context, opts ...Selector) error {
 	qb := apply(r.db.WithContext(ctx), opts...)
 	return qb.Delete(new(T)).Error
 }
+
+func (r *Repo[T]) DB() *gorm.DB {
+	return r.db
+}
