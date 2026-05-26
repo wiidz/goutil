@@ -3,13 +3,12 @@ module github.com/wiidz/goutil
 go 1.23.0
 
 require (
-	github.com/alibabacloud-go/darabonba-openapi v0.1.16
-	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.8
+	github.com/alibabacloud-go/darabonba-openapi v0.1.18
 	github.com/alibabacloud-go/facebody-20200910/v2 v2.0.0
 	github.com/alibabacloud-go/iot-20180120/v2 v2.1.1
 	github.com/alibabacloud-go/ocr-20191230/v2 v2.0.8
-	github.com/alibabacloud-go/tea v1.1.17
-	github.com/alibabacloud-go/tea-utils v1.4.3
+	github.com/alibabacloud-go/tea v1.3.13
+	github.com/alibabacloud-go/tea-utils v1.4.5
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/disintegration/imaging v1.6.2
@@ -52,6 +51,7 @@ require (
 )
 
 require (
+	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.18
 	github.com/click33/sa-token-go/core v0.1.2
 	github.com/click33/sa-token-go/integrations/gin v0.1.2
 	github.com/click33/sa-token-go/storage/memory v0.1.2
@@ -62,24 +62,25 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.4 // indirect
-	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
+	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
+	github.com/alibabacloud-go/debug v1.0.1 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
-	github.com/alibabacloud-go/openapi-util v0.0.11 // indirect
+	github.com/alibabacloud-go/openapi-util v0.1.0 // indirect
 	github.com/alibabacloud-go/openplatform-20191219 v1.1.7 // indirect
 	github.com/alibabacloud-go/tea-fileform v1.1.1 // indirect
 	github.com/alibabacloud-go/tea-oss-sdk v1.1.3 // indirect
 	github.com/alibabacloud-go/tea-oss-utils v1.1.0 // indirect
 	github.com/alibabacloud-go/tea-rpc v1.1.8 // indirect
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
-	github.com/alibabacloud-go/tea-xml v1.1.1 // indirect
-	github.com/aliyun/credentials-go v1.1.2 // indirect
+	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
+	github.com/aliyun/credentials-go v1.4.5 // indirect
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -133,7 +134,7 @@ require (
 	github.com/tidwall/gjson v1.14.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/tjfoc/gmsm v1.3.2 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
