@@ -107,7 +107,7 @@ type RedisConfig struct {
 	Username    string `json:"username" mapstructure:"username"`
 	Password    string `json:"password" mapstructure:"password"`
 	IdleTimeout int    `json:"idle_timeout" mapstructure:"idle_timeout" default:"60"` // 默认60
-	Database    int    `json:"datebase" mapstructure:"datebase" default:"0"`          // 默认0
+	Database    int    `json:"database" mapstructure:"database" default:"0"`          // 默认0
 	MaxActive   int    `json:"max_active" mapstructure:"max_active" default:"10"`     // 默认10
 	MaxIdle     int    `json:"max_idle" mapstructure:"max_idle" default:"10"`         // 默认10
 }

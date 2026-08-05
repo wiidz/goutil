@@ -6,7 +6,7 @@ import (
 
 	"github.com/click33/sa-token-go/core"
 	"github.com/click33/sa-token-go/core/config"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 type tokenStyle = struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 	"github.com/wiidz/goutil/structs/configStruct"
 )
 
@@ -28,7 +28,7 @@ func NewRedisMng(ctx context.Context, redisC *configStruct.RedisConfig) (mng *Re
 		Addr:     redisURL, // 主机名+冒号+端口，默认localhost:6379
 		Username: redisC.Username,
 		Password: redisC.Password, // 密码
-		DB:       0,               // redis数据库index
+		DB:       redisC.Database, // redis数据库index
 
 		// 闲置连接检查包括IdleTimeout，MaxConnAge
 		//DialTimeout:  time.Duration(redisC.IdleTimeout), // 连接建立超时时间，默认5秒

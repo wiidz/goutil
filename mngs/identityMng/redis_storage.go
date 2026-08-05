@@ -10,7 +10,7 @@ import (
 
 	"github.com/click33/sa-token-go/core/adapter"
 	"github.com/click33/sa-token-go/core/security"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 // RedisStorage implements Sa-Token storage on Redis.
