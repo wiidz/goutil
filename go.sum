@@ -120,6 +120,8 @@ github.com/alicebob/miniredis/v2 v2.38.0 h1:nZAzCR+Lj+Vxk4ZXzm2NuKq2O33RXj1XxJ2e
 github.com/alicebob/miniredis/v2 v2.38.0/go.mod h1:TcL7YfarKPGDAthEtl5NBeHZfeUQj6OXMm/+iu5cLMM=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611 h1:RQ06IWayo6Jwk8Hl/vcf4fOiSygbKarh18aJoP+KAKg=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.1611/go.mod h1:RcDobYh8k5VP6TNybz9m++gL3ijVI5wueVr0EM10VsU=
+github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.0 h1:uWzn3io54f9L9mvwsQQSv1KpkkFA06hBxI++RvIyvpI=
+github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.0/go.mod h1:FTzydeQVmR24FI0D6XWUOMKckjXehM/jgMn1xC+DA9M=
 github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible h1:D3gwOr9qUUmyyBRDbpnATqu+EkqqmigFd3Od6xO1QUU=
 github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/aliyun/credentials-go v1.1.2/go.mod h1:ozcZaMR5kLM7pwtCMEpVmQ242suV6qTJya2bDq4X1Tw=

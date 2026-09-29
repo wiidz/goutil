@@ -74,6 +74,7 @@ require (
 	github.com/alibabacloud-go/tea-rpc v1.1.8 // indirect
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
 	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
+	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.0
 	github.com/aliyun/credentials-go v1.4.5 // indirect
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d // indirect
